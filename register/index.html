@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Register | MyanCode</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase Auth Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'] },
+                    colors: { myancode: { black: '#111111', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #fbfbfd; color: #111111; -webkit-font-smoothing: antialiased; }
+        body.no-scroll { overflow: hidden; }
+
+        html[lang="mm"] body { font-size: 14px; line-height: 2; }
+        html[lang="mm"] h3 { font-size: 1.25rem; line-height: 1.7; letter-spacing: normal; }
+        html[lang="mm"] p { font-size: 0.9rem; line-height: 2.2; }
+        html[lang="mm"] .uppercase, html[lang="mm"] .capitalize { text-transform: none; }
+        html[lang="mm"] .tracking-widest, html[lang="mm"] .tracking-wide { letter-spacing: normal; }
+        
+        /* Ultra-Premium Header Styles (Static Glass for sub-pages) */
+        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
+        
+        .hover-underline { position: relative; }
+        .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+        .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-hover-effect:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
+
+        /* Global Loader Animations */
+        #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
+        .progress-line { width: 100%; height: 2px; background-color: #e5e5ea; border-radius: 4px; overflow: hidden; position: relative; }
+        .progress-line::after { content: ''; position: absolute; left: -50%; top: 0; height: 100%; width: 50%; background-color: #111111; border-radius: 4px; animation: lineAnim 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+        @keyframes lineAnim { 0% { left: -50%; width: 50%; } 50% { width: 20%; } 100% { left: 100%; width: 50%; } }
+
+        /* Drawers & Overlays */
+        .search-overlay { transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; opacity: 0; pointer-events: none; }
+        .search-overlay.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .drawer-left { transform: translateX(-100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-left.open { transform: translateX(0); }
+        .drawer-right { transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-right.open { transform: translateX(0); }
+        .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen">
+
+    <!-- GLOBAL ENTERPRISE LOADER -->
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-2xl flex flex-col items-center justify-center opacity-0 pointer-events-none visibility-hidden">
+        <i data-lucide="code-2" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
+        <div class="w-48 max-w-[80vw]"><div class="progress-line"></div></div>
+        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500" data-i18n="loadingAuth">Creating Account...</span>
+    </div>
+
+    <!-- Navigation (Permanent Glass on Sub-pages) -->
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] glass-nav">
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <!-- Logo & Mobile Menu Toggle -->
+                <div class="flex items-center">
+                    <button class="md:hidden mr-4 transition-colors duration-300 text-myancode-black" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="h-5 w-5"></i>
+                    </button>
+                    <a href="../index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
+                        <i data-lucide="code-2" class="h-5 w-5 mr-2 transition-all duration-500 group-hover:rotate-12 text-myancode-black"></i>
+                        <span class="font-semibold text-base sm:text-lg tracking-wide transition-colors duration-300 group-hover:text-myancode-blue text-myancode-black">MyanCode</span>
+                    </a>
+                </div>
+                <!-- Center Links (Desktop) -->
+                <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium">
+                    <a href="../index.html#websites" class="hover-underline transition-colors duration-300 hover:text-myancode-blue text-myancode-black/80" data-i18n="navWebsites">Websites</a>
+                    <a href="../index.html#services" class="hover-underline transition-colors duration-300 hover:text-myancode-blue text-myancode-black/80" data-i18n="navServices">Services</a>
+                    <a href="../index.html#standard" class="hover-underline transition-colors duration-300 hover:text-myancode-blue text-myancode-black/80" data-i18n="navStandard">Standard</a>
+                    <a href="../index.html#process" class="hover-underline transition-colors duration-300 hover:text-myancode-blue text-myancode-black/80" data-i18n="navProcess">Process</a>
+                </div>
+                <!-- Right Icons & Auth -->
+                <div class="flex items-center space-x-4 sm:space-x-5 text-myancode-black">
+                    <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-blue group"><i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i></button>
+                    <div class="relative hidden sm:block" id="langContainer">
+                        <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-blue group"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-4 pb-2 mb-2 border-b border-gray-50 text-[10px] uppercase tracking-widest text-gray-400 font-semibold" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        </div>
+                    </div>
+                    <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
+                    <button onclick="toggleWishlistDrawer()" class="relative transition-colors duration-300 hover:text-myancode-blue group">
+                        <i data-lucide="heart" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-myancode-blue text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ROBUST SEARCH OVERLAY -->
+    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
+        <div class="max-w-[1024px] mx-auto px-6 pt-10">
+            <div class="flex justify-end">
+                <button onclick="toggleSearchOverlay()" class="p-2 text-gray-500 hover:text-black transition-colors rounded-full bg-gray-50 hover:bg-gray-200"><i data-lucide="x" class="h-5 w-5"></i></button>
+            </div>
+            <div class="mt-8 sm:mt-16 max-w-3xl mx-auto">
+                <div class="relative w-full border-b border-gray-300 focus-within:border-myancode-black transition-colors pb-4 flex items-center">
+                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-4"></i>
+                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off" class="w-full text-3xl sm:text-5xl font-semibold text-black bg-transparent border-none outline-none placeholder-gray-200" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+                </div>
+            </div>
+            <div class="mt-16 flex flex-col md:flex-row gap-12 sm:gap-20 max-w-3xl mx-auto">
+                <div class="w-full md:w-1/3">
+                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Links</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../index.html#services" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="ftSEO">SEO Optimization</span></a></li>
+                        <li><a href="../index.html#websites" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="prod1Title">Business & Org</span></a></li>
+                        <li><a href="../index.html#websites" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="prod3Title">Info & Education</span></a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-2/3">
+                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="searchResults">Results</h4>
+                    <div id="megaSearchResults" class="space-y-4"><p class="text-gray-400 text-sm font-light italic" data-i18n="searchHint">Type to discover our enterprise products and services...</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL-SCREEN MOBILE MENU DRAWER -->
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-white/95 backdrop-blur-3xl z-[80] drawer-left flex flex-col overflow-y-auto">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100/50">
+            <span class="font-semibold tracking-wide text-lg text-black">MyanCode</span>
+            <button onclick="toggleMobileMenu()" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-600 hover:text-black"><i data-lucide="x" class="h-5 w-5"></i></button>
+        </div>
+        <div class="flex-1 px-8 py-8 flex flex-col max-w-lg mx-auto w-full">
+            <div class="relative mb-10" onclick="toggleMobileMenu(); toggleSearchOverlay();">
+                <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-400"></i>
+                <input type="text" class="w-full pl-10 py-3 border-b border-gray-300 focus:outline-none text-base pointer-events-none bg-transparent" placeholder="Search..." data-i18n-placeholder="searchPlaceholder">
+            </div>
+            <div class="space-y-8 flex-1 text-lg font-medium tracking-wide capitalize">
+                <a href="../index.html#websites" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navWebsites">Websites</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i></a>
+                <a href="../index.html#services" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i></a>
+                <a href="../index.html#standard" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navStandard">Standard</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i></a>
+                <a href="../index.html#process" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navProcess">Process</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i></a>
+                <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors pt-4"><span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-4 w-4 text-gray-300"></i></button>
+            </div>
+            <div class="border-t border-gray-200 mt-10 pt-8 space-y-6 pb-10">
+                <div id="mobileAuthContainer" class="w-full flex flex-col space-y-6"></div>
+                <button onclick="toggleMobileMenu(); toggleWishlistDrawer();" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize"><span data-i18n="wishlistTitle">Wishlist</span> <i data-lucide="heart" class="h-5 w-5 text-gray-400"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WISHLIST DRAWER -->
+    <div id="wishlistOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
+    <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-gray-100">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100 bg-gray-50/50">
+            <h3 class="font-semibold text-lg tracking-tight flex items-center gap-2"><i data-lucide="heart" class="h-5 w-5 text-myancode-blue fill-myancode-blue"></i> <span data-i18n="wishlistTitle">My Wishlist</span></h3>
+            <button onclick="toggleWishlistDrawer()" class="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-gray-500 hover:text-black"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+            <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold text-black" id="wishlistTotal">0 MMK</span></div>
+            <button class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Main Content for Register Form -->
+    <main class="flex-grow flex items-center justify-center px-4 pt-32 pb-24 w-full relative z-10">
+        <div class="bg-white rounded-[2rem] p-8 sm:p-10 w-full max-w-sm shadow-2xl relative border border-gray-100">
+            <div class="flex items-center justify-center mb-8 text-myancode-black cursor-pointer" onclick="window.location.href='../index.html'">
+                <i data-lucide="code-2" class="h-6 w-6 mr-2"></i>
+                <span class="font-semibold tracking-wide text-lg">MyanCode</span>
+            </div>
+
+            <h3 class="text-2xl font-semibold mb-8 text-black tracking-tight" data-i18n="regTitle">Register</h3>
+            
+            <form onsubmit="handleRegister(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblName">Full Name</label>
+                    <input type="text" id="regName" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblEmail">Email</label>
+                    <input type="email" id="regEmail" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblPass">Password</label>
+                    <input type="password" id="regPass" oninput="checkPasswordStrength(this.value)" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
+                    
+                    <div class="mt-3 flex items-center justify-between opacity-0 transition-opacity duration-300" id="pwdStrengthContainer">
+                        <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden mr-3 flex">
+                            <div id="pwdStrengthBar" class="h-full w-0 bg-red-500 transition-all duration-500 ease-out"></div>
+                        </div>
+                        <span id="pwdStrengthText" class="text-[9px] font-bold uppercase tracking-widest text-gray-400 min-w-[70px] text-right"></span>
+                    </div>
+                </div>
+                <button type="submit" class="w-full btn-hover-effect bg-black text-white py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-md mt-6" data-i18n="btnRegSubmit">Create Account</button>
+            </form>
+
+            <p class="text-center text-xs text-gray-500 mt-8 font-medium">
+                <span data-i18n="hasAccount">Already have an account?</span> 
+                <a href="../login/index.html" class="text-myancode-blue hover-underline font-semibold ml-1" data-i18n="btnLoginSwap">Login</a>
+            </p>
+        </div>
+    </main>
+
+    <!-- Detailed Footer -->
+    <footer class="bg-[#fbfbfd] pt-24 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10">
+        <div class="max-w-[1024px] mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-20">
+                <div>
+                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftCompany">Company</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftAbout">About Us</a></li>
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftContact">Contact Us</a></li>
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftCareers">Careers at MyanCode</a></li>
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftYangon">Yangon Office</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftHelp">Support</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftProject">Project Tracking</a></li>
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftFAQ">Client FAQ</a></li>
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftServicePol">Service Policy</a></li>
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftPrivacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftSolutions">Solutions</h4>
+                    <ul class="space-y-3">
+                        <li><a href="../index.html#websites" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftWebsites">Static Websites</a></li>
+                        <li><a href="../index.html#services" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftSEO">SEO Optimization</a></li>
+                        <li><a href="../index.html#services" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftDomain">Domain Registration</a></li>
+                        <li><a href="../index.html#services" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftMaint">Enterprise Maintenance</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftFollow">Follow Us</h4>
+                    <p class="text-[13px] font-medium text-gray-500 mb-6 leading-relaxed" data-i18n="ftFollowDesc">Keep up-to-date with our latest projects and enterprise tech insights.</p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="facebook" class="h-5 w-5 fill-current"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="instagram" class="h-5 w-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="linkedin" class="h-5 w-5 fill-current"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[11px] text-gray-400 font-medium text-center md:text-left tracking-wide" data-i18n="ftCopyright">&copy; 2026 MyanCode. All rights reserved. Engineered in Yangon.</p>
+                <div class="flex items-center space-x-2 text-gray-400 text-[10px] font-bold tracking-widest uppercase"><span>MMK</span> <span class="h-1 w-1 bg-gray-300 rounded-full"></span> <span>USD</span></div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
+        <span id="toast-msg" class="text-sm font-medium tracking-wide">Success!</span>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        /* --- Global Setup & Auth DB --- */
+        const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
+        let supabaseInstance = null;
+        if (SUPABASE_URL !== 'https://siusyyleokowlfcdiocd.supabase.co') supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let usersDB = JSON.parse(localStorage.getItem('myancode_users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('myancode_currentUser')) || null;
+        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
+        let currentUserWishlist = currentUser && allWishlists[currentUser.email] ? allWishlists[currentUser.email] : [];
+
+        /* --- Language Support & Dict --- */
+        const dict = {
+            en: {
+                navWebsites: "Websites", navServices: "Services", navStandard: "Standard", navProcess: "Process",
+                langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
+                wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", btnCart: "Cart", wlTotal: "Total",
+                quickLinks: "Quick Links", searchResults: "Results", searchHint: "Type to discover our enterprise products and services...",
+                ftCompany: "Company", ftAbout: "About Us", ftContact: "Contact Us", ftCareers: "Careers", ftYangon: "Yangon Office",
+                ftHelp: "Support", ftProject: "Project Tracking", ftFAQ: "Client FAQ", ftServicePol: "Service Policy", ftPrivacy: "Privacy Policy",
+                ftSolutions: "Solutions", ftWebsites: "Static Websites", ftSEO: "SEO Optimization", ftDomain: "Domain Registration", ftMaint: "Enterprise Maintenance",
+                ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest projects and enterprise tech insights.", ftCopyright: "© 2026 MyanCode. All rights reserved. Engineered in Yangon.",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrOrders: "Orders", hdrLogout: "Sign Out", msgLoggedOut: "Signed out securely.",
+                prod1Title: "Business & Org", prod3Title: "Info & Education",
+                
+                regTitle: "Register", lblName: "Full Name", lblEmail: "Email", lblPass: "Password", btnRegSubmit: "Create Account",
+                hasAccount: "Already have an account?", btnLoginSwap: "Login", loadingAuth: "Creating Account...",
+                pwdWeak: "Weak", pwdFair: "Fair", pwdGood: "Good", pwdStrong: "Strong", pwdVeryStrong: "Secure", 
+                pwdRequirement: "Use a strong password (8+ chars, uppercase, number, symbol).", msgVerificationSent: "Verification email sent. Please check your inbox."
+            },
+            mm: {
+                navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
+                langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
+                wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", btnCart: "ဝယ်ယူမည့်စာရင်း", wlTotal: "စုစုပေါင်း",
+                quickLinks: "အမြန်လင့်ခ်များ", searchResults: "ရလဒ်များ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...",
+                ftCompany: "ကုမ္ပဏီ", ftAbout: "ကျွန်ုပ်တို့အကြောင်း", ftContact: "ဆက်သွယ်ရန်", ftCareers: "အလုပ်အကိုင်များ", ftYangon: "ရန်ကုန်ရုံးချုပ်",
+                ftHelp: "အကူအညီ", ftProject: "ပရောဂျက် ခြေရာခံရန်", ftFAQ: "အမေးများသောမေးခွန်းများ", ftServicePol: "ဝန်ဆောင်မှုမူဝါဒ", ftPrivacy: "ကိုယ်ရေးအချက်အလက်မူဝါဒ",
+                ftSolutions: "ဖြေရှင်းချက်များ", ftWebsites: "Static ဝက်ဘ်ဆိုက်များ", ftSEO: "SEO အဆင့်မြှင့်တင်ခြင်း", ftDomain: "ဒိုမိန်းအမည် မှတ်ပုံတင်ခြင်း", ftMaint: "ဝက်ဘ်ဆိုက် ထိန်းသိမ်းခြင်း",
+                ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrOrders: "အော်ဒါများ", hdrLogout: "အကောင့်ထွက်ရန်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
+                prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး",
+                
+                regTitle: "အကောင့်သစ်ဖွင့်ရန်", lblName: "အမည်အပြည့်အစုံ", lblEmail: "အီးမေးလ်", lblPass: "စကားဝှက်", btnRegSubmit: "အကောင့်ဖန်တီးမည်",
+                hasAccount: "အကောင့်ရှိပြီးသားလား?", btnLoginSwap: "အကောင့်ဝင်ရန်", loadingAuth: "အကောင့်ဖန်တီးနေပါသည်...",
+                pwdWeak: "အားနည်း", pwdFair: "အသင့်အတင့်", pwdGood: "ကောင်းမွန်", pwdStrong: "ခိုင်မာ", pwdVeryStrong: "အလွန်ခိုင်မာ", 
+                pwdRequirement: "စကားဝှက် ပိုမိုခိုင်မာရန် လိုအပ်ပါသည် (အက္ခရာ ၈ လုံးအထက်၊ အကြီး၊ အသေး၊ ဂဏန်း၊ သင်္ကေတများ ပါရမည်)။", msgVerificationSent: "အတည်ပြုအီးမေးလ် ပို့လိုက်ပါပြီ။ သင့် Inbox ကို စစ်ဆေးပါ။"
+            }
+        };
+
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+
+        function renderLanguage() {
+            document.documentElement.lang = currentLang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (dict[currentLang][key]) el.placeholder = dict[currentLang][key];
+            });
+            updateAuthUI();
+            if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
+            const passEl = document.getElementById('regPass'); if(passEl && passEl.value) checkPasswordStrength(passEl.value);
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('myancode_lang', currentLang);
+            renderLanguage();
+            document.getElementById('langDropdown').classList.add('dropdown-hidden');
+        }
+
+        function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
+
+        /* --- Header Auth & Wishlist Rendering --- */
+        function updateAuthUI() {
+            const desktopAuth = document.getElementById('desktopAuthContainer');
+            const containerMob = document.getElementById('mobileAuthContainer');
+            
+            if (currentUser) {
+                currentUserWishlist = allWishlists[currentUser.email] || [];
+                desktopAuth.innerHTML = `
+                    <div class="relative" id="profileContainer">
+                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group">
+                            <i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        </button>
+                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
+                            <button onclick="window.location.href='../index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
+                            <button onclick="window.location.href='../index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrOrders}</button>
+                            <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
+                        </div>
+                    </div>`;
+                containerMob.innerHTML = `
+                    <div class="flex justify-between items-center w-full text-gray-800 text-base font-medium tracking-wide border-b border-gray-100 pb-4 mb-2">
+                        <span class="capitalize text-sm font-bold truncate max-w-[200px]">${currentUser.name}</span> <i data-lucide="user-check" class="h-5 w-5 text-myancode-blue"></i>
+                    </div>
+                    <button onclick="window.location.href='../index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
+                    <button onclick="window.location.href='../index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize"><span>${dict[currentLang].hdrOrders}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i></button>
+                    <button onclick="handleLogout()" class="flex justify-between items-center w-full text-red-500 hover:text-red-600 transition-colors text-base font-medium tracking-wide capitalize pb-6 border-b border-gray-200"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5"></i></button>`;
+            } else {
+                currentUserWishlist = [];
+                desktopAuth.innerHTML = `
+                    <a href="../login/index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
+                    <a href="index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+                containerMob.innerHTML = `
+                    <div class="flex flex-col gap-3 pb-6 border-b border-gray-200">
+                        <a href="../login/index.html" class="flex justify-center items-center w-full text-gray-800 bg-gray-100 py-3.5 rounded-xl text-sm font-semibold capitalize">${dict[currentLang].hdrLogin}</a>
+                        <a href="index.html" class="flex justify-center items-center w-full text-white bg-myancode-blue py-3.5 rounded-xl text-sm font-semibold capitalize">${dict[currentLang].hdrRegister}</a>
+                    </div>`;
+            }
+            updateWishlistCount();
+            lucide.createIcons();
+        }
+
+        /* --- Wishlist System --- */
+        function updateWishlistCount() {
+            const countSpan = document.getElementById('wishlist-count');
+            if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } 
+            else { countSpan.classList.add('opacity-0'); }
+        }
+
+        function toggleWishlistDrawer() {
+            if (!currentUser) return showToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ");
+            const drawer = document.getElementById('wishlistDrawer'); const overlay = document.getElementById('wishlistOverlay');
+            if(!drawer.classList.contains('open')) document.getElementById('mobileDrawer').classList.remove('open');
+            drawer.classList.toggle('open'); overlay.classList.toggle('open');
+            if(drawer.classList.contains('open')) { document.body.classList.add('no-scroll'); renderWishlistItems(); } 
+            else { document.body.classList.remove('no-scroll'); }
+        }
+
+        function toggleWishlist(id, name, price) {
+            const index = currentUserWishlist.findIndex(i => i.id === id);
+            if (index > -1) currentUserWishlist.splice(index, 1);
+            else currentUserWishlist.push({ id, name, price });
+            allWishlists[currentUser.email] = currentUserWishlist;
+            localStorage.setItem('myancode_global_wishlists', JSON.stringify(allWishlists));
+            updateWishlistCount(); renderWishlistItems();
+        }
+
+        function renderWishlistItems() {
+            const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal');
+            let total = 0;
+            if (currentUserWishlist.length === 0) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400"><i data-lucide="heart" class="h-12 w-12 mb-4 opacity-50"></i><p class="text-sm font-medium">${dict[currentLang].emptyWishlist}</p></div>`;
+                totalDisplay.textContent = `0 MMK`; lucide.createIcons(); return;
+            }
+            container.innerHTML = currentUserWishlist.map(item => {
+                total += item.price;
+                return `
+                <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                    <div>
+                        <h4 class="font-semibold text-sm mb-1">${dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name}</h4>
+                        <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
+                    </div>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium p-2 bg-red-50 rounded-lg">${dict[currentLang].removeFromWishlist}</button>
+                </div>`}).join('');
+            totalDisplay.textContent = `${total.toLocaleString()} MMK`;
+            lucide.createIcons();
+        }
+
+        /* --- Drawers & Overlays --- */
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            if(!drawer.classList.contains('open')) { document.getElementById('wishlistDrawer').classList.remove('open'); document.getElementById('wishlistOverlay').classList.remove('open'); }
+            drawer.classList.toggle('open');
+            document.body.classList.toggle('no-scroll', drawer.classList.contains('open'));
+        }
+
+        function toggleLangDropdown(e) {
+            e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden');
+            if(document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden');
+        }
+
+        function toggleProfile(e) {
+            e.stopPropagation(); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
+        }
+
+        document.addEventListener('click', (e) => {
+            const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
+            if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
+            const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
+        });
+
+        /* --- Search System --- */
+        const searchCatalog = [
+            { id: 'prod1', type: 'Product', name: 'Business Website', mm: 'စီးပွားရေး ဝက်ဘ်ဆိုက်', icon: 'building-2', url: '../index.html#websites' },
+            { id: 'prod2', type: 'Product', name: 'Personal Portfolio', mm: 'ပုဂ္ဂိုလ်ရေး မှတ်တမ်း', icon: 'user-circle', url: '../index.html#websites' },
+            { id: 'prod3', type: 'Product', name: 'Info & Education', mm: 'သတင်းအချက်အလက်', icon: 'book-open', url: '../index.html#websites' },
+            { id: 'srv1', type: 'Service', name: 'Advanced Web SEO', mm: 'အဆင့်မြင့် SEO', icon: 'search', url: '../index.html#services' },
+            { id: 'srv2', type: 'Service', name: 'Domain Acquisition', mm: 'ဒိုမိန်းအမည်', icon: 'globe-2', url: '../index.html#services' },
+            { id: 'srv3', type: 'Service', name: 'Maintenance & Security', mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', icon: 'shield-check', url: '../index.html#services' }
+        ];
+
+        function toggleSearchOverlay() {
+            const overlay = document.getElementById('searchOverlay');
+            overlay.classList.toggle('open');
+            if(overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } 
+            else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; }, 400); }
+        }
+
+        function getSimilarityScore(a, b) {
+            if (a.length === 0) return b.length; if (b.length === 0) return a.length; 
+            const matrix = []; for (let i = 0; i <= b.length; i++) matrix[i] = [i]; for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
+                    else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+                }
+            } return matrix[b.length][a.length];
+        }
+
+        function handleMegaSearch(e) {
+            const query = e.target.value.toLowerCase().trim(); const resultsContainer = document.getElementById('megaSearchResults');
+            if (!query) { resultsContainer.innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; return; }
+            let scoredItems = searchCatalog.map(item => {
+                const nameEn = item.name.toLowerCase(); const nameMm = item.mm.toLowerCase();
+                const isExactSub = nameEn.includes(query) || nameMm.includes(query);
+                let charMatchEn = 0; for(let char of query) { if(nameEn.includes(char)) charMatchEn++; }
+                const distEn = getSimilarityScore(query, nameEn); const distMm = getSimilarityScore(query, nameMm);
+                let score = Math.min(distEn, distMm);
+                if (isExactSub) score = -100; else if (charMatchEn >= query.length * 0.7) score -= 10;
+                return { ...item, score };
+            });
+            const threshold = Math.max(query.length, 5); const results = scoredItems.filter(item => item.score < threshold).sort((a, b) => a.score - b.score);
+            if (results.length === 0) { resultsContainer.innerHTML = `<p class="text-gray-500 text-sm">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p>`; return; }
+            resultsContainer.innerHTML = results.map(item => `
+                <a href="${item.url}" onclick="toggleSearchOverlay()" class="flex items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors group">
+                    <div class="p-3 bg-white rounded-xl shadow-sm mr-4 group-hover:bg-myancode-black group-hover:text-white transition-colors"><i data-lucide="${item.icon}" class="h-5 w-5"></i></div>
+                    <div><h5 class="text-sm font-semibold text-black">${currentLang === 'en' ? item.name : item.mm}</h5><span class="text-[10px] font-bold uppercase text-gray-400">${item.type}</span></div>
+                </a>`).join('');
+            lucide.createIcons();
+        }
+
+        /* --- Password Logic --- */
+        let currentPwdScore = 0;
+        function checkPasswordStrength(password) {
+            const container = document.getElementById('pwdStrengthContainer');
+            if (!password) { container.classList.add('opacity-0'); currentPwdScore = 0; updatePwdUI(0, 'bg-red-500', ''); return; }
+            container.classList.remove('opacity-0');
+            let score = 0;
+            if (password.length >= 8) score += 1;
+            if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
+            if (/[0-9]/.test(password)) score += 1;
+            if (/[^A-Za-z0-9]/.test(password)) score += 1;
+            currentPwdScore = score;
+            const states = [
+                { width: '20%', color: 'bg-red-500', text: dict[currentLang].pwdWeak || 'Weak' },
+                { width: '40%', color: 'bg-orange-500', text: dict[currentLang].pwdFair || 'Fair' },
+                { width: '60%', color: 'bg-yellow-500', text: dict[currentLang].pwdGood || 'Good' },
+                { width: '80%', color: 'bg-blue-500', text: dict[currentLang].pwdStrong || 'Strong' },
+                { width: '100%', color: 'bg-green-500', text: dict[currentLang].pwdVeryStrong || 'Secure' }
+            ];
+            const state = states[score]; updatePwdUI(state.width, state.color, state.text);
+        }
+
+        function updatePwdUI(width, colorClass, text) {
+            const bar = document.getElementById('pwdStrengthBar'); const txt = document.getElementById('pwdStrengthText');
+            if (width === 0) { bar.style.width = '0%'; return; }
+            bar.style.width = width; bar.className = `h-full transition-all duration-500 ease-out ${colorClass}`;
+            txt.innerText = text; txt.className = `text-[9px] font-bold uppercase tracking-widest min-w-[70px] text-right transition-colors duration-300 ${colorClass.replace('bg-', 'text-').replace('500', '400')}`;
+        }
+
+        /* --- Loader / Toast --- */
+        const globalLoader = document.getElementById('globalLoader');
+        const loaderText = document.getElementById('loaderText');
+
+        function showLoader(textKey) {
+            loaderText.innerText = dict[currentLang][textKey] || textKey;
+            globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden');
+            globalLoader.classList.add('opacity-100', 'visibility-visible');
+        }
+        function hideLoader() {
+            globalLoader.classList.remove('opacity-100', 'visibility-visible');
+            globalLoader.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600);
+        }
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
+        }
+
+        /* --- Auth Functions --- */
+        async function handleRegister(e) {
+            e.preventDefault();
+            if (currentPwdScore < 4) { showToast(dict[currentLang].pwdRequirement); return; }
+            const name = document.getElementById('regName').value; const email = document.getElementById('regEmail').value; const pass = document.getElementById('regPass').value;
+            showLoader('loadingAuth');
+
+            if (supabaseInstance) {
+                const { data, error } = await supabaseInstance.auth.signUp({ email: email, password: pass, options: { data: { full_name: name } } });
+                hideLoader();
+                if (error) { alert(error.message); return; }
+                showToast(dict[currentLang].msgVerificationSent);
+                setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+            } else {
+                await new Promise(r => setTimeout(r, 1500)); hideLoader();
+                if (usersDB.find(u => u.email === email)) { alert(currentLang === 'en' ? "Email already exists!" : "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်!"); return; }
+                const newUser = { id: Date.now(), name, email, pass };
+                usersDB.push(newUser);
+                localStorage.setItem('myancode_users', JSON.stringify(usersDB)); localStorage.setItem('myancode_currentUser', JSON.stringify(newUser));
+                showToast(currentLang === 'en' ? `Welcome to MyanCode, ${name}!` : `MyanCode မှ ကြိုဆိုပါတယ်, ${name}!`);
+                setTimeout(() => { window.location.href = '../index.html'; }, 800);
+            }
+        }
+
+        async function handleLogout() {
+            showLoader('loadingAuth');
+            if (supabaseInstance) { await supabaseInstance.auth.signOut(); } 
+            else { await new Promise(r => setTimeout(r, 800)); currentUser = null; localStorage.removeItem('myancode_currentUser'); updateAuthUI(); }
+            hideLoader();
+            showToast(dict[currentLang].msgLoggedOut);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLanguage();
+            
+            // Intercept Supabase Auth Magic Links & Email Verifications
+            const hash = window.location.hash || window.location.search;
+            if (hash.includes('access_token=') || hash.includes('type=signup') || hash.includes('type=recovery')) {
+                setTimeout(() => {
+                    showToast(currentLang === 'en' ? "Email verification successful! Please log in." : "အီးမေးလ်အတည်ပြုခြင်း အောင်မြင်ပါသည်။ အကောင့်ဝင်ပါ။");
+                    history.replaceState(null, null, ' '); // Clean URL
+                    setTimeout(() => { window.location.href = '../login/index.html'; }, 2000); // Send to login
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

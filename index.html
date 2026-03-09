@@ -111,8 +111,6 @@
         .drawer-left.open { transform: translateX(0); }
         .drawer-right { transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .drawer-right.open { transform: translateX(0); }
-        .modal { transition: opacity 0.4s ease, transform 0.4s ease; }
-        .modal-hidden { opacity: 0; pointer-events: none; transform: scale(0.95); }
         .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
         .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -178,7 +176,7 @@
                         </div>
                     </div>
 
-                    <!-- Desktop Auth Container (Profile or Login/Register) -->
+                    <!-- Desktop Auth Container (Profile or Login/Register Links) -->
                     <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4">
                         <!-- Rendered via JS -->
                     </div>
@@ -571,62 +569,6 @@
         </div>
     </footer>
 
-    <!-- MODALS (Login / Register) -->
-    <div id="authOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] flex items-center justify-center p-4 modal modal-hidden" onclick="closeModalsOnOutsideClick(event)">
-        <!-- Login Form -->
-        <div id="loginCard" class="bg-white rounded-[2rem] p-8 sm:p-10 w-full max-w-sm shadow-2xl relative hidden border border-gray-100">
-            <button onclick="closeModals()" class="absolute top-5 right-5 p-2 bg-gray-50 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 transition-colors"><i data-lucide="x" class="h-4 w-4"></i></button>
-            <h3 class="text-2xl font-semibold mb-8 text-black tracking-tight" data-i18n="loginTitle">Login</h3>
-            <form onsubmit="handleLogin(event)" class="space-y-5">
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblEmail">Email</label>
-                    <input type="email" id="logEmail" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblPass">Password</label>
-                    <input type="password" id="logPass" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
-                </div>
-                <button type="submit" class="w-full btn-hover-effect bg-black text-white py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-md mt-4" data-i18n="btnLoginSubmit">Sign In</button>
-            </form>
-            <p class="text-center text-xs text-gray-500 mt-8 font-medium">
-                <span data-i18n="noAccount">Don't have an account?</span> 
-                <button onclick="switchToRegister()" class="text-myancode-blue hover-underline font-semibold ml-1" data-i18n="btnRegisterSwap">Register</button>
-            </p>
-        </div>
-
-        <!-- Register Form (WITH ADVANCED PASSWORD STRENGTH UI) -->
-        <div id="registerCard" class="bg-white rounded-[2rem] p-8 sm:p-10 w-full max-w-sm shadow-2xl relative hidden border border-gray-100">
-            <button onclick="closeModals()" class="absolute top-5 right-5 p-2 bg-gray-50 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 transition-colors"><i data-lucide="x" class="h-4 w-4"></i></button>
-            <h3 class="text-2xl font-semibold mb-8 text-black tracking-tight" data-i18n="regTitle">Register</h3>
-            <form onsubmit="handleRegister(event)" class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblName">Full Name</label>
-                    <input type="text" id="regName" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblEmail">Email</label>
-                    <input type="email" id="regEmail" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblPass">Password</label>
-                    <input type="password" id="regPass" oninput="checkPasswordStrength(this.value)" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
-                    
-                    <div class="mt-3 flex items-center justify-between opacity-0 transition-opacity duration-300" id="pwdStrengthContainer">
-                        <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden mr-3 flex">
-                            <div id="pwdStrengthBar" class="h-full w-0 bg-red-500 transition-all duration-500 ease-out"></div>
-                        </div>
-                        <span id="pwdStrengthText" class="text-[9px] font-bold uppercase tracking-widest text-gray-400 min-w-[70px] text-right"></span>
-                    </div>
-                </div>
-                <button type="submit" class="w-full btn-hover-effect bg-black text-white py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-md mt-6" data-i18n="btnRegSubmit">Create Account</button>
-            </form>
-            <p class="text-center text-xs text-gray-500 mt-8 font-medium">
-                <span data-i18n="hasAccount">Already have an account?</span> 
-                <button onclick="switchToLogin()" class="text-myancode-blue hover-underline font-semibold ml-1" data-i18n="btnLoginSwap">Login</button>
-            </p>
-        </div>
-    </div>
-
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center w-[90%] sm:w-auto justify-center sm:justify-start">
         <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
@@ -922,8 +864,7 @@
 
         function toggleWishlistDrawer() {
             if (!currentUser) {
-                openModal('loginCard');
-                showToast(currentLang === 'en' ? "Please log in to view your wishlist." : "သင့်စာရင်းကြည့်ရန် အကောင့်ဝင်ပေးပါ။");
+                window.location.href = 'login/index.html';
                 return;
             }
             const drawer = document.getElementById('wishlistDrawer');
@@ -961,23 +902,6 @@
             const profBtn = document.getElementById('profileContainer');
             const profDrop = document.getElementById('profileDropdown');
             if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
-        });
-
-        // Add global click listener for link routing to modals dynamically
-        document.addEventListener('click', (e) => {
-            const anchor = e.target.closest('a');
-            if (anchor && anchor.getAttribute('href')) {
-                const href = anchor.getAttribute('href');
-                if (href === '#login') {
-                    e.preventDefault();
-                    openModal('loginCard');
-                    history.replaceState(null, null, ' '); 
-                } else if (href === '#register') {
-                    e.preventDefault();
-                    openModal('registerCard');
-                    history.replaceState(null, null, ' '); 
-                }
-            }
         });
 
         function showToast(msg) {
@@ -1103,8 +1027,6 @@
             });
             updateAuthUI(); 
             if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
-            const passEl = document.getElementById('regPass');
-            if(passEl && passEl.value) checkPasswordStrength(passEl.value);
         }
 
         function setLanguage(lang) {
@@ -1164,19 +1086,19 @@
             } else {
                 currentUserWishlist = [];
                 
-                // Desktop Logged Out
+                // Desktop Logged Out (Links explicitly to new separated html pages)
                 desktopAuth.innerHTML = `
-                    <a href="#login" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
-                    <a href="#register" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm hover:shadow-md btn-hover-effect border border-transparent whitespace-nowrap">${dict[currentLang].hdrRegister}</a>
+                    <a href="login/index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
+                    <a href="register/index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm hover:shadow-md btn-hover-effect border border-transparent whitespace-nowrap">${dict[currentLang].hdrRegister}</a>
                 `;
                 
-                // Mobile Logged Out
+                // Mobile Logged Out (Links explicitly to new separated html pages)
                 containerMob.innerHTML = `
                     <div class="flex flex-col gap-3 pb-6 border-b border-gray-200">
-                        <a href="#login" onclick="toggleMobileMenu();" class="flex justify-center items-center w-full text-gray-800 bg-gray-100 hover:bg-gray-200 py-3.5 rounded-xl transition-colors text-sm font-semibold tracking-wide capitalize">
+                        <a href="login/index.html" class="flex justify-center items-center w-full text-gray-800 bg-gray-100 hover:bg-gray-200 py-3.5 rounded-xl transition-colors text-sm font-semibold tracking-wide capitalize">
                             <span>${dict[currentLang].hdrLogin}</span>
                         </a>
-                        <a href="#register" onclick="toggleMobileMenu();" class="flex justify-center items-center w-full text-white bg-myancode-blue hover:bg-blue-600 py-3.5 rounded-xl transition-colors text-sm font-semibold tracking-wide capitalize shadow-md">
+                        <a href="register/index.html" class="flex justify-center items-center w-full text-white bg-myancode-blue hover:bg-blue-600 py-3.5 rounded-xl transition-colors text-sm font-semibold tracking-wide capitalize shadow-md">
                             <span>${dict[currentLang].hdrRegister}</span>
                         </a>
                     </div>
@@ -1219,8 +1141,7 @@
 
         function toggleWishlist(id, name, price) {
             if (!currentUser) {
-                openModal('loginCard');
-                showToast(currentLang === 'en' ? "Please log in to add to wishlist." : "စာရင်းသွင်းရန် အကောင့်ဝင်ပေးပါ။");
+                window.location.href = 'login/index.html';
                 return;
             }
             const index = currentUserWishlist.findIndex(i => i.id === id);
@@ -1272,153 +1193,6 @@
             lucide.createIcons();
         }
 
-        /* --- Modals Handling --- */
-        const overlay = document.getElementById('authOverlay');
-        const loginCard = document.getElementById('loginCard');
-        const registerCard = document.getElementById('registerCard');
-
-        function openModal(cardId) {
-            overlay.classList.remove('modal-hidden');
-            loginCard.classList.add('hidden');
-            registerCard.classList.add('hidden');
-            document.getElementById(cardId).classList.remove('hidden');
-            
-            document.getElementById('langDropdown').classList.add('dropdown-hidden');
-            if(document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden');
-        }
-
-        function closeModals() { overlay.classList.add('modal-hidden'); }
-        function closeModalsOnOutsideClick(e) { if (e.target === overlay) closeModals(); }
-        function switchToRegister() { openModal('registerCard'); }
-        function switchToLogin() { openModal('loginCard'); }
-
-        /* --- Dynamic Password Strength Logic --- */
-        let currentPwdScore = 0;
-        function checkPasswordStrength(password) {
-            const container = document.getElementById('pwdStrengthContainer');
-            if (!password) {
-                container.classList.add('opacity-0');
-                currentPwdScore = 0;
-                updatePwdUI(0, 'bg-red-500', '');
-                return;
-            }
-            container.classList.remove('opacity-0');
-
-            let score = 0;
-            if (password.length >= 8) score += 1;
-            if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
-            if (/[0-9]/.test(password)) score += 1;
-            if (/[^A-Za-z0-9]/.test(password)) score += 1;
-            currentPwdScore = score;
-
-            const states = [
-                { width: '20%', color: 'bg-red-500', text: dict[currentLang].pwdWeak || 'Weak' },
-                { width: '40%', color: 'bg-orange-500', text: dict[currentLang].pwdFair || 'Fair' },
-                { width: '60%', color: 'bg-yellow-500', text: dict[currentLang].pwdGood || 'Good' },
-                { width: '80%', color: 'bg-blue-500', text: dict[currentLang].pwdStrong || 'Strong' },
-                { width: '100%', color: 'bg-green-500', text: dict[currentLang].pwdVeryStrong || 'Secure' }
-            ];
-            
-            const state = states[score];
-            updatePwdUI(state.width, state.color, state.text);
-        }
-
-        function updatePwdUI(width, colorClass, text) {
-            const bar = document.getElementById('pwdStrengthBar');
-            const txt = document.getElementById('pwdStrengthText');
-            if (width === 0) { bar.style.width = '0%'; return; }
-            bar.style.width = width;
-            bar.className = `h-full transition-all duration-500 ease-out ${colorClass}`;
-            txt.innerText = text;
-            txt.className = `text-[9px] font-bold uppercase tracking-widest min-w-[70px] text-right transition-colors duration-300 ${colorClass.replace('bg-', 'text-').replace('500', '400')}`;
-        }
-
-        /* --- Auth Logic (With Loading Screen) --- */
-        async function handleRegister(e) {
-            e.preventDefault();
-            
-            if (currentPwdScore < 4) {
-                showToast(dict[currentLang].pwdRequirement);
-                return;
-            }
-
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const pass = document.getElementById('regPass').value;
-
-            showLoader('loadingAuth'); // TRIGGER LOADING UI
-
-            if (supabaseInstance) {
-                const { data, error } = await supabaseInstance.auth.signUp({
-                    email: email,
-                    password: pass,
-                    options: { data: { full_name: name } }
-                });
-                
-                hideLoader();
-                if (error) {
-                    alert(error.message);
-                    return;
-                }
-                
-                showToast(dict[currentLang].msgVerificationSent);
-                closeModals();
-            } else {
-                // Mock delay to show off beautiful loader
-                await new Promise(r => setTimeout(r, 1500));
-                
-                hideLoader();
-                if (usersDB.find(u => u.email === email)) {
-                    alert(currentLang === 'en' ? "Email already exists!" : "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်!");
-                    return;
-                }
-                const newUser = { id: Date.now(), name, email, pass };
-                usersDB.push(newUser);
-                localStorage.setItem('myancode_users', JSON.stringify(usersDB));
-                currentUser = newUser;
-                localStorage.setItem('myancode_currentUser', JSON.stringify(currentUser));
-                
-                closeModals(); updateAuthUI();
-                showToast(currentLang === 'en' ? `Welcome to MyanCode, ${name}!` : `MyanCode မှ ကြိုဆိုပါတယ်, ${name}!`);
-            }
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('logEmail').value;
-            const pass = document.getElementById('logPass').value;
-
-            showLoader('loadingAuth'); // TRIGGER LOADING UI
-
-            if (supabaseInstance) {
-                const { data, error } = await supabaseInstance.auth.signInWithPassword({
-                    email: email,
-                    password: pass,
-                });
-                hideLoader();
-                if (error) {
-                    alert(error.message);
-                    return;
-                }
-                closeModals();
-                showToast(currentLang === 'en' ? "Welcome back!" : "ပြန်လည်ကြိုဆိုပါတယ်!");
-            } else {
-                // Mock delay
-                await new Promise(r => setTimeout(r, 1200));
-
-                hideLoader();
-                const user = usersDB.find(u => u.email === email && u.pass === pass);
-                if (user) {
-                    currentUser = user;
-                    localStorage.setItem('myancode_currentUser', JSON.stringify(currentUser));
-                    closeModals(); updateAuthUI();
-                    showToast(currentLang === 'en' ? `Welcome back, ${user.name}!` : `ပြန်လည်ကြိုဆိုပါတယ်, ${user.name}!`);
-                } else {
-                    alert(currentLang === 'en' ? "Invalid credentials!" : "အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။");
-                }
-            }
-        }
-
         async function handleLogout() {
             showLoader('loadingAuth');
             
@@ -1441,24 +1215,6 @@
             renderLanguage();
             showSlide(0);
             resetAutoPlay();
-
-            // Handle Auth Redirects and Direct Modal Links seamlessly
-            const hash = window.location.hash;
-            if (hash) {
-                if (hash === '#login') {
-                    openModal('loginCard');
-                    history.replaceState(null, null, ' '); // Clean URL
-                } else if (hash === '#register') {
-                    openModal('registerCard');
-                    history.replaceState(null, null, ' '); // Clean URL
-                } else if (hash.includes('access_token=') || hash.includes('type=signup') || hash.includes('type=recovery')) {
-                    // Intercept Supabase Auth Magic Links / Verifications
-                    setTimeout(() => {
-                        showToast(currentLang === 'en' ? "Email verification successful!" : "အီးမေးလ်အတည်ပြုခြင်း အောင်မြင်ပါသည်။");
-                        history.replaceState(null, null, ' '); // Clean URL
-                    }, 1000); // Slight delay allowing loader to vanish naturally
-                }
-            }
         });
 
     </script>
