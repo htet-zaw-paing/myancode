@@ -460,58 +460,20 @@
         </div>
     </footer>
 
-    <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center w-[90%] sm:w-auto justify-center sm:justify-start">
+    <!-- Notification Toasts -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
         <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
         <span id="toast-msg" class="text-sm font-medium tracking-wide">Success!</span>
     </div>
 
+    <!-- Error Notification Toast -->
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-white"></i>
+        <span id="error-toast-msg" class="text-sm font-medium tracking-wide">Error!</span>
+    </div>
+
     <script>
         lucide.createIcons();
-
-        /* --- GLOBAL ENTERPRISE LOADER LOGIC --- */
-        const globalLoader = document.getElementById('globalLoader');
-        const loaderText = document.getElementById('loaderText');
-
-        function showLoader(i18nKey = 'loadingInit') {
-            loaderText.setAttribute('data-i18n', i18nKey);
-            loaderText.innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit'];
-            globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden');
-            globalLoader.classList.add('opacity-100', 'visibility-visible');
-            document.body.classList.add('no-scroll');
-        }
-
-        function hideLoader() {
-            globalLoader.classList.remove('opacity-100', 'visibility-visible');
-            globalLoader.classList.add('opacity-0', 'pointer-events-none');
-            document.body.classList.remove('no-scroll');
-            setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600);
-        }
-
-        window.addEventListener('load', () => setTimeout(hideLoader, 600));
-
-        /* --- REAL SUPABASE AUTHENTICATION --- */
-        const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
-        const supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        let currentUser = null;
-        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
-        let currentUserWishlist = [];
-
-        // STRICT SUPABASE SESSION LISTENER
-        supabaseInstance.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                currentUser = {
-                    name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
-                    email: session.user.email,
-                    id: session.user.id
-                };
-            } else {
-                currentUser = null;
-            }
-            updateAuthUI();
-        });
 
         /* --- Dictionary & Language --- */
         const dict = {
@@ -594,6 +556,58 @@
         };
 
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
+
+        /* --- GLOBAL ENTERPRISE LOADER LOGIC --- */
+        const globalLoader = document.getElementById('globalLoader');
+        const loaderText = document.getElementById('loaderText');
+
+        function showLoader(i18nKey = 'loadingInit') {
+            loaderText.setAttribute('data-i18n', i18nKey);
+            loaderText.innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit'];
+            globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden');
+            globalLoader.classList.add('opacity-100', 'visibility-visible');
+            document.body.classList.add('no-scroll');
+        }
+
+        function hideLoader() {
+            globalLoader.classList.remove('opacity-100', 'visibility-visible');
+            globalLoader.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('no-scroll');
+            setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600);
+        }
+
+        window.addEventListener('load', () => setTimeout(hideLoader, 600));
+
+        /* --- REAL SUPABASE AUTHENTICATION --- */
+        const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
+        
+        let supabaseInstance = null;
+        if (window.supabase) {
+             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        
+        let currentUser = null;
+        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
+        let currentUserWishlist = [];
+
+        // STRICT SUPABASE SESSION LISTENER
+        if (supabaseInstance) {
+            supabaseInstance.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    currentUser = {
+                        name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                        email: session.user.email,
+                        id: session.user.id
+                    };
+                } else {
+                    currentUser = null;
+                }
+                updateAuthUI();
+            });
+        } else {
+            updateAuthUI();
+        }
 
         function renderLanguage() {
             document.documentElement.lang = currentLang; 
@@ -728,7 +742,9 @@
 
         async function handleLogout() {
             showLoader('loadingAuth');
-            await supabaseInstance.auth.signOut();
+            if (supabaseInstance) {
+                await supabaseInstance.auth.signOut();
+            }
             hideLoader();
             showToast(dict[currentLang].msgLoggedOut);
         }
@@ -767,11 +783,19 @@
             if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
         });
 
+        /* --- Custom Notification Toasts --- */
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').textContent = msg;
             toast.classList.remove('translate-y-24', 'opacity-0');
             setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
+        }
+
+        function showErrorToast(msg) { 
+            const toast = document.getElementById('error-toast'); 
+            document.getElementById('error-toast-msg').textContent = msg; 
+            toast.classList.remove('translate-y-24', 'opacity-0'); 
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
         }
 
         /* --- Hero Slider & UI --- */
