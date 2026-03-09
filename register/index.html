@@ -575,7 +575,15 @@
             showLoader('loadingAuth');
 
             if (supabaseInstance) {
-                const { data, error } = await supabaseInstance.auth.signUp({ email: email, password: pass, options: { data: { full_name: name } } });
+                // If using Supabase, ensure "Confirm email" is turned ON in Supabase Dashboard!
+                const { data, error } = await supabaseInstance.auth.signUp({ 
+                    email: email, 
+                    password: pass, 
+                    options: { 
+                        data: { full_name: name },
+                        emailRedirectTo: window.location.origin + '/myancode/login/index.html' // Redirects to your live github pages login
+                    } 
+                });
                 hideLoader();
                 if (error) { alert(error.message); return; }
                 showToast(dict[currentLang].msgVerificationSent);
@@ -583,12 +591,14 @@
             } else {
                 await new Promise(r => setTimeout(r, 1500)); hideLoader();
                 if (usersDB.find(u => u.email === email)) { alert(currentLang === 'en' ? "Email already exists!" : "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်!"); return; }
-                const newUser = { id: Date.now(), name, email, pass };
+                
+                // MOCK DB: Save user with isVerified: false so they CANNOT log in yet
+                const newUser = { id: Date.now(), name, email, pass, isVerified: false };
                 usersDB.push(newUser);
                 localStorage.setItem('myancode_users', JSON.stringify(usersDB)); 
-                // Removed the auto-login line here so it forces them to verify/login
                 
                 showToast(dict[currentLang].msgVerificationSent);
+                // Redirect to login, but they are locked out until "verified"
                 setTimeout(() => { window.location.href = '../login/index.html'; }, 2000);
             }
         }
@@ -607,6 +617,12 @@
             // Intercept Supabase Auth Magic Links & Email Verifications
             const hash = window.location.hash || window.location.search;
             if (hash.includes('access_token=') || hash.includes('type=signup') || hash.includes('type=recovery')) {
+                
+                // MOCK DB: If they hit this link, set all unverified users to verified
+                let tempUsers = JSON.parse(localStorage.getItem('myancode_users')) || [];
+                tempUsers = tempUsers.map(u => ({ ...u, isVerified: true }));
+                localStorage.setItem('myancode_users', JSON.stringify(tempUsers));
+
                 setTimeout(() => {
                     showToast(currentLang === 'en' ? "Email verification successful! Please log in." : "အီးမေးလ်အတည်ပြုခြင်း အောင်မြင်ပါသည်။ အကောင့်ဝင်ပါ။");
                     history.replaceState(null, null, ' '); // Clean URL
