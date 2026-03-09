@@ -281,10 +281,10 @@
         lucide.createIcons();
 
         /* --- Global Setup & Auth DB --- */
-        const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         let supabaseInstance = null;
-        if (SUPABASE_URL !== 'https://siusyyleokowlfcdiocd.supabase.co') supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let usersDB = JSON.parse(localStorage.getItem('myancode_users')) || [];
         let currentUser = JSON.parse(localStorage.getItem('myancode_currentUser')) || null;
@@ -579,15 +579,17 @@
                 hideLoader();
                 if (error) { alert(error.message); return; }
                 showToast(dict[currentLang].msgVerificationSent);
-                setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+                setTimeout(() => { window.location.href = '../login/index.html'; }, 2000);
             } else {
                 await new Promise(r => setTimeout(r, 1500)); hideLoader();
                 if (usersDB.find(u => u.email === email)) { alert(currentLang === 'en' ? "Email already exists!" : "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်!"); return; }
                 const newUser = { id: Date.now(), name, email, pass };
                 usersDB.push(newUser);
-                localStorage.setItem('myancode_users', JSON.stringify(usersDB)); localStorage.setItem('myancode_currentUser', JSON.stringify(newUser));
-                showToast(currentLang === 'en' ? `Welcome to MyanCode, ${name}!` : `MyanCode မှ ကြိုဆိုပါတယ်, ${name}!`);
-                setTimeout(() => { window.location.href = '../index.html'; }, 800);
+                localStorage.setItem('myancode_users', JSON.stringify(usersDB)); 
+                // Removed the auto-login line here so it forces them to verify/login
+                
+                showToast(dict[currentLang].msgVerificationSent);
+                setTimeout(() => { window.location.href = '../login/index.html'; }, 2000);
             }
         }
 
