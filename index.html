@@ -82,10 +82,37 @@
         .icon-bounce { transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .card-hover:hover .icon-bounce { transform: scale(1.15) rotate(-5deg); }
 
-        /* Slider Animations */
-        .slider-img { transition: opacity 0.8s ease-in-out, transform 8s cubic-bezier(0.25, 1, 0.5, 1); opacity: 0; transform: scale(1); pointer-events: none; }
-        .slider-img.active { opacity: 1; pointer-events: auto; }
-        #heroSection:hover .slider-img.active { transform: scale(1.05); }
+        /* Dynamic Hero Text Transitions (Modern Blur & Slide) */
+        .hero-text-dynamic {
+            transition-property: opacity, transform, filter, color;
+            transition-duration: 0.5s, 0.8s, 0.5s, 0.5s;
+            transition-timing-function: ease, cubic-bezier(0.16, 1, 0.3, 1), ease, ease;
+        }
+        .hero-text-out {
+            opacity: 0 !important;
+            transform: translateY(-20px) !important;
+            filter: blur(8px) !important;
+        }
+        .hero-text-in-start {
+            opacity: 0 !important;
+            transform: translateY(20px) !important;
+            filter: blur(8px) !important;
+            transition: none !important; /* Disable transition instantly to reset position */
+        }
+
+        /* Modern Image Slider Animations (Ken Burns style) */
+        .slider-img { 
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); 
+            opacity: 0; 
+            transform: scale(1.1); 
+            pointer-events: none; 
+        }
+        .slider-img.active { 
+            opacity: 1; 
+            transform: scale(1); 
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 10s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: auto; 
+        }
 
         /* Global Loader Animations */
         #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
@@ -173,18 +200,21 @@
     <!-- FULL SCREEN HERO SLIDER -->
     <section id="heroSection" class="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black group">
         <div id="sliderContainer" class="absolute inset-0 w-full h-full z-0">
-            <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" class="slider-img active absolute inset-0 w-full h-full object-cover object-center" data-theme="dark" alt="Dark Tech">
-            <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=2069&auto=format&fit=crop" class="slider-img absolute inset-0 w-full h-full object-cover object-center" data-theme="dark" alt="Light Architecture">
-            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop" class="slider-img absolute inset-0 w-full h-full object-cover object-center" data-theme="dark" alt="Dark Server">
-            <img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=2067&auto=format&fit=crop" class="slider-img absolute inset-0 w-full h-full object-cover object-center" data-theme="light" alt="Light Abstract">
+            <img src="./imgs/web-banners/banner11.svg" class="slider-img active absolute inset-0 w-full h-full object-cover object-center" data-theme="light" alt="Dark Tech">
+            <img src="./imgs/web-banners/banner1.svg" class="slider-img absolute inset-0 w-full h-full object-cover object-center" data-theme="light" alt="Light Architecture">
+            <img src="./imgs/web-banners/banner5.svg" class="slider-img absolute inset-0 w-full h-full object-cover object-center" data-theme="light" alt="Dark Server">
+            <img src="./imgs/web-banners/banner3.svg" class="slider-img absolute inset-0 w-full h-full object-cover o]]]]bject-center" data-theme="dark" alt="Light Abstract">
         </div>
         <button onclick="prevSlide()" class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-30 p-3 sm:p-4 rounded-full bg-black/20 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/40 hover:scale-110 border border-white/10 hidden sm:block"><i data-lucide="chevron-left" class="h-6 w-6"></i></button>
         <button onclick="nextSlide()" class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-30 p-3 sm:p-4 rounded-full bg-black/20 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/40 hover:scale-110 border border-white/10 hidden sm:block"><i data-lucide="chevron-right" class="h-6 w-6"></i></button>
 
-        <div class="relative z-20 max-w-4xl mx-auto px-4 mt-10 text-center transition-colors duration-500 pointer-events-none" id="heroTextWrapper">
+        <div class="relative z-20 max-w-4xl mx-auto px-4 mt-10 text-center pointer-events-none" id="heroTextWrapper">
             <h2 class="text-[10px] sm:text-xs font-bold tracking-[0.4em] uppercase mb-6 sm:mb-8 transition-colors duration-500" id="heroSub" data-i18n="heroSub">Engineered in Yangon</h2>
-            <h1 class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight mb-6 sm:mb-8 leading-[1.05] transition-all duration-500" id="heroTitle" data-i18n="heroTitle">Digital excellence.<br>Built for enterprise.</h1>
-            <p class="text-base sm:text-lg md:text-xl mb-10 sm:mb-12 max-w-2xl mx-auto font-normal leading-relaxed transition-all duration-500" id="heroDesc" data-i18n="heroDesc">Premium static websites and professional web services tailored for modern businesses. Fast, secure, and minimal.</p>
+            
+            <!-- Dynamic Elements -->
+            <h1 class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight mb-6 sm:mb-8 leading-[1.05] hero-text-dynamic" id="heroTitle" data-i18n="heroTitle1">Digital excellence.<br>Built for enterprise.</h1>
+            <p class="text-base sm:text-lg md:text-xl mb-10 sm:mb-12 max-w-2xl mx-auto font-normal leading-relaxed hero-text-dynamic" id="heroDesc" data-i18n="heroDesc1">Premium static websites and professional web services tailored for modern businesses. Fast, secure, and minimal.</p>
+            
             <div class="flex flex-col sm:flex-row justify-center items-center gap-4 pointer-events-auto">
                 <a href="#websites" id="heroBtn1" class="btn-hover-effect text-sm font-semibold tracking-wide px-8 py-4 rounded-full w-full sm:w-auto text-center shadow-lg transition-all duration-500 mega-nav-link" data-i18n="btnExplore">Explore Websites</a>
                 <a href="#services" id="heroBtn2" class="btn-hover-effect text-sm font-semibold tracking-wide px-8 py-4 rounded-full w-full sm:w-auto flex items-center justify-center gap-2 group-btn border backdrop-blur-md transition-all duration-500 mega-nav-link"><span data-i18n="btnServices">Our Services</span> <i data-lucide="arrow-right" class="h-4 w-4 transform transition-transform group-hover:translate-x-1"></i></a>
@@ -482,8 +512,18 @@
                 langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
                 wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", btnCart: "Cart", wlTotal: "Total",
                 quickLinks: "Quick Links", searchResults: "Results", searchHint: "Type to discover our enterprise products and services...",
-                heroSub: "Engineered in Yangon", heroTitle: "Digital excellence.<br>Built for enterprise.", 
-                heroDesc: "Premium static websites and professional web services tailored for modern businesses. Fast, secure, and minimal.",
+                heroSub: "Engineered in Yangon", 
+                
+                // Dynamic Hero Text Translations
+                heroTitle1: "Digital excellence.<br>Built for enterprise.",
+                heroDesc1: "Premium static websites and professional web services tailored for modern businesses. Fast, secure, and minimal.",
+                heroTitle2: "Minimalist Design.<br>Maximum Impact.",
+                heroDesc2: "Crafting pixel-perfect aesthetics that resonate with your target audience on a global scale.",
+                heroTitle3: "Uncompromising Security.<br>Zero Vulnerabilities.",
+                heroDesc3: "Decoupled architecture ensuring your enterprise data remains completely impenetrable.",
+                heroTitle4: "Lightning Fast.<br>Global Edge Delivery.",
+                heroDesc4: "Sub-second load times across the planet, elevating your SEO and maximizing user retention.",
+                
                 btnExplore: "Explore Websites", btnServices: "Our Services",
                 webTitle: "Websites", webSub: "Static architecture. Dynamic impressions.",
                 prod1Title: "Business & Org", prod1Desc: "Corporate portals built for absolute trust, reliability, and enterprise scale.",
@@ -520,8 +560,18 @@
                 langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
                 wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", btnCart: "ဝယ်ယူမည့်စာရင်း", wlTotal: "စုစုပေါင်း",
                 quickLinks: "အမြန်လင့်ခ်များ", searchResults: "ရလဒ်များ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...",
-                heroSub: "ရန်ကုန်မြို့တွင် ဖန်တီးပုံဖော်သည်", heroTitle: "အကောင်းဆုံးသော ဒစ်ဂျစ်တယ်အတွေ့အကြုံ။<br>ကြီးမားသောလုပ်ငန်းများအတွက် ရည်ရွယ်သည်။", 
-                heroDesc: "ခေတ်မီစီးပွားရေးလုပ်ငန်းများအတွက် အထူးဖန်တီးထားသော အဆင့်မြင့် ဝက်ဘ်ဆိုက်များနှင့် ဝန်ဆောင်မှုများ။ မြန်ဆန်၊ လုံခြုံပြီး အထူးဆွဲဆောင်မှုရှိသည်။",
+                heroSub: "ရန်ကုန်မြို့တွင် ဖန်တီးပုံဖော်သည်", 
+                
+                // Dynamic Hero Text Translations
+                heroTitle1: "အကောင်းဆုံးသော ဒစ်ဂျစ်တယ်အတွေ့အကြုံ။<br>ကြီးမားသောလုပ်ငန်းများအတွက် ရည်ရွယ်သည်။",
+                heroDesc1: "ခေတ်မီစီးပွားရေးလုပ်ငန်းများအတွက် အထူးဖန်တီးထားသော အဆင့်မြင့် ဝက်ဘ်ဆိုက်များနှင့် ဝန်ဆောင်မှုများ။ မြန်ဆန်၊ လုံခြုံပြီး အထူးဆွဲဆောင်မှုရှိသည်။",
+                heroTitle2: "ရိုးရှင်းသေသပ်သော ဒီဇိုင်း။<br>အထိရောက်ဆုံး စွမ်းဆောင်ရည်။",
+                heroDesc2: "ကမ္ဘာတစ်ဝှမ်းရှိ ပစ်မှတ်ထားသော ဖောက်သည်များနှင့် ကိုက်ညီမည့် အကောင်းဆုံး ဒီဇိုင်းများကို ဖန်တီးခြင်း။",
+                heroTitle3: "အမြင့်ဆုံး လုံခြုံရေး။<br>အားနည်းချက် လုံးဝမရှိစေရ။",
+                heroDesc3: "သင့်လုပ်ငန်း၏ ဒေတာများကို လုံးဝလုံခြုံစေမည့် အဆင့်မြင့် နည်းပညာတည်ဆောက်ပုံ။",
+                heroTitle4: "လျှပ်တစ်ပြက် မြန်ဆန်မှု။<br>ကမ္ဘာတစ်ဝှမ်း ချိတ်ဆက်မှု။",
+                heroDesc4: "SEO နှင့် အသုံးပြုသူ အတွေ့အကြုံကို မြှင့်တင်ပေးမည့် အလွန်မြန်ဆန်သော ဖွင့်ချိန်။",
+                
                 btnExplore: "ဝက်ဘ်ဆိုက်များ လေ့လာရန်", btnServices: "ဝန်ဆောင်မှုများ ကြည့်ရန်",
                 webTitle: "ဝက်ဘ်ဆိုက်များ", webSub: "တည်ငြိမ်သောတည်ဆောက်ပုံ၊ တက်ကြွလှုပ်ရှားသော ဖန်တီးမှုများ။",
                 prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod1Desc: "ယုံကြည်မှုနှင့် ကြီးမားသောလုပ်ငန်းများအတွက် ရည်ရွယ်တည်ဆောက်ထားသော ခိုင်မာသည့် ပေါ်တယ်များ။",
@@ -798,9 +848,13 @@
             setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
         }
 
-        /* --- Hero Slider & UI --- */
+        /* --- Hero Slider & Dynamic Text UI --- */
         let currentSlide = 0;
-        const slides = document.querySelectorAll('.slider-img'); const dots = document.querySelectorAll('.slider-dot'); const totalSlides = slides.length; let slideInterval;
+        let isFirstLoad = true;
+        const slides = document.querySelectorAll('.slider-img'); 
+        const dots = document.querySelectorAll('.slider-dot'); 
+        const totalSlides = slides.length; 
+        let slideInterval;
         
         function updateHeaderTheme(theme, isScrolled) {
             const nav = document.getElementById('mainNav'); const navTextElements = document.querySelectorAll('.nav-link, .nav-icon, #navLogoText');
@@ -815,22 +869,82 @@
         }
 
         function updateHeroContentTheme(theme) {
-            const hSub = document.getElementById('heroSub'); const hTitle = document.getElementById('heroTitle'); const hDesc = document.getElementById('heroDesc'); const btn1 = document.getElementById('heroBtn1'); const btn2 = document.getElementById('heroBtn2');
+            const hSub = document.getElementById('heroSub'); 
+            const hTitle = document.getElementById('heroTitle'); 
+            const hDesc = document.getElementById('heroDesc'); 
+            const btn1 = document.getElementById('heroBtn1'); 
+            const btn2 = document.getElementById('heroBtn2');
+            
             if(theme === 'dark') {
-                hSub.classList.replace('text-myancode-darkgray', 'text-gray-300') || hSub.classList.add('text-gray-300'); hTitle.classList.replace('text-myancode-black', 'text-white') || hTitle.classList.add('text-white'); hDesc.classList.replace('text-myancode-darkgray', 'text-gray-200') || hDesc.classList.add('text-gray-200');
-                btn1.classList.remove('bg-myancode-black', 'text-white'); btn1.classList.add('bg-white', 'text-black'); btn2.classList.remove('bg-white/80', 'text-myancode-black', 'border-gray-200'); btn2.classList.add('bg-black/30', 'text-white', 'border-white/20');
+                hSub.classList.replace('text-myancode-darkgray', 'text-gray-300') || hSub.classList.add('text-gray-300'); 
+                hTitle.classList.replace('text-myancode-black', 'text-white') || hTitle.classList.add('text-white'); 
+                hDesc.classList.replace('text-myancode-darkgray', 'text-gray-200') || hDesc.classList.add('text-gray-200');
+                btn1.classList.remove('bg-myancode-black', 'text-white'); btn1.classList.add('bg-white', 'text-black'); 
+                btn2.classList.remove('bg-white/80', 'text-myancode-black', 'border-gray-200'); btn2.classList.add('bg-black/30', 'text-white', 'border-white/20');
                 dots.forEach(d => { d.classList.remove('bg-black', 'bg-black/40'); d.classList.add('bg-white/40'); }); dots[currentSlide].classList.replace('bg-white/40', 'bg-white');
             } else {
-                hSub.classList.replace('text-gray-300', 'text-myancode-darkgray') || hSub.classList.add('text-myancode-darkgray'); hTitle.classList.replace('text-white', 'text-myancode-black') || hTitle.classList.add('text-myancode-black'); hDesc.classList.replace('text-gray-200', 'text-myancode-darkgray') || hDesc.classList.add('text-myancode-darkgray');
-                btn1.classList.remove('bg-white', 'text-black'); btn1.classList.add('bg-myancode-black', 'text-white'); btn2.classList.remove('bg-black/30', 'text-white', 'border-white/20'); btn2.classList.add('bg-white/80', 'text-myancode-black', 'border-gray-200');
+                hSub.classList.replace('text-gray-300', 'text-myancode-darkgray') || hSub.classList.add('text-myancode-darkgray'); 
+                hTitle.classList.replace('text-white', 'text-myancode-black') || hTitle.classList.add('text-myancode-black'); 
+                hDesc.classList.replace('text-gray-200', 'text-myancode-darkgray') || hDesc.classList.add('text-myancode-darkgray');
+                btn1.classList.remove('bg-white', 'text-black'); btn1.classList.add('bg-myancode-black', 'text-white'); 
+                btn2.classList.remove('bg-black/30', 'text-white', 'border-white/20'); btn2.classList.add('bg-white/80', 'text-myancode-black', 'border-gray-200');
                 dots.forEach(d => { d.classList.remove('bg-white', 'bg-white/40'); d.classList.add('bg-black/40'); }); dots[currentSlide].classList.replace('bg-black/40', 'bg-black');
             }
         }
 
         function showSlide(index) {
-            slides.forEach((s, i) => { if (i === index) { s.classList.add('active'); s.style.opacity = '1'; } else { s.classList.remove('active'); s.style.opacity = '0'; } });
-            const theme = slides[index].getAttribute('data-theme'); const heroSection = document.getElementById('heroSection'); const isScrolled = window.scrollY > (heroSection ? heroSection.offsetHeight - 60 : 0);
-            updateHeaderTheme(theme, isScrolled); updateHeroContentTheme(theme);
+            // Trigger Image Change with smooth scale
+            slides.forEach((s, i) => { 
+                if (i === index) { 
+                    s.classList.add('active'); 
+                } else { 
+                    s.classList.remove('active'); 
+                } 
+            });
+
+            const titleEl = document.getElementById('heroTitle');
+            const descEl = document.getElementById('heroDesc');
+            
+            // Dynamic text animation handling
+            if (isFirstLoad) {
+                // Instantly set texts on first load to prevent flickering
+                titleEl.setAttribute('data-i18n', `heroTitle${index + 1}`);
+                descEl.setAttribute('data-i18n', `heroDesc${index + 1}`);
+                titleEl.innerHTML = dict[currentLang][`heroTitle${index + 1}`];
+                descEl.innerHTML = dict[currentLang][`heroDesc${index + 1}`];
+                isFirstLoad = false;
+            } else {
+                // Animate text out (blur and slide up)
+                titleEl.classList.add('hero-text-out');
+                descEl.classList.add('hero-text-out');
+
+                setTimeout(() => {
+                    // Start text below, invisible and blurred
+                    titleEl.classList.add('hero-text-in-start');
+                    descEl.classList.add('hero-text-in-start');
+                    titleEl.classList.remove('hero-text-out');
+                    descEl.classList.remove('hero-text-out');
+                    
+                    // Update content while hidden
+                    titleEl.setAttribute('data-i18n', `heroTitle${index + 1}`);
+                    descEl.setAttribute('data-i18n', `heroDesc${index + 1}`);
+                    titleEl.innerHTML = dict[currentLang][`heroTitle${index + 1}`];
+                    descEl.innerHTML = dict[currentLang][`heroDesc${index + 1}`];
+                    
+                    // Force browser reflow to reset animation state
+                    void titleEl.offsetWidth;
+                    
+                    // Animate text in (remove start classes to trigger CSS transition)
+                    titleEl.classList.remove('hero-text-in-start');
+                    descEl.classList.remove('hero-text-in-start');
+                }, 500); // 500ms delay matches the 'out' transition duration
+            }
+
+            const theme = slides[index].getAttribute('data-theme'); 
+            const heroSection = document.getElementById('heroSection'); 
+            const isScrolled = window.scrollY > (heroSection ? heroSection.offsetHeight - 60 : 0);
+            updateHeaderTheme(theme, isScrolled); 
+            updateHeroContentTheme(theme);
         }
 
         function nextSlide() { currentSlide = (currentSlide + 1) % totalSlides; showSlide(currentSlide); resetAutoPlay(); }
@@ -918,7 +1032,9 @@
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
-            renderLanguage(); showSlide(0); resetAutoPlay();
+            renderLanguage(); 
+            showSlide(0); 
+            resetAutoPlay();
             
             // Intercept Supabase Auth Magic Links / Verifications cleanly on home page
             const hash = window.location.hash || window.location.search;
