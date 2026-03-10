@@ -40,7 +40,8 @@
         .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
         .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-hover-effect:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
+        .btn-hover-effect:disabled { opacity: 0.7; cursor: not-allowed; }
 
         #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
         .progress-line { width: 100%; height: 2px; background-color: #e5e5ea; border-radius: 4px; overflow: hidden; position: relative; }
@@ -203,7 +204,9 @@
                         <span id="pwdStrengthText" class="text-[9px] font-bold uppercase tracking-widest text-gray-400 min-w-[70px] text-right"></span>
                     </div>
                 </div>
-                <button type="submit" class="w-full btn-hover-effect bg-black text-white py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-md mt-6" data-i18n="btnRegSubmit">Create Account</button>
+                <button type="submit" id="regBtn" class="w-full btn-hover-effect bg-black text-white py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-md mt-6 flex justify-center items-center gap-2">
+                    <span data-i18n="btnRegSubmit">Create Account</span>
+                </button>
             </form>
 
             <p class="text-center text-xs text-gray-500 mt-8 font-medium">
@@ -292,7 +295,8 @@
                 regTitle: "Register", lblName: "Full Name", lblEmail: "Email", lblPass: "Password", btnRegSubmit: "Create Account",
                 hasAccount: "Already have an account?", btnLoginSwap: "Login", loadingAuth: "Creating Account...",
                 pwdWeak: "Weak", pwdFair: "Fair", pwdGood: "Good", pwdStrong: "Strong", pwdVeryStrong: "Secure", 
-                pwdRequirement: "Use a strong password (8+ chars, uppercase, number, symbol).", msgVerificationSent: "Verification email sent. Please check your inbox."
+                pwdRequirement: "Use a strong password (8+ chars, uppercase, number, symbol).", msgVerificationSent: "Verification email sent. Please check your inbox.",
+                errInvalidName: "Please enter a valid name (at least 3 characters).", errInvalidEmail: "Please enter a valid email address.", errEmailExists: "Email is already registered. Please log in."
             },
             mm: {
                 navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
@@ -308,7 +312,8 @@
                 regTitle: "အကောင့်သစ်ဖွင့်ရန်", lblName: "အမည်အပြည့်အစုံ", lblEmail: "အီးမေးလ်", lblPass: "စကားဝှက်", btnRegSubmit: "အကောင့်ဖန်တီးမည်",
                 hasAccount: "အကောင့်ရှိပြီးသားလား?", btnLoginSwap: "အကောင့်ဝင်ရန်", loadingAuth: "အကောင့်ဖန်တီးနေပါသည်...",
                 pwdWeak: "အားနည်း", pwdFair: "အသင့်အတင့်", pwdGood: "ကောင်းမွန်", pwdStrong: "ခိုင်မာ", pwdVeryStrong: "အလွန်ခိုင်မာ", 
-                pwdRequirement: "စကားဝှက် ပိုမိုခိုင်မာရန် လိုအပ်ပါသည် (အက္ခရာ ၈ လုံးအထက်၊ အကြီး၊ အသေး၊ ဂဏန်း၊ သင်္ကေတများ ပါရမည်)။", msgVerificationSent: "အတည်ပြုအီးမေးလ် ပို့လိုက်ပါပြီ။ သင့် Inbox ကို စစ်ဆေးပါ။"
+                pwdRequirement: "စကားဝှက် ပိုမိုခိုင်မာရန် လိုအပ်ပါသည် (အက္ခရာ ၈ လုံးအထက်၊ အကြီး၊ အသေး၊ ဂဏန်း၊ သင်္ကေတများ ပါရမည်)။", msgVerificationSent: "အတည်ပြုအီးမေးလ် ပို့လိုက်ပါပြီ။ သင့် Inbox ကို စစ်ဆေးပါ။",
+                errInvalidName: "ကျေးဇူးပြု၍ မှန်ကန်သောအမည်ကို ထည့်ပါ။ (အနည်းဆုံး အက္ခရာ ၃ လုံး)", errInvalidEmail: "ကျေးဇူးပြု၍ မှန်ကန်သောအီးမေးလ်ကို ထည့်ပါ။", errEmailExists: "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။"
             }
         };
 
@@ -400,7 +405,7 @@
         }
 
         function toggleWishlistDrawer() {
-            if (!currentUser) return showToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ");
+            if (!currentUser) return showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ");
             const drawer = document.getElementById('wishlistDrawer'); const overlay = document.getElementById('wishlistOverlay');
             if(!drawer.classList.contains('open')) document.getElementById('mobileDrawer').classList.remove('open');
             drawer.classList.toggle('open'); overlay.classList.toggle('open');
@@ -543,13 +548,37 @@
         function showLoader(textKey) { loaderText.innerText = dict[currentLang][textKey] || textKey; globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); globalLoader.classList.add('opacity-100', 'visibility-visible'); }
         function hideLoader() { globalLoader.classList.remove('opacity-100', 'visibility-visible'); globalLoader.classList.add('opacity-0', 'pointer-events-none'); setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600); }
 
-        /* --- STRICT SUPABASE REGISTER LOGIC --- */
+        /* --- ROBUST SUPABASE REGISTER LOGIC --- */
         async function handleRegister(e) {
             e.preventDefault();
-            if (currentPwdScore < 4) { showErrorToast(dict[currentLang].pwdRequirement); return; }
-            const name = document.getElementById('regName').value; const email = document.getElementById('regEmail').value; const pass = document.getElementById('regPass').value;
+            
+            const name = document.getElementById('regName').value.trim(); 
+            const email = document.getElementById('regEmail').value.trim(); 
+            const pass = document.getElementById('regPass').value;
+            const regBtn = document.getElementById('regBtn');
+
+            // 1. FRONTEND VALIDATION (High Performance Checking)
+            const nameRegex = /^[\p{L}\s]{3,50}$/u; // Supports English and Myanmar characters (3-50 length)
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic strict email regex
+
+            if (!name.match(nameRegex)) {
+                showErrorToast(dict[currentLang].errInvalidName);
+                return;
+            }
+            if (!email.match(emailRegex)) {
+                showErrorToast(dict[currentLang].errInvalidEmail);
+                return;
+            }
+            if (currentPwdScore < 4) { 
+                showErrorToast(dict[currentLang].pwdRequirement); 
+                return; 
+            }
+
+            // 2. DISABLE BUTTON (Prevent double submission spam)
+            regBtn.disabled = true;
             showLoader('loadingAuth');
 
+            // 3. API CALL
             const { data, error } = await supabaseInstance.auth.signUp({ 
                 email: email, 
                 password: pass, 
@@ -558,11 +587,21 @@
                     emailRedirectTo: 'https://htet-zaw-paing.github.io/myancode/login/index.html' 
                 } 
             });
+            
+            // 4. POST-API LOGIC
             hideLoader();
+            regBtn.disabled = false; // re-enable button if they need to try again
             
             if (error) { 
-                // Using custom error toast instead of window.alert()
-                showErrorToast(error.message); 
+                // Advanced Error Mapping
+                let customErrorMsg = error.message;
+                
+                // Supabase typically throws a 422 or "already registered" if user exists 
+                if (error.status === 422 || error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('exists')) {
+                    customErrorMsg = dict[currentLang].errEmailExists;
+                }
+                
+                showErrorToast(customErrorMsg); 
                 return; 
             }
             
