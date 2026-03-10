@@ -296,7 +296,8 @@
                 hasAccount: "Already have an account?", btnLoginSwap: "Login", loadingAuth: "Creating Account...",
                 pwdWeak: "Weak", pwdFair: "Fair", pwdGood: "Good", pwdStrong: "Strong", pwdVeryStrong: "Secure", 
                 pwdRequirement: "Use a strong password (8+ chars, uppercase, number, symbol).", msgVerificationSent: "Verification email sent. Please check your inbox.",
-                errInvalidName: "Please enter a valid name (at least 3 characters).", errInvalidEmail: "Please enter a valid email address.", errEmailExists: "Email is already registered. Please log in."
+                errInvalidName: "Please enter a valid name (at least 3 characters).", errInvalidEmail: "Please enter a valid email address.", 
+                errEmailExists: "Email is already registered. Please log in.", errNameExists: "Username is already taken. Please choose another."
             },
             mm: {
                 navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
@@ -313,7 +314,8 @@
                 hasAccount: "အကောင့်ရှိပြီးသားလား?", btnLoginSwap: "အကောင့်ဝင်ရန်", loadingAuth: "အကောင့်ဖန်တီးနေပါသည်...",
                 pwdWeak: "အားနည်း", pwdFair: "အသင့်အတင့်", pwdGood: "ကောင်းမွန်", pwdStrong: "ခိုင်မာ", pwdVeryStrong: "အလွန်ခိုင်မာ", 
                 pwdRequirement: "စကားဝှက် ပိုမိုခိုင်မာရန် လိုအပ်ပါသည် (အက္ခရာ ၈ လုံးအထက်၊ အကြီး၊ အသေး၊ ဂဏန်း၊ သင်္ကေတများ ပါရမည်)။", msgVerificationSent: "အတည်ပြုအီးမေးလ် ပို့လိုက်ပါပြီ။ သင့် Inbox ကို စစ်ဆေးပါ။",
-                errInvalidName: "ကျေးဇူးပြု၍ မှန်ကန်သောအမည်ကို ထည့်ပါ။ (အနည်းဆုံး အက္ခရာ ၃ လုံး)", errInvalidEmail: "ကျေးဇူးပြု၍ မှန်ကန်သောအီးမေးလ်ကို ထည့်ပါ။", errEmailExists: "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။"
+                errInvalidName: "ကျေးဇူးပြု၍ မှန်ကန်သောအမည်ကို ထည့်ပါ။ (အနည်းဆုံး အက္ခရာ ၃ လုံး)", errInvalidEmail: "ကျေးဇူးပြု၍ မှန်ကန်သောအီးမေးလ်ကို ထည့်ပါ။", 
+                errEmailExists: "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။", errNameExists: "အမည်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အခြားအမည်ရွေးပါ။"
             }
         };
 
@@ -574,11 +576,24 @@
                 return; 
             }
 
-            // 2. DISABLE BUTTON (Prevent double submission spam)
+            // 2. LOCAL STORAGE DUPLICATE CHECK (Robust Client-Side Validation)
+            let localUsers = JSON.parse(localStorage.getItem('myancode_users')) || [];
+            
+            if (localUsers.some(u => u.email === email.toLowerCase())) {
+                showErrorToast(dict[currentLang].errEmailExists);
+                return;
+            }
+            
+            if (localUsers.some(u => u.name.toLowerCase() === name.toLowerCase())) {
+                showErrorToast(dict[currentLang].errNameExists);
+                return;
+            }
+
+            // 3. DISABLE BUTTON (Prevent double submission spam)
             regBtn.disabled = true;
             showLoader('loadingAuth');
 
-            // 3. API CALL
+            // 4. API CALL
             const { data, error } = await supabaseInstance.auth.signUp({ 
                 email: email, 
                 password: pass, 
@@ -588,7 +603,7 @@
                 } 
             });
             
-            // 4. POST-API LOGIC
+            // 5. POST-API LOGIC
             hideLoader();
             regBtn.disabled = false; // re-enable button if they need to try again
             
@@ -605,6 +620,10 @@
                 return; 
             }
             
+            // Save successful registration to local storage to prevent immediate local duplicates
+            localUsers.push({ email: email.toLowerCase(), name: name.toLowerCase(), isVerified: false });
+            localStorage.setItem('myancode_users', JSON.stringify(localUsers));
+
             showToast(dict[currentLang].msgVerificationSent);
             setTimeout(() => { window.location.href = '../login/index.html'; }, 2000);
         }
