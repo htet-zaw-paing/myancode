@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Product Details | MyanCode</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'] },
+                    colors: { myancode: { black: '#111111', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #ffffff; color: #111111; -webkit-font-smoothing: antialiased; }
+        body.no-scroll { overflow: hidden; }
+
+        html[lang="mm"] body { font-size: 14px; line-height: 2; }
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3 { letter-spacing: normal; }
+        html[lang="mm"] .uppercase, html[lang="mm"] .capitalize, html[lang="mm"] .tracking-widest { text-transform: none; letter-spacing: normal; }
+        
+        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
+        .hover-underline { position: relative; }
+        .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+
+        .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-hover-effect:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
+        
+        .card-hover { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
+        .progress-line { width: 100%; height: 2px; background-color: #e5e5ea; border-radius: 4px; overflow: hidden; position: relative; }
+        .progress-line::after { content: ''; position: absolute; left: -50%; top: 0; height: 100%; width: 50%; background-color: #111111; border-radius: 4px; animation: lineAnim 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+        @keyframes lineAnim { 0% { left: -50%; width: 50%; } 50% { width: 20%; } 100% { left: 100%; width: 50%; } }
+
+        .search-overlay { transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; opacity: 0; pointer-events: none; }
+        .search-overlay.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .drawer-left { transform: translateX(-100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-left.open { transform: translateX(0); }
+        .drawer-right { transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-right.open { transform: translateX(0); }
+        .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .user-avatar-global { transition: all 0.3s ease; }
+        .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
+
+        .thumb-active { border-color: #111111 !important; opacity: 1 !important; }
+    </style>
+</head>
+<body class="font-sans selection:bg-myancode-blue selection:text-white no-scroll">
+
+    <!-- GLOBAL ENTERPRISE LOADER -->
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
+        <i data-lucide="code-2" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
+        <div class="w-48 max-w-[80vw]"><div class="progress-line"></div></div>
+        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 transition-colors" data-i18n="loadingInit">Initializing Experience...</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] glass-nav">
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center">
+                    <button class="md:hidden mr-4 transition-colors duration-300 nav-icon text-myancode-black" onclick="toggleMobileMenu()"><i data-lucide="menu" class="h-5 w-5"></i></button>
+                    <a href="../index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
+                        <i data-lucide="code-2" class="h-5 w-5 mr-2 transition-all duration-500 group-hover:rotate-12 nav-icon text-myancode-black"></i>
+                        <span class="font-semibold text-base sm:text-lg tracking-wide transition-colors duration-300 group-hover:text-myancode-blue nav-text text-myancode-black">MyanCode</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium">
+                    <a href="../website/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black" data-i18n="navWebsites">Websites</a>
+                    <a href="../index.html#services" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-i18n="navServices">Services</a>
+                    <a href="../index.html#standard" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-i18n="navStandard">Standard</a>
+                    <a href="../index.html#process" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-i18n="navProcess">Process</a>
+                </div>
+                <div class="flex items-center space-x-4 sm:space-x-5">
+                    <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i></button>
+                    <div class="relative hidden sm:block" id="langContainer">
+                        <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-4 pb-2 mb-2 border-b border-gray-50 text-[10px] uppercase tracking-widest text-gray-400 font-semibold" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        </div>
+                    </div>
+                    <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
+                    <button onclick="toggleWishlistDrawer()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black">
+                        <i data-lucide="heart" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-myancode-blue text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SEARCH OVERLAY & DRAWERS -->
+    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
+        <div class="max-w-[1024px] mx-auto px-6 pt-10">
+            <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-500 hover:text-black transition-colors rounded-full bg-gray-50 hover:bg-gray-200"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+            <div class="mt-8 sm:mt-16 max-w-3xl mx-auto">
+                <div class="relative w-full border-b border-gray-300 focus-within:border-myancode-black transition-colors pb-4 flex items-center">
+                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-4"></i>
+                    <input type="text" id="megaSearchInput" autocomplete="off" class="w-full text-3xl sm:text-5xl font-semibold text-black bg-transparent border-none outline-none placeholder-gray-200" placeholder="Search..." data-i18n-placeholder="searchPlaceholder">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-white/95 backdrop-blur-3xl z-[80] drawer-left flex flex-col overflow-y-auto">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100/50">
+            <span class="font-semibold tracking-wide text-lg text-black">MyanCode</span>
+            <button onclick="toggleMobileMenu()" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-600 hover:text-black"><i data-lucide="x" class="h-5 w-5"></i></button>
+        </div>
+        <div class="flex-1 px-8 py-8 flex flex-col max-w-lg mx-auto w-full">
+            <div class="space-y-8 flex-1 text-lg font-medium tracking-wide capitalize">
+                <a href="../website/index.html" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navWebsites">Websites</span></a>
+                <a href="../index.html#services" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navServices">Services</span></a>
+                <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors pt-4"><span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-4 w-4 text-gray-300"></i></button>
+            </div>
+            <div class="border-t border-gray-200 mt-10 pt-8 space-y-6 pb-10">
+                <div id="mobileAuthContainer" class="w-full flex flex-col space-y-6"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="wishlistOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
+    <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-gray-100">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100 bg-gray-50/50">
+            <h3 class="font-semibold text-lg tracking-tight flex items-center gap-2"><i data-lucide="heart" class="h-5 w-5 text-myancode-blue fill-myancode-blue"></i> <span data-i18n="wishlistTitle">My Wishlist</span></h3>
+            <button onclick="toggleWishlistDrawer()" class="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-gray-500 hover:text-black"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+            <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold text-black" id="wishlistTotal">0 MMK</span></div>
+            <button class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- MAIN PRODUCT DETAIL -->
+    <section class="pt-28 sm:pt-40 pb-20 px-4 sm:px-6 relative bg-white">
+        <div class="max-w-[1024px] mx-auto">
+            
+            <!-- Breadcrumbs -->
+            <div class="flex items-center text-xs font-semibold text-gray-400 mb-8 tracking-wider reveal active">
+                <a href="../index.html" class="hover:text-myancode-black transition-colors" data-i18n="navHome">Home</a>
+                <i data-lucide="chevron-right" class="w-3 h-3 mx-2"></i>
+                <a href="../website/index.html" class="hover:text-myancode-black transition-colors" data-i18n="navWebsites">Websites</a>
+                <i data-lucide="chevron-right" class="w-3 h-3 mx-2"></i>
+                <span class="text-myancode-black truncate max-w-[200px] sm:max-w-none" id="bcProductName">...</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+                <!-- Left: Gallery -->
+                <div class="space-y-4 reveal active" id="galleryContainer">
+                    <!-- Main Image -->
+                    <div class="aspect-[4/3] rounded-3xl bg-gray-50 overflow-hidden border border-gray-100 shadow-sm relative group flex items-center justify-center">
+                        <img id="mainProductImage" src="" class="opacity-0" alt="Product Image">
+                    </div>
+                    <!-- Thumbnails -->
+                    <div class="grid grid-cols-4 gap-3 sm:gap-4" id="galleryThumbnails">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Right: Product Info -->
+                <div class="flex flex-col justify-center reveal active" style="transition-delay: 100ms;">
+                    
+                    <div class="flex items-center flex-wrap gap-3 mb-5">
+                        <span id="detailBrand" class="px-3 py-1 bg-gray-50 border border-gray-100 text-myancode-black text-[10px] font-bold uppercase tracking-widest rounded-full">Brand</span>
+                        <span id="detailCategory" class="text-[11px] font-bold uppercase tracking-widest text-myancode-blue">Category</span>
+                    </div>
+
+                    <h1 id="detailName" class="text-4xl sm:text-5xl font-semibold tracking-tight text-myancode-black mb-6 leading-tight">Product Name</h1>
+                    
+                    <div class="flex flex-col sm:flex-row sm:items-end gap-3 mb-8 pb-8 border-b border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <span id="detailDiscountPrice" class="text-3xl font-bold text-myancode-black tracking-tight">0 MMK</span>
+                            <span id="detailPrice" class="text-lg font-semibold text-gray-400 line-through">0 MMK</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 mb-8">
+                        <span id="detailStock" class="px-4 py-1.5 bg-green-50 text-green-600 text-[10px] font-bold uppercase tracking-widest rounded-full border border-green-100" data-i18n="inStock">In Stock</span>
+                        <span class="text-xs text-gray-500 font-semibold tracking-wide flex items-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i> <span data-i18n="sku">SKU</span>: <span id="detailSku">MC-000</span></span>
+                    </div>
+
+                    <p id="detailDescription" class="text-base text-gray-500 leading-relaxed mb-10">Product description will load here.</p>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                        <button class="flex-1 bg-myancode-black text-white py-4 px-8 rounded-full text-sm font-semibold tracking-wide shadow-lg btn-hover-effect flex items-center justify-center gap-2" data-i18n="btnAddToCart">
+                            Purchase Template
+                        </button>
+                        <button id="btnToggleWishlistDetail" onclick="handleDetailWishlistToggle()" class="px-8 py-4 rounded-full text-sm font-semibold border border-gray-200 text-myancode-black hover:bg-gray-50 btn-hover-effect flex justify-center items-center gap-2 transition-colors">
+                            <i data-lucide="heart" id="detailWishlistIcon" class="w-5 h-5 text-gray-400"></i> <span data-i18n="btnAddWishlist">Add to Wishlist</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RECOMMENDED PRODUCTS -->
+    <section class="py-20 sm:py-32 bg-[#fbfbfd] border-t border-gray-100">
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
+            <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-myancode-black mb-10 reveal" data-i18n="recommended">You May Also Like</h3>
+            
+            <div id="recommendedGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Rendered via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Footer -->
+    <footer class="bg-white pt-24 pb-12 border-t border-gray-200 px-4 sm:px-6">
+        <div class="max-w-[1024px] mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-20">
+                <div>
+                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftCompany">Company</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftAbout">About Us</a></li>
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftContact">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftHelp">Support</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftProject">Project Tracking</a></li>
+                        <li><a href="#" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftFAQ">Client FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftSolutions">Solutions</h4>
+                    <ul class="space-y-3">
+                        <li><a href="../website/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftWebsites">Static Websites</a></li>
+                        <li><a href="../index.html#services" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftSEO">SEO Optimization</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftFollow">Follow Us</h4>
+                    <div class="flex space-x-6">
+                        <a href="#" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="facebook" class="h-5 w-5 fill-current"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="linkedin" class="h-5 w-5 fill-current"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-8 flex justify-center items-center">
+                <p class="text-[11px] text-gray-400 font-medium text-center tracking-wide" data-i18n="ftCopyright">&copy; 2026 MyanCode. All rights reserved. Engineered in Yangon.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification Toasts -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
+        <span id="toast-msg" class="text-sm font-medium tracking-wide">Success!</span>
+    </div>
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-white"></i>
+        <span id="error-toast-msg" class="text-sm font-medium tracking-wide">Error!</span>
+    </div>
+
+    <script>
+        /* --- Global Setup & Auth --- */
+        lucide.createIcons();
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+        
+        let activeProducts = [];
+        let currentProduct = null;
+
+        const dict = {
+            en: {
+                navHome: "Home", navWebsites: "Websites", navServices: "Services", navStandard: "Standard", navProcess: "Process",
+                langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
+                wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", wlTotal: "Total", btnContact: "Proceed to Checkout",
+                ftCompany: "Company", ftAbout: "About Us", ftContact: "Contact Us", ftCareers: "Careers", ftYangon: "Yangon Office",
+                ftHelp: "Support", ftProject: "Project Tracking", ftFAQ: "Client FAQ", ftServicePol: "Service Policy", ftPrivacy: "Privacy Policy",
+                ftSolutions: "Solutions", ftWebsites: "Static Websites", ftSEO: "SEO Optimization", ftDomain: "Domain Registration", ftMaint: "Enterprise Maintenance",
+                ftFollow: "Follow Us", ftCopyright: "© 2026 MyanCode. All rights reserved. Engineered in Yangon.",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrOrders: "Orders", hdrLogout: "Sign Out", msgLoggedOut: "Signed out securely.", loadingInit: "Initializing...", loadingData: "Loading details...",
+                
+                // Detail Page Keys
+                btnViewDetails: "View Details", inStock: "In Stock", outOfStock: "Out of Stock", sku: "SKU", brand: "Brand", category: "Category",
+                recommended: "You May Also Like", btnAddToCart: "Purchase Template", btnAddWishlist: "Add to Wishlist",
+                notFound: "Product not found."
+            },
+            mm: {
+                navHome: "ပင်မစာမျက်နှာ", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
+                langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
+                wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", wlTotal: "စုစုပေါင်း", btnContact: "ဝယ်ယူရန် ရှေ့ဆက်မည်",
+                ftCompany: "ကုမ္ပဏီ", ftAbout: "ကျွန်ုပ်တို့အကြောင်း", ftContact: "ဆက်သွယ်ရန်", ftCareers: "အလုပ်အကိုင်များ", ftYangon: "ရန်ကုန်ရုံးချုပ်",
+                ftHelp: "အကူအညီ", ftProject: "ပရောဂျက် ခြေရာခံရန်", ftFAQ: "အမေးများသောမေးခွန်းများ", ftServicePol: "ဝန်ဆောင်မှုမူဝါဒ", ftPrivacy: "ကိုယ်ရေးအချက်အလက်မူဝါဒ",
+                ftSolutions: "ဖြေရှင်းချက်များ", ftWebsites: "Static ဝက်ဘ်ဆိုက်များ", ftSEO: "SEO အဆင့်မြှင့်တင်ခြင်း", ftDomain: "ဒိုမိန်းအမည် မှတ်ပုံတင်ခြင်း", ftMaint: "ဝက်ဘ်ဆိုက် ထိန်းသိမ်းခြင်း",
+                ftFollow: "နောက်ဆုံးရသတင်းများ", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrOrders: "အော်ဒါများ", hdrLogout: "အကောင့်ထွက်ရန်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", loadingData: "အချက်အလက်များ ရယူနေပါသည်...",
+                
+                // Detail Page Keys
+                btnViewDetails: "အသေးစိတ်ကြည့်ရန်", inStock: "ပစ္စည်းရှိသည်", outOfStock: "ပစ္စည်းကုန်နေသည်", sku: "SKU", brand: "အမှတ်တံဆိပ်", category: "အမျိုးအစား",
+                recommended: "သင်နှစ်သက်နိုင်သော အခြားအရာများ", btnAddToCart: "ဝယ်ယူမည်", btnAddWishlist: "စာရင်းသို့ထည့်မည်",
+                notFound: "ကုန်ပစ္စည်း မတွေ့ပါ။"
+            }
+        };
+
+        const globalLoader = document.getElementById('globalLoader');
+        function showLoader(i18nKey = 'loadingInit') { document.getElementById('loaderText').innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit']; globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); globalLoader.classList.add('opacity-100', 'visibility-visible'); document.body.classList.add('no-scroll'); }
+        function hideLoader() { globalLoader.classList.remove('opacity-100', 'visibility-visible'); globalLoader.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600); }
+
+        const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
+        
+        let supabaseInstance = null; let currentUser = null; let currentUserWishlist = [];
+        if (window.supabase) {
+            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: false } });
+            supabaseInstance.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    currentUser = { name: session.user.user_metadata?.full_name || session.user.email.split('@')[0], email: session.user.email, id: session.user.id, avatar_url: session.user.user_metadata?.avatar_url || null };
+                    currentUserWishlist = session.user.user_metadata?.wishlist || [];
+                } else { currentUser = null; currentUserWishlist = []; }
+                updateAuthUI(); updateDetailWishlistUI();
+            });
+        }
+
+        function renderLanguage() {
+            document.documentElement.lang = currentLang; 
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
+            updateAuthUI(); renderProductData(); renderRecommendedProducts();
+            if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
+        }
+
+        function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
+        function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
+
+        function updateAuthUI() {
+            const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
+            if (!desktopAuth || !containerMob) return;
+            if (currentUser) {
+                const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-gray-200">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
+                desktopAuth.innerHTML = `
+                    <div class="relative" id="profileContainer">
+                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black flex items-center justify-center">${avatarIconHTML}</button>
+                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
+                            <a href="../profile/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrProfile}</a>
+                            <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
+                        </div>
+                    </div>`;
+                containerMob.innerHTML = `
+                    <div class="flex justify-between items-center w-full text-gray-800 text-base font-medium tracking-wide border-b border-gray-100 pb-4 mb-2">
+                        <span class="capitalize text-sm font-bold truncate max-w-[200px]">${currentUser.name}</span> <i data-lucide="user-check" class="h-5 w-5 text-myancode-blue"></i>
+                    </div>
+                    <a href="../profile/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
+                        <span>${dict[currentLang].hdrProfile}</span> <i data-lucide="settings" class="h-5 w-5 text-gray-400"></i>
+                    </a>
+                    <button onclick="handleLogout()" class="flex justify-between items-center w-full text-red-500 hover:text-red-600 transition-colors text-base font-medium tracking-wide capitalize pb-6 border-b border-gray-200">
+                        <span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5"></i>
+                    </button>`;
+            } else {
+                desktopAuth.innerHTML = `
+                    <a href="../login/index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link text-myancode-black px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
+                    <a href="../register/index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+                containerMob.innerHTML = `
+                    <div class="flex flex-col gap-3 pb-6 border-b border-gray-200">
+                        <a href="../login/index.html" class="flex justify-center items-center w-full text-gray-800 bg-gray-100 hover:bg-gray-200 py-3.5 rounded-xl transition-colors text-sm font-semibold capitalize">${dict[currentLang].hdrLogin}</a>
+                        <a href="../register/index.html" class="flex justify-center items-center w-full text-white bg-myancode-blue hover:bg-blue-600 py-3.5 rounded-xl transition-colors text-sm font-semibold capitalize shadow-md">${dict[currentLang].hdrRegister}</a>
+                    </div>`;
+            }
+            updateWishlistCount(); lucide.createIcons();
+        }
+
+        /* --- REAL DATABASE FETCHING --- */
+        async function fetchLiveProductData() {
+            if (!supabaseInstance) return;
+            showLoader('loadingData');
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('products')
+                    .select('*')
+                    .eq('product_status', 'active');
+
+                if (error) throw error;
+                activeProducts = data || [];
+
+                // Parse the ?id= parameter from the URL
+                const params = new URLSearchParams(window.location.search);
+                const id = params.get('id');
+
+                if (id) {
+                    currentProduct = activeProducts.find(p => p.product_id === id);
+                }
+
+                // If not found in DB but products exist, safely default to the first product to prevent broken page
+                if (!currentProduct && activeProducts.length > 0) {
+                    currentProduct = activeProducts[0];
+                }
+
+                if (currentProduct) {
+                    renderProductData();
+                    renderRecommendedProducts();
+                } else {
+                    document.getElementById('detailName').innerText = dict[currentLang].notFound;
+                    document.getElementById('bcProductName').innerText = "---";
+                    document.getElementById('detailDescription').innerText = "No active products are available right now.";
+                }
+            } catch (err) {
+                console.error("Error fetching detail data:", err);
+                showErrorToast("Failed to load product details.");
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function renderProductData() {
+            if (!currentProduct) return;
+            
+            const name = currentLang === 'en' ? (currentProduct.product_name_en || currentProduct.product_name_mm) : (currentProduct.product_name_mm || currentProduct.product_name_en);
+            const desc = currentLang === 'en' ? (currentProduct.product_description_en || currentProduct.product_description_mm || '') : (currentProduct.product_description_mm || currentProduct.product_description_en || '');
+            
+            document.getElementById('bcProductName').innerText = name || '...';
+            document.getElementById('detailName').innerText = name || 'Unnamed Product';
+            document.getElementById('detailDescription').innerText = desc;
+            
+            document.getElementById('detailBrand').innerText = currentProduct.brand || 'MyanCode Exclusive';
+            document.getElementById('detailCategory').innerText = currentProduct.category_id || 'Template';
+            document.getElementById('detailSku').innerText = currentProduct.product_sku || 'N/A';
+            
+            const finalPrice = currentProduct.product_discount_price || currentProduct.product_price;
+            document.getElementById('detailDiscountPrice').innerText = `${finalPrice.toLocaleString()} ${currentProduct.currency || 'MMK'}`;
+            
+            const priceEl = document.getElementById('detailPrice');
+            if (currentProduct.product_discount_price && currentProduct.product_discount_price < currentProduct.product_price) {
+                priceEl.innerText = `${currentProduct.product_price.toLocaleString()} ${currentProduct.currency || 'MMK'}`;
+                priceEl.style.display = 'inline';
+            } else {
+                priceEl.style.display = 'none';
+            }
+            
+            const stockBadge = document.getElementById('detailStock');
+            if (currentProduct.product_stock > 0) {
+                stockBadge.className = "px-4 py-1.5 bg-green-50 text-green-600 text-[10px] font-bold uppercase tracking-widest rounded-full border border-green-100";
+                stockBadge.setAttribute('data-i18n', 'inStock');
+                stockBadge.innerText = dict[currentLang].inStock;
+            } else {
+                stockBadge.className = "px-4 py-1.5 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-widest rounded-full border border-red-100";
+                stockBadge.setAttribute('data-i18n', 'outOfStock');
+                stockBadge.innerText = dict[currentLang].outOfStock;
+            }
+
+            // Gallery Render
+            const mainImg = document.getElementById('mainProductImage');
+            const placeholderSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'/><circle cx='8.5' cy='8.5' r='1.5'/><polyline points='21 15 16 10 5 21'/></svg>";
+            
+            if (currentProduct.product_image) {
+                mainImg.src = currentProduct.product_image;
+                mainImg.className = "w-full h-full object-cover transition-transform duration-700 group-hover:scale-105";
+            } else {
+                mainImg.src = placeholderSvg;
+                mainImg.className = "w-24 h-24 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-50";
+            }
+            
+            const thumbsContainer = document.getElementById('galleryThumbnails');
+            let galleryHtml = '';
+            
+            if (currentProduct.product_image) {
+                galleryHtml += `
+                    <div class="aspect-square rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer border-2 border-myancode-black transition-all opacity-100 thumb-active" onclick="changeMainImage('${currentProduct.product_image}', this)">
+                        <img src="${currentProduct.product_image}" class="w-full h-full object-cover bg-gray-50" loading="lazy">
+                    </div>
+                `;
+            }
+            
+            if (currentProduct.product_gallery && currentProduct.product_gallery.length > 0) {
+                galleryHtml += currentProduct.product_gallery.map((img) => `
+                    <div class="aspect-square rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer border-2 border-transparent hover:border-gray-300 transition-all opacity-70 hover:opacity-100" onclick="changeMainImage('${img}', this)">
+                        <img src="${img}" class="w-full h-full object-cover bg-gray-50" loading="lazy">
+                    </div>
+                `).join('');
+            }
+            
+            thumbsContainer.innerHTML = galleryHtml;
+            updateDetailWishlistUI();
+        }
+
+        window.changeMainImage = function(url, thumbElement) {
+            const mainImg = document.getElementById('mainProductImage');
+            mainImg.src = url;
+            mainImg.className = "w-full h-full object-cover transition-transform duration-700 group-hover:scale-105";
+            
+            const thumbs = document.getElementById('galleryThumbnails').children;
+            for(let i=0; i<thumbs.length; i++) {
+                thumbs[i].classList.remove('border-myancode-black', 'thumb-active');
+                thumbs[i].classList.add('border-transparent');
+            }
+            thumbElement.classList.add('border-myancode-black', 'thumb-active');
+            thumbElement.classList.remove('border-transparent');
+        }
+
+        function renderRecommendedProducts() {
+            if (!currentProduct || activeProducts.length <= 1) {
+                document.getElementById('recommendedGrid').innerHTML = '<p class="col-span-full text-gray-500 text-sm italic">No recommendations available at this time.</p>';
+                return;
+            }
+            const grid = document.getElementById('recommendedGrid');
+            
+            // Get up to 3 other active products from DB to recommend
+            const others = activeProducts.filter(p => p.product_id !== currentProduct.product_id).slice(0, 3);
+            
+            grid.innerHTML = others.map((p, index) => {
+                const name = currentLang === 'en' ? (p.product_name_en || p.product_name_mm) : (p.product_name_mm || p.product_name_en);
+                const viewDetailsTxt = dict[currentLang].btnViewDetails;
+                const delay = index * 100;
+                const price = p.product_discount_price || p.product_price;
+                const imgSrc = p.product_image || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'/><circle cx='8.5' cy='8.5' r='1.5'/><polyline points='21 15 16 10 5 21'/></svg>";
+
+                return `
+                <div class="card-hover bg-white rounded-3xl p-4 shadow-sm border border-gray-100 flex flex-col group relative reveal" style="transition-delay: ${delay}ms;">
+                    <div class="rounded-2xl overflow-hidden mb-4 aspect-[4/3] relative bg-gray-50 flex items-center justify-center">
+                        <img src="${imgSrc}" class="${p.product_image ? 'w-full h-full object-cover' : 'w-12 h-12 opacity-50'} transition-transform duration-700 group-hover:scale-105" loading="lazy"/>
+                    </div>
+                    <div class="px-1 flex flex-col flex-1">
+                        <h4 class="text-base font-semibold tracking-tight text-myancode-black mb-1 truncate">${name}</h4>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-sm font-bold text-myancode-black">${price.toLocaleString()} ${p.currency || 'MMK'}</span>
+                        </div>
+                        <a href="../website-detail/index.html?id=${p.product_id}" class="mt-auto text-center bg-gray-50 text-myancode-black text-[11px] uppercase tracking-widest px-4 py-3 rounded-full font-bold btn-hover-effect hover:bg-gray-100 transition-colors">
+                            ${viewDetailsTxt}
+                        </a>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            setTimeout(reveal, 100);
+        }
+
+        /* --- Wishlist System (Cloud Synced) --- */
+        async function syncWishlistToSupabase() {
+            if (supabaseInstance && currentUser) {
+                const { error } = await supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } });
+                if (error) console.error("Error syncing wishlist:", error);
+            }
+        }
+        function updateWishlistCount() {
+            const countSpan = document.getElementById('wishlist-count'); if (!countSpan) return;
+            if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } else { countSpan.classList.add('opacity-0'); }
+        }
+        function toggleWishlistDrawer() {
+            if (!currentUser) return showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ");
+            const drawer = document.getElementById('wishlistDrawer'); const overlay = document.getElementById('wishlistOverlay');
+            if(!drawer.classList.contains('open')) document.getElementById('mobileDrawer').classList.remove('open');
+            drawer.classList.toggle('open'); overlay.classList.toggle('open');
+            if(drawer.classList.contains('open')) { document.body.classList.add('no-scroll'); renderWishlistItems(); } else { document.body.classList.remove('no-scroll'); }
+        }
+        function renderWishlistItems() {
+            const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal'); let total = 0;
+            if (currentUserWishlist.length === 0) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400"><i data-lucide="heart" class="h-12 w-12 mb-4 opacity-50"></i><p class="text-sm font-medium tracking-wide">${dict[currentLang].emptyWishlist}</p></div>`;
+                totalDisplay.textContent = `0 MMK`; lucide.createIcons(); return;
+            }
+            container.innerHTML = currentUserWishlist.map(item => { total += item.price;
+                return `
+                <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                    <div>
+                        <h4 class="font-semibold text-sm mb-1">${item.name}</h4>
+                        <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
+                    </div>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                </div>`}).join('');
+            totalDisplay.textContent = `${total.toLocaleString()} MMK`; lucide.createIcons();
+        }
+        function toggleWishlist(id, name, price) {
+            if (!currentUser) { showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ"); return; }
+            const index = currentUserWishlist.findIndex(i => i.id === id);
+            if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); } 
+            else { currentUserWishlist.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
+            syncWishlistToSupabase(); updateWishlistCount(); renderWishlistItems(); updateDetailWishlistUI();
+        }
+
+        window.handleDetailWishlistToggle = function() {
+            if (!currentProduct) return;
+            const name = currentLang === 'en' ? (currentProduct.product_name_en || currentProduct.product_name_mm) : (currentProduct.product_name_mm || currentProduct.product_name_en);
+            const price = currentProduct.product_discount_price || currentProduct.product_price;
+            toggleWishlist(currentProduct.product_id, name, price);
+        }
+
+        function updateDetailWishlistUI() {
+            if(!currentProduct) return;
+            const btn = document.getElementById('btnToggleWishlistDetail');
+            const icon = document.getElementById('detailWishlistIcon');
+            if(!btn || !icon) return;
+
+            const inWishlist = currentUserWishlist.some(w => w.id === currentProduct.product_id);
+            if (inWishlist) {
+                icon.classList.remove('text-gray-400');
+                icon.classList.add('text-myancode-blue', 'fill-myancode-blue');
+                btn.classList.add('border-myancode-blue', 'text-myancode-blue');
+                btn.classList.remove('border-gray-200', 'text-myancode-black');
+            } else {
+                icon.classList.add('text-gray-400');
+                icon.classList.remove('text-myancode-blue', 'fill-myancode-blue');
+                btn.classList.remove('border-myancode-blue', 'text-myancode-blue');
+                btn.classList.add('border-gray-200', 'text-myancode-black');
+            }
+        }
+
+        /* --- Drawers, Overlays & Utils --- */
+        async function handleLogout() { showLoader('loadingAuth'); if (supabaseInstance) await supabaseInstance.auth.signOut(); window.location.reload(); }
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            if(!drawer.classList.contains('open')) { document.getElementById('wishlistDrawer').classList.remove('open'); document.getElementById('wishlistOverlay').classList.remove('open'); }
+            drawer.classList.toggle('open'); document.body.classList.toggle('no-scroll', drawer.classList.contains('open'));
+        }
+        function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); if(document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden'); }
+        function toggleProfile(e) { e.stopPropagation(); const profDrop = document.getElementById('profileDropdown'); if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); } }
+        document.addEventListener('click', (e) => {
+            const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
+            if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
+            const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
+        });
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight; var elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 50) reveals[i].classList.add("active");
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        function toggleSearchOverlay() {
+            const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
+            if(overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } 
+            else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; }, 400); }
+        }
+
+        window.addEventListener('load', () => { 
+            renderLanguage(); 
+            fetchLiveProductData(); 
+            reveal(); 
+        });
+    </script>
+</body>
+</html>

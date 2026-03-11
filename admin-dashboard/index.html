@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Workspace | MyanCode</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'] },
+                    colors: { myancode: { black: '#111111', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } },
+                    boxShadow: {
+                        'premium': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                        'premium-hover': '0 20px 40px -10px rgba(0,0,0,0.12)',
+                        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #f5f5f7; color: #111111; -webkit-font-smoothing: antialiased; }
+        body.no-scroll { overflow: hidden; }
+
+        html[lang="mm"] body { font-size: 14px; line-height: 2; }
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] th, html[lang="mm"] td { letter-spacing: normal; }
+        html[lang="mm"] .uppercase, html[lang="mm"] .capitalize, html[lang="mm"] .tracking-widest { text-transform: none; letter-spacing: normal; }
+        
+        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
+        
+        .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
+        .btn-hover-effect:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+        .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .card-enter { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
+        .progress-line { width: 100%; height: 2px; background-color: #e5e5ea; border-radius: 4px; overflow: hidden; position: relative; }
+        .progress-line::after { content: ''; position: absolute; left: -50%; top: 0; height: 100%; width: 50%; background-color: #111111; border-radius: 4px; animation: lineAnim 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+        @keyframes lineAnim { 0% { left: -50%; width: 50%; } 50% { width: 20%; } 100% { left: 100%; width: 50%; } }
+
+        .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        
+        /* Table Styles */
+        th { border-bottom: 1px solid #eaeaea; }
+        tr { transition: background-color 0.2s ease; }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Modal Transitions */
+        .modal-overlay { transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-content { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease; }
+        .modal-hidden { pointer-events: none !important; }
+        .modal-hidden .modal-overlay { opacity: 0; pointer-events: none; }
+        .modal-hidden .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; pointer-events: none; }
+
+        /* Form Inputs Premium Focus */
+        .premium-input { transition: all 0.3s ease; }
+        .premium-input:focus { background-color: #ffffff; border-color: #111111; box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.05); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen">
+
+    <!-- GLOBAL LOADER -->
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
+        <i data-lucide="shield-check" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
+        <div class="w-48 max-w-[80vw]"><div class="progress-line"></div></div>
+        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500" data-i18n="loadingAuth">Verifying Access...</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] glass-nav">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-8">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <div class="flex items-center">
+                    <a href="../index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
+                        <div class="h-8 w-8 bg-myancode-black rounded-lg flex items-center justify-center mr-3 transition-transform duration-500 group-hover:rotate-12 shadow-md">
+                            <i data-lucide="code-2" class="h-4 w-4 text-white"></i>
+                        </div>
+                        <span class="font-bold text-lg sm:text-xl tracking-tight text-myancode-black">MyanCode <span class="bg-red-50 text-red-600 text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-full ml-2 align-middle border border-red-100" data-i18n="adminBadge">Workspace</span></span>
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-3 sm:space-x-5">
+                    <div class="relative" id="langContainer">
+                        <button onclick="toggleLangDropdown(event)" class="h-10 w-10 flex items-center justify-center rounded-full bg-gray-100/80 hover:bg-gray-200 transition-colors duration-300 group text-myancode-black shadow-inner-soft"><i data-lucide="globe" class="h-4 w-4 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-3 w-40 bg-white rounded-2xl shadow-premium border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-4 pb-2 mb-2 border-b border-gray-50 text-[10px] uppercase tracking-widest text-gray-400 font-bold" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">English</button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">မြန်မာ</button>
+                        </div>
+                    </div>
+                    
+                    <a href="../index.html" class="hidden sm:flex text-xs sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 px-5 py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-2 shadow-sm btn-hover-effect">
+                        <i data-lucide="external-link" class="w-4 h-4 text-gray-400"></i> <span data-i18n="btnGoToSite">View Site</span>
+                    </a>
+                    
+                    <button onclick="handleLogout()" class="text-xs sm:text-sm font-bold bg-myancode-black text-white px-5 sm:px-6 py-2.5 rounded-full hover:bg-gray-800 transition-colors flex items-center gap-2 shadow-md btn-hover-effect">
+                        <i data-lucide="log-out" class="w-4 h-4 opacity-80"></i> <span class="hidden sm:inline" data-i18n="hdrLogout">Sign Out</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Content -->
+    <main class="flex-grow pt-28 sm:pt-36 pb-20 px-4 sm:px-8 w-full max-w-[1440px] mx-auto relative z-10 hidden" id="dashboardContent">
+        
+        <!-- Apple-style Segmented Control Tabs -->
+        <div class="flex justify-center sm:justify-start mb-10 card-enter" style="animation-delay: 0ms;">
+            <div class="inline-flex bg-gray-200/60 p-1.5 rounded-2xl backdrop-blur-sm border border-gray-200/50 shadow-inner-soft">
+                <button onclick="switchTab('products')" id="tabBtnProducts" class="px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2">
+                    <i data-lucide="package" class="w-4 h-4"></i> <span data-i18n="tabProducts">Products</span>
+                </button>
+                <button onclick="switchTab('users')" id="tabBtnUsers" class="px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2">
+                    <i data-lucide="users" class="w-4 h-4"></i> <span data-i18n="tabUsers">Users</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= PRODUCTS SECTION ================= -->
+        <div id="productsSection">
+            
+            <!-- Dashboard Analytics Overview -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+                <div class="bg-white rounded-3xl p-6 shadow-premium border border-gray-100 flex items-center justify-between card-enter" style="animation-delay: 100ms;">
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statTotalProd">Total Products</p>
+                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="statTotalProducts">0</h4>
+                    </div>
+                    <div class="h-14 w-14 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100"><i data-lucide="layers" class="w-6 h-6 text-gray-400"></i></div>
+                </div>
+                <div class="bg-white rounded-3xl p-6 shadow-premium border border-gray-100 flex items-center justify-between card-enter" style="animation-delay: 200ms;">
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statActive">Active Online</p>
+                        <h4 class="text-4xl font-bold text-green-500 tracking-tight" id="statActiveProducts">0</h4>
+                    </div>
+                    <div class="h-14 w-14 rounded-2xl bg-green-50 flex items-center justify-center border border-green-100"><i data-lucide="activity" class="w-6 h-6 text-green-500"></i></div>
+                </div>
+                <div class="bg-white rounded-3xl p-6 shadow-premium border border-gray-100 flex items-center justify-between card-enter" style="animation-delay: 300ms;">
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statUsers">Registered Users</p>
+                        <h4 class="text-4xl font-bold text-myancode-blue tracking-tight" id="statTotalUsers">0</h4>
+                    </div>
+                    <div class="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100"><i data-lucide="users" class="w-6 h-6 text-myancode-blue"></i></div>
+                </div>
+            </div>
+
+            <!-- Table Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 card-enter" style="animation-delay: 400ms;">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitle">Product Database</h1>
+                    <p class="text-sm text-gray-500 font-medium" data-i18n="dashSub">Manage enterprise templates, pricing, and inventory.</p>
+                </div>
+                <button onclick="openProductModal()" class="bg-myancode-black text-white px-7 py-3.5 rounded-full text-sm font-bold flex items-center gap-2 shadow-premium btn-hover-effect">
+                    <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btnAddProduct">Add New Product</span>
+                </button>
+            </div>
+
+            <!-- Products Table -->
+            <div class="bg-white rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 500ms;">
+                <div class="overflow-x-auto p-2">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="text-gray-400 font-bold tracking-widest uppercase text-[10px] bg-white">
+                            <tr>
+                                <th class="px-6 py-5 rounded-tl-2xl" data-i18n="thImage">Item</th>
+                                <th class="px-6 py-5" data-i18n="thSku">SKU & Category</th>
+                                <th class="px-6 py-5" data-i18n="thPrice">Pricing</th>
+                                <th class="px-6 py-5" data-i18n="thStatus">Status</th>
+                                <th class="px-6 py-5 text-right rounded-tr-2xl" data-i18n="thActions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody" class="text-gray-700">
+                            <!-- Populated by JS -->
+                            <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 italic font-medium">Loading database architecture...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= USERS SECTION ================= -->
+        <div id="usersSection" class="hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitleUsers">User Directory</h1>
+                    <p class="text-sm text-gray-500 font-medium" data-i18n="dashSubUsers">Manage registered accounts and security roles.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 100ms;">
+                <div class="overflow-x-auto p-2">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="text-gray-400 font-bold tracking-widest uppercase text-[10px] bg-white">
+                            <tr>
+                                <th class="px-6 py-5 rounded-tl-2xl" data-i18n="thUser">Account</th>
+                                <th class="px-6 py-5" data-i18n="thRole">Security Role</th>
+                                <th class="px-6 py-5" data-i18n="thJoined">Date Joined</th>
+                                <th class="px-6 py-5 text-right rounded-tr-2xl" data-i18n="thActions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="text-gray-700">
+                            <!-- Populated by JS -->
+                            <tr><td colspan="4" class="px-6 py-12 text-center text-gray-400 italic font-medium">Loading security protocols...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- NOT AUTHORIZED SCREEN -->
+    <div id="unauthorizedScreen" class="hidden flex-grow flex-col items-center justify-center pt-32 px-4 text-center">
+        <div class="h-24 w-24 bg-red-50 rounded-full flex items-center justify-center mb-6 shadow-inner-soft">
+            <i data-lucide="shield-alert" class="w-12 h-12 text-red-500"></i>
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight text-myancode-black mb-3" data-i18n="errNoAccess">Access Restricted</h2>
+        <p class="text-base text-gray-500 mb-10 max-w-md font-medium leading-relaxed" data-i18n="errNoAccessDesc">Your current security clearance does not permit access to the administrative workspace.</p>
+        <button onclick="window.location.href='../index.html'" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold btn-hover-effect shadow-premium flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Return to Site
+        </button>
+    </div>
+
+    <!-- ENTERPRISE PRODUCT MODAL (Create / Edit) -->
+    <div id="productModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-md modal-overlay" onclick="closeProductModal()"></div>
+        <div class="bg-[#fbfbfd] w-full max-w-5xl max-h-[90vh] sm:rounded-[2.5rem] rounded-t-3xl rounded-b-none shadow-2xl relative flex flex-col modal-content overflow-hidden mt-auto sm:m-4">
+            
+            <div class="px-8 py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200 text-myancode-black"><i data-lucide="box" class="w-5 h-5"></i></div>
+                    <h3 class="text-xl font-bold text-myancode-black tracking-tight" id="modalTitle" data-i18n="modalTitleAdd">Add New Product</h3>
+                </div>
+                <button onclick="closeProductModal()" class="p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div class="p-6 sm:p-8 overflow-y-auto no-scrollbar flex-1 relative">
+                <form id="productForm" class="space-y-8 max-w-4xl mx-auto">
+                    <input type="hidden" id="formProductId">
+                    
+                    <!-- Section 1: Identification -->
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="info" class="w-4 h-4"></i> Identification</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNameEn">Name (English) *</label>
+                                <input type="text" id="pNameEn" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="e.g. Corporate Pro">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNameMm">Name (Myanmar)</label>
+                                <input type="text" id="pNameMm" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="e.g. စီးပွားရေး Pro">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblSlug">URL Slug *</label>
+                                <input type="text" id="pSlug" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm premium-input font-mono text-xs text-gray-600" placeholder="e.g. corporate-pro">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblSku">SKU (Stock Keeping Unit)</label>
+                                <input type="text" id="pSku" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm premium-input font-mono text-xs font-bold text-myancode-black" placeholder="e.g. MC-001">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Economics & Inventory -->
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="credit-card" class="w-4 h-4"></i> Economics & Inventory</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblPrice">Regular Price *</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-3.5 text-sm font-bold text-gray-400">MMK</span>
+                                    <input type="number" id="pPrice" required class="w-full pl-14 pr-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-bold text-myancode-black premium-input" placeholder="0">
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblDiscount">Discount Price</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-3.5 text-sm font-bold text-gray-400">MMK</span>
+                                    <input type="number" id="pDiscount" class="w-full pl-14 pr-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-bold text-red-500 premium-input" placeholder="0">
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblCategory">Category</label>
+                                <input type="text" id="pCategory" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="e.g. Business">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblStock">Stock Level</label>
+                                <input type="number" id="pStock" value="99" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-bold text-myancode-black premium-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Media & Content -->
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="image" class="w-4 h-4"></i> Media & Content</h4>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblMainImg">Main Image URL</label>
+                                <div class="flex gap-3">
+                                    <div class="h-12 w-16 flex-shrink-0 bg-gray-100 rounded-xl border border-gray-200 overflow-hidden" id="previewMainImgContainer">
+                                        <i data-lucide="image" class="w-5 h-5 text-gray-400 m-auto mt-3.5"></i>
+                                    </div>
+                                    <input type="url" id="pMainImg" oninput="updateImagePreview(this.value)" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblGallery">Gallery URLs (Comma separated)</label>
+                                <textarea id="pGallery" rows="2" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input resize-none" placeholder="url1, url2, url3..."></textarea>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblDescEn">Description (English)</label>
+                                    <textarea id="pDescEn" rows="4" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input resize-none" placeholder="Detailed product description..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblDescMm">Description (Myanmar)</label>
+                                    <textarea id="pDescMm" rows="4" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input resize-none" placeholder="အသေးစိတ် အချက်အလက်များ..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-8 py-6 border-t border-gray-200/60 flex justify-end gap-4 bg-white z-10">
+                <button type="button" onclick="closeProductModal()" class="px-8 py-3.5 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button type="button" id="btnSaveProduct" onclick="saveProduct()" class="px-10 py-3.5 rounded-full text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-premium transition-all btn-hover-effect flex items-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i> <span data-i18n="btnSave">Save Database Entry</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM ACTION CONFIRMATION MODAL -->
+    <div id="actionConfirmModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 text-center relative overflow-hidden" id="actionConfirmModalContent">
+            
+            <div id="acModalIconContainer" class="mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-gray-50 mb-6 shadow-inner-soft border border-gray-100">
+                <i id="acModalIcon" data-lucide="alert-circle" class="h-10 w-10 text-gray-500"></i>
+            </div>
+            
+            <h3 id="acModalTitle" class="text-2xl font-bold tracking-tight text-myancode-black mb-3">Are you sure?</h3>
+            <p id="acModalMessage" class="text-sm text-gray-500 mb-8 leading-relaxed font-medium">This action cannot be undone.</p>
+
+            <div class="flex space-x-3 w-full">
+                <button onclick="closeConfirmModal()" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button id="acModalConfirmBtn" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-95">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toasts -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
+        <span id="toast-msg" class="text-sm font-bold tracking-wide">Success!</span>
+    </div>
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center">
+        <i data-lucide="alert-triangle" class="h-5 w-5 mr-3 text-white"></i>
+        <span id="error-toast-msg" class="text-sm font-bold tracking-wide">Error!</span>
+    </div>
+
+    <script>
+        /* --- Setup & Dictionary --- */
+        lucide.createIcons();
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+        let allProducts = [];
+        let allUsers = [];
+
+        const dict = {
+            en: {
+                langSelect: "Language", hdrLogout: "Sign Out", loadingAuth: "Verifying Access...", loadingData: "Syncing Cloud Data...",
+                dashTitle: "Product Database", dashSub: "Manage enterprise templates, pricing, and inventory.",
+                btnAddProduct: "Add New Product", adminBadge: "Workspace", btnGoToSite: "View Site",
+                tabProducts: "Products", tabUsers: "Users",
+                dashTitleUsers: "User Directory", dashSubUsers: "Manage registered accounts and security roles.",
+                
+                // Stats
+                statTotalProd: "Total Products", statActive: "Active Online", statUsers: "Registered Users",
+
+                // Table Headers
+                thImage: "Item", thName: "Name & Slug", thPrice: "Pricing", thStatus: "Status", thActions: "Actions", thSku: "SKU & Category",
+                thUser: "Account", thRole: "Security Role", thJoined: "Date Joined",
+                
+                errNoAccess: "Access Restricted", errNoAccessDesc: "Your current security clearance does not permit access to the administrative workspace.",
+                modalTitleAdd: "Add New Product", modalTitleEdit: "Edit Product",
+                lblNameEn: "Name (English) *", lblNameMm: "Name (Myanmar)", lblSlug: "URL Slug *", lblSku: "SKU (Stock Keeping Unit)",
+                lblPrice: "Regular Price *", lblDiscount: "Discount Price", lblCategory: "Category", lblStock: "Stock Level",
+                lblMainImg: "Main Image URL", lblGallery: "Gallery URLs (Comma separated)",
+                lblDescEn: "Description (English)", lblDescMm: "Description (Myanmar)",
+                btnCancel: "Cancel", btnSave: "Save Database Entry", btnEdit: "Edit", btnDelete: "Delete",
+                btnMakeAdmin: "Promote Admin", btnMakeUser: "Demote User",
+                msgSaveSuccess: "Database entry saved successfully.", msgDeleteSuccess: "Entry securely deleted.", msgRoleUpdated: "Security role updated.",
+                
+                // Confirm Modal
+                confirmDeleteTitle: "Delete Product", confirmDeleteMsg: "Are you sure you want to permanently delete this product from the database?",
+                confirmUserDeleteTitle: "Terminate Account", confirmUserDeleteMsg: "Are you sure you want to completely erase this user account?",
+                confirmRoleTitle: "Update Clearance", confirmRoleMsg: "Are you sure you want to modify this user's security clearance level?"
+            },
+            mm: {
+                langSelect: "ဘာသာစကား", hdrLogout: "အကောင့်ထွက်ရန်", loadingAuth: "အခွင့်အာဏာ စစ်ဆေးနေပါသည်...", loadingData: "ဒေတာရယူနေပါသည်...",
+                dashTitle: "ကုန်ပစ္စည်း ဒေတာဘေ့စ်", dashSub: "ဝက်ဘ်ဆိုက်များ၊ ဈေးနှုန်းနှင့် လက်ကျန်များကို ပြင်ဆင်ပါ။",
+                btnAddProduct: "ကုန်ပစ္စည်းအသစ် ထည့်မည်", adminBadge: "စီမံခန့်ခွဲရေး", btnGoToSite: "ဝက်ဘ်ဆိုက်သို့",
+                tabProducts: "ကုန်ပစ္စည်းများ", tabUsers: "အသုံးပြုသူများ",
+                dashTitleUsers: "အသုံးပြုသူ လမ်းညွှန်", dashSubUsers: "အကောင့်များနှင့် အခွင့်အာဏာများကို စီမံပါ။",
+                
+                // Stats
+                statTotalProd: "ကုန်ပစ္စည်း စုစုပေါင်း", statActive: "လွှင့်တင်ထားသော", statUsers: "အကောင့် စုစုပေါင်း",
+
+                // Table Headers
+                thImage: "အရာဝတ္ထု", thName: "အမည် နှင့် Slug", thPrice: "ဈေးနှုန်း", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ချက်များ", thSku: "SKU နှင့် အမျိုးအစား",
+                thUser: "အကောင့်", thRole: "အခွင့်အာဏာ", thJoined: "ဝင်ရောက်သည့်နေ့",
+                
+                errNoAccess: "ဝင်ရောက်ခွင့် ကန့်သတ်ထားသည်", errNoAccessDesc: "သင့်အကောင့်သည် ဤစီမံခန့်ခွဲရေး နေရာသို့ ဝင်ရောက်ခွင့် မရှိပါ။",
+                modalTitleAdd: "ကုန်ပစ္စည်းအသစ် ထည့်မည်", modalTitleEdit: "ကုန်ပစ္စည်း ပြင်ဆင်မည်",
+                lblNameEn: "အမည် (English) *", lblNameMm: "အမည် (Myanmar)", lblSlug: "လင့်ခ်အမည် *", lblSku: "SKU (ကုဒ်နံပါတ်)",
+                lblPrice: "မူလ ဈေးနှုန်း *", lblDiscount: "လျှော့ဈေး", lblCategory: "အမျိုးအစား", lblStock: "လက်ကျန် အရေအတွက်",
+                lblMainImg: "ပင်မ ပုံလင့်ခ် (URL)", lblGallery: "ပုံများလင့်ခ် (ကော်မာခံ၍ရေးပါ)",
+                lblDescEn: "အကြောင်းအရာ (English)", lblDescMm: "အကြောင်းအရာ (Myanmar)",
+                btnCancel: "ပယ်ဖျက်မည်", btnSave: "ဒေတာဘေ့စ်သို့ သိမ်းမည်", btnEdit: "ပြင်မည်", btnDelete: "ဖျက်မည်",
+                btnMakeAdmin: "အက်ဒမင် ပြောင်းမည်", btnMakeUser: "သာမန်အသုံးပြုသူ ပြောင်းမည်",
+                msgSaveSuccess: "ဒေတာဘေ့စ် သိမ်းဆည်းမှု အောင်မြင်ပါသည်!", msgDeleteSuccess: "အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။", msgRoleUpdated: "အခွင့်အာဏာ ပြောင်းလဲမှု အောင်မြင်ပါသည်!",
+                
+                // Confirm Modal
+                confirmDeleteTitle: "ကုန်ပစ္စည်း ဖျက်မည်", confirmDeleteMsg: "ဤကုန်ပစ္စည်းကို ဒေတာဘေ့စ်မှ အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
+                confirmUserDeleteTitle: "အကောင့် ဖျက်သိမ်းမည်", confirmUserDeleteMsg: "ဤအသုံးပြုသူ အကောင့်ကို အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
+                confirmRoleTitle: "အခွင့်အာဏာ ပြောင်းမည်", confirmRoleMsg: "ဤအသုံးပြုသူ၏ အခွင့်အာဏာ အဆင့်ကို ပြောင်းလဲရန် သေချာပါသလား?"
+            }
+        };
+
+        const globalLoader = document.getElementById('globalLoader');
+        function showLoader(i18nKey = 'loadingInit') { document.getElementById('loaderText').innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit']; globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); globalLoader.classList.add('opacity-100', 'visibility-visible'); document.body.classList.add('no-scroll'); }
+        function hideLoader() { globalLoader.classList.remove('opacity-100', 'visibility-visible'); globalLoader.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600); }
+
+        function renderLanguage() {
+            document.documentElement.lang = currentLang; 
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
+            renderTable();
+            renderUsersTable();
+        }
+
+        function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
+        function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); }
+        document.addEventListener('click', (e) => { const drop = document.getElementById('langDropdown'); const btn = document.getElementById('langContainer'); if (drop && !drop.classList.contains('dropdown-hidden') && (!btn || !btn.contains(e.target))) drop.classList.add('dropdown-hidden'); });
+
+        /* --- CUSTOM CONFIRM MODAL LOGIC --- */
+        let activeConfirmCallback = null;
+        function openConfirmModal(title, message, isDanger, onConfirm) {
+            const modal = document.getElementById('actionConfirmModal');
+            const titleEl = document.getElementById('acModalTitle');
+            const msgEl = document.getElementById('acModalMessage');
+            const iconContainer = document.getElementById('acModalIconContainer');
+            const confirmBtn = document.getElementById('acModalConfirmBtn');
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+            activeConfirmCallback = onConfirm;
+
+            if (isDanger) {
+                iconContainer.className = "mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-red-50 mb-6 shadow-inner-soft border border-red-100";
+                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-10 w-10 text-red-500"></i>';
+                confirmBtn.className = "flex-1 px-6 py-4 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-95 bg-red-600 hover:bg-red-700";
+                confirmBtn.innerText = currentLang === 'en' ? 'Confirm Delete' : 'အတည်ပြု ဖျက်မည်';
+            } else {
+                iconContainer.className = "mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-blue-50 mb-6 shadow-inner-soft border border-blue-100";
+                iconContainer.innerHTML = '<i data-lucide="info" class="h-10 w-10 text-myancode-blue"></i>';
+                confirmBtn.className = "flex-1 px-6 py-4 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-95 bg-myancode-black hover:bg-gray-800";
+                confirmBtn.innerText = currentLang === 'en' ? 'Confirm Update' : 'အတည်ပြု ပြောင်းမည်';
+            }
+            
+            lucide.createIcons();
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth; 
+            modal.classList.remove('opacity-0');
+            document.getElementById('actionConfirmModalContent').classList.remove('scale-95', 'translate-y-10');
+            
+            confirmBtn.onclick = () => {
+                closeConfirmModal();
+                if (activeConfirmCallback) activeConfirmCallback();
+            };
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('actionConfirmModal');
+            const content = document.getElementById('actionConfirmModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95', 'translate-y-10');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        /* --- TABS LOGIC --- */
+        function switchTab(tab) {
+            const pSec = document.getElementById('productsSection');
+            const uSec = document.getElementById('usersSection');
+            const pBtn = document.getElementById('tabBtnProducts');
+            const uBtn = document.getElementById('tabBtnUsers');
+
+            if (tab === 'products') {
+                pSec.classList.remove('hidden');
+                uSec.classList.add('hidden');
+                pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2";
+                uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2";
+                fetchProducts();
+            } else {
+                pSec.classList.add('hidden');
+                uSec.classList.remove('hidden');
+                uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2";
+                pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2";
+                fetchUsers();
+            }
+            lucide.createIcons();
+        }
+
+        /* --- SUPABASE INIT & AUTH VERIFICATION --- */
+        const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
+        
+        let supabaseInstance = null; let currentUser = null;
+        
+        if (window.supabase) {
+            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseInstance.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    currentUser = session.user;
+                    checkAdminStatus();
+                } else {
+                    window.location.href = '../login/index.html';
+                }
+            });
+        }
+
+        function checkAdminStatus() {
+            const role = currentUser?.user_metadata?.role;
+            if (role === 'admin') {
+                document.getElementById('dashboardContent').classList.remove('hidden');
+                document.getElementById('dashboardContent').classList.add('flex', 'flex-col');
+                document.getElementById('unauthorizedScreen').classList.add('hidden');
+                fetchProducts();
+                // Also trigger an invisible fetch to users to get the count for the stat block early
+                if(supabaseInstance) {
+                    supabaseInstance.rpc('admin_get_users').then(({data}) => {
+                        if(data) document.getElementById('statTotalUsers').innerText = data.length;
+                    });
+                }
+            } else {
+                hideLoader();
+                document.getElementById('dashboardContent').classList.add('hidden');
+                document.getElementById('unauthorizedScreen').classList.remove('hidden');
+                document.getElementById('unauthorizedScreen').classList.add('flex');
+            }
+        }
+
+        async function handleLogout() {
+            showLoader('loadingAuth');
+            if (supabaseInstance) await supabaseInstance.auth.signOut();
+            window.location.href = '../login/index.html';
+        }
+
+        /* --- CRUD LOGIC FOR PRODUCTS --- */
+
+        async function fetchProducts() {
+            showLoader('loadingData');
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                allProducts = data || [];
+                
+                // Update Dashboard Stats
+                document.getElementById('statTotalProducts').innerText = allProducts.length;
+                document.getElementById('statActiveProducts').innerText = allProducts.filter(p => p.product_status === 'active' || !p.product_status).length;
+                
+                renderTable();
+            } catch (err) {
+                showErrorToast(err.message);
+                document.getElementById('productsTableBody').innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load secure data.</td></tr>`;
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('productsTableBody');
+            if (allProducts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No database entries found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = allProducts.map(p => {
+                const name = currentLang === 'en' ? (p.product_name_en || p.product_name_mm) : (p.product_name_mm || p.product_name_en);
+                const price = p.product_discount_price ? p.product_discount_price : p.product_price;
+                const img = p.product_image || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                const sku = p.product_sku || 'N/A';
+                const cat = p.category_id || 'Uncategorized';
+
+                return `
+                <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="h-14 w-20 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 shadow-sm flex items-center justify-center relative">
+                            <img src="${img}" class="${p.product_image ? 'h-full w-full object-cover' : 'h-6 w-6 opacity-50'}" alt="${name}">
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="font-bold text-myancode-black truncate max-w-[200px] sm:max-w-[300px] text-[15px]">${name}</div>
+                        <div class="text-[11px] text-gray-400 font-mono mt-1 truncate max-w-[200px] sm:max-w-[300px]">${p.product_slug}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="font-bold text-myancode-black text-sm">${price.toLocaleString()} ${p.currency || 'MMK'}</div>
+                        ${p.product_discount_price ? `<div class="text-[10px] text-gray-400 line-through font-semibold">${p.product_price.toLocaleString()} ${p.currency || 'MMK'}</div>` : ''}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex flex-col gap-1 items-start">
+                            ${p.product_stock > 0 
+                                ? `<span class="px-3 py-1 inline-flex text-[9px] leading-5 font-bold rounded-full bg-green-50 text-green-600 border border-green-100 uppercase tracking-widest shadow-inner-soft">In Stock (${p.product_stock})</span>`
+                                : `<span class="px-3 py-1 inline-flex text-[9px] leading-5 font-bold rounded-full bg-red-50 text-red-600 border border-red-100 uppercase tracking-widest shadow-inner-soft">Out of Stock</span>`
+                            }
+                            <span class="text-[10px] text-gray-500 font-mono font-bold ml-1">${sku}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end opacity-40 group-hover:opacity-100 transition-opacity">
+                            <button onclick="openProductModal('${p.product_id}')" class="text-myancode-blue hover:text-blue-700 mx-1 p-2 bg-blue-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnEdit}"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="confirmDeleteProduct('${p.product_id}')" class="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-xl transition-transform hover:scale-105 mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        // Live preview for image input
+        function updateImagePreview(val) {
+            const container = document.getElementById('previewMainImgContainer');
+            if (val) { container.innerHTML = `<img src="${val}" class="w-full h-full object-cover">`; }
+            else { container.innerHTML = `<i data-lucide="image" class="w-5 h-5 text-gray-400 m-auto mt-3.5"></i>`; lucide.createIcons(); }
+        }
+
+        function openProductModal(productId = null) {
+            const modal = document.getElementById('productModal');
+            document.getElementById('formProductId').value = productId || '';
+            document.getElementById('modalTitle').innerText = productId ? dict[currentLang].modalTitleEdit : dict[currentLang].modalTitleAdd;
+            
+            if (productId) {
+                const p = allProducts.find(item => item.product_id === productId);
+                if (p) {
+                    document.getElementById('pNameEn').value = p.product_name_en || '';
+                    document.getElementById('pNameMm').value = p.product_name_mm || '';
+                    document.getElementById('pSlug').value = p.product_slug || '';
+                    document.getElementById('pSku').value = p.product_sku || '';
+                    document.getElementById('pPrice').value = p.product_price || '';
+                    document.getElementById('pDiscount').value = p.product_discount_price || '';
+                    document.getElementById('pCategory').value = p.category_id || '';
+                    document.getElementById('pStock').value = p.product_stock || 0;
+                    document.getElementById('pMainImg').value = p.product_image || '';
+                    updateImagePreview(p.product_image || '');
+                    document.getElementById('pGallery').value = p.product_gallery ? p.product_gallery.join(', ') : '';
+                    document.getElementById('pDescEn').value = p.product_description_en || '';
+                    document.getElementById('pDescMm').value = p.product_description_mm || '';
+                }
+            } else {
+                document.getElementById('productForm').reset();
+                document.getElementById('pStock').value = '99';
+                updateImagePreview('');
+            }
+
+            modal.classList.remove('modal-hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('modal-hidden');
+        }
+
+        async function saveProduct() {
+            const btn = document.getElementById('btnSaveProduct');
+            btn.disabled = true;
+
+            const id = document.getElementById('formProductId').value;
+            const nameEn = document.getElementById('pNameEn').value.trim();
+            const slug = document.getElementById('pSlug').value.trim().toLowerCase().replace(/\s+/g, '-');
+            const price = parseFloat(document.getElementById('pPrice').value);
+
+            if (!nameEn || !slug || isNaN(price)) {
+                showErrorToast(currentLang === 'en' ? "Please fill required fields (Name, Slug, Price)." : "လိုအပ်သောအချက်အလက်များကို ဖြည့်ပါ။");
+                btn.disabled = false;
+                return;
+            }
+
+            const galleryRaw = document.getElementById('pGallery').value;
+            const galleryArray = galleryRaw ? galleryRaw.split(',').map(s => s.trim()).filter(s => s) : [];
+            const discountPrice = document.getElementById('pDiscount').value ? parseFloat(document.getElementById('pDiscount').value) : null;
+
+            const productData = {
+                product_name_en: nameEn,
+                product_name_mm: document.getElementById('pNameMm').value.trim() || null,
+                product_slug: slug,
+                product_sku: document.getElementById('pSku').value.trim() || null,
+                product_price: price,
+                product_discount_price: discountPrice,
+                category_id: document.getElementById('pCategory').value.trim() || null,
+                product_stock: parseInt(document.getElementById('pStock').value) || 0,
+                product_image: document.getElementById('pMainImg').value.trim() || null,
+                product_gallery: galleryArray,
+                product_description_en: document.getElementById('pDescEn').value.trim() || null,
+                product_description_mm: document.getElementById('pDescMm').value.trim() || null,
+                updated_at: new Date().toISOString()
+            };
+
+            try {
+                showLoader('loadingData');
+                if (id) {
+                    const { error } = await supabaseInstance.from('products').update(productData).eq('product_id', id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseInstance.from('products').insert([productData]);
+                    if (error) throw error;
+                }
+                closeProductModal();
+                showToast(dict[currentLang].msgSaveSuccess);
+                fetchProducts();
+            } catch (err) {
+                hideLoader();
+                showErrorToast(err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function confirmDeleteProduct(id) {
+            openConfirmModal(
+                dict[currentLang].confirmDeleteTitle,
+                dict[currentLang].confirmDeleteMsg,
+                true,
+                async () => {
+                    try {
+                        showLoader('loadingData');
+                        const { error } = await supabaseInstance.from('products').delete().eq('product_id', id);
+                        if (error) throw error;
+                        showToast(dict[currentLang].msgDeleteSuccess);
+                        fetchProducts();
+                    } catch (err) {
+                        hideLoader();
+                        showErrorToast(err.message);
+                    }
+                }
+            );
+        }
+
+        /* --- CRUD LOGIC FOR USERS (Requires RPC Functions) --- */
+
+        async function fetchUsers() {
+            showLoader('loadingData');
+            try {
+                const { data, error } = await supabaseInstance.rpc('admin_get_users');
+                if (error) throw error;
+                allUsers = data || [];
+                document.getElementById('statTotalUsers').innerText = allUsers.length;
+                renderUsersTable();
+            } catch (err) {
+                showErrorToast(currentLang === 'en' ? "Failed to load users. Did you add the SQL RPC functions?" : "ဒေတာရယူ၍မရပါ။ SQL RPC သတ်မှတ်ရန်လိုအပ်ပါသည်။");
+                document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load users data via RPC.</td></tr>`;
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            if (allUsers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No accounts found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = allUsers.map(u => {
+                const meta = u.raw_user_meta_data || {};
+                const name = meta.full_name || u.email.split('@')[0];
+                const role = meta.role || 'user';
+                const isMe = currentUser && u.id === currentUser.id;
+                
+                const avatar = meta.avatar_url 
+                    ? `<img src="${meta.avatar_url}" class="h-12 w-12 rounded-full object-cover border border-gray-200 shadow-sm">` 
+                    : `<div class="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 border border-gray-100 shadow-sm"><i data-lucide="user" class="w-5 h-5"></i></div>`;
+
+                return `
+                <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
+                    <td class="px-6 py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-4">
+                            ${avatar}
+                            <div>
+                                <div class="font-bold text-myancode-black capitalize text-[15px]">${name} ${isMe ? '<span class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-2 uppercase tracking-widest align-middle border border-blue-200 shadow-inner-soft">You</span>' : ''}</div>
+                                <div class="text-xs text-gray-400 mt-1 font-mono">${u.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-5 whitespace-nowrap">
+                        ${role === 'admin' 
+                            ? `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-widest shadow-inner-soft"><i data-lucide="shield" class="w-3 h-3 mr-1 mt-0.5"></i> Admin</span>`
+                            : `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-gray-100 text-gray-600 border border-gray-200 uppercase tracking-widest shadow-inner-soft">User</span>`
+                        }
+                    </td>
+                    <td class="px-6 py-5 whitespace-nowrap text-xs text-gray-500 font-bold tracking-wide font-mono">
+                        ${new Date(u.created_at).toLocaleDateString()}
+                    </td>
+                    <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end opacity-40 group-hover:opacity-100 transition-opacity">
+                        ${!isMe ? `
+                            ${role === 'admin' 
+                                ? `<button onclick="confirmChangeUserRole('${u.id}', 'user')" class="text-orange-500 hover:text-orange-700 mx-1 p-2 bg-orange-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeUser}"><i data-lucide="user-minus" class="w-4 h-4"></i></button>`
+                                : `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-purple-500 hover:text-purple-700 mx-1 p-2 bg-purple-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeAdmin}"><i data-lucide="shield" class="w-4 h-4"></i></button>`
+                            }
+                            <button onclick="confirmDeleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-xl transition-transform hover:scale-105 mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        ` : '<span class="text-[10px] text-gray-300 uppercase tracking-widest font-bold">Protected</span>'}
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        function confirmChangeUserRole(id, newRole) {
+            openConfirmModal(
+                dict[currentLang].confirmRoleTitle,
+                dict[currentLang].confirmRoleMsg,
+                false,
+                async () => {
+                    showLoader('loadingData');
+                    try {
+                        const { error } = await supabaseInstance.rpc('admin_set_role', { target_user_id: id, new_role: newRole });
+                        if (error) throw error;
+                        showToast(dict[currentLang].msgRoleUpdated);
+                        fetchUsers();
+                    } catch (err) {
+                        showErrorToast(err.message);
+                        hideLoader();
+                    }
+                }
+            );
+        }
+
+        function confirmDeleteUser(id) {
+            openConfirmModal(
+                dict[currentLang].confirmUserDeleteTitle,
+                dict[currentLang].confirmUserDeleteMsg,
+                true,
+                async () => {
+                    showLoader('loadingData');
+                    try {
+                        const { error } = await supabaseInstance.rpc('admin_delete_user', { target_user_id: id });
+                        if (error) throw error;
+                        showToast(dict[currentLang].msgDeleteSuccess);
+                        fetchUsers();
+                    } catch (err) {
+                        showErrorToast(err.message);
+                        hideLoader();
+                    }
+                }
+            );
+        }
+
+        /* --- UTILS --- */
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
+
+        window.addEventListener('load', () => { 
+            renderLanguage(); 
+        });
+
+    </script>
+</body>
+</html>
