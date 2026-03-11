@@ -7,6 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="../imgs/web-banners/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,7 +40,7 @@
         .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
         
         .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
         .btn-hover-effect:active:not(:disabled) { transform: translateY(0) scale(0.98); }
         .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -58,29 +59,30 @@
         .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
         .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
         
-        /* Table Styles */
         th { border-bottom: 1px solid #eaeaea; }
         tr { transition: background-color 0.2s ease; }
         tr:last-child td { border-bottom: none; }
         
-        /* Modal Transitions */
         .modal-overlay { transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .modal-content { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease; }
         .modal-hidden { pointer-events: none !important; }
         .modal-hidden .modal-overlay { opacity: 0; pointer-events: none; }
         .modal-hidden .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; pointer-events: none; }
 
-        /* Form Inputs Premium Focus */
         .premium-input { transition: all 0.3s ease; }
         .premium-input:focus { background-color: #ffffff; border-color: #111111; box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.05); }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Step Transitions */
+        .step-panel { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .step-hidden { opacity: 0; transform: translateX(20px); pointer-events: none; position: absolute; visibility: hidden; }
+        .step-active { opacity: 1; transform: translateX(0); position: relative; visibility: visible; }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen">
@@ -132,11 +134,11 @@
         
         <!-- Apple-style Segmented Control Tabs -->
         <div class="flex justify-center sm:justify-start mb-10 card-enter" style="animation-delay: 0ms;">
-            <div class="inline-flex bg-gray-200/60 p-1.5 rounded-2xl backdrop-blur-sm border border-gray-200/50 shadow-inner-soft">
-                <button onclick="switchTab('products')" id="tabBtnProducts" class="px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2">
+            <div class="inline-flex bg-gray-200/60 p-1.5 rounded-2xl backdrop-blur-sm border border-gray-200/50 shadow-inner-soft overflow-x-auto no-scrollbar max-w-full">
+                <button onclick="switchTab('products')" id="tabBtnProducts" class="px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap">
                     <i data-lucide="package" class="w-4 h-4"></i> <span data-i18n="tabProducts">Products</span>
                 </button>
-                <button onclick="switchTab('users')" id="tabBtnUsers" class="px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2">
+                <button onclick="switchTab('users')" id="tabBtnUsers" class="px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap">
                     <i data-lucide="users" class="w-4 h-4"></i> <span data-i18n="tabUsers">Users</span>
                 </button>
             </div>
@@ -144,12 +146,11 @@
 
         <!-- ================= PRODUCTS SECTION ================= -->
         <div id="productsSection">
-            
             <!-- Dashboard Analytics Overview -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
                 <div class="bg-white rounded-3xl p-6 shadow-premium border border-gray-100 flex items-center justify-between card-enter" style="animation-delay: 100ms;">
                     <div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statTotalProd">Total Products</p>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statTotalProd">Total Templates</p>
                         <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="statTotalProducts">0</h4>
                     </div>
                     <div class="h-14 w-14 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100"><i data-lucide="layers" class="w-6 h-6 text-gray-400"></i></div>
@@ -170,15 +171,22 @@
                 </div>
             </div>
 
-            <!-- Table Header -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 card-enter" style="animation-delay: 400ms;">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitle">Product Database</h1>
-                    <p class="text-sm text-gray-500 font-medium" data-i18n="dashSub">Manage enterprise templates, pricing, and inventory.</p>
+            <!-- Table Header & Powerful Search -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 card-enter" style="animation-delay: 400ms;">
+                <div class="mb-2 md:mb-0">
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitle">UI Template Database</h1>
+                    <p class="text-sm text-gray-500 font-medium" data-i18n="dashSub">Manage enterprise UI templates, pricing, and live previews.</p>
                 </div>
-                <button onclick="openProductModal()" class="bg-myancode-black text-white px-7 py-3.5 rounded-full text-sm font-bold flex items-center gap-2 shadow-premium btn-hover-effect">
-                    <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btnAddProduct">Add New Product</span>
-                </button>
+                
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                    <div class="relative w-full sm:w-72">
+                        <i data-lucide="search" class="absolute left-4 top-3.5 h-4 w-4 text-gray-400"></i>
+                        <input type="text" id="searchProducts" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all" placeholder="Search templates..." data-i18n-placeholder="searchProd">
+                    </div>
+                    <button onclick="openProductModal()" class="w-full sm:w-auto bg-myancode-black text-white px-7 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-premium btn-hover-effect whitespace-nowrap">
+                        <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btnAddProduct">Add UI Template</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Products Table -->
@@ -205,14 +213,23 @@
 
         <!-- ================= USERS SECTION ================= -->
         <div id="usersSection" class="hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
-                <div>
+            <!-- Table Header & Powerful Search -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 card-enter" style="animation-delay: 100ms;">
+                <div class="mb-2 md:mb-0">
                     <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitleUsers">User Directory</h1>
                     <p class="text-sm text-gray-500 font-medium" data-i18n="dashSubUsers">Manage registered accounts and security roles.</p>
                 </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                    <div class="relative w-full sm:w-72">
+                        <i data-lucide="search" class="absolute left-4 top-3.5 h-4 w-4 text-gray-400"></i>
+                        <input type="text" id="searchUsers" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all" placeholder="Search users by name or email..." data-i18n-placeholder="searchUsers">
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-white rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 100ms;">
+            <!-- Users Table -->
+            <div class="bg-white rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
                 <div class="overflow-x-auto p-2">
                     <table class="w-full text-left text-sm whitespace-nowrap">
                         <thead class="text-gray-400 font-bold tracking-widest uppercase text-[10px] bg-white">
@@ -231,7 +248,6 @@
                 </div>
             </div>
         </div>
-
     </main>
 
     <!-- NOT AUTHORIZED SCREEN -->
@@ -246,15 +262,15 @@
         </button>
     </div>
 
-    <!-- ENTERPRISE PRODUCT MODAL (Create / Edit) -->
+    <!-- ENTERPRISE UI TEMPLATE MODAL (Create / Edit) -->
     <div id="productModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-md modal-overlay" onclick="closeProductModal()"></div>
         <div class="bg-[#fbfbfd] w-full max-w-5xl max-h-[90vh] sm:rounded-[2.5rem] rounded-t-3xl rounded-b-none shadow-2xl relative flex flex-col modal-content overflow-hidden mt-auto sm:m-4">
             
             <div class="px-8 py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 shadow-sm">
                 <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200 text-myancode-black"><i data-lucide="box" class="w-5 h-5"></i></div>
-                    <h3 class="text-xl font-bold text-myancode-black tracking-tight" id="modalTitle" data-i18n="modalTitleAdd">Add New Product</h3>
+                    <div class="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200 text-myancode-black"><i data-lucide="layout-template" class="w-5 h-5"></i></div>
+                    <h3 class="text-xl font-bold text-myancode-black tracking-tight" id="modalTitle" data-i18n="modalTitleAdd">Add UI Template</h3>
                 </div>
                 <button onclick="closeProductModal()" class="p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
@@ -268,11 +284,11 @@
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="info" class="w-4 h-4"></i> Identification</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNameEn">Name (English) *</label>
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNameEn">Template Name (English) *</label>
                                 <input type="text" id="pNameEn" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="e.g. Corporate Pro">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNameMm">Name (Myanmar)</label>
+                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNameMm">Template Name (Myanmar)</label>
                                 <input type="text" id="pNameMm" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="e.g. စီးပွားရေး Pro">
                             </div>
                             <div>
@@ -315,10 +331,11 @@
                         </div>
                     </div>
 
-                    <!-- Section 3: Media & Content -->
+                    <!-- Section 3: Media & Integrations -->
                     <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="image" class="w-4 h-4"></i> Media & Content</h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="image" class="w-4 h-4"></i> Media & Integrations</h4>
                         <div class="space-y-6">
+                            
                             <div>
                                 <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblMainImg">Main Image URL</label>
                                 <div class="flex gap-3">
@@ -356,17 +373,48 @@
         </div>
     </div>
 
+    <!-- UI TEMPLATE: PASSWORD RESET SUCCESS MODAL (SEND NOW FLOW) -->
+    <div id="pwdResetSuccessModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-xl shadow-2xl relative overflow-hidden text-center modal-content transition-transform duration-300 scale-95">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-[1.5rem] bg-green-50 mb-6 border border-green-100 shadow-inner-soft">
+                <i data-lucide="check-circle" class="h-8 w-8 text-green-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="pwdResetTitle">Password Reset Successful</h3>
+            <p class="text-sm text-gray-500 mb-6" data-i18n="pwdResetDesc">The password is now set to default. Click Send Now to open your email app and paste the UI template.</p>
+
+            <div class="bg-gray-50 rounded-2xl p-5 mb-8 border border-gray-100 text-left relative shadow-inner-soft">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="layout-template" class="w-3 h-3"></i> Rich HTML Email Preview</p>
+                <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm pointer-events-none select-none">
+                    <h4 class="font-bold text-sm text-black mb-2 tracking-tight">Account Recovery Initiated</h4>
+                    <p class="text-[11px] text-gray-500 leading-relaxed mb-4 font-medium">Hello,<br>You are verified as an owner by our organization. Your account password has been successfully recovered and reset.</p>
+                    <div class="bg-gray-50 p-3 rounded-lg text-center mb-4 border border-gray-100 shadow-inner-soft">
+                        <span class="text-[9px] text-gray-400 uppercase font-bold tracking-widest block mb-1.5">Temporary Password</span>
+                        <code class="text-[12px] font-bold text-black break-all">My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03</code>
+                    </div>
+                    <div class="inline-block bg-black text-white text-[10px] font-bold px-4 py-2 rounded-full">Proceed to Login</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 w-full">
+                <button onclick="closePwdResetModal()" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors">Done</button>
+                <button onclick="copyHtmlEmailTemplate()" class="flex-[1.5] px-6 py-4 rounded-xl text-sm font-bold text-myancode-black bg-gray-50 border border-gray-200 hover:bg-gray-100 shadow-sm transition-all flex items-center justify-center gap-2 btn-hover-effect">
+                    <i data-lucide="copy" class="w-4 h-4"></i> Copy Template
+                </button>
+                <button onclick="sendNowEmail()" class="flex-[1.5] px-6 py-4 rounded-xl text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all flex items-center justify-center gap-2 btn-hover-effect">
+                    <i data-lucide="send" class="w-4 h-4"></i> Send Now
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- CUSTOM ACTION CONFIRMATION MODAL -->
     <div id="actionConfirmModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
         <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 text-center relative overflow-hidden" id="actionConfirmModalContent">
-            
             <div id="acModalIconContainer" class="mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-gray-50 mb-6 shadow-inner-soft border border-gray-100">
                 <i id="acModalIcon" data-lucide="alert-circle" class="h-10 w-10 text-gray-500"></i>
             </div>
-            
             <h3 id="acModalTitle" class="text-2xl font-bold tracking-tight text-myancode-black mb-3">Are you sure?</h3>
             <p id="acModalMessage" class="text-sm text-gray-500 mb-8 leading-relaxed font-medium">This action cannot be undone.</p>
-
             <div class="flex space-x-3 w-full">
                 <button onclick="closeConfirmModal()" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors" data-i18n="btnCancel">Cancel</button>
                 <button id="acModalConfirmBtn" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-95">Confirm</button>
@@ -375,11 +423,11 @@
     </div>
 
     <!-- Notification Toasts -->
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center">
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center whitespace-nowrap">
         <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
         <span id="toast-msg" class="text-sm font-bold tracking-wide">Success!</span>
     </div>
-    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center">
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center whitespace-nowrap">
         <i data-lucide="alert-triangle" class="h-5 w-5 mr-3 text-white"></i>
         <span id="error-toast-msg" class="text-sm font-bold tracking-wide">Error!</span>
     </div>
@@ -394,49 +442,53 @@
         const dict = {
             en: {
                 langSelect: "Language", hdrLogout: "Sign Out", loadingAuth: "Verifying Access...", loadingData: "Syncing Cloud Data...",
-                dashTitle: "Product Database", dashSub: "Manage enterprise templates, pricing, and inventory.",
-                btnAddProduct: "Add New Product", adminBadge: "Workspace", btnGoToSite: "View Site",
+                dashTitle: "UI Template Database", dashSub: "Manage enterprise UI templates, pricing, and live previews.",
+                btnAddProduct: "Add UI Template", adminBadge: "Workspace", btnGoToSite: "View Site",
                 tabProducts: "Products", tabUsers: "Users",
                 dashTitleUsers: "User Directory", dashSubUsers: "Manage registered accounts and security roles.",
                 
                 // Stats
-                statTotalProd: "Total Products", statActive: "Active Online", statUsers: "Registered Users",
+                statTotalProd: "Total Templates", statActive: "Active Online", statUsers: "Registered Users",
 
                 // Table Headers
                 thImage: "Item", thName: "Name & Slug", thPrice: "Pricing", thStatus: "Status", thActions: "Actions", thSku: "SKU & Category",
                 thUser: "Account", thRole: "Security Role", thJoined: "Date Joined",
                 
                 errNoAccess: "Access Restricted", errNoAccessDesc: "Your current security clearance does not permit access to the administrative workspace.",
-                modalTitleAdd: "Add New Product", modalTitleEdit: "Edit Product",
-                lblNameEn: "Name (English) *", lblNameMm: "Name (Myanmar)", lblSlug: "URL Slug *", lblSku: "SKU (Stock Keeping Unit)",
+                modalTitleAdd: "Add UI Template", modalTitleEdit: "Edit Template",
+                lblNameEn: "Template Name (English) *", lblNameMm: "Template Name (Myanmar)", lblSlug: "URL Slug *", lblSku: "SKU (Stock Keeping Unit)",
                 lblPrice: "Regular Price *", lblDiscount: "Discount Price", lblCategory: "Category", lblStock: "Stock Level",
                 lblMainImg: "Main Image URL", lblGallery: "Gallery URLs (Comma separated)",
                 lblDescEn: "Description (English)", lblDescMm: "Description (Myanmar)",
                 btnCancel: "Cancel", btnSave: "Save Database Entry", btnEdit: "Edit", btnDelete: "Delete",
                 btnMakeAdmin: "Promote Admin", btnMakeUser: "Demote User",
                 msgSaveSuccess: "Database entry saved successfully.", msgDeleteSuccess: "Entry securely deleted.", msgRoleUpdated: "Security role updated.",
+                searchProd: "Search templates...", searchUsers: "Search users by name or email...",
+                msgPassReset: "Password reset to default successfully.",
                 
-                // Confirm Modal
-                confirmDeleteTitle: "Delete Product", confirmDeleteMsg: "Are you sure you want to permanently delete this product from the database?",
+                // Confirm Modals & Resets
+                confirmDeleteTitle: "Delete Template", confirmDeleteMsg: "Are you sure you want to permanently delete this template from the database?",
                 confirmUserDeleteTitle: "Terminate Account", confirmUserDeleteMsg: "Are you sure you want to completely erase this user account?",
-                confirmRoleTitle: "Update Clearance", confirmRoleMsg: "Are you sure you want to modify this user's security clearance level?"
+                confirmRoleTitle: "Update Clearance", confirmRoleMsg: "Are you sure you want to modify this user's security clearance level?",
+                confirmResetTitle: "Force Reset Password", confirmResetMsg: "Reset this user's password to the organizational default? A UI template to copy the email notification will open upon success.",
+                pwdResetTitle: "Password Reset Successful", pwdResetDesc: "The password is now set to default. Click Send Now to open your email app and paste the UI template."
             },
             mm: {
                 langSelect: "ဘာသာစကား", hdrLogout: "အကောင့်ထွက်ရန်", loadingAuth: "အခွင့်အာဏာ စစ်ဆေးနေပါသည်...", loadingData: "ဒေတာရယူနေပါသည်...",
-                dashTitle: "ကုန်ပစ္စည်း ဒေတာဘေ့စ်", dashSub: "ဝက်ဘ်ဆိုက်များ၊ ဈေးနှုန်းနှင့် လက်ကျန်များကို ပြင်ဆင်ပါ။",
-                btnAddProduct: "ကုန်ပစ္စည်းအသစ် ထည့်မည်", adminBadge: "စီမံခန့်ခွဲရေး", btnGoToSite: "ဝက်ဘ်ဆိုက်သို့",
+                dashTitle: "ဝက်ဘ်ဆိုက် ကတ်တလောက်", dashSub: "ဝက်ဘ်ဆိုက်များ၊ ဈေးနှုန်းနှင့် လက်ကျန်များကို ပြင်ဆင်ပါ။",
+                btnAddProduct: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", adminBadge: "စီမံခန့်ခွဲရေး", btnGoToSite: "ဝက်ဘ်ဆိုက်သို့",
                 tabProducts: "ကုန်ပစ္စည်းများ", tabUsers: "အသုံးပြုသူများ",
                 dashTitleUsers: "အသုံးပြုသူ လမ်းညွှန်", dashSubUsers: "အကောင့်များနှင့် အခွင့်အာဏာများကို စီမံပါ။",
                 
                 // Stats
-                statTotalProd: "ကုန်ပစ္စည်း စုစုပေါင်း", statActive: "လွှင့်တင်ထားသော", statUsers: "အကောင့် စုစုပေါင်း",
+                statTotalProd: "ဝက်ဘ်ဆိုက် စုစုပေါင်း", statActive: "လွှင့်တင်ထားသော", statUsers: "အကောင့် စုစုပေါင်း",
 
                 // Table Headers
                 thImage: "အရာဝတ္ထု", thName: "အမည် နှင့် Slug", thPrice: "ဈေးနှုန်း", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ချက်များ", thSku: "SKU နှင့် အမျိုးအစား",
                 thUser: "အကောင့်", thRole: "အခွင့်အာဏာ", thJoined: "ဝင်ရောက်သည့်နေ့",
                 
                 errNoAccess: "ဝင်ရောက်ခွင့် ကန့်သတ်ထားသည်", errNoAccessDesc: "သင့်အကောင့်သည် ဤစီမံခန့်ခွဲရေး နေရာသို့ ဝင်ရောက်ခွင့် မရှိပါ။",
-                modalTitleAdd: "ကုန်ပစ္စည်းအသစ် ထည့်မည်", modalTitleEdit: "ကုန်ပစ္စည်း ပြင်ဆင်မည်",
+                modalTitleAdd: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", modalTitleEdit: "ဝက်ဘ်ဆိုက် ပြင်ဆင်မည်",
                 lblNameEn: "အမည် (English) *", lblNameMm: "အမည် (Myanmar)", lblSlug: "လင့်ခ်အမည် *", lblSku: "SKU (ကုဒ်နံပါတ်)",
                 lblPrice: "မူလ ဈေးနှုန်း *", lblDiscount: "လျှော့ဈေး", lblCategory: "အမျိုးအစား", lblStock: "လက်ကျန် အရေအတွက်",
                 lblMainImg: "ပင်မ ပုံလင့်ခ် (URL)", lblGallery: "ပုံများလင့်ခ် (ကော်မာခံ၍ရေးပါ)",
@@ -444,28 +496,49 @@
                 btnCancel: "ပယ်ဖျက်မည်", btnSave: "ဒေတာဘေ့စ်သို့ သိမ်းမည်", btnEdit: "ပြင်မည်", btnDelete: "ဖျက်မည်",
                 btnMakeAdmin: "အက်ဒမင် ပြောင်းမည်", btnMakeUser: "သာမန်အသုံးပြုသူ ပြောင်းမည်",
                 msgSaveSuccess: "ဒေတာဘေ့စ် သိမ်းဆည်းမှု အောင်မြင်ပါသည်!", msgDeleteSuccess: "အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။", msgRoleUpdated: "အခွင့်အာဏာ ပြောင်းလဲမှု အောင်မြင်ပါသည်!",
+                searchProd: "ဝက်ဘ်ဆိုက်များကို ရှာဖွေပါ...", searchUsers: "အသုံးပြုသူများကို ရှာဖွေပါ...",
+                msgPassReset: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းလဲပြီးပါပြီ။",
                 
-                // Confirm Modal
-                confirmDeleteTitle: "ကုန်ပစ္စည်း ဖျက်မည်", confirmDeleteMsg: "ဤကုန်ပစ္စည်းကို ဒေတာဘေ့စ်မှ အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
+                // Confirm Modals & Resets
+                confirmDeleteTitle: "ဝက်ဘ်ဆိုက် ဖျက်မည်", confirmDeleteMsg: "ဤဝက်ဘ်ဆိုက်ကို ဒေတာဘေ့စ်မှ အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
                 confirmUserDeleteTitle: "အကောင့် ဖျက်သိမ်းမည်", confirmUserDeleteMsg: "ဤအသုံးပြုသူ အကောင့်ကို အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
-                confirmRoleTitle: "အခွင့်အာဏာ ပြောင်းမည်", confirmRoleMsg: "ဤအသုံးပြုသူ၏ အခွင့်အာဏာ အဆင့်ကို ပြောင်းလဲရန် သေချာပါသလား?"
+                confirmRoleTitle: "အခွင့်အာဏာ ပြောင်းမည်", confirmRoleMsg: "ဤအသုံးပြုသူ၏ အခွင့်အာဏာ အဆင့်ကို ပြောင်းလဲရန် သေချာပါသလား?",
+                confirmResetTitle: "မူလစကားဝှက်သို့ ပြောင်းမည်", confirmResetMsg: "ဤအသုံးပြုသူ၏ စကားဝှက်ကို မူလစကားဝှက်သို့ အတင်းအကျပ်ပြောင်းမည်လား? အောင်မြင်ပါက အီးမေးလ်ပို့ရန် ပုံစံတစ်ခု ကျလာပါမည်။",
+                pwdResetTitle: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်", pwdResetDesc: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းပြီးပါပြီ။ Send Now ကို နှိပ်ပြီး Email ကို ပေးပို့ပါ။"
             }
         };
 
-        const globalLoader = document.getElementById('globalLoader');
-        function showLoader(i18nKey = 'loadingInit') { document.getElementById('loaderText').innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit']; globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); globalLoader.classList.add('opacity-100', 'visibility-visible'); document.body.classList.add('no-scroll'); }
-        function hideLoader() { globalLoader.classList.remove('opacity-100', 'visibility-visible'); globalLoader.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600); }
+        function showLoader(i18nKey = 'loadingInit') { document.getElementById('loaderText').innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit']; document.getElementById('globalLoader').classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); document.getElementById('globalLoader').classList.add('opacity-100', 'visibility-visible'); document.body.classList.add('no-scroll'); }
+        function hideLoader() { document.getElementById('globalLoader').classList.remove('opacity-100', 'visibility-visible'); document.getElementById('globalLoader').classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); setTimeout(() => document.getElementById('globalLoader').classList.add('visibility-hidden'), 600); }
 
         function renderLanguage() {
             document.documentElement.lang = currentLang; 
             document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
-            renderTable();
-            renderUsersTable();
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
+            renderTable(document.getElementById('searchProducts').value);
+            renderUsersTable(document.getElementById('searchUsers').value);
         }
 
         function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
         function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); }
         document.addEventListener('click', (e) => { const drop = document.getElementById('langDropdown'); const btn = document.getElementById('langContainer'); if (drop && !drop.classList.contains('dropdown-hidden') && (!btn || !btn.contains(e.target))) drop.classList.add('dropdown-hidden'); });
+
+        /* --- ADVANCED FUZZY SEARCH LOGIC --- */
+        function superFuzzySearch(query, text) {
+            if (!query) return true;
+            if (!text) return false;
+            query = query.toLowerCase().replace(/\s+/g, '');
+            text = text.toLowerCase().replace(/\s+/g, '');
+            
+            if (text.includes(query)) return true;
+            
+            let matchCount = 0; let tempText = text.split('');
+            for (let char of query) { let idx = tempText.indexOf(char); if (idx !== -1) { matchCount++; tempText.splice(idx, 1); } }
+            return (matchCount / query.length) >= 0.75;
+        }
+
+        document.getElementById('searchProducts').addEventListener('input', (e) => renderTable(e.target.value));
+        document.getElementById('searchUsers').addEventListener('input', (e) => renderUsersTable(e.target.value));
 
         /* --- CUSTOM CONFIRM MODAL LOGIC --- */
         let activeConfirmCallback = null;
@@ -484,57 +557,42 @@
                 iconContainer.className = "mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-red-50 mb-6 shadow-inner-soft border border-red-100";
                 iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-10 w-10 text-red-500"></i>';
                 confirmBtn.className = "flex-1 px-6 py-4 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-95 bg-red-600 hover:bg-red-700";
-                confirmBtn.innerText = currentLang === 'en' ? 'Confirm Delete' : 'အတည်ပြု ဖျက်မည်';
+                confirmBtn.innerText = currentLang === 'en' ? 'Confirm Danger Action' : 'အတည်ပြု လုပ်ဆောင်မည်';
             } else {
                 iconContainer.className = "mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-blue-50 mb-6 shadow-inner-soft border border-blue-100";
                 iconContainer.innerHTML = '<i data-lucide="info" class="h-10 w-10 text-myancode-blue"></i>';
                 confirmBtn.className = "flex-1 px-6 py-4 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-95 bg-myancode-black hover:bg-gray-800";
-                confirmBtn.innerText = currentLang === 'en' ? 'Confirm Update' : 'အတည်ပြု ပြောင်းမည်';
+                confirmBtn.innerText = currentLang === 'en' ? 'Confirm Action' : 'အတည်ပြု လုပ်ဆောင်မည်';
             }
             
             lucide.createIcons();
             
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth; 
-            modal.classList.remove('opacity-0');
-            document.getElementById('actionConfirmModalContent').classList.remove('scale-95', 'translate-y-10');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth; 
+            modal.classList.remove('opacity-0'); document.getElementById('actionConfirmModalContent').classList.remove('scale-95', 'translate-y-10');
             
-            confirmBtn.onclick = () => {
-                closeConfirmModal();
-                if (activeConfirmCallback) activeConfirmCallback();
-            };
+            confirmBtn.onclick = () => { closeConfirmModal(); if (activeConfirmCallback) activeConfirmCallback(); };
         }
 
         function closeConfirmModal() {
-            const modal = document.getElementById('actionConfirmModal');
-            const content = document.getElementById('actionConfirmModalContent');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95', 'translate-y-10');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
+            const modal = document.getElementById('actionConfirmModal'); const content = document.getElementById('actionConfirmModalContent');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95', 'translate-y-10');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
         /* --- TABS LOGIC --- */
         function switchTab(tab) {
-            const pSec = document.getElementById('productsSection');
-            const uSec = document.getElementById('usersSection');
-            const pBtn = document.getElementById('tabBtnProducts');
-            const uBtn = document.getElementById('tabBtnUsers');
+            const pSec = document.getElementById('productsSection'); const uSec = document.getElementById('usersSection');
+            const pBtn = document.getElementById('tabBtnProducts'); const uBtn = document.getElementById('tabBtnUsers');
 
             if (tab === 'products') {
-                pSec.classList.remove('hidden');
-                uSec.classList.add('hidden');
-                pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2";
-                uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2";
+                pSec.classList.remove('hidden'); uSec.classList.add('hidden');
+                pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
+                uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
                 fetchProducts();
             } else {
-                pSec.classList.add('hidden');
-                uSec.classList.remove('hidden');
-                uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2";
-                pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2";
+                pSec.classList.add('hidden'); uSec.classList.remove('hidden');
+                uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
+                pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
                 fetchUsers();
             }
             lucide.createIcons();
@@ -547,84 +605,67 @@
         let supabaseInstance = null; let currentUser = null;
         
         if (window.supabase) {
-            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: { detectSessionInUrl: false }
+            });
+            
             supabaseInstance.auth.onAuthStateChange((event, session) => {
-                if (session) {
-                    currentUser = session.user;
-                    checkAdminStatus();
-                } else {
-                    window.location.href = '../login/index.html';
-                }
+                if (session) { currentUser = session.user; checkAdminStatus(); } 
+                else { window.location.href = '../login/index.html'; }
             });
         }
 
         function checkAdminStatus() {
             const role = currentUser?.user_metadata?.role;
             if (role === 'admin') {
-                document.getElementById('dashboardContent').classList.remove('hidden');
-                document.getElementById('dashboardContent').classList.add('flex', 'flex-col');
-                document.getElementById('unauthorizedScreen').classList.add('hidden');
-                fetchProducts();
-                // Also trigger an invisible fetch to users to get the count for the stat block early
-                if(supabaseInstance) {
-                    supabaseInstance.rpc('admin_get_users').then(({data}) => {
-                        if(data) document.getElementById('statTotalUsers').innerText = data.length;
-                    });
-                }
+                document.getElementById('dashboardContent').classList.remove('hidden'); document.getElementById('dashboardContent').classList.add('flex', 'flex-col');
+                document.getElementById('unauthorizedScreen').classList.add('hidden'); fetchProducts();
+                if(supabaseInstance) { supabaseInstance.rpc('admin_get_users').then(({data}) => { if(data) document.getElementById('statTotalUsers').innerText = data.length; }); }
             } else {
-                hideLoader();
-                document.getElementById('dashboardContent').classList.add('hidden');
-                document.getElementById('unauthorizedScreen').classList.remove('hidden');
-                document.getElementById('unauthorizedScreen').classList.add('flex');
+                hideLoader(); document.getElementById('dashboardContent').classList.add('hidden');
+                document.getElementById('unauthorizedScreen').classList.remove('hidden'); document.getElementById('unauthorizedScreen').classList.add('flex');
             }
         }
 
-        async function handleLogout() {
-            showLoader('loadingAuth');
-            if (supabaseInstance) await supabaseInstance.auth.signOut();
-            window.location.href = '../login/index.html';
-        }
+        async function handleLogout() { showLoader('loadingAuth'); if (supabaseInstance) await supabaseInstance.auth.signOut(); window.location.href = '../login/index.html'; }
 
-        /* --- CRUD LOGIC FOR PRODUCTS --- */
-
+        /* --- CRUD LOGIC FOR PRODUCTS (UI TEMPLATES) --- */
         async function fetchProducts() {
             showLoader('loadingData');
             try {
-                const { data, error } = await supabaseInstance
-                    .from('products')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
+                const { data, error } = await supabaseInstance.from('products').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
                 allProducts = data || [];
-                
-                // Update Dashboard Stats
                 document.getElementById('statTotalProducts').innerText = allProducts.length;
                 document.getElementById('statActiveProducts').innerText = allProducts.filter(p => p.product_status === 'active' || !p.product_status).length;
-                
-                renderTable();
+                renderTable(document.getElementById('searchProducts').value);
             } catch (err) {
                 showErrorToast(err.message);
                 document.getElementById('productsTableBody').innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load secure data.</td></tr>`;
-            } finally {
-                hideLoader();
-            }
+            } finally { hideLoader(); }
         }
 
-        function renderTable() {
+        function renderTable(searchQuery = '') {
             const tbody = document.getElementById('productsTableBody');
-            if (allProducts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No database entries found.</td></tr>`;
+            let filteredProducts = allProducts;
+            if (searchQuery) {
+                filteredProducts = allProducts.filter(p => 
+                    superFuzzySearch(searchQuery, p.product_name_en) || superFuzzySearch(searchQuery, p.product_name_mm) || 
+                    superFuzzySearch(searchQuery, p.product_slug) || superFuzzySearch(searchQuery, p.product_sku) || superFuzzySearch(searchQuery, p.category_id)
+                );
+            }
+
+            if (filteredProducts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No database entries found matching search.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = allProducts.map(p => {
+            tbody.innerHTML = filteredProducts.map(p => {
                 const name = currentLang === 'en' ? (p.product_name_en || p.product_name_mm) : (p.product_name_mm || p.product_name_en);
                 const price = p.product_discount_price ? p.product_discount_price : p.product_price;
                 const img = p.product_image || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
                 const sku = p.product_sku || 'N/A';
-                const cat = p.category_id || 'Uncategorized';
-
+                
                 return `
                 <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -651,6 +692,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex items-center justify-end opacity-40 group-hover:opacity-100 transition-opacity">
+                            <a href="../website-detail/index.html?id=${p.product_id}" target="_blank" class="text-gray-500 hover:text-myancode-black mx-1 p-2 bg-gray-100 rounded-xl transition-transform hover:scale-105" title="View Detail Page"><i data-lucide="external-link" class="w-4 h-4"></i></a>
                             <button onclick="openProductModal('${p.product_id}')" class="text-myancode-blue hover:text-blue-700 mx-1 p-2 bg-blue-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnEdit}"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
                             <button onclick="confirmDeleteProduct('${p.product_id}')" class="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-xl transition-transform hover:scale-105 mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
@@ -658,11 +700,9 @@
                 </tr>
                 `;
             }).join('');
-            
             lucide.createIcons();
         }
 
-        // Live preview for image input
         function updateImagePreview(val) {
             const container = document.getElementById('previewMainImgContainer');
             if (val) { container.innerHTML = `<img src="${val}" class="w-full h-full object-cover">`; }
@@ -696,91 +736,49 @@
                 document.getElementById('pStock').value = '99';
                 updateImagePreview('');
             }
-
             modal.classList.remove('modal-hidden');
         }
 
-        function closeProductModal() {
-            document.getElementById('productModal').classList.add('modal-hidden');
-        }
+        function closeProductModal() { document.getElementById('productModal').classList.add('modal-hidden'); }
 
         async function saveProduct() {
-            const btn = document.getElementById('btnSaveProduct');
-            btn.disabled = true;
-
-            const id = document.getElementById('formProductId').value;
-            const nameEn = document.getElementById('pNameEn').value.trim();
-            const slug = document.getElementById('pSlug').value.trim().toLowerCase().replace(/\s+/g, '-');
-            const price = parseFloat(document.getElementById('pPrice').value);
-
-            if (!nameEn || !slug || isNaN(price)) {
-                showErrorToast(currentLang === 'en' ? "Please fill required fields (Name, Slug, Price)." : "လိုအပ်သောအချက်အလက်များကို ဖြည့်ပါ။");
-                btn.disabled = false;
-                return;
-            }
-
-            const galleryRaw = document.getElementById('pGallery').value;
-            const galleryArray = galleryRaw ? galleryRaw.split(',').map(s => s.trim()).filter(s => s) : [];
-            const discountPrice = document.getElementById('pDiscount').value ? parseFloat(document.getElementById('pDiscount').value) : null;
-
-            const productData = {
-                product_name_en: nameEn,
-                product_name_mm: document.getElementById('pNameMm').value.trim() || null,
-                product_slug: slug,
-                product_sku: document.getElementById('pSku').value.trim() || null,
-                product_price: price,
-                product_discount_price: discountPrice,
-                category_id: document.getElementById('pCategory').value.trim() || null,
-                product_stock: parseInt(document.getElementById('pStock').value) || 0,
-                product_image: document.getElementById('pMainImg').value.trim() || null,
-                product_gallery: galleryArray,
-                product_description_en: document.getElementById('pDescEn').value.trim() || null,
-                product_description_mm: document.getElementById('pDescMm').value.trim() || null,
-                updated_at: new Date().toISOString()
-            };
-
+            const btn = document.getElementById('btnSaveProduct'); btn.disabled = true;
+            
             try {
+                const id = document.getElementById('formProductId').value;
+                const nameEn = document.getElementById('pNameEn').value.trim();
+                const slug = document.getElementById('pSlug').value.trim().toLowerCase().replace(/\s+/g, '-');
+                const price = parseFloat(document.getElementById('pPrice').value);
+
+                if (!nameEn || !slug || isNaN(price)) { showErrorToast(currentLang === 'en' ? "Please fill required fields (Name, Slug, Price)." : "လိုအပ်သောအချက်အလက်များကို ဖြည့်ပါ။"); btn.disabled = false; return; }
+
+                const galleryRaw = document.getElementById('pGallery').value; const galleryArray = galleryRaw ? galleryRaw.split(',').map(s => s.trim()).filter(s => s) : [];
+                const discountPrice = document.getElementById('pDiscount').value ? parseFloat(document.getElementById('pDiscount').value) : null;
+
+                const productData = {
+                    product_name_en: nameEn, product_name_mm: document.getElementById('pNameMm').value.trim() || null, product_slug: slug,
+                    product_sku: document.getElementById('pSku').value.trim() || null, product_price: price, product_discount_price: discountPrice,
+                    category_id: document.getElementById('pCategory').value.trim() || null, product_stock: parseInt(document.getElementById('pStock').value) || 0,
+                    product_image: document.getElementById('pMainImg').value.trim() || null, product_gallery: galleryArray,
+                    product_description_en: document.getElementById('pDescEn').value.trim() || null, product_description_mm: document.getElementById('pDescMm').value.trim() || null,
+                    updated_at: new Date().toISOString()
+                };
+
                 showLoader('loadingData');
-                if (id) {
-                    const { error } = await supabaseInstance.from('products').update(productData).eq('product_id', id);
-                    if (error) throw error;
-                } else {
-                    const { error } = await supabaseInstance.from('products').insert([productData]);
-                    if (error) throw error;
-                }
-                closeProductModal();
-                showToast(dict[currentLang].msgSaveSuccess);
-                fetchProducts();
-            } catch (err) {
-                hideLoader();
-                showErrorToast(err.message);
-            } finally {
-                btn.disabled = false;
-            }
+                if (id) { const { error } = await supabaseInstance.from('products').update(productData).eq('product_id', id); if (error) throw error; } 
+                else { const { error } = await supabaseInstance.from('products').insert([productData]); if (error) throw error; }
+                
+                closeProductModal(); showToast(dict[currentLang].msgSaveSuccess); fetchProducts();
+            } catch (err) { hideLoader(); showErrorToast(err.message); } finally { btn.disabled = false; }
         }
 
         function confirmDeleteProduct(id) {
-            openConfirmModal(
-                dict[currentLang].confirmDeleteTitle,
-                dict[currentLang].confirmDeleteMsg,
-                true,
-                async () => {
-                    try {
-                        showLoader('loadingData');
-                        const { error } = await supabaseInstance.from('products').delete().eq('product_id', id);
-                        if (error) throw error;
-                        showToast(dict[currentLang].msgDeleteSuccess);
-                        fetchProducts();
-                    } catch (err) {
-                        hideLoader();
-                        showErrorToast(err.message);
-                    }
-                }
-            );
+            openConfirmModal(dict[currentLang].confirmDeleteTitle, dict[currentLang].confirmDeleteMsg, true, async () => {
+                try { showLoader('loadingData'); const { error } = await supabaseInstance.from('products').delete().eq('product_id', id); if (error) throw error; showToast(dict[currentLang].msgDeleteSuccess); fetchProducts(); } catch (err) { hideLoader(); showErrorToast(err.message); }
+            });
         }
 
-        /* --- CRUD LOGIC FOR USERS (Requires RPC Functions) --- */
-
+        /* --- CRUD LOGIC FOR USERS & ROLES --- */
         async function fetchUsers() {
             showLoader('loadingData');
             try {
@@ -788,23 +786,29 @@
                 if (error) throw error;
                 allUsers = data || [];
                 document.getElementById('statTotalUsers').innerText = allUsers.length;
-                renderUsersTable();
+                renderUsersTable(document.getElementById('searchUsers').value);
             } catch (err) {
-                showErrorToast(currentLang === 'en' ? "Failed to load users. Did you add the SQL RPC functions?" : "ဒေတာရယူ၍မရပါ။ SQL RPC သတ်မှတ်ရန်လိုအပ်ပါသည်။");
-                document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load users data via RPC.</td></tr>`;
-            } finally {
-                hideLoader();
-            }
+                showErrorToast(currentLang === 'en' ? "Failed to load users. Setup SQL RPC." : "ဒေတာရယူ၍မရပါ။ SQL RPC သတ်မှတ်ရန်လိုအပ်ပါသည်။");
+                document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load users via RPC.</td></tr>`;
+            } finally { hideLoader(); }
         }
 
-        function renderUsersTable() {
+        function renderUsersTable(searchQuery = '') {
             const tbody = document.getElementById('usersTableBody');
-            if (allUsers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No accounts found.</td></tr>`;
+            let filteredUsers = allUsers;
+            if (searchQuery) {
+                filteredUsers = allUsers.filter(u => {
+                    const meta = u.raw_user_meta_data || {};
+                    return superFuzzySearch(searchQuery, meta.full_name) || superFuzzySearch(searchQuery, u.email);
+                });
+            }
+
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No accounts found matching search.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = allUsers.map(u => {
+            tbody.innerHTML = filteredUsers.map(u => {
                 const meta = u.raw_user_meta_data || {};
                 const name = meta.full_name || u.email.split('@')[0];
                 const role = meta.role || 'user';
@@ -836,35 +840,47 @@
                     </td>
                     <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex items-center justify-end opacity-40 group-hover:opacity-100 transition-opacity">
+                            <!-- Secure Force Password Reset Action -->
+                            <button onclick="confirmForceResetPassword('${u.id}', '${u.email}')" class="text-green-600 hover:text-green-800 mx-1 p-2 bg-green-50 rounded-xl transition-transform hover:scale-105" title="Force Reset Password"><i data-lucide="key" class="w-4 h-4"></i></button>
                         ${!isMe ? `
                             ${role === 'admin' 
                                 ? `<button onclick="confirmChangeUserRole('${u.id}', 'user')" class="text-orange-500 hover:text-orange-700 mx-1 p-2 bg-orange-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeUser}"><i data-lucide="user-minus" class="w-4 h-4"></i></button>`
                                 : `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-purple-500 hover:text-purple-700 mx-1 p-2 bg-purple-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeAdmin}"><i data-lucide="shield" class="w-4 h-4"></i></button>`
                             }
                             <button onclick="confirmDeleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-xl transition-transform hover:scale-105 mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        ` : '<span class="text-[10px] text-gray-300 uppercase tracking-widest font-bold">Protected</span>'}
+                        ` : '<span class="text-[10px] text-gray-300 uppercase tracking-widest font-bold ml-2">Protected</span>'}
                         </div>
                     </td>
                 </tr>
                 `;
             }).join('');
-            
             lucide.createIcons();
         }
 
-        function confirmChangeUserRole(id, newRole) {
+        function confirmChangeUserRole(id, newRole) { openConfirmModal(dict[currentLang].confirmRoleTitle, dict[currentLang].confirmRoleMsg, false, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_set_role', { target_user_id: id, new_role: newRole }); if (error) throw error; showToast(dict[currentLang].msgRoleUpdated); fetchUsers(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
+        function confirmDeleteUser(id) { openConfirmModal(dict[currentLang].confirmUserDeleteTitle, dict[currentLang].confirmUserDeleteMsg, true, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_delete_user', { target_user_id: id }); if (error) throw error; showToast(dict[currentLang].msgDeleteSuccess); fetchUsers(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
+
+        /* --- FORCE PASSWORD RESET (UI TEMPLATE EMAIL COPY & SEND NOW) --- */
+        let currentResetEmail = '';
+        function confirmForceResetPassword(id, email) {
+            currentResetEmail = email; // Store for the Send Now button
             openConfirmModal(
-                dict[currentLang].confirmRoleTitle,
-                dict[currentLang].confirmRoleMsg,
-                false,
+                dict[currentLang].confirmResetTitle, 
+                dict[currentLang].confirmResetMsg, 
+                false, 
                 async () => {
                     showLoader('loadingData');
                     try {
-                        const { error } = await supabaseInstance.rpc('admin_set_role', { target_user_id: id, new_role: newRole });
+                        const { error } = await supabaseInstance.rpc('admin_reset_user_password', { target_user_id: id });
                         if (error) throw error;
-                        showToast(dict[currentLang].msgRoleUpdated);
-                        fetchUsers();
-                    } catch (err) {
+                        
+                        hideLoader();
+                        // Open Success UI Template Modal
+                        const modal = document.getElementById('pwdResetSuccessModal');
+                        modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
+                        modal.classList.remove('opacity-0');
+                        modal.querySelector('.modal-content').classList.remove('scale-95');
+                    } catch(err) {
                         showErrorToast(err.message);
                         hideLoader();
                     }
@@ -872,34 +888,88 @@
             );
         }
 
-        function confirmDeleteUser(id) {
-            openConfirmModal(
-                dict[currentLang].confirmUserDeleteTitle,
-                dict[currentLang].confirmUserDeleteMsg,
-                true,
-                async () => {
-                    showLoader('loadingData');
-                    try {
-                        const { error } = await supabaseInstance.rpc('admin_delete_user', { target_user_id: id });
-                        if (error) throw error;
-                        showToast(dict[currentLang].msgDeleteSuccess);
-                        fetchUsers();
-                    } catch (err) {
-                        showErrorToast(err.message);
-                        hideLoader();
-                    }
-                }
-            );
+        function closePwdResetModal() {
+            const modal = document.getElementById('pwdResetSuccessModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        function copyHtmlEmailTemplate(silent = false) {
+            const path = window.location.pathname.replace('/admin-dashboard/index.html', '/login/index.html');
+            const fullUrl = window.location.origin + path;
+            
+            // Rich HTML Email Template
+            const htmlContent = `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px; background-color: #fbfbfd; color: #111111;">
+                <div style="max-w: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; border: 1px solid #eaeaea;">
+                    <h2 style="margin-top: 0; color: #111111; letter-spacing: -0.5px;">Account Recovery Initiated</h2>
+                    <p style="color: #6e6e73; line-height: 1.6;">Hello,</p>
+                    <p style="color: #6e6e73; line-height: 1.6;">
+                        You are verified as an owner by our organization. Your account password has been successfully recovered and reset.
+                    </p>
+
+                    <div style="background-color: #f5f5f7; padding: 16px; border-radius: 8px; margin: 24px 0; border: 1px solid #eaeaea;">
+                        <p style="margin: 0; font-size: 12px; color: #6e6e73; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; margin-bottom: 8px;">Your New Temporary Password</p>
+                        <p style="margin: 0; font-family: monospace; font-size: 16px; font-weight: bold; word-break: break-all;">My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03</p>
+                    </div>
+
+                    <p style="color: #6e6e73; line-height: 1.6; font-size: 14px;">
+                        <strong>Immediate Action Required:</strong> Please log in and immediately change this password to your own private password for your security.
+                    </p>
+
+                    <a href="${fullUrl}" style="display: inline-block; background-color: #111111; color: white; padding: 14px 24px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 14px; margin-top: 10px;">Proceed to Login</a>
+
+                    <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+                    <p style="color: #a1a1aa; font-size: 12px; margin: 0;">Best regards,<br>MyanCode Administration Team</p>
+                </div>
+            </div>
+            `;
+
+            const container = document.createElement('div');
+            container.innerHTML = htmlContent;
+            container.style.position = 'fixed';
+            container.style.pointerEvents = 'none';
+            container.style.opacity = '0';
+            document.body.appendChild(container);
+
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(container);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            let success = false;
+            try {
+                success = document.execCommand('copy');
+                if (!silent && success) showToast(currentLang === 'en' ? "Email UI copied! Paste in Gmail/Outlook." : "အီးမေးလ်ပုံစံ ကူးယူပြီးပါပြီ။ Gmail တွင် Paste လုပ်ပါ။");
+            } catch (e) {
+                if (!silent) showErrorToast("Copy failed.");
+            }
+
+            selection.removeAllRanges();
+            document.body.removeChild(container);
+            
+            return success;
+        }
+
+        function sendNowEmail() {
+            // Automatically copy the rich UI template to their clipboard first
+            const copied = copyHtmlEmailTemplate(true);
+            if (copied) {
+                showToast(currentLang === 'en' ? "Template copied! Paste (Ctrl+V) into the email body." : "ပုံစံကူးယူပြီးပါပြီ။ Mail တွင် Paste (Ctrl+V) လုပ်ပါ။");
+            }
+            
+            // Instantly open the user's default mail app prefilled with the target email and subject
+            const subject = encodeURIComponent("Default Password Set - Action Required");
+            window.location.href = `mailto:${currentResetEmail}?subject=${subject}`;
         }
 
         /* --- UTILS --- */
         function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
         function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
 
-        window.addEventListener('load', () => { 
-            renderLanguage(); 
-        });
-
+        window.addEventListener('load', () => { renderLanguage(); });
     </script>
 </body>
 </html>
