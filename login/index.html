@@ -190,7 +190,10 @@
                     <input type="email" id="logEmail" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblPass">Password</label>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="lblPass">Password</label>
+                        <button type="button" onclick="openForgotModal()" class="text-xs font-semibold text-myancode-blue hover:text-blue-600 transition-colors" data-i18n="forgotPass">Forgot Password?</button>
+                    </div>
                     <input type="password" id="logPass" required class="w-full px-4 py-3 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium">
                 </div>
                 <button type="submit" id="loginBtn" class="w-full btn-hover-effect bg-black text-white py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-md mt-4 flex justify-center items-center gap-2">
@@ -204,6 +207,37 @@
             </p>
         </div>
     </main>
+
+    <!-- FORGOT PASSWORD MODAL -->
+    <div id="forgotModal" class="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="forgotModalContent">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-50 mb-6">
+                <i data-lucide="key" class="h-8 w-8 text-myancode-blue"></i>
+            </div>
+            <h3 class="text-2xl font-semibold tracking-tight text-myancode-black mb-3" data-i18n="resetPassTitle">Reset Password</h3>
+            <p class="text-sm text-gray-500 mb-6 leading-relaxed" data-i18n="resetPassDesc">Enter your email address and we will send you a link to reset your password.</p>
+            <input type="email" id="forgotEmail" class="w-full px-4 py-3 mb-6 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium" placeholder="your@email.com">
+            <div class="flex space-x-3 w-full">
+                <button type="button" onclick="closeForgotModal()" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button type="button" id="sendResetBtn" onclick="handleForgotPassword()" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-myancode-black hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="btnSendReset">Send Reset Link</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SET NEW PASSWORD MODAL (Triggered by recovery link) -->
+    <div id="recoveryModal" class="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="recoveryModalContent">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-50 mb-6">
+                <i data-lucide="unlock" class="h-8 w-8 text-green-500"></i>
+            </div>
+            <h3 class="text-2xl font-semibold tracking-tight text-myancode-black mb-3" data-i18n="setNewPassTitle">Set New Password</h3>
+            <p class="text-sm text-gray-500 mb-6 leading-relaxed" data-i18n="setNewPassDesc">Please enter your new password (at least 6 characters).</p>
+            <input type="password" id="recoveryPass" class="w-full px-4 py-3 mb-6 bg-[#f5f5f7] border border-transparent rounded-xl focus:outline-none focus:border-gray-300 focus:bg-white transition-all text-sm font-medium" placeholder="••••••••">
+            <div class="flex space-x-3 w-full">
+                <button type="button" id="updatePassBtn" onclick="handleUpdatePassword()" class="w-full px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-myancode-black hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="btnUpdatePass">Update Password</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Detailed Footer -->
     <footer class="bg-[#fbfbfd] pt-24 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10">
@@ -282,7 +316,12 @@
                 prod1Title: "Business & Org", prod3Title: "Info & Education",
                 loginTitle: "Login", lblEmail: "Email", lblPass: "Password", btnLoginSubmit: "Sign In",
                 noAccount: "Don't have an account?", btnRegisterSwap: "Register", loadingAuth: "Authenticating Account...", msgSuccess: "Welcome back!",
-                errFillAll: "Please fill in all fields correctly.", errInvalidCreds: "Invalid email or password.", errUnverified: "Please verify your email first! Check your inbox."
+                errFillAll: "Please fill in all fields correctly.", errInvalidCreds: "Invalid email or password.", errUnverified: "Please verify your email first! Check your inbox.",
+                // Password Reset Additions
+                forgotPass: "Forgot Password?", resetPassTitle: "Reset Password", resetPassDesc: "Enter your email address and we will send you a link to reset your password.", 
+                btnSendReset: "Send Reset Link", msgResetSent: "Password reset link sent! Check your inbox.", btnCancel: "Cancel",
+                setNewPassTitle: "Set New Password", setNewPassDesc: "Please enter your new password (at least 6 characters).", 
+                btnUpdatePass: "Update Password", msgPassUpdated: "Password updated successfully! You can now log in."
             },
             mm: {
                 navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
@@ -297,7 +336,12 @@
                 prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး",
                 loginTitle: "အကောင့်ဝင်ရန်", lblEmail: "အီးမေးလ်", lblPass: "စကားဝှက်", btnLoginSubmit: "လုံခြုံစွာ ဝင်ရောက်မည်",
                 noAccount: "အကောင့်မရှိသေးဘူးလား?", btnRegisterSwap: "အကောင့်သစ်ဖွင့်ရန်", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", msgSuccess: "ပြန်လည်ကြိုဆိုပါတယ်!",
-                errFillAll: "အချက်အလက်အားလုံးကို မှန်ကန်စွာ ဖြည့်စွက်ပါ။", errInvalidCreds: "အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။", errUnverified: "ကျေးဇူးပြု၍ သင့်အီးမေးလ်ကို အရင်အတည်ပြုပါ! Inbox ကိုစစ်ဆေးပါ။"
+                errFillAll: "အချက်အလက်အားလုံးကို မှန်ကန်စွာ ဖြည့်စွက်ပါ။", errInvalidCreds: "အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။", errUnverified: "ကျေးဇူးပြု၍ သင့်အီးမေးလ်ကို အရင်အတည်ပြုပါ! Inbox ကိုစစ်ဆေးပါ။",
+                // Password Reset Additions
+                forgotPass: "စကားဝှက်မေ့နေပါသလား?", resetPassTitle: "စကားဝှက် ပြန်လည်သတ်မှတ်မည်", resetPassDesc: "သင့်အီးမေးလ်ကို ထည့်ပါ။ စကားဝှက်အသစ်လုပ်ရန် လင့်ခ်ပို့ပေးပါမည်။", 
+                btnSendReset: "လင့်ခ် ပို့မည်", msgResetSent: "စကားဝှက်ပြန်လည်သတ်မှတ်ရန် လင့်ခ်ပို့လိုက်ပါပြီ! Inbox ကို စစ်ဆေးပါ။", btnCancel: "ပယ်ဖျက်မည်",
+                setNewPassTitle: "စကားဝှက်အသစ် သတ်မှတ်မည်", setNewPassDesc: "စကားဝှက်အသစ်ကို ရိုက်ထည့်ပါ။ (အနည်းဆုံး ၆ လုံး)", 
+                btnUpdatePass: "စကားဝှက် ပြောင်းမည်", msgPassUpdated: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်! အကောင့်ဝင်နိုင်ပါပြီ။"
             }
         };
 
@@ -480,6 +524,89 @@
             lucide.createIcons();
         }
 
+        /* --- Forgot & Reset Password Logic --- */
+        function openForgotModal() {
+            const modal = document.getElementById('forgotModal');
+            const content = document.getElementById('forgotModalContent');
+            const emailInput = document.getElementById('logEmail').value;
+            if (emailInput) document.getElementById('forgotEmail').value = emailInput;
+            
+            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth; 
+            modal.classList.remove('opacity-0'); content.classList.remove('scale-95');
+        }
+
+        function closeForgotModal() {
+            const modal = document.getElementById('forgotModal');
+            const content = document.getElementById('forgotModalContent');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        async function handleForgotPassword() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            if (!email) return showErrorToast(dict[currentLang].errFillAll || "Please fill in all fields correctly.");
+            
+            // Instantly block double clicks
+            const sendBtn = document.getElementById('sendResetBtn');
+            sendBtn.disabled = true;
+            
+            showLoader('loadingAuth');
+            const { error } = await supabaseInstance.auth.resetPasswordForEmail(email, {
+                // Ensure redirect bounces back to this specific login file
+                redirectTo: window.location.origin + window.location.pathname
+            });
+            hideLoader();
+            
+            // Re-enable button
+            sendBtn.disabled = false;
+            
+            if (error) { showErrorToast(error.message); return; }
+            
+            closeForgotModal();
+            showToast(dict[currentLang].msgResetSent);
+        }
+
+        function openRecoveryModal() {
+            const modal = document.getElementById('recoveryModal');
+            const content = document.getElementById('recoveryModalContent');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth; 
+            modal.classList.remove('opacity-0'); content.classList.remove('scale-95');
+        }
+
+        function closeRecoveryModal() {
+            const modal = document.getElementById('recoveryModal');
+            const content = document.getElementById('recoveryModalContent');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        async function handleUpdatePassword() {
+            const pass = document.getElementById('recoveryPass').value;
+            if (!pass || pass.length < 6) return showErrorToast(currentLang === 'en' ? "Password must be at least 6 characters." : "စကားဝှက်အနည်းဆုံး ၆ လုံးရှိရမည်");
+            
+            // Instantly block double clicks
+            const updateBtn = document.getElementById('updatePassBtn');
+            updateBtn.disabled = true;
+            
+            showLoader('loadingAuth');
+            const { error } = await supabaseInstance.auth.updateUser({ password: pass });
+            hideLoader();
+            
+            // Re-enable button on error, but not on success since we are auto signing out
+            if (error) { 
+                updateBtn.disabled = false;
+                showErrorToast(error.message); 
+                return; 
+            }
+            
+            closeRecoveryModal();
+            showToast(dict[currentLang].msgPassUpdated);
+            
+            // Auto sign out so they can log back in freshly with the new password
+            await supabaseInstance.auth.signOut();
+            history.replaceState(null, null, ' '); // Clean URL
+        }
+
         /* --- Custom Notification Toasts --- */
         function showToast(msg) { 
             const toast = document.getElementById('toast'); 
@@ -515,16 +642,17 @@
                 return;
             }
 
-            // Prevent spam clicking
+            // Prevent spam clicking instantly
             loginBtn.disabled = true;
             showLoader('loadingAuth');
 
             const { data, error } = await supabaseInstance.auth.signInWithPassword({ email: email, password: pass });
             
-            hideLoader();
-            loginBtn.disabled = false;
-            
             if (error) { 
+                hideLoader();
+                // Re-enable button safely on error
+                loginBtn.disabled = false;
+                
                 // Advanced Error Mapping
                 let customErrorMsg = error.message;
                 if (error.message.includes('Invalid login credentials')) {
@@ -536,6 +664,9 @@
                 return; 
             }
             
+            hideLoader();
+            // Purposefully NOT re-enabling the button here to physically prevent 
+            // multiple clicks while the user is being redirected to the home page!
             showToast(dict[currentLang].msgSuccess);
             setTimeout(() => { window.location.href = '../index.html'; }, 800);
         }
@@ -549,9 +680,14 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             renderLanguage();
-            // Catch Magic Links if user lands directly on login page
+            
+            // Catch Magic Links and Password Recovery Tokens
             const hash = window.location.hash || window.location.search;
-            if (hash.includes('access_token=') || hash.includes('type=signup') || hash.includes('type=recovery')) {
+            
+            if (hash.includes('type=recovery')) {
+                // Instantly pop the recovery modal up  
+                setTimeout(() => openRecoveryModal(), 400);
+            } else if (hash.includes('access_token=') || hash.includes('type=signup')) {
                 setTimeout(() => {
                     showToast(currentLang === 'en' ? "Email verification successful! You can now log in." : "အီးမေးလ်အတည်ပြုခြင်း အောင်မြင်ပါသည်။ အကောင့်ဝင်နိုင်ပါပြီ။");
                     history.replaceState(null, null, ' '); // Clean URL

@@ -811,8 +811,6 @@
             
             showLoader('loadingSec');
             try {
-                // Simulate check for username duplicate by checking profiles table if exists
-                // The .maybeSingle() handles instances without throwing an error if 0 rows are found
                 const { data, error: fetchError } = await supabaseInstance
                     .from('profiles')
                     .select('id')
@@ -825,7 +823,6 @@
                     return;
                 }
 
-                // Proceed with update if not taken (or if table query failed due to missing RLS/Table, it will jump to catch block and process anyway)
                 const { error } = await supabaseInstance.auth.updateUser({
                     data: { full_name: newName }
                 });
@@ -834,7 +831,6 @@
                 updateAuthUI();
                 showToast(currentLang === 'en' ? 'Profile updated successfully' : 'ကိုယ်ရေးအချက်အလက် ပြင်ဆင်မှု အောင်မြင်ပါသည်');
             } catch(err) {
-                // If profiles table does not exist (Error 42P01 or similar), fallback to standard update gracefully
                 try {
                     const { error: fallbackError } = await supabaseInstance.auth.updateUser({ data: { full_name: newName } });
                     if (fallbackError) throw fallbackError;
