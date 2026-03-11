@@ -216,6 +216,22 @@
         </div>
     </main>
 
+    <!-- CUSTOM ALREADY REGISTERED MODAL -->
+    <div id="confirmModal" class="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-50 mb-6">
+                <i data-lucide="info" class="h-8 w-8 text-myancode-blue"></i>
+            </div>
+            <h3 id="confirmModalTitle" class="text-2xl font-semibold tracking-tight text-myancode-black mb-3">Notice</h3>
+            <p id="confirmModalMessage" class="text-sm text-gray-500 mb-8 leading-relaxed">Message</p>
+
+            <div class="flex space-x-3 w-full">
+                <button onclick="closeConfirmModal()" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" id="confirmModalCancelBtn">Cancel</button>
+                <button id="confirmModalBtn" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-myancode-blue hover:bg-blue-600" data-i18n="btnLoginSwap">Login</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Detailed Footer -->
     <footer class="bg-[#fbfbfd] pt-24 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10">
         <div class="max-w-[1024px] mx-auto">
@@ -296,7 +312,9 @@
                 pwdWeak: "Weak", pwdFair: "Fair", pwdGood: "Good", pwdStrong: "Strong", pwdVeryStrong: "Secure", 
                 pwdRequirement: "Use a strong password (8+ chars, uppercase, number, symbol).", msgVerificationSent: "Verification email sent. Please check your inbox.",
                 errInvalidName: "Please enter a valid name (at least 3 characters).", errInvalidEmail: "Please enter a valid email address.", 
-                errEmailExists: "Email is already registered. Please log in.", errNameExists: "Username is already taken. Please choose another."
+                errEmailExists: "Email is already registered. Please log in.", errNameExists: "Username is already taken. Please choose another.",
+                titleExists: "Account Exists", btnCancel: "Cancel",
+                msgAlreadyRegistered: "This email is already registered and verified. Please log in instead. If you previously signed in on another browser or device, try logging in here."
             },
             mm: {
                 navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
@@ -314,7 +332,9 @@
                 pwdWeak: "အားနည်း", pwdFair: "အသင့်အတင့်", pwdGood: "ကောင်းမွန်", pwdStrong: "ခိုင်မာ", pwdVeryStrong: "အလွန်ခိုင်မာ", 
                 pwdRequirement: "စကားဝှက် ပိုမိုခိုင်မာရန် လိုအပ်ပါသည် (အက္ခရာ ၈ လုံးအထက်၊ အကြီး၊ အသေး၊ ဂဏန်း၊ သင်္ကေတများ ပါရမည်)။", msgVerificationSent: "အတည်ပြုအီးမေးလ် ပို့လိုက်ပါပြီ။ သင့် Inbox ကို စစ်ဆေးပါ။",
                 errInvalidName: "ကျေးဇူးပြု၍ မှန်ကန်သောအမည်ကို ထည့်ပါ။ (အနည်းဆုံး အက္ခရာ ၃ လုံး)", errInvalidEmail: "ကျေးဇူးပြု၍ မှန်ကန်သောအီးမေးလ်ကို ထည့်ပါ။", 
-                errEmailExists: "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။", errNameExists: "အမည်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အခြားအမည်ရွေးပါ။"
+                errEmailExists: "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။", errNameExists: "အမည်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အခြားအမည်ရွေးပါ။",
+                titleExists: "အကောင့်ရှိပြီးဖြစ်သည်", btnCancel: "ပယ်ဖျက်မည်",
+                msgAlreadyRegistered: "ဤအီးမေးလ်မှာ အကောင့်ဖွင့်ပြီး အတည်ပြုပြီးဖြစ်ပါသည်။ ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။ အခြားဘရောက်ဆာ သို့မဟုတ် စက်တွင် အကောင့်ဝင်ခဲ့ဖူးပါက ဤနေရာတွင် အကောင့်ဝင်ကြည့်ပါ။"
             }
         };
 
@@ -527,6 +547,41 @@
             txt.innerText = text; txt.className = `text-[9px] font-bold uppercase tracking-widest min-w-[70px] text-right transition-colors duration-300 ${colorClass.replace('bg-', 'text-').replace('500', '400')}`;
         }
 
+        /* --- Custom Confirmation Modal Logic --- */
+        let confirmActionCallback = null;
+
+        function showConfirmModal(title, message, onConfirm) {
+            const modal = document.getElementById('confirmModal');
+            const content = document.getElementById('confirmModalContent');
+            document.getElementById('confirmModalTitle').innerText = title;
+            document.getElementById('confirmModalMessage').innerText = message;
+            document.getElementById('confirmModalCancelBtn').innerText = dict[currentLang].btnCancel || 'Cancel';
+            
+            confirmActionCallback = onConfirm;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth; 
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+
+            document.getElementById('confirmModalBtn').onclick = () => {
+                closeConfirmModal();
+                if (confirmActionCallback) confirmActionCallback();
+            };
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            const content = document.getElementById('confirmModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
         /* --- Custom Notification Toasts --- */
         function showToast(msg) { 
             const toast = document.getElementById('toast'); 
@@ -604,8 +659,17 @@
             
             // 5. POST-API LOGIC
             hideLoader();
-            regBtn.disabled = false; // re-enable button if they need to try again
+            regBtn.disabled = false; 
             
+            if (data && data.user && data.user.identities && data.user.identities.length === 0) {
+                showConfirmModal(
+                    dict[currentLang].titleExists || "Account Exists",
+                    dict[currentLang].msgAlreadyRegistered || "This email is already registered and verified. Please log in instead. If you previously signed in on another browser or device, try logging in here.",
+                    () => { window.location.href = '../login/index.html'; }
+                );
+                return;
+            }
+
             if (error) { 
                 // Advanced Error Mapping
                 let customErrorMsg = error.message;
@@ -619,7 +683,6 @@
                 return; 
             }
             
-            // Save successful registration to local storage to prevent immediate local duplicates
             localUsers.push({ email: email.toLowerCase(), name: name.toLowerCase(), isVerified: false });
             localStorage.setItem('myancode_users', JSON.stringify(localUsers));
 
