@@ -11,6 +11,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase Auth & DB Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -165,7 +166,7 @@
     <section id="heroSection" class="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black group">
         <div id="sliderContainer" class="absolute inset-0 w-full h-full z-0">
             <img src="./imgs/web-banners/banner11.svg" class="slider-img active absolute inset-0 w-full h-full object-cover object-center" data-theme="light" alt="Dark Tech">
-            <img src="./imgs/web-banners/banner3.svg" class="slider-img absolute inset-0 w-full h-full object-cover o]]]]bject-center" data-theme="dark" alt="Light Abstract">
+            <img src="./imgs/web-banners/banner3.svg" class="slider-img absolute inset-0 w-full h-full object-cover object-center" data-theme="dark" alt="Light Abstract">
             <img src="./imgs/web-banners/banner1.svg" class="slider-img absolute inset-0 w-full h-full object-cover object-center" data-theme="light" alt="Light Architecture">
             <img src="./imgs/web-banners/banner5.svg" class="slider-img absolute inset-0 w-full h-full object-cover object-center" data-theme="light" alt="Dark Server">
             <img src="./imgs/web-banners/banner10.svg" class="slider-img absolute inset-0 w-full h-full object-cover object-center" data-theme="light" alt="Dark Server">
@@ -588,11 +589,10 @@
         }
         
         let currentUser = null;
-        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
-        let currentUserWishlist = [];
+        let currentUserWishlist = []; // Replaced global local storage
 
         if (supabaseInstance) {
-            supabaseInstance.auth.onAuthStateChange((event, session) => {
+            supabaseInstance.auth.onAuthStateChange(async (event, session) => {
                 if (session) {
                     currentUser = {
                         name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
@@ -600,8 +600,11 @@
                         id: session.user.id,
                         avatar_url: session.user.user_metadata?.avatar_url || null
                     };
+                    // Fetch wishlist from Supabase upon login
+                    await fetchWishlist();
                 } else {
                     currentUser = null;
+                    currentUserWishlist = [];
                 }
                 updateAuthUI();
             });
@@ -637,8 +640,6 @@
             const containerMob = document.getElementById('mobileAuthContainer');
             
             if (currentUser) {
-                currentUserWishlist = allWishlists[currentUser.email] || [];
-                
                 const avatarIconHTML = currentUser.avatar_url 
                     ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-gray-200" alt="Avatar">`
                     : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
@@ -676,7 +677,6 @@
                     </button>
                 `;
             } else {
-                currentUserWishlist = [];
                 desktopAuth.innerHTML = `
                     <a href="login/index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
                     <a href="register/index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm hover:shadow-md btn-hover-effect border border-transparent whitespace-nowrap">${dict[currentLang].hdrRegister}</a>
@@ -702,6 +702,33 @@
             lucide.createIcons();
         }
 
+        /* --- Supabase DB Wishlist System --- */
+        async function fetchWishlist() {
+            if (!currentUser) return;
+            const { data, error } = await supabaseInstance
+                .from('wishlists')
+                .select('*')
+                .eq('user_id', currentUser.id);
+            
+            if (error) {
+                console.error("Error fetching wishlist:", error);
+                return;
+            }
+            
+            // Map DB structure to frontend structure
+            currentUserWishlist = data.map(item => ({
+                id: item.product_id,
+                name: item.name,
+                price: parseFloat(item.price)
+            }));
+            
+            updateWishlistCount();
+            updateWishlistCardIcons();
+            if (document.getElementById('wishlistDrawer').classList.contains('open')) {
+                renderWishlistItems();
+            }
+        }
+
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
             if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } 
@@ -716,15 +743,47 @@
             });
         }
 
-        function toggleWishlist(id, name, price) {
+        async function toggleWishlist(id, name, price) {
             if (!currentUser) { window.location.href = 'login/index.html'; return; }
-            const index = currentUserWishlist.findIndex(i => i.id === id);
-            if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); } 
-            else { currentUserWishlist.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
-            allWishlists[currentUser.email] = currentUserWishlist;
-            localStorage.setItem('myancode_global_wishlists', JSON.stringify(allWishlists));
-            updateWishlistCount(); updateWishlistCardIcons();
-            if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
+            
+            const existingIndex = currentUserWishlist.findIndex(i => i.id === id);
+            
+            if (existingIndex > -1) {
+                // DELETE FROM SUPABASE
+                const { error } = await supabaseInstance
+                    .from('wishlists')
+                    .delete()
+                    .eq('user_id', currentUser.id)
+                    .eq('product_id', id);
+                
+                if (!error) {
+                    currentUserWishlist.splice(existingIndex, 1);
+                    showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ");
+                } else {
+                    console.error("Delete wishlist error:", error);
+                    return showErrorToast("Failed to remove item.");
+                }
+            } else {
+                // INSERT TO SUPABASE
+                const newItem = { user_id: currentUser.id, product_id: id, name: name, price: price };
+                const { error } = await supabaseInstance
+                    .from('wishlists')
+                    .insert([newItem]);
+                
+                if (!error) {
+                    currentUserWishlist.push({ id, name, price });
+                    showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ");
+                } else {
+                    console.error("Insert wishlist error:", error);
+                    return showErrorToast("Failed to add item.");
+                }
+            }
+
+            updateWishlistCount(); 
+            updateWishlistCardIcons();
+            if(document.getElementById('wishlistDrawer').classList.contains('open')) {
+                renderWishlistItems();
+            }
         }
 
         function renderWishlistItems() {

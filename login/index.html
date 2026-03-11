@@ -321,7 +321,8 @@
                 forgotPass: "Forgot Password?", resetPassTitle: "Reset Password", resetPassDesc: "Enter your email address and we will send you a link to reset your password.", 
                 btnSendReset: "Send Reset Link", msgResetSent: "Password reset link sent! Check your inbox.", btnCancel: "Cancel",
                 setNewPassTitle: "Set New Password", setNewPassDesc: "Please enter your new password (at least 6 characters).", 
-                btnUpdatePass: "Update Password", msgPassUpdated: "Password updated successfully! You can now log in."
+                btnUpdatePass: "Update Password", msgPassUpdated: "Password updated successfully! You can now log in.",
+                errEmailLimit: "Email server limit reached. Please try again later."
             },
             mm: {
                 navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
@@ -341,7 +342,8 @@
                 forgotPass: "စကားဝှက်မေ့နေပါသလား?", resetPassTitle: "စကားဝှက် ပြန်လည်သတ်မှတ်မည်", resetPassDesc: "သင့်အီးမေးလ်ကို ထည့်ပါ။ စကားဝှက်အသစ်လုပ်ရန် လင့်ခ်ပို့ပေးပါမည်။", 
                 btnSendReset: "လင့်ခ် ပို့မည်", msgResetSent: "စကားဝှက်ပြန်လည်သတ်မှတ်ရန် လင့်ခ်ပို့လိုက်ပါပြီ! Inbox ကို စစ်ဆေးပါ။", btnCancel: "ပယ်ဖျက်မည်",
                 setNewPassTitle: "စကားဝှက်အသစ် သတ်မှတ်မည်", setNewPassDesc: "စကားဝှက်အသစ်ကို ရိုက်ထည့်ပါ။ (အနည်းဆုံး ၆ လုံး)", 
-                btnUpdatePass: "စကားဝှက် ပြောင်းမည်", msgPassUpdated: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်! အကောင့်ဝင်နိုင်ပါပြီ။"
+                btnUpdatePass: "စကားဝှက် ပြောင်းမည်", msgPassUpdated: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်! အကောင့်ဝင်နိုင်ပါပြီ။",
+                errEmailLimit: "အီးမေးလ်ပို့ရန် ကန့်သတ်ချက်ပြည့်သွားပါပြီ။ ခေတ္တစောင့်ဆိုင်းပြီး ထပ်မံကြိုးစားပါ။"
             }
         };
 
@@ -357,20 +359,22 @@
         }
         
         let currentUser = null;
-        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
-        let currentUserWishlist = [];
+        let currentUserWishlist = []; // Replaced global local storage read
 
         // STRICT SUPABASE SESSION LISTENER
         if (supabaseInstance) {
-            supabaseInstance.auth.onAuthStateChange((event, session) => {
+            supabaseInstance.auth.onAuthStateChange(async (event, session) => {
                 if (session) {
                     currentUser = {
                         name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                         email: session.user.email,
                         id: session.user.id
                     };
+                    // Fetch wishlist from Supabase upon login
+                    await fetchWishlist();
                 } else {
                     currentUser = null;
+                    currentUserWishlist = [];
                 }
                 updateAuthUI();
             });
@@ -392,7 +396,6 @@
         function updateAuthUI() {
             const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
             if (currentUser) {
-                currentUserWishlist = allWishlists[currentUser.email] || [];
                 desktopAuth.innerHTML = `
                     <div class="relative" id="profileContainer">
                         <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group">
@@ -411,7 +414,6 @@
                     <button onclick="window.location.href='../index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize"><span>${dict[currentLang].hdrOrders}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i></button>
                     <button onclick="handleLogout()" class="flex justify-between items-center w-full text-red-500 hover:text-red-600 transition-colors text-base font-medium tracking-wide capitalize pb-6 border-b border-gray-200"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5"></i></button>`;
             } else {
-                currentUserWishlist = [];
                 desktopAuth.innerHTML = `
                     <a href="index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
                     <a href="../register/index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
@@ -424,7 +426,33 @@
             updateWishlistCount(); lucide.createIcons();
         }
 
-        /* --- Wishlist System --- */
+        /* --- Supabase DB Wishlist System --- */
+        
+        async function fetchWishlist() {
+            if (!currentUser) return;
+            const { data, error } = await supabaseInstance
+                .from('wishlists')
+                .select('*')
+                .eq('user_id', currentUser.id);
+            
+            if (error) {
+                console.error("Error fetching wishlist:", error);
+                return;
+            }
+            
+            // Map DB structure to frontend structure
+            currentUserWishlist = data.map(item => ({
+                id: item.product_id,
+                name: item.name,
+                price: parseFloat(item.price)
+            }));
+            
+            updateWishlistCount();
+            if (document.getElementById('wishlistDrawer').classList.contains('open')) {
+                renderWishlistItems();
+            }
+        }
+
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
             if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } 
@@ -440,11 +468,42 @@
             else { document.body.classList.remove('no-scroll'); }
         }
 
-        function toggleWishlist(id, name, price) {
-            const index = currentUserWishlist.findIndex(i => i.id === id);
-            if (index > -1) currentUserWishlist.splice(index, 1); else currentUserWishlist.push({ id, name, price });
-            allWishlists[currentUser.email] = currentUserWishlist; localStorage.setItem('myancode_global_wishlists', JSON.stringify(allWishlists));
-            updateWishlistCount(); renderWishlistItems();
+        async function toggleWishlist(productId, name, price) {
+            if (!currentUser) return showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ");
+            
+            const existingIndex = currentUserWishlist.findIndex(i => i.id === productId);
+            
+            if (existingIndex > -1) {
+                // DELETE FROM SUPABASE
+                const { error } = await supabaseInstance
+                    .from('wishlists')
+                    .delete()
+                    .eq('user_id', currentUser.id)
+                    .eq('product_id', productId);
+                
+                if (!error) {
+                    currentUserWishlist.splice(existingIndex, 1);
+                } else {
+                    console.error("Delete wishlist error:", error);
+                    return showErrorToast("Failed to remove item.");
+                }
+            } else {
+                // INSERT TO SUPABASE
+                const newItem = { user_id: currentUser.id, product_id: productId, name: name, price: price };
+                const { error } = await supabaseInstance
+                    .from('wishlists')
+                    .insert([newItem]);
+                
+                if (!error) {
+                    currentUserWishlist.push({ id: productId, name, price });
+                } else {
+                    console.error("Insert wishlist error:", error);
+                    return showErrorToast("Failed to add item.");
+                }
+            }
+
+            updateWishlistCount(); 
+            renderWishlistItems();
         }
 
         function renderWishlistItems() {
@@ -560,7 +619,15 @@
             // Re-enable button
             sendBtn.disabled = false;
             
-            if (error) { showErrorToast(error.message); return; }
+            if (error) { 
+                let customErrorMsg = error.message;
+                // Intercept Email Rate Limit Error!
+                if (error.message.toLowerCase().includes('error sending reset password email') || error.message.toLowerCase().includes('rate limit')) {
+                    customErrorMsg = dict[currentLang].errEmailLimit;
+                }
+                showErrorToast(customErrorMsg); 
+                return; 
+            }
             
             closeForgotModal();
             showToast(dict[currentLang].msgResetSent);
@@ -659,6 +726,8 @@
                     customErrorMsg = dict[currentLang].errInvalidCreds;
                 } else if (error.message.includes('Email not confirmed')) {
                     customErrorMsg = dict[currentLang].errUnverified;
+                } else if (error.message.toLowerCase().includes('rate limit') || error.message.toLowerCase().includes('too many requests')) {
+                    customErrorMsg = dict[currentLang].errEmailLimit;
                 }
                 showErrorToast(customErrorMsg); 
                 return; 

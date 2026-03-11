@@ -487,11 +487,10 @@
         }
         
         let currentUser = null;
-        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
         let currentUserWishlist = [];
 
         if (supabaseInstance) {
-            supabaseInstance.auth.onAuthStateChange((event, session) => {
+            supabaseInstance.auth.onAuthStateChange(async (event, session) => {
                 if (session) {
                     currentUser = {
                         name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
@@ -500,9 +499,11 @@
                         avatar_url: session.user.user_metadata?.avatar_url || null
                     };
                     populateProfileData();
+                    await fetchWishlist(); // Fetch real-time wishlist data
                     updateAuthUI();
                 } else {
                     currentUser = null;
+                    currentUserWishlist = [];
                     try {
                         window.location.href = '../index.html';
                     } catch (e) {
@@ -549,8 +550,6 @@
             if (!desktopAuth || !containerMob) return;
             
             if (currentUser) {
-                currentUserWishlist = allWishlists[currentUser.email] || [];
-                
                 const avatarIconHTML = currentUser.avatar_url 
                     ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-gray-200" alt="Avatar">`
                     : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
@@ -897,21 +896,50 @@
             showConfirmModal(title, confirmMsg, 'danger', true, async () => {
                 showLoader('loadingSec');
                 try {
+                    // 1. Call the secure Supabase RPC to delete the user
                     const { error } = await supabaseInstance.rpc('delete_user');
+                    
                     if (error) {
-                        console.warn("RPC Failed, attempting fallback signout:", error.message);
-                        await supabaseInstance.auth.signOut();
-                        try { window.location.href = '../index.html'; } catch(e) { window.location.reload(); }
-                    } else {
-                        await supabaseInstance.auth.signOut();
-                        try { window.location.href = '../index.html'; } catch(e) { window.location.reload(); }
-                    }
+                        // 2. If it fails, THROW the error. Do NOT sign out.
+                        throw new Error(currentLang === 'en' ? 'Server error: ' + error.message : 'ဆာဗာချို့ယွင်းချက်: ' + error.message);
+                    } 
+                    
+                    // 3. Only sign out and redirect if the database deletion was successful
+                    await supabaseInstance.auth.signOut();
+                    try { window.location.href = '../index.html'; } catch(e) { window.location.reload(); }
+                    
                 } catch(err) {
                     showErrorToast(err.message);
                     hideLoader();
                 }
             });
         } 
+
+        /* --- Supabase DB Wishlist System --- */
+        async function fetchWishlist() {
+            if (!currentUser) return;
+            const { data, error } = await supabaseInstance
+                .from('wishlists')
+                .select('*')
+                .eq('user_id', currentUser.id);
+            
+            if (error) {
+                console.error("Error fetching wishlist:", error);
+                return;
+            }
+            
+            // Map DB structure to frontend structure
+            currentUserWishlist = data.map(item => ({
+                id: item.product_id,
+                name: item.name,
+                price: parseFloat(item.price)
+            }));
+            
+            updateWishlistCount();
+            if (document.getElementById('wishlistDrawer').classList.contains('open')) {
+                renderWishlistItems();
+            }
+        }
 
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
@@ -952,12 +980,46 @@
             lucide.createIcons();
         }
 
-        function toggleWishlist(id, name, price) {
-            const index = currentUserWishlist.findIndex(i => i.id === id);
-            if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); } 
-            allWishlists[currentUser.email] = currentUserWishlist;
-            localStorage.setItem('myancode_global_wishlists', JSON.stringify(allWishlists));
-            updateWishlistCount(); renderWishlistItems();
+        async function toggleWishlist(id, name, price) {
+            if (!currentUser) return;
+            
+            const existingIndex = currentUserWishlist.findIndex(i => i.id === id);
+            
+            if (existingIndex > -1) {
+                // DELETE FROM SUPABASE
+                const { error } = await supabaseInstance
+                    .from('wishlists')
+                    .delete()
+                    .eq('user_id', currentUser.id)
+                    .eq('product_id', id);
+                
+                if (!error) {
+                    currentUserWishlist.splice(existingIndex, 1);
+                    showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ");
+                } else {
+                    console.error("Delete wishlist error:", error);
+                    return showErrorToast("Failed to remove item.");
+                }
+            } else {
+                // INSERT TO SUPABASE
+                const newItem = { user_id: currentUser.id, product_id: id, name: name, price: price };
+                const { error } = await supabaseInstance
+                    .from('wishlists')
+                    .insert([newItem]);
+                
+                if (!error) {
+                    currentUserWishlist.push({ id, name, price });
+                    showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ");
+                } else {
+                    console.error("Insert wishlist error:", error);
+                    return showErrorToast("Failed to add item.");
+                }
+            }
+
+            updateWishlistCount(); 
+            if(document.getElementById('wishlistDrawer').classList.contains('open')) {
+                renderWishlistItems();
+            }
         }
 
         async function handleLogout() {

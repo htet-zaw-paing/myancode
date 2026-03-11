@@ -11,7 +11,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase Auth Client -->
+    <!-- Supabase Auth & DB Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -204,7 +204,7 @@
                         <span id="pwdStrengthText" class="text-[9px] font-bold uppercase tracking-widest text-gray-400 min-w-[70px] text-right"></span>
                     </div>
                 </div>
-                <button type="submit" id="regBtn" class="w-full btn-hover-effect bg-black text-white py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-md mt-6 flex justify-center items-center gap-2">
+                <button type="submit" id="regBtn" class="w-full btn-hover-effect bg-black text-white py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-md mt-6 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                     <span data-i18n="btnRegSubmit">Create Account</span>
                 </button>
             </form>
@@ -314,7 +314,8 @@
                 errInvalidName: "Please enter a valid name (at least 3 characters).", errInvalidEmail: "Please enter a valid email address.", 
                 errEmailExists: "Email is already registered. Please log in.", errNameExists: "Username is already taken. Please choose another.",
                 titleExists: "Account Exists", btnCancel: "Cancel",
-                msgAlreadyRegistered: "This email is already registered and verified. Please log in instead. If you previously signed in on another browser or device, try logging in here."
+                msgAlreadyRegistered: "This email is already registered and verified. Please log in instead. If you previously signed in on another browser or device, try logging in here.",
+                errEmailLimit: "Email server limit reached. Please try again later."
             },
             mm: {
                 navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
@@ -334,7 +335,8 @@
                 errInvalidName: "ကျေးဇူးပြု၍ မှန်ကန်သောအမည်ကို ထည့်ပါ။ (အနည်းဆုံး အက္ခရာ ၃ လုံး)", errInvalidEmail: "ကျေးဇူးပြု၍ မှန်ကန်သောအီးမေးလ်ကို ထည့်ပါ။", 
                 errEmailExists: "အီးမေးလ်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။", errNameExists: "အမည်အသုံးပြုပြီးသားဖြစ်နေပါသည်။ ကျေးဇူးပြု၍ အခြားအမည်ရွေးပါ။",
                 titleExists: "အကောင့်ရှိပြီးဖြစ်သည်", btnCancel: "ပယ်ဖျက်မည်",
-                msgAlreadyRegistered: "ဤအီးမေးလ်မှာ အကောင့်ဖွင့်ပြီး အတည်ပြုပြီးဖြစ်ပါသည်။ ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။ အခြားဘရောက်ဆာ သို့မဟုတ် စက်တွင် အကောင့်ဝင်ခဲ့ဖူးပါက ဤနေရာတွင် အကောင့်ဝင်ကြည့်ပါ။"
+                msgAlreadyRegistered: "ဤအီးမေးလ်မှာ အကောင့်ဖွင့်ပြီး အတည်ပြုပြီးဖြစ်ပါသည်။ ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။ အခြားဘရောက်ဆာ သို့မဟုတ် စက်တွင် အကောင့်ဝင်ခဲ့ဖူးပါက ဤနေရာတွင် အကောင့်ဝင်ကြည့်ပါ။",
+                errEmailLimit: "အီးမေးလ်ပို့ရန် ကန့်သတ်ချက်ပြည့်သွားပါပြီ။ ခေတ္တစောင့်ဆိုင်းပြီး ထပ်မံကြိုးစားပါ။"
             }
         };
 
@@ -350,20 +352,22 @@
         }
         
         let currentUser = null;
-        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
-        let currentUserWishlist = [];
+        let currentUserWishlist = []; // Replaced global local storage read
 
         // STRICT SUPABASE SESSION LISTENER
         if (supabaseInstance) {
-            supabaseInstance.auth.onAuthStateChange((event, session) => {
+            supabaseInstance.auth.onAuthStateChange(async (event, session) => {
                 if (session) {
                     currentUser = {
                         name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                         email: session.user.email,
                         id: session.user.id
                     };
+                    // Fetch wishlist from Supabase upon login
+                    await fetchWishlist();
                 } else {
                     currentUser = null;
+                    currentUserWishlist = [];
                 }
                 updateAuthUI();
             });
@@ -386,7 +390,6 @@
         function updateAuthUI() {
             const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
             if (currentUser) {
-                currentUserWishlist = allWishlists[currentUser.email] || [];
                 desktopAuth.innerHTML = `
                     <div class="relative" id="profileContainer">
                         <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group">
@@ -405,7 +408,6 @@
                     <button onclick="window.location.href='../index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize"><span>${dict[currentLang].hdrOrders}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i></button>
                     <button onclick="handleLogout()" class="flex justify-between items-center w-full text-red-500 hover:text-red-600 transition-colors text-base font-medium tracking-wide capitalize pb-6 border-b border-gray-200"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5"></i></button>`;
             } else {
-                currentUserWishlist = [];
                 desktopAuth.innerHTML = `
                     <a href="../login/index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
                     <a href="index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
@@ -418,7 +420,33 @@
             updateWishlistCount(); lucide.createIcons();
         }
 
-        /* --- Wishlist System --- */
+        /* --- Supabase DB Wishlist System --- */
+        
+        async function fetchWishlist() {
+            if (!currentUser) return;
+            const { data, error } = await supabaseInstance
+                .from('wishlists')
+                .select('*')
+                .eq('user_id', currentUser.id);
+            
+            if (error) {
+                console.error("Error fetching wishlist:", error);
+                return;
+            }
+            
+            // Map DB structure to frontend structure
+            currentUserWishlist = data.map(item => ({
+                id: item.product_id,
+                name: item.name,
+                price: parseFloat(item.price)
+            }));
+            
+            updateWishlistCount();
+            if (document.getElementById('wishlistDrawer').classList.contains('open')) {
+                renderWishlistItems();
+            }
+        }
+
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
             if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } 
@@ -434,11 +462,42 @@
             else { document.body.classList.remove('no-scroll'); }
         }
 
-        function toggleWishlist(id, name, price) {
-            const index = currentUserWishlist.findIndex(i => i.id === id);
-            if (index > -1) currentUserWishlist.splice(index, 1); else currentUserWishlist.push({ id, name, price });
-            allWishlists[currentUser.email] = currentUserWishlist; localStorage.setItem('myancode_global_wishlists', JSON.stringify(allWishlists));
-            updateWishlistCount(); renderWishlistItems();
+        async function toggleWishlist(productId, name, price) {
+            if (!currentUser) return showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ");
+            
+            const existingIndex = currentUserWishlist.findIndex(i => i.id === productId);
+            
+            if (existingIndex > -1) {
+                // DELETE FROM SUPABASE
+                const { error } = await supabaseInstance
+                    .from('wishlists')
+                    .delete()
+                    .eq('user_id', currentUser.id)
+                    .eq('product_id', productId);
+                
+                if (!error) {
+                    currentUserWishlist.splice(existingIndex, 1);
+                } else {
+                    console.error("Delete wishlist error:", error);
+                    return showErrorToast("Failed to remove item.");
+                }
+            } else {
+                // INSERT TO SUPABASE
+                const newItem = { user_id: currentUser.id, product_id: productId, name: name, price: price };
+                const { error } = await supabaseInstance
+                    .from('wishlists')
+                    .insert([newItem]);
+                
+                if (!error) {
+                    currentUserWishlist.push({ id: productId, name, price });
+                } else {
+                    console.error("Insert wishlist error:", error);
+                    return showErrorToast("Failed to add item.");
+                }
+            }
+
+            updateWishlistCount(); 
+            renderWishlistItems();
         }
 
         function renderWishlistItems() {
@@ -604,7 +663,7 @@
         function showLoader(textKey) { loaderText.innerText = dict[currentLang][textKey] || textKey; globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); globalLoader.classList.add('opacity-100', 'visibility-visible'); }
         function hideLoader() { globalLoader.classList.remove('opacity-100', 'visibility-visible'); globalLoader.classList.add('opacity-0', 'pointer-events-none'); setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600); }
 
-        /* --- ROBUST SUPABASE REGISTER LOGIC --- */
+        /* --- ROBUST SUPABASE REGISTER & DB LOGIC --- */
         async function handleRegister(e) {
             e.preventDefault();
             
@@ -613,9 +672,9 @@
             const pass = document.getElementById('regPass').value;
             const regBtn = document.getElementById('regBtn');
 
-            // 1. FRONTEND VALIDATION (High Performance Checking)
-            const nameRegex = /^[\p{L}\s]{3,50}$/u; // Supports English and Myanmar characters (3-50 length)
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic strict email regex
+            // 1. FRONTEND VALIDATION
+            const nameRegex = /^[\p{L}\s]{3,50}$/u; 
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
 
             if (!name.match(nameRegex)) {
                 showErrorToast(dict[currentLang].errInvalidName);
@@ -630,61 +689,56 @@
                 return; 
             }
 
-            // 2. LOCAL STORAGE DUPLICATE CHECK (Robust Client-Side Validation)
-            let localUsers = JSON.parse(localStorage.getItem('myancode_users')) || [];
-            
-            if (localUsers.some(u => u.email === email.toLowerCase())) {
-                showErrorToast(dict[currentLang].errEmailExists);
-                return;
-            }
-            
-            if (localUsers.some(u => u.name.toLowerCase() === name.toLowerCase())) {
-                showErrorToast(dict[currentLang].errNameExists);
-                return;
-            }
+            // (Local Storage Duplicate check removed. Supabase handles email uniqueness.)
 
-            // 3. DISABLE BUTTON (Prevent double submission spam)
+            // 2. DISABLE BUTTON instantly
             regBtn.disabled = true;
             showLoader('loadingAuth');
 
-            // 4. API CALL
+            // 3. API CALL (Sign Up via Auth)
             const { data, error } = await supabaseInstance.auth.signUp({ 
                 email: email, 
                 password: pass, 
                 options: { 
                     data: { full_name: name },
-                    emailRedirectTo: 'https://htet-zaw-paing.github.io/myancode/login/index.html' 
+                    emailRedirectTo: window.location.origin + '/myancode/login/index.html'
                 } 
             });
             
-            // 5. POST-API LOGIC
+            // 4. POST-API LOGIC
             hideLoader();
-            regBtn.disabled = false; 
             
+            // MAGIC CHECK for existing user
             if (data && data.user && data.user.identities && data.user.identities.length === 0) {
                 showConfirmModal(
                     dict[currentLang].titleExists || "Account Exists",
-                    dict[currentLang].msgAlreadyRegistered || "This email is already registered and verified. Please log in instead. If you previously signed in on another browser or device, try logging in here.",
+                    dict[currentLang].msgAlreadyRegistered || "This email is already registered and verified. Please log in instead.",
                     () => { window.location.href = '../login/index.html'; }
                 );
                 return;
             }
 
             if (error) { 
-                // Advanced Error Mapping
+                regBtn.disabled = false;
                 let customErrorMsg = error.message;
                 
-                // Supabase typically throws a 422 or "already registered" if user exists 
                 if (error.status === 422 || error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('exists')) {
                     customErrorMsg = dict[currentLang].errEmailExists;
+                } else if (error.message.toLowerCase().includes('error sending confirmation email') || error.message.toLowerCase().includes('rate limit')) {
+                    customErrorMsg = dict[currentLang].errEmailLimit;
                 }
                 
                 showErrorToast(customErrorMsg); 
                 return; 
             }
             
-            localUsers.push({ email: email.toLowerCase(), name: name.toLowerCase(), isVerified: false });
-            localStorage.setItem('myancode_users', JSON.stringify(localUsers));
+            // 5. INSERT PROFILE DATA INTO SUPABASE DB
+            // We manually insert the profile. Alternatively, this can be done via Postgres trigger on 'auth.users'.
+            if (data && data.user) {
+                await supabaseInstance.from('profiles').insert([
+                    { id: data.user.id, name: name, email: email }
+                ]);
+            }
 
             showToast(dict[currentLang].msgVerificationSent);
             setTimeout(() => { window.location.href = '../login/index.html'; }, 2000);
