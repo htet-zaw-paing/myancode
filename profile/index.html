@@ -339,6 +339,12 @@
                 </label>
             </div>
 
+            <!-- Text Input Confirmation (Danger mode) -->
+            <div id="confirmModalTextContainer" class="hidden mb-6 text-left">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2" id="confirmModalTextLabel">Type "DeLeTe My AccOunT" to confirm</label>
+                <input type="text" id="confirmModalTextInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all" autocomplete="off">
+            </div>
+
             <div class="flex space-x-3 w-full">
                 <button onclick="closeConfirmModal()" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" id="confirmModalCancelBtn">Cancel</button>
                 <button id="confirmModalBtn" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-red-600 hover:bg-red-700">Confirm</button>
@@ -595,7 +601,12 @@
         /* --- CONFIRMATION MODAL LOGIC --- */
         let confirmActionCallback = null;
 
-        function showConfirmModal(title, message, type = 'warning', requireCheckbox = false, onConfirm) {
+        function showConfirmModal(title, message, type = 'warning', requireCheckbox = false, requireTextMatch = null, onConfirm) {
+            if (typeof requireTextMatch === 'function') {
+                onConfirm = requireTextMatch;
+                requireTextMatch = null;
+            }
+
             const modal = document.getElementById('confirmModal');
             const content = document.getElementById('confirmModalContent');
             const titleEl = document.getElementById('confirmModalTitle');
@@ -603,9 +614,14 @@
             const iconContainer = document.getElementById('confirmModalIcon');
             const btn = document.getElementById('confirmModalBtn');
             const cancelBtn = document.getElementById('confirmModalCancelBtn');
+            
             const checkboxContainer = document.getElementById('confirmModalCheckboxContainer');
             const checkbox = document.getElementById('confirmModalCheckbox');
             const checkboxText = document.getElementById('confirmModalCheckboxText');
+
+            const textContainer = document.getElementById('confirmModalTextContainer');
+            const textInput = document.getElementById('confirmModalTextInput');
+            const textLabel = document.getElementById('confirmModalTextLabel');
 
             titleEl.innerText = title;
             msgEl.innerText = message;
@@ -617,24 +633,41 @@
                 : '<a href="#" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">စည်းမျဉ်းစည်းကမ်းများ</a>ကို ကျွန်ုပ်ဖတ်ပြီးပါပြီ။ ကျွန်ုပ်၏ အချက်အလက်များအားလုံးကို အပြီးအပိုင်ဖျက်ပစ်မည်ဖြစ်ပြီး ပြန်လည်ရယူ၍မရနိုင်ကြောင်း နားလည်သဘောပေါက်ပါသည်။';
 
             checkbox.checked = false;
+            textInput.value = '';
+
+            const validateBtn = () => {
+                let isValid = true;
+                if (requireCheckbox && !checkbox.checked) isValid = false;
+                if (requireTextMatch && textInput.value !== requireTextMatch) isValid = false;
+                
+                if (isValid) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            };
+
             if (requireCheckbox) {
                 checkboxContainer.classList.remove('hidden');
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-                checkbox.onchange = (e) => {
-                    if (e.target.checked) {
-                        btn.disabled = false;
-                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    } else {
-                        btn.disabled = true;
-                        btn.classList.add('opacity-50', 'cursor-not-allowed');
-                    }
-                };
+                checkbox.onchange = validateBtn;
             } else {
                 checkboxContainer.classList.add('hidden');
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
+
+            if (requireTextMatch) {
+                textContainer.classList.remove('hidden');
+                textLabel.innerText = currentLang === 'en'
+                    ? `Please type "${requireTextMatch}" to confirm`
+                    : `အတည်ပြုရန် "${requireTextMatch}" ဟု ရိုက်ထည့်ပါ`;
+                textInput.placeholder = requireTextMatch;
+                textInput.oninput = validateBtn;
+            } else {
+                textContainer.classList.add('hidden');
+            }
+
+            validateBtn(); // Initial check
 
             if (type === 'danger') {
                 iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6';
@@ -657,7 +690,7 @@
             content.classList.remove('scale-95');
 
             btn.onclick = () => {
-                if (requireCheckbox && !checkbox.checked) return;
+                if (btn.disabled) return;
                 closeConfirmModal();
                 if (confirmActionCallback) confirmActionCallback();
             };
@@ -893,7 +926,7 @@
                 ? "Are you absolutely sure you want to delete your account? This action is irreversible." 
                 : "အကောင့်ကို ဖျက်ပစ်ရန် သေချာပါသလား? ဤလုပ်ငန်းစဉ်ကို နောက်ပြန်ဆုတ်၍ မရနိုင်ပါ။";
             
-            showConfirmModal(title, confirmMsg, 'danger', true, async () => {
+            showConfirmModal(title, confirmMsg, 'danger', true, 'DeLeTe My AccOunT', async () => {
                 showLoader('loadingSec');
                 try {
                     /*
