@@ -896,18 +896,41 @@
             showConfirmModal(title, confirmMsg, 'danger', true, async () => {
                 showLoader('loadingSec');
                 try {
+                    /*
+                     * ========================================================
+                     * ⚠️ SUPABASE DEVELOPER INSTRUCTION:
+                     * Supabase does not allow frontend clients to delete accounts directly.
+                     * For this feature to actually delete the user from the database, you MUST 
+                     * run this exact SQL query in your Supabase SQL Editor once:
+                     * * CREATE OR REPLACE FUNCTION delete_user()
+                     * RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
+                     * DELETE FROM auth.users WHERE id = auth.uid();
+                     * $$;
+                     * * (Also ensure any tables referencing auth.users use ON DELETE CASCADE)
+                     * ========================================================
+                     */
                     const { error } = await supabaseInstance.rpc('delete_user');
+                    
                     if (error) {
-                        console.warn("RPC Failed, attempting fallback signout:", error.message);
-                        await supabaseInstance.auth.signOut();
-                        try { window.location.href = '../index.html'; } catch(e) { window.location.reload(); }
-                    } else {
-                        await supabaseInstance.auth.signOut();
-                        try { window.location.href = '../index.html'; } catch(e) { window.location.reload(); }
+                        // We throw the error so we do NOT silently sign out if it failed
+                        throw new Error(error.message); 
                     }
+                    
+                    // Success! The user was actually removed from the auth.users table.
+                    await supabaseInstance.auth.signOut();
+                    
+                    showToast(currentLang === 'en' ? "Account deleted permanently." : "အကောင့်ကို အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။");
+                    
+                    setTimeout(() => {
+                        try { window.location.href = '../index.html'; } catch(e) { window.location.reload(); }
+                    }, 1500);
+                    
                 } catch(err) {
-                    showErrorToast(err.message);
                     hideLoader();
+                    console.error("Account Deletion Error:", err.message);
+                    console.warn("DEVELOPER: Deletion failed! Did you add the 'delete_user' RPC function in your Supabase SQL Editor?");
+                    
+                    showErrorToast(currentLang === 'en' ? "Deletion failed! Backend function missing. Check console." : "အကောင့်ဖျက်ခြင်း မအောင်မြင်ပါ။ (Backend Function လိုအပ်ပါသည်)");
                 }
             });
         } 
