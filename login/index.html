@@ -60,6 +60,10 @@
         .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Custom User Avatar styling */
+        .user-avatar-global { transition: all 0.3s ease; }
+        .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen">
@@ -359,7 +363,6 @@
         }
         
         let currentUser = null;
-        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
         let currentUserWishlist = [];
 
         // STRICT SUPABASE SESSION LISTENER
@@ -369,10 +372,13 @@
                     currentUser = {
                         name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                         email: session.user.email,
-                        id: session.user.id
+                        id: session.user.id,
+                        avatar_url: session.user.user_metadata?.avatar_url || null
                     };
+                    currentUserWishlist = session.user.user_metadata?.wishlist || [];
                 } else {
                     currentUser = null;
+                    currentUserWishlist = [];
                 }
                 updateAuthUI();
             });
@@ -394,11 +400,18 @@
         function updateAuthUI() {
             const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
             if (currentUser) {
-                currentUserWishlist = allWishlists[currentUser.email] || [];
+                const avatarIconHTML = currentUser.avatar_url 
+                    ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-gray-200" alt="Avatar">`
+                    : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
+                
+                const mobileAvatarHTML = currentUser.avatar_url
+                    ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-gray-200 shadow-sm">`
+                    : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-blue"></i>`;
+
                 desktopAuth.innerHTML = `
                     <div class="relative" id="profileContainer">
-                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group">
-                            <i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon flex items-center justify-center">
+                            ${avatarIconHTML}
                         </button>
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
                             <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
@@ -408,25 +421,27 @@
                         </div>
                     </div>`;
                 containerMob.innerHTML = `
-                    <div class="flex justify-between items-center w-full text-gray-800 text-base font-medium tracking-wide border-b border-gray-100 pb-4 mb-2"><span class="capitalize text-sm font-bold truncate max-w-[200px]">${currentUser.name}</span> <i data-lucide="user-check" class="h-5 w-5 text-myancode-blue"></i></div>
+                    <div class="flex justify-between items-center w-full text-gray-800 text-base font-medium tracking-wide border-b border-gray-100 pb-4 mb-2">
+                        <span class="capitalize text-sm font-bold truncate max-w-[200px]">${currentUser.name}</span> 
+                        ${mobileAvatarHTML}
+                    </div>
                     <button onclick="window.location.href='../index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
                     <button onclick="window.location.href='../index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize"><span>${dict[currentLang].hdrOrders}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i></button>
                     <button onclick="handleLogout()" class="flex justify-between items-center w-full text-red-500 hover:text-red-600 transition-colors text-base font-medium tracking-wide capitalize pb-6 border-b border-gray-200"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5"></i></button>`;
             } else {
-                currentUserWishlist = [];
                 desktopAuth.innerHTML = `
                     <a href="index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
                     <a href="../register/index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
                 containerMob.innerHTML = `
                     <div class="flex flex-col gap-3 pb-6 border-b border-gray-200">
-                        <a href="index.html" class="flex justify-center items-center w-full text-gray-800 bg-gray-100 py-3.5 rounded-xl text-sm font-semibold capitalize">${dict[currentLang].hdrLogin}</a>
-                        <a href="../register/index.html" class="flex justify-center items-center w-full text-white bg-myancode-blue py-3.5 rounded-xl text-sm font-semibold capitalize">${dict[currentLang].hdrRegister}</a>
+                        <a href="index.html" class="flex justify-center items-center w-full text-gray-800 bg-gray-100 hover:bg-gray-200 py-3.5 rounded-xl transition-colors text-sm font-semibold tracking-wide capitalize">${dict[currentLang].hdrLogin}</a>
+                        <a href="../register/index.html" class="flex justify-center items-center w-full text-white bg-myancode-blue hover:bg-blue-600 py-3.5 rounded-xl transition-colors text-sm font-semibold tracking-wide capitalize shadow-md">${dict[currentLang].hdrRegister}</a>
                     </div>`;
             }
             updateWishlistCount(); lucide.createIcons();
         }
 
-        /* --- Wishlist System --- */
+        /* --- Wishlist System (Cloud Synced) --- */
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
             if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } 
@@ -443,10 +458,30 @@
         }
 
         function toggleWishlist(id, name, price) {
+            if (!currentUser) { showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ"); return; }
+            
             const index = currentUserWishlist.findIndex(i => i.id === id);
-            if (index > -1) currentUserWishlist.splice(index, 1); else currentUserWishlist.push({ id, name, price });
-            allWishlists[currentUser.email] = currentUserWishlist; localStorage.setItem('myancode_global_wishlists', JSON.stringify(allWishlists));
-            updateWishlistCount(); renderWishlistItems();
+            
+            if (index > -1) { 
+                currentUserWishlist.splice(index, 1); 
+                showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); 
+            } else { 
+                currentUserWishlist.push({ id, name, price }); 
+                showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); 
+            }
+            
+            syncWishlistToSupabase();
+            updateWishlistCount();
+            if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
+        }
+
+        async function syncWishlistToSupabase() {
+            if (supabaseInstance && currentUser) {
+                const { error } = await supabaseInstance.auth.updateUser({
+                    data: { wishlist: currentUserWishlist }
+                });
+                if (error) console.error("Error syncing wishlist:", error);
+            }
         }
 
         function renderWishlistItems() {
@@ -457,9 +492,9 @@
             }
             container.innerHTML = currentUserWishlist.map(item => { total += item.price;
                 return `
-                <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                     <div><h4 class="font-semibold text-sm mb-1">${dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name}</h4><span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span></div>
-                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium p-2 bg-red-50 rounded-lg">${dict[currentLang].removeFromWishlist}</button>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
                 </div>`}).join('');
             totalDisplay.textContent = `${total.toLocaleString()} MMK`; lucide.createIcons();
         }

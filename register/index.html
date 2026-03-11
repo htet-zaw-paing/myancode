@@ -352,7 +352,6 @@
         }
         
         let currentUser = null;
-        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
         let currentUserWishlist = [];
 
         // STRICT SUPABASE SESSION LISTENER
@@ -364,8 +363,10 @@
                         email: session.user.email,
                         id: session.user.id
                     };
+                    currentUserWishlist = session.user.user_metadata?.wishlist || [];
                 } else {
                     currentUser = null;
+                    currentUserWishlist = [];
                 }
                 updateAuthUI();
             });
@@ -388,7 +389,6 @@
         function updateAuthUI() {
             const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
             if (currentUser) {
-                currentUserWishlist = allWishlists[currentUser.email] || [];
                 desktopAuth.innerHTML = `
                     <div class="relative" id="profileContainer">
                         <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group">
@@ -407,7 +407,6 @@
                     <button onclick="window.location.href='../index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize"><span>${dict[currentLang].hdrOrders}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i></button>
                     <button onclick="handleLogout()" class="flex justify-between items-center w-full text-red-500 hover:text-red-600 transition-colors text-base font-medium tracking-wide capitalize pb-6 border-b border-gray-200"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5"></i></button>`;
             } else {
-                currentUserWishlist = [];
                 desktopAuth.innerHTML = `
                     <a href="../login/index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
                     <a href="index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
@@ -439,8 +438,18 @@
         function toggleWishlist(id, name, price) {
             const index = currentUserWishlist.findIndex(i => i.id === id);
             if (index > -1) currentUserWishlist.splice(index, 1); else currentUserWishlist.push({ id, name, price });
-            allWishlists[currentUser.email] = currentUserWishlist; localStorage.setItem('myancode_global_wishlists', JSON.stringify(allWishlists));
+            
+            syncWishlistToSupabase();
             updateWishlistCount(); renderWishlistItems();
+        }
+
+        async function syncWishlistToSupabase() {
+            if (supabaseInstance && currentUser) {
+                const { error } = await supabaseInstance.auth.updateUser({
+                    data: { wishlist: currentUserWishlist }
+                });
+                if (error) console.error("Error syncing wishlist:", error);
+            }
         }
 
         function renderWishlistItems() {
@@ -615,7 +624,7 @@
             const pass = document.getElementById('regPass').value;
             const regBtn = document.getElementById('regBtn');
 
-            // 1. FRONTEND VALIDATION (High Performance Checking)
+            // 1. FRONTEND VALIDATION
             const nameRegex = /^[\p{L}\s]{3,50}$/u; 
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
 
@@ -632,34 +641,21 @@
                 return; 
             }
 
-            // 2. LOCAL STORAGE DUPLICATE CHECK
-            let localUsers = JSON.parse(localStorage.getItem('myancode_users')) || [];
-            
-            if (localUsers.some(u => u.email === email.toLowerCase())) {
-                showErrorToast(dict[currentLang].errEmailExists);
-                return;
-            }
-            
-            if (localUsers.some(u => u.name.toLowerCase() === name.toLowerCase())) {
-                showErrorToast(dict[currentLang].errNameExists);
-                return;
-            }
-
-            // 3. DISABLE BUTTON instantly
+            // 2. DISABLE BUTTON instantly
             regBtn.disabled = true;
             showLoader('loadingAuth');
 
-            // 4. API CALL
+            // 3. API CALL
             const { data, error } = await supabaseInstance.auth.signUp({ 
                 email: email, 
                 password: pass, 
                 options: { 
-                    data: { full_name: name },
+                    data: { full_name: name, wishlist: [] },
                     emailRedirectTo: window.location.origin + '/myancode/login/index.html' // dynamically handle redirect better based on host
                 } 
             });
             
-            // 5. POST-API LOGIC
+            // 4. POST-API LOGIC
             hideLoader();
             
             // MAGIC CHECK for existing user when email enumeration protection is ON
@@ -669,12 +665,10 @@
                     dict[currentLang].msgAlreadyRegistered || "This email is already registered and verified. Please log in instead.",
                     () => { window.location.href = '../login/index.html'; }
                 );
-                // Intentionally do not re-enable button here
                 return;
             }
 
             if (error) { 
-                // Re-enable button ONLY on error
                 regBtn.disabled = false;
                 
                 let customErrorMsg = error.message;
@@ -682,17 +676,12 @@
                 if (error.status === 422 || error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('exists')) {
                     customErrorMsg = dict[currentLang].errEmailExists;
                 } else if (error.message.toLowerCase().includes('error sending confirmation email') || error.message.toLowerCase().includes('rate limit')) {
-                    // INTERCEPT EMAIL LIMIT ERROR!
                     customErrorMsg = dict[currentLang].errEmailLimit;
                 }
                 
                 showErrorToast(customErrorMsg); 
                 return; 
             }
-            
-            // Save successful registration to local storage
-            localUsers.push({ email: email.toLowerCase(), name: name.toLowerCase(), isVerified: false });
-            localStorage.setItem('myancode_users', JSON.stringify(localUsers));
 
             showToast(dict[currentLang].msgVerificationSent);
             setTimeout(() => { window.location.href = '../login/index.html'; }, 2000);
