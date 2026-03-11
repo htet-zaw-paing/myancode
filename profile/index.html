@@ -493,7 +493,6 @@
         }
         
         let currentUser = null;
-        let allWishlists = JSON.parse(localStorage.getItem('myancode_global_wishlists')) || {};
         let currentUserWishlist = [];
 
         if (supabaseInstance) {
@@ -505,18 +504,21 @@
                         id: session.user.id,
                         avatar_url: session.user.user_metadata?.avatar_url || null
                     };
+                    currentUserWishlist = session.user.user_metadata?.wishlist || [];
                     populateProfileData();
                     updateAuthUI();
                 } else {
                     currentUser = null;
+                    currentUserWishlist = [];
                     try {
-                        window.location.href = '../index.html';
+                        window.location.href = '../login/index.html';
                     } catch (e) {
                         document.body.innerHTML = `
                             <div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
                                 <i data-lucide="lock" class="h-12 w-12 text-gray-400 mb-4"></i>
                                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Authentication Required</h2>
                                 <p class="text-gray-500 mb-6">You must be signed in to view your profile.</p>
+                                <a href="../login/index.html" class="px-6 py-3 bg-blue-500 text-white rounded-full">Go to Login</a>
                             </div>
                         `;
                         lucide.createIcons();
@@ -555,8 +557,6 @@
             if (!desktopAuth || !containerMob) return;
             
             if (currentUser) {
-                currentUserWishlist = allWishlists[currentUser.email] || [];
-                
                 const avatarIconHTML = currentUser.avatar_url 
                     ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-gray-200" alt="Avatar">`
                     : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
@@ -843,35 +843,19 @@
             
             showLoader('loadingSec');
             try {
-                const { data, error: fetchError } = await supabaseInstance
-                    .from('profiles')
-                    .select('id')
-                    .eq('full_name', newName)
-                    .maybeSingle();
-
-                if (data && data.id !== currentUser.id) {
-                    hideLoader();
-                    showErrorToast(currentLang === 'en' ? 'This username is already taken. Please choose another.' : 'ဤအမည်ကို အခြားသူအသုံးပြုထားပါသည်');
-                    return;
-                }
-
+                // Remove generic profile fetching duplicate logic unless we strictly implemented a database table for this.
+                // We'll just directly update the Auth User Metadata instead to be safe and fast.
                 const { error } = await supabaseInstance.auth.updateUser({
                     data: { full_name: newName }
                 });
+                
                 if (error) throw error;
+                
                 currentUser.name = newName;
                 updateAuthUI();
                 showToast(currentLang === 'en' ? 'Profile updated successfully' : 'ကိုယ်ရေးအချက်အလက် ပြင်ဆင်မှု အောင်မြင်ပါသည်');
             } catch(err) {
-                try {
-                    const { error: fallbackError } = await supabaseInstance.auth.updateUser({ data: { full_name: newName } });
-                    if (fallbackError) throw fallbackError;
-                    currentUser.name = newName;
-                    updateAuthUI();
-                    showToast(currentLang === 'en' ? 'Profile updated successfully' : 'ကိုယ်ရေးအချက်အလက် ပြင်ဆင်မှု အောင်မြင်ပါသည်');
-                } catch(fallbackErr) {
-                    showErrorToast(fallbackErr.message);
-                }
+                showErrorToast(err.message);
             } finally {
                 hideLoader();
             }
@@ -968,6 +952,15 @@
             });
         } 
 
+        async function syncWishlistToSupabase() {
+            if (supabaseInstance && currentUser) {
+                const { error } = await supabaseInstance.auth.updateUser({
+                    data: { wishlist: currentUserWishlist }
+                });
+                if (error) console.error("Error syncing wishlist:", error);
+            }
+        }
+
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
             if (!countSpan) return;
@@ -1008,10 +1001,18 @@
         }
 
         function toggleWishlist(id, name, price) {
+            if (!currentUser) return;
             const index = currentUserWishlist.findIndex(i => i.id === id);
-            if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); } 
-            allWishlists[currentUser.email] = currentUserWishlist;
-            localStorage.setItem('myancode_global_wishlists', JSON.stringify(allWishlists));
+            
+            if (index > -1) { 
+                currentUserWishlist.splice(index, 1); 
+                showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); 
+            } else { 
+                currentUserWishlist.push({ id, name, price }); 
+                showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); 
+            }
+            
+            syncWishlistToSupabase();
             updateWishlistCount(); renderWishlistItems();
         }
 
@@ -1125,4 +1126,4 @@
 
     </script>
 </body>
-</html >
+</html>
