@@ -372,6 +372,20 @@
                     };
                     // Fetch wishlist from Supabase upon login
                     await fetchWishlist();
+
+                    // --- NEW AUTO-REDIRECT LOGIC ---
+                    const hash = window.location.hash || window.location.search;
+                    // Do not redirect if they are here specifically to reset their password
+                    if (!hash.includes('type=recovery')) {
+                        // If they came from a signup verification link
+                        if (hash.includes('type=signup') || hash.includes('access_token=')) {
+                            showToast(currentLang === 'en' ? "Email verification successful! Redirecting..." : "အီးမေးလ်အတည်ပြုခြင်း အောင်မြင်ပါသည်။");
+                            setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+                        } else {
+                            // If they just visit login.html while already logged in
+                            window.location.href = '../index.html';
+                        }
+                    }
                 } else {
                     currentUser = null;
                     currentUserWishlist = [];
@@ -713,31 +727,33 @@
             loginBtn.disabled = true;
             showLoader('loadingAuth');
 
-            const { data, error } = await supabaseInstance.auth.signInWithPassword({ email: email, password: pass });
-            
-            if (error) { 
-                hideLoader();
-                // Re-enable button safely on error
-                loginBtn.disabled = false;
+            try {
+                // Clear any weird ghost sessions before attempting to sign in
+                if (currentUser) await supabaseInstance.auth.signOut();
+
+                const { data, error } = await supabaseInstance.auth.signInWithPassword({ email: email, password: pass });
                 
-                // Advanced Error Mapping
-                let customErrorMsg = error.message;
-                if (error.message.includes('Invalid login credentials')) {
+                if (error) throw error; // Pass to catch block
+                
+                hideLoader();
+                showToast(dict[currentLang].msgSuccess);
+                setTimeout(() => { window.location.href = '../index.html'; }, 800);
+
+            } catch (err) {
+                hideLoader();
+                // Safely re-enable button on error
+                loginBtn.disabled = false; 
+                
+                let customErrorMsg = err.message || "Authentication failed.";
+                if (customErrorMsg.includes('Invalid login credentials')) {
                     customErrorMsg = dict[currentLang].errInvalidCreds;
-                } else if (error.message.includes('Email not confirmed')) {
+                } else if (customErrorMsg.includes('Email not confirmed')) {
                     customErrorMsg = dict[currentLang].errUnverified;
-                } else if (error.message.toLowerCase().includes('rate limit') || error.message.toLowerCase().includes('too many requests')) {
+                } else if (customErrorMsg.toLowerCase().includes('rate limit') || customErrorMsg.toLowerCase().includes('too many requests')) {
                     customErrorMsg = dict[currentLang].errEmailLimit;
                 }
                 showErrorToast(customErrorMsg); 
-                return; 
             }
-            
-            hideLoader();
-            // Purposefully NOT re-enabling the button here to physically prevent 
-            // multiple clicks while the user is being redirected to the home page!
-            showToast(dict[currentLang].msgSuccess);
-            setTimeout(() => { window.location.href = '../index.html'; }, 800);
         }
 
         async function handleLogout() {
@@ -756,12 +772,8 @@
             if (hash.includes('type=recovery')) {
                 // Instantly pop the recovery modal up  
                 setTimeout(() => openRecoveryModal(), 400);
-            } else if (hash.includes('access_token=') || hash.includes('type=signup')) {
-                setTimeout(() => {
-                    showToast(currentLang === 'en' ? "Email verification successful! You can now log in." : "အီးမေးလ်အတည်ပြုခြင်း အောင်မြင်ပါသည်။ အကောင့်ဝင်နိုင်ပါပြီ။");
-                    history.replaceState(null, null, ' '); // Clean URL
-                }, 500);
-            }
+            } 
+            // Signup hash checks are now handled in the onAuthStateChange listener!
         });
     </script>
 </body>
