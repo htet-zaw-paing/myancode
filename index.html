@@ -509,7 +509,7 @@
                 ftSolutions: "Solutions", ftWebsites: "Static Websites", ftSEO: "SEO Optimization", ftDomain: "Domain Registration", ftMaint: "Enterprise Maintenance",
                 ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest projects and enterprise tech insights.",
                 ftCopyright: "© 2026 MyanCode. All rights reserved. Engineered in Yangon.",
-                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrOrders: "Orders", hdrLogout: "Sign Out",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrOrders: "Orders", hdrLogout: "Sign Out", hdrWorkplace: "Workplace",
                 msgLoggedOut: "Signed out securely.", msgPurchased: "Purchase requested! Our team will contact you shortly.",
                 loadingInit: "Initializing Experience...", loadingAuth: "Authenticating Account...", loadingSec: "Preparing Interface..."
             },
@@ -551,7 +551,7 @@
                 ftSolutions: "ဖြေရှင်းချက်များ", ftWebsites: "Static ဝက်ဘ်ဆိုက်များ", ftSEO: "SEO အဆင့်မြှင့်တင်ခြင်း", ftDomain: "ဒိုမိန်းအမည် မှတ်ပုံတင်ခြင်း", ftMaint: "ဝက်ဘ်ဆိုက် ထိန်းသိမ်းခြင်း",
                 ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။",
                 ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
-                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrOrders: "အော်ဒါများ", hdrLogout: "အကောင့်ထွက်ရန်",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrOrders: "အော်ဒါများ", hdrLogout: "အကောင့်ထွက်ရန်", hdrWorkplace: "လုပ်ငန်းခွင်",
                 msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", msgPurchased: "ဝယ်ယူမှု တောင်းဆိုပြီးပါပြီ! ကျွန်ုပ်တို့အဖွဲ့မှ မကြာမီ ဆက်သွယ်ပါမည်။",
                 loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", loadingSec: "ပြင်ဆင်နေပါသည်..."
             }
@@ -598,7 +598,8 @@
                         name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                         email: session.user.email,
                         id: session.user.id,
-                        avatar_url: session.user.user_metadata?.avatar_url || null
+                        avatar_url: session.user.user_metadata?.avatar_url || null,
+                        role: session.user.user_metadata?.role || 'user'
                     };
                     // Load Wishlist from Cloud
                     currentUserWishlist = session.user.user_metadata?.wishlist || [];
@@ -655,6 +656,7 @@
                         </button>
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
                             <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
+                            ${currentUser.role === 'admin' ? `<a href="admin/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
                             <a href="profile/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrProfile}</a>
                             <button onclick="toggleProfile(event)" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrOrders}</button>
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
@@ -666,6 +668,9 @@
                         <span class="capitalize text-sm font-bold truncate max-w-[200px]">${currentUser.name}</span> 
                         ${mobileAvatarHTML}
                     </div>
+                    ${currentUser.role === 'admin' ? `<a href="admin/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
+                        <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
+                    </a>` : ''}
                     <a href="profile/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
                         <span>${dict[currentLang].hdrProfile}</span> <i data-lucide="settings" class="h-5 w-5 text-gray-400"></i>
                     </a>

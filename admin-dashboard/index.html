@@ -681,7 +681,6 @@
         /* --- SUPABASE INIT & AUTH VERIFICATION --- */
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
-        const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzAyNTA5MSwiZXhwIjoyMDg4NjAxMDkxfQ.MKa5S7aqtuYJHvrxucvNB_miuUMg9_2EZuXug4KOhwo';
         
         let supabaseInstance = null; let currentUser = null;
         
@@ -954,32 +953,33 @@
 
         async function submitInviteAdmin() {
             const email = document.getElementById('inviteEmail').value.trim();
-        
+
             if(!email) {
                 showErrorToast(currentLang === 'en' ? "Please provide an email address." : "အီးမေးလ် ဖြည့်ပါ။");
                 return;
             }
-        
+
             const btn = document.getElementById('btnSubmitInvite');
             btn.disabled = true;
             showLoader('loadingData');
-        
+
             try {
+                // 1. Create admin client using Service Role Key
                 const adminSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-                    auth: {
-                        autoRefreshToken: false,
-                        persistSession: false
-                    }
+                    auth: { autoRefreshToken: false, persistSession: false }
                 });
-        
-                // Trigger Supabase's native invite email securely
-                const { data, error } = await adminSupabase.auth.admin.inviteUserByEmail(email);
+
+                // 2. Trigger native invite WITH auto-admin role and precise Redirect URL
+                const { data, error } = await adminSupabase.auth.admin.inviteUserByEmail(email, {
+                    data: { role: 'admin' }, // Automatically makes them an admin
+                    redirectTo: window.location.href // Forces redirect directly to Admin Dashboard (fixes 404)
+                });
                 
                 if (error) { throw error; }
-        
+
                 finishInviteProcess(email);
                 fetchUsers(); // Refresh background table
-        
+
             } catch (err) {
                 console.error("Invite Error:", err);
                 showErrorToast(err.message || (currentLang === 'en' ? "Failed to send invite." : "ဖိတ်စာပေးပို့ခြင်း မအောင်မြင်ပါ။"));
