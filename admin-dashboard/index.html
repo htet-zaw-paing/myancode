@@ -683,11 +683,13 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
         const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzAyNTA5MSwiZXhwIjoyMDg4NjAxMDkxfQ.MKa5S7aqtuYJHvrxucvNB_miuUMg9_2EZuXug4KOhwo';
         
+        
         let supabaseInstance = null; let currentUser = null;
         
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                auth: { detectSessionInUrl: false }
+                // CHANGED: Must be true so it can read the email invite token from the URL
+                auth: { detectSessionInUrl: true } 
             });
             
             supabaseInstance.auth.onAuthStateChange((event, session) => {
