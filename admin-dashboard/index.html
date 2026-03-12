@@ -681,8 +681,9 @@
         /* --- SUPABASE INIT & AUTH VERIFICATION --- */
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
-        const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzAyNTA5MSwiZXhwIjoyMDg4NjAxMDkxfQ.MKa5S7aqtuYJHvrxucvNB_miuUMg9_2EZuXug4KOhwo';
         
+        // 👉 ADD YOUR SERVICE ROLE KEY HERE FOR ADMIN INVITES TO WORK 👈
+        const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzAyNTA5MSwiZXhwIjoyMDg4NjAxMDkxfQ.MKa5S7aqtuYJHvrxucvNB_miuUMg9_2EZuXug4KOhwo';
         
         let supabaseInstance = null; let currentUser = null;
         
@@ -704,6 +705,9 @@
                 document.getElementById('dashboardContent').classList.remove('hidden'); document.getElementById('dashboardContent').classList.add('flex', 'flex-col');
                 document.getElementById('unauthorizedScreen').classList.add('hidden'); fetchProducts();
                 if(supabaseInstance) { supabaseInstance.rpc('admin_get_users').then(({data}) => { if(data) document.getElementById('statTotalUsers').innerText = data.length; }); }
+                
+                // Initialize Super Low-Latency Real-Time Sync
+                setupRealtimeSync();
             } else {
                 hideLoader(); document.getElementById('dashboardContent').classList.add('hidden');
                 document.getElementById('unauthorizedScreen').classList.remove('hidden'); document.getElementById('unauthorizedScreen').classList.add('flex');
@@ -712,9 +716,34 @@
 
         async function handleLogout() { showLoader('loadingAuth'); if (supabaseInstance) await supabaseInstance.auth.signOut(); safeRedirect('../login/index.html'); }
 
+        /* --- REAL-TIME LOW-LATENCY ENGINE --- */
+        function setupRealtimeSync() {
+            // 1. Instant WebSocket Real-time for Products Table
+            supabaseInstance
+                .channel('admin-products-sync')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+                    // Update data silently without showing loader
+                    fetchProducts(true); 
+                })
+                .subscribe();
+
+            // 2. High-Frequency Silent Polling for Users (Supabase auth.users does not support direct sockets)
+            setInterval(() => {
+                const usersSection = document.getElementById('usersSection');
+                if (!usersSection.classList.contains('hidden')) {
+                    fetchUsers(true); // Silently refresh user table if viewing it
+                } else {
+                    // Otherwise just silently update the stat counter
+                    supabaseInstance.rpc('admin_get_users').then(({data}) => { 
+                        if(data) document.getElementById('statTotalUsers').innerText = data.length; 
+                    });
+                }
+            }, 3000); // 3-second latency for user updates across different admins
+        }
+
         /* --- CRUD LOGIC FOR PRODUCTS (UI TEMPLATES) --- */
-        async function fetchProducts() {
-            showLoader('loadingData');
+        async function fetchProducts(silent = false) {
+            if (!silent) showLoader('loadingData');
             try {
                 const { data, error } = await supabaseInstance.from('products').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
@@ -723,9 +752,9 @@
                 document.getElementById('statActiveProducts').innerText = allProducts.filter(p => p.product_status === 'active' || !p.product_status).length;
                 renderTable(document.getElementById('searchProducts').value);
             } catch (err) {
-                showErrorToast(err.message);
+                if (!silent) showErrorToast(err.message);
                 document.getElementById('productsTableBody').innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load secure data.</td></tr>`;
-            } finally { hideLoader(); }
+            } finally { if (!silent) hideLoader(); }
         }
 
         function renderTable(searchQuery = '') {
@@ -857,13 +886,13 @@
 
         function confirmDeleteProduct(id) {
             openConfirmModal(dict[currentLang].confirmDeleteTitle, dict[currentLang].confirmDeleteMsg, true, async () => {
-                try { showLoader('loadingData'); const { error } = await supabaseInstance.from('products').delete().eq('product_id', id); if (error) throw error; showToast(dict[currentLang].msgDeleteSuccess); fetchProducts(); } catch (err) { hideLoader(); showErrorToast(err.message); }
+                try { showLoader('loadingData'); const { error } = await supabaseInstance.from('products').delete().eq('product_id', id); if (error) throw error; showToast(dict[currentLang].msgDeleteSuccess); fetchProducts(true); } catch (err) { hideLoader(); showErrorToast(err.message); }
             });
         }
 
         /* --- CRUD LOGIC FOR USERS & ROLES --- */
-        async function fetchUsers() {
-            showLoader('loadingData');
+        async function fetchUsers(silent = false) {
+            if (!silent) showLoader('loadingData');
             try {
                 const { data, error } = await supabaseInstance.rpc('admin_get_users');
                 if (error) throw error;
@@ -871,9 +900,9 @@
                 document.getElementById('statTotalUsers').innerText = allUsers.length;
                 renderUsersTable(document.getElementById('searchUsers').value);
             } catch (err) {
-                showErrorToast(currentLang === 'en' ? "Failed to load users. Setup SQL RPC." : "ဒေတာရယူ၍မရပါ။ SQL RPC သတ်မှတ်ရန်လိုအပ်ပါသည်။");
+                if (!silent) showErrorToast(currentLang === 'en' ? "Failed to load users. Setup SQL RPC." : "ဒေတာရယူ၍မရပါ။ SQL RPC သတ်မှတ်ရန်လိုအပ်ပါသည်။");
                 document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load users via RPC.</td></tr>`;
-            } finally { hideLoader(); }
+            } finally { if (!silent) hideLoader(); }
         }
 
         function renderUsersTable(searchQuery = '') {
