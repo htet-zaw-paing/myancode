@@ -426,7 +426,7 @@
                 ftSolutions: "Solutions", ftWebsites: "Static Websites", ftSEO: "SEO Optimization", ftDomain: "Domain Registration", ftMaint: "Enterprise Maintenance",
                 ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest projects and enterprise tech insights.",
                 ftCopyright: "© 2026 MyanCode. All rights reserved. Engineered in Yangon.",
-                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrOrders: "Orders", hdrLogout: "Sign Out",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrOrders: "Orders", hdrLogout: "Sign Out", hdrWorkplace: "Workplace",
                 msgLoggedOut: "Signed out securely.", loadingInit: "Initializing Experience...", loadingAuth: "Authenticating...", loadingSec: "Preparing Interface...",
                 
                 // Profile Specifics
@@ -447,7 +447,7 @@
                 ftSolutions: "ဖြေရှင်းချက်များ", ftWebsites: "Static ဝက်ဘ်ဆိုက်များ", ftSEO: "SEO အဆင့်မြှင့်တင်ခြင်း", ftDomain: "ဒိုမိန်းအမည် မှတ်ပုံတင်ခြင်း", ftMaint: "ဝက်ဘ်ဆိုက် ထိန်းသိမ်းခြင်း",
                 ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။",
                 ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
-                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrOrders: "အော်ဒါများ", hdrLogout: "အကောင့်ထွက်ရန်",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrOrders: "အော်ဒါများ", hdrLogout: "အကောင့်ထွက်ရန်", hdrWorkplace: "လုပ်ငန်းခွင်",
                 msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", loadingSec: "ပြင်ဆင်နေပါသည်...",
                 
                 // Profile Specifics
@@ -503,7 +503,8 @@
                         name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                         email: session.user.email,
                         id: session.user.id,
-                        avatar_url: session.user.user_metadata?.avatar_url || null
+                        avatar_url: session.user.user_metadata?.avatar_url || null,
+                        role: session.user.user_metadata?.role || 'user'
                     };
                     currentUserWishlist = session.user.user_metadata?.wishlist || [];
                     populateProfileData();
@@ -573,6 +574,7 @@
                         </button>
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
                             <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
+                            ${currentUser.role === 'admin' ? `<a href="../admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
                             <button onclick="toggleProfile(event)" class="w-full text-left px-5 py-2.5 text-sm font-medium text-myancode-blue hover:bg-gray-50 transition-colors">${dict[currentLang].hdrProfile}</button>
                             <button onclick="toggleProfile(event)" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrOrders}</button>
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
@@ -584,6 +586,9 @@
                         <span class="capitalize text-sm font-bold truncate max-w-[200px]">${currentUser.name}</span> 
                         ${mobileAvatarHTML}
                     </div>
+                    ${currentUser.role === 'admin' ? `<a href="../admin-dashboard/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
+                        <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
+                    </a>` : ''}
                     <button onclick="toggleMobileMenu();" class="flex justify-between items-center w-full text-myancode-blue hover:text-blue-600 transition-colors text-base font-medium tracking-wide capitalize mb-6">
                         <span>${dict[currentLang].hdrProfile}</span> <i data-lucide="settings" class="h-5 w-5"></i>
                     </button>
@@ -844,8 +849,6 @@
             
             showLoader('loadingSec');
             try {
-                // Remove generic profile fetching duplicate logic unless we strictly implemented a database table for this.
-                // We'll just directly update the Auth User Metadata instead to be safe and fast.
                 const { error } = await supabaseInstance.auth.updateUser({
                     data: { full_name: newName }
                 });
@@ -914,27 +917,12 @@
             showConfirmModal(title, confirmMsg, 'danger', true, 'DeLeTe My AccOunT', async () => {
                 showLoader('loadingSec');
                 try {
-                    /*
-                     * ========================================================
-                     * ⚠️ SUPABASE DEVELOPER INSTRUCTION:
-                     * Supabase does not allow frontend clients to delete accounts directly.
-                     * For this feature to actually delete the user from the database, you MUST 
-                     * run this exact SQL query in your Supabase SQL Editor once:
-                     * * CREATE OR REPLACE FUNCTION delete_user()
-                     * RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
-                     * DELETE FROM auth.users WHERE id = auth.uid();
-                     * $$;
-                     * * (Also ensure any tables referencing auth.users use ON DELETE CASCADE)
-                     * ========================================================
-                     */
                     const { error } = await supabaseInstance.rpc('delete_user');
                     
                     if (error) {
-                        // We throw the error so we do NOT silently sign out if it failed
                         throw new Error(error.message); 
                     }
                     
-                    // Success! The user was actually removed from the auth.users table.
                     await supabaseInstance.auth.signOut();
                     
                     showToast(currentLang === 'en' ? "Account deleted permanently." : "အကောင့်ကို အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။");
@@ -1074,15 +1062,6 @@
         }
         window.addEventListener("scroll", reveal); reveal();
 
-        const searchCatalog = [
-            { id: 'prod1', type: 'Product', name: 'Business Website', mm: 'စီးပွားရေး ဝက်ဘ်ဆိုက်', icon: 'building-2', url: '../website/index.html' },
-            { id: 'prod2', type: 'Product', name: 'Personal Portfolio', mm: 'ပုဂ္ဂိုလ်ရေး မှတ်တမ်း', icon: 'user-circle', url: '../website/index.html' },
-            { id: 'prod3', type: 'Product', name: 'Info & Education', mm: 'သတင်းအချက်အလက်', icon: 'book-open', url: '../website/index.html' },
-            { id: 'srv1', type: 'Service', name: 'Advanced Web SEO', mm: 'အဆင့်မြင့် SEO', icon: 'search', url: '../index.html#services' },
-            { id: 'srv2', type: 'Service', name: 'Domain Acquisition', mm: 'ဒိုမိန်းအမည်', icon: 'globe-2', url: '../index.html#services' },
-            { id: 'srv3', type: 'Service', name: 'Maintenance & Security', mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', icon: 'shield-check', url: '../index.html#services' }
-        ];
-
         function toggleSearchOverlay() {
             const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
             if(overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } 
@@ -1100,31 +1079,146 @@
             } return matrix[b.length][a.length];
         }
 
-        function handleMegaSearch(e) {
-            const query = e.target.value.toLowerCase().trim(); const resultsContainer = document.getElementById('megaSearchResults');
-            if (!query) { resultsContainer.innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; return; }
-            let scoredItems = searchCatalog.map(item => {
-                const nameEn = item.name.toLowerCase(); const nameMm = item.mm.toLowerCase(); const isExactSub = nameEn.includes(query) || nameMm.includes(query);
-                let charMatchEn = 0; for(let char of query) { if(nameEn.includes(char)) charMatchEn++; }
-                const distEn = getSimilarityScore(query, nameEn); const distMm = getSimilarityScore(query, nameMm);
-                let score = Math.min(distEn, distMm); if (isExactSub) score = -100; else if (charMatchEn >= query.length * 0.7) score -= 10;
-                return { ...item, score };
-            });
-            const threshold = Math.max(query.length, 5); const results = scoredItems.filter(item => item.score < threshold).sort((a, b) => a.score - b.score);
-            if (results.length === 0) { resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p>`; return; }
-            resultsContainer.innerHTML = results.map(item => `
-                <a href="${item.url}" onclick="toggleSearchOverlay()" class="mega-nav-link flex items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors group">
-                    <div class="p-3 bg-white rounded-xl shadow-sm mr-4 group-hover:bg-myancode-black group-hover:text-white transition-colors"><i data-lucide="${item.icon}" class="h-5 w-5"></i></div>
-                    <div><h5 class="text-sm font-semibold tracking-wide text-black mb-0.5">${currentLang === 'en' ? item.name : item.mm}</h5><span class="text-[10px] font-bold tracking-widest uppercase text-gray-400">${item.type}</span></div>
-                </a>`).join('');
+        let searchDebounceTimer;
+
+        async function handleMegaSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('megaSearchResults');
+
+            if (!query) {
+                clearTimeout(searchDebounceTimer);
+                resultsContainer.innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`;
+                return;
+            }
+
+            // Instantly show loading state
+            resultsContainer.innerHTML = `
+                <div class="flex justify-center py-6">
+                    <i data-lucide="loader-2" class="h-6 w-6 animate-spin text-myancode-blue"></i>
+                </div>`;
             lucide.createIcons();
+
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(async () => {
+                if (!supabaseInstance) {
+                    resultsContainer.innerHTML = `<p class="text-red-500 text-sm font-medium tracking-wide">Database connection error. Check Supabase connection.</p>`;
+                    return;
+                }
+
+                try {
+                    // Fetch real data from the "products" table safely using *
+                    const { data: dbProducts, error } = await supabaseInstance
+                        .from('products')
+                        .select('*')
+                        .eq('product_status', 'active');
+
+                    if (error) throw error;
+                    
+                    const products = dbProducts || [];
+
+                    // Powerful local fuzzy search implementation on real DB data
+                    let scoredItems = products.map(item => {
+                        const searchStr = [
+                            item.product_name_en || '', 
+                            item.product_name_mm || '', 
+                            item.product_description_en || '', 
+                            item.product_description_mm || '', 
+                            item.category || '',
+                            item.brand || ''
+                        ].join(' ').toLowerCase();
+                        
+                        // 1. Exact Substring Match (Strongest Validation)
+                        if (searchStr.includes(query)) return { ...item, score: -100 };
+                        
+                        const queryWords = query.split(/\s+/).filter(w => w);
+                        const targetWords = searchStr.split(/[\s,.\-_]+/);
+                        
+                        let score = 0;
+                        let matchedWords = 0;
+                        
+                        for (const qWord of queryWords) {
+                            let minWordDist = qWord.length;
+                            
+                            for (const tWord of targetWords) {
+                                if (!tWord) continue;
+                                
+                                // Direct inclusion (e.g., typing 'sch' matches 'school')
+                                if (tWord.includes(qWord) || qWord.includes(tWord)) {
+                                    minWordDist = -10;
+                                    break;
+                                }
+                                
+                                // Levenshtein Distance for typo tolerance
+                                const dist = getSimilarityScore(qWord, tWord);
+                                if (dist < minWordDist) {
+                                    minWordDist = dist;
+                                }
+                            }
+                            
+                            // Dynamic typo tolerance
+                            const maxAllowedTypos = Math.max(1, Math.floor(qWord.length / 2) + 1);
+                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) {
+                                matchedWords++;
+                            }
+                            score += minWordDist;
+                        }
+                        
+                        // Filter out items that completely miss query words
+                        if (matchedWords < queryWords.length) {
+                            score += 1000;
+                        }
+                        
+                        return { ...item, score };
+                    });
+
+                    const results = scoredItems.filter(item => item.score < 1000).sort((a, b) => a.score - b.score).slice(0, 8);
+
+                    if (results.length === 0) { 
+                        resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p>`; 
+                        return; 
+                    }
+
+                    resultsContainer.innerHTML = results.map(item => {
+                        const itemName = currentLang === 'en' ? (item.product_name_en || item.product_name_mm || 'Unnamed Product') : (item.product_name_mm || item.product_name_en || 'အမည်မရှိ');
+                        const itemDesc = currentLang === 'en' ? (item.product_description_en || '') : (item.product_description_mm || item.product_description_en || '');
+                        const fallbackImg = 'https://placehold.co/150x150/f5f5f7/6e6e73?text=Image';
+                        const itemType = item.category || item.brand || 'Product';
+                        
+                        // Path points relative to current folder (profile folder)
+                        const itemUrl = `../website-detail/index.html?id=${item.product_id}`;
+
+                        let finalImgUrl = item.product_image || fallbackImg;
+                        if (finalImgUrl.startsWith('./')) {
+                            finalImgUrl = finalImgUrl.replace('./', '../');
+                        }
+
+                        return `
+                        <a href="${itemUrl}" onclick="toggleSearchOverlay()" class="mega-nav-link flex items-start p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors group mb-3 border border-transparent hover:border-gray-200">
+                            <div class="flex-shrink-0 mr-4 mt-0.5">
+                                <img src="${finalImgUrl}" alt="${itemName}" class="h-14 w-14 sm:h-16 sm:w-16 object-cover rounded-xl shadow-sm border border-gray-200 group-hover:border-myancode-blue transition-colors" onerror="this.src='${fallbackImg}'">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <h5 class="text-sm font-semibold tracking-wide text-black truncate pr-2 group-hover:text-myancode-blue transition-colors">${itemName}</h5>
+                                    <span class="text-[9px] font-bold tracking-widest uppercase text-gray-500 bg-gray-200/80 px-2 py-0.5 rounded-full whitespace-nowrap">${itemType}</span>
+                                </div>
+                                <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${itemDesc}</p>
+                            </div>
+                        </a>`;
+                    }).join('');
+                    
+                    lucide.createIcons();
+                } catch (err) {
+                    console.error("Supabase Search Error:", err);
+                    resultsContainer.innerHTML = `<p class="text-red-500 text-sm font-medium tracking-wide">Failed to fetch data from the database.</p>`;
+                }
+            }, 300);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             renderLanguage(); 
             window.addEventListener('load', () => setTimeout(hideLoader, 600));
         });
-
     </script>
 </body>
 </html>

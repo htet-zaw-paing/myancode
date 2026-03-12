@@ -682,6 +682,9 @@
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
         
+        // 👉 ADD YOUR SERVICE ROLE KEY HERE FOR ADMIN INVITES TO WORK 👈
+        const SUPABASE_SERVICE_ROLE_KEY = 'YOUR_SERVICE_ROLE_KEY_HERE';
+        
         let supabaseInstance = null; let currentUser = null;
         
         if (window.supabase) {
@@ -969,13 +972,27 @@
                     auth: { autoRefreshToken: false, persistSession: false }
                 });
 
+                // Get absolute current URL strictly without any hash or query parameters to guarantee perfect matching
+                const exactDashboardUrl = window.location.href.split(/[?#]/)[0];
+                
+                // You can check your browser console when inviting to verify the URL being sent
+                console.log("Dispatching invite with precise Redirect URL: ", exactDashboardUrl);
+
                 // 2. Trigger native invite WITH auto-admin role and precise Redirect URL
-                const { data, error } = await adminSupabase.auth.admin.inviteUserByEmail(email, {
-                    data: { role: 'admin' }, // Automatically makes them an admin
-                    redirectTo: window.location.href // Forces redirect directly to Admin Dashboard (fixes 404)
+                const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(email, {
+                    data: { role: 'admin' }, 
+                    redirectTo: exactDashboardUrl // Force redirect to this exact dashboard page
                 });
                 
-                if (error) { throw error; }
+                if (inviteError) { throw inviteError; }
+
+                // 3. Double-Tap: Strictly enforce admin role immediately in the database
+                // This guarantees the user is an admin before they even open the email
+                if (inviteData && inviteData.user && inviteData.user.id) {
+                    await adminSupabase.auth.admin.updateUserById(inviteData.user.id, {
+                        user_metadata: { role: 'admin' }
+                    });
+                }
 
                 finishInviteProcess(email);
                 fetchUsers(); // Refresh background table
