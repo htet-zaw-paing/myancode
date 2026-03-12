@@ -99,7 +99,7 @@
         <div class="max-w-[1440px] mx-auto px-4 sm:px-8">
             <div class="flex justify-between items-center h-16 sm:h-20">
                 <div class="flex items-center">
-                    <a href="../index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
+                    <a href="../index.html" onclick="event.preventDefault(); safeRedirect('../index.html')" class="flex-shrink-0 flex items-center cursor-pointer group">
                         <div class="h-8 w-8 bg-myancode-black rounded-lg flex items-center justify-center mr-3 transition-transform duration-500 group-hover:rotate-12 shadow-md">
                             <i data-lucide="code-2" class="h-4 w-4 text-white"></i>
                         </div>
@@ -117,7 +117,7 @@
                         </div>
                     </div>
                     
-                    <a href="../index.html" class="hidden sm:flex text-xs sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 px-5 py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-2 shadow-sm btn-hover-effect">
+                    <a href="../index.html" onclick="event.preventDefault(); safeRedirect('../index.html')" class="hidden sm:flex text-xs sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 px-5 py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-2 shadow-sm btn-hover-effect">
                         <i data-lucide="external-link" class="w-4 h-4 text-gray-400"></i> <span data-i18n="btnGoToSite">View Site</span>
                     </a>
                     
@@ -225,6 +225,10 @@
                         <i data-lucide="search" class="absolute left-4 top-3.5 h-4 w-4 text-gray-400"></i>
                         <input type="text" id="searchUsers" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all" placeholder="Search users by name or email..." data-i18n-placeholder="searchUsers">
                     </div>
+                    <!-- INVITE ADMIN BUTTON -->
+                    <button onclick="openInviteAdminModal()" class="w-full sm:w-auto bg-myancode-blue text-white px-7 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-premium btn-hover-effect whitespace-nowrap hover:bg-blue-600 transition-colors">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i> <span data-i18n="btnInviteAdmin">Invite Admin</span>
+                    </button>
                 </div>
             </div>
 
@@ -257,7 +261,7 @@
         </div>
         <h2 class="text-3xl font-bold tracking-tight text-myancode-black mb-3" data-i18n="errNoAccess">Access Restricted</h2>
         <p class="text-base text-gray-500 mb-10 max-w-md font-medium leading-relaxed" data-i18n="errNoAccessDesc">Your current security clearance does not permit access to the administrative workspace.</p>
-        <button onclick="window.location.href='../index.html'" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold btn-hover-effect shadow-premium flex items-center gap-2">
+        <button onclick="safeRedirect('../index.html')" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold btn-hover-effect shadow-premium flex items-center gap-2">
             <i data-lucide="arrow-left" class="w-4 h-4"></i> Return to Site
         </button>
     </div>
@@ -373,6 +377,56 @@
         </div>
     </div>
 
+    <!-- INVITE ADMIN MODAL (SUPABASE NATIVE FLOW) -->
+    <div id="inviteAdminModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-md modal-overlay" onclick="closeInviteAdminModal()"></div>
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative flex flex-col modal-content mt-auto sm:m-4">
+            
+            <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center z-10">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 text-myancode-blue"><i data-lucide="user-plus" class="w-5 h-5"></i></div>
+                    <h3 class="text-xl font-bold text-myancode-black tracking-tight" data-i18n="modalTitleInvite">Invite Administrator</h3>
+                </div>
+                <button onclick="closeInviteAdminModal()" class="p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div class="p-8">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblEmail">Email Address *</label>
+                        <input type="email" id="inviteEmail" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="admin@example.com">
+                        <p class="text-[11px] text-gray-400 mt-3 font-medium flex items-start gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 mt-0.5 shrink-0"></i> <span data-i18n="inviteHelpText">Supabase will send an official email with a secure link allowing the user to set their own password and join your workspace.</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-8 pb-8 pt-2 flex justify-end gap-3 z-10">
+                <button type="button" onclick="closeInviteAdminModal()" class="flex-1 py-3.5 rounded-2xl text-sm font-bold text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button type="button" id="btnSubmitInvite" onclick="submitInviteAdmin()" class="flex-[1.5] py-3.5 rounded-2xl text-sm font-bold text-white bg-myancode-blue hover:bg-blue-600 shadow-md transition-all btn-hover-effect flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i> <span data-i18n="btnSendInvite">Send Invite Link</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI TEMPLATE: INVITE SUCCESS MODAL -->
+    <div id="inviteSuccessModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-sm shadow-2xl relative overflow-hidden text-center modal-content transition-transform duration-300 scale-95">
+            <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-blue-50 mb-6 border border-blue-100 shadow-inner-soft">
+                <i data-lucide="mail-check" class="h-10 w-10 text-myancode-blue"></i>
+            </div>
+            <h3 class="text-2xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="inviteSuccessTitle">Invitation Sent</h3>
+            <p class="text-sm text-gray-500 mb-8 leading-relaxed font-medium" data-i18n="inviteSuccessDesc">An official invitation link has been securely dispatched via Supabase. The user will be prompted to set their own password upon clicking the link.</p>
+
+            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center mb-8 shadow-inner-soft">
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1.5" data-i18n="inviteSentTo">Sent To</p>
+                <code class="text-[13px] font-bold text-myancode-blue truncate block" id="displayInviteEmail">email@domain.com</code>
+            </div>
+
+            <button onclick="closeInviteSuccessModal()" class="w-full px-6 py-4 rounded-xl text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95">Done</button>
+        </div>
+    </div>
+
     <!-- UI TEMPLATE: PASSWORD RESET SUCCESS MODAL (SEND NOW FLOW) -->
     <div id="pwdResetSuccessModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
         <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-xl shadow-2xl relative overflow-hidden text-center modal-content transition-transform duration-300 scale-95">
@@ -462,6 +516,9 @@
                 lblDescEn: "Description (English)", lblDescMm: "Description (Myanmar)",
                 btnCancel: "Cancel", btnSave: "Save Database Entry", btnEdit: "Edit", btnDelete: "Delete",
                 btnMakeAdmin: "Promote Admin", btnMakeUser: "Demote User",
+                btnInviteAdmin: "Invite Admin", modalTitleInvite: "Invite Administrator", btnSendInvite: "Send Invite Link",
+                lblEmail: "Email Address *", inviteHelpText: "Supabase will send an official email with a secure link allowing the user to set their own password and join your workspace.",
+                inviteSuccessTitle: "Invitation Sent", inviteSuccessDesc: "An official invitation link has been securely dispatched via Supabase. The user will be prompted to set their own password upon clicking the link.", inviteSentTo: "Sent To",
                 msgSaveSuccess: "Database entry saved successfully.", msgDeleteSuccess: "Entry securely deleted.", msgRoleUpdated: "Security role updated.",
                 searchProd: "Search templates...", searchUsers: "Search users by name or email...",
                 msgPassReset: "Password reset to default successfully.",
@@ -495,6 +552,9 @@
                 lblDescEn: "အကြောင်းအရာ (English)", lblDescMm: "အကြောင်းအရာ (Myanmar)",
                 btnCancel: "ပယ်ဖျက်မည်", btnSave: "ဒေတာဘေ့စ်သို့ သိမ်းမည်", btnEdit: "ပြင်မည်", btnDelete: "ဖျက်မည်",
                 btnMakeAdmin: "အက်ဒမင် ပြောင်းမည်", btnMakeUser: "သာမန်အသုံးပြုသူ ပြောင်းမည်",
+                btnInviteAdmin: "အက်ဒမင် ဖိတ်ကြားမည်", modalTitleInvite: "အက်ဒမင်အသစ် ဖိတ်ကြားမည်", btnSendInvite: "ဖိတ်စာ ပေးပို့မည်",
+                lblEmail: "အီးမေးလ် *", inviteHelpText: "Supabase မှ အသုံးပြုသူထံသို့ တရားဝင်ဖိတ်စာ လင့်ခ်ပေးပို့သွားမည်ဖြစ်သည်။ အသုံးပြုသူမှ မိမိစကားဝှက်ကို ကိုယ်တိုင်သတ်မှတ်နိုင်မည်ဖြစ်သည်။",
+                inviteSuccessTitle: "ဖိတ်ကြားမှု အောင်မြင်ပါသည်", inviteSuccessDesc: "Supabase မှတဆင့် ဖိတ်စာပေးပို့ပြီးပါပြီ။ လင့်ခ်ကိုနှိပ်၍ အသုံးပြုသူမှ စကားဝှက်သတ်မှတ်နိုင်ပါသည်။", inviteSentTo: "ပေးပို့ထားသော အီးမေးလ်",
                 msgSaveSuccess: "ဒေတာဘေ့စ် သိမ်းဆည်းမှု အောင်မြင်ပါသည်!", msgDeleteSuccess: "အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။", msgRoleUpdated: "အခွင့်အာဏာ ပြောင်းလဲမှု အောင်မြင်ပါသည်!",
                 searchProd: "ဝက်ဘ်ဆိုက်များကို ရှာဖွေပါ...", searchUsers: "အသုံးပြုသူများကို ရှာဖွေပါ...",
                 msgPassReset: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းလဲပြီးပါပြီ။",
@@ -579,6 +639,26 @@
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
+        /* --- UTILS --- */
+        function safeRedirect(path) {
+            try {
+                // In restricted iframes (like Canvas/CodePen), window.location.href might throw a SyntaxError if unresolved
+                window.location.href = path;
+            } catch (e) {
+                console.warn('Redirect blocked in restricted environment:', e);
+                hideLoader();
+                document.getElementById('dashboardContent').classList.add('hidden');
+                const unauthScreen = document.getElementById('unauthorizedScreen');
+                unauthScreen.classList.remove('hidden'); 
+                unauthScreen.classList.add('flex');
+                unauthScreen.querySelector('h2').innerText = currentLang === 'en' ? 'Authentication Required' : 'အကောင့်ဝင်ရန် လိုအပ်ပါသည်';
+                unauthScreen.querySelector('p').innerText = currentLang === 'en' ? 'Please log in to access the admin workspace. (Redirect prevented in preview environment)' : 'ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။ (Preview တွင် Redirect လုပ်၍မရပါ)';
+            }
+        }
+
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
+
         /* --- TABS LOGIC --- */
         function switchTab(tab) {
             const pSec = document.getElementById('productsSection'); const uSec = document.getElementById('usersSection');
@@ -601,6 +681,7 @@
         /* --- SUPABASE INIT & AUTH VERIFICATION --- */
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
+        const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzAyNTA5MSwiZXhwIjoyMDg4NjAxMDkxfQ.MKa5S7aqtuYJHvrxucvNB_miuUMg9_2EZuXug4KOhwo';
         
         let supabaseInstance = null; let currentUser = null;
         
@@ -611,7 +692,7 @@
             
             supabaseInstance.auth.onAuthStateChange((event, session) => {
                 if (session) { currentUser = session.user; checkAdminStatus(); } 
-                else { window.location.href = '../login/index.html'; }
+                else { safeRedirect('../login/index.html'); }
             });
         }
 
@@ -627,7 +708,7 @@
             }
         }
 
-        async function handleLogout() { showLoader('loadingAuth'); if (supabaseInstance) await supabaseInstance.auth.signOut(); window.location.href = '../login/index.html'; }
+        async function handleLogout() { showLoader('loadingAuth'); if (supabaseInstance) await supabaseInstance.auth.signOut(); safeRedirect('../login/index.html'); }
 
         /* --- CRUD LOGIC FOR PRODUCTS (UI TEMPLATES) --- */
         async function fetchProducts() {
@@ -860,6 +941,72 @@
         function confirmChangeUserRole(id, newRole) { openConfirmModal(dict[currentLang].confirmRoleTitle, dict[currentLang].confirmRoleMsg, false, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_set_role', { target_user_id: id, new_role: newRole }); if (error) throw error; showToast(dict[currentLang].msgRoleUpdated); fetchUsers(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
         function confirmDeleteUser(id) { openConfirmModal(dict[currentLang].confirmUserDeleteTitle, dict[currentLang].confirmUserDeleteMsg, true, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_delete_user', { target_user_id: id }); if (error) throw error; showToast(dict[currentLang].msgDeleteSuccess); fetchUsers(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
 
+        /* --- INVITE ADMIN FLOW (SUPABASE NATIVE) --- */
+        function openInviteAdminModal() {
+            document.getElementById('inviteEmail').value = '';
+            const modal = document.getElementById('inviteAdminModal');
+            modal.classList.remove('modal-hidden');
+        }
+
+        function closeInviteAdminModal() {
+            document.getElementById('inviteAdminModal').classList.add('modal-hidden');
+        }
+
+        async function submitInviteAdmin() {
+            const email = document.getElementById('inviteEmail').value.trim();
+        
+            if(!email) {
+                showErrorToast(currentLang === 'en' ? "Please provide an email address." : "အီးမေးလ် ဖြည့်ပါ။");
+                return;
+            }
+        
+            const btn = document.getElementById('btnSubmitInvite');
+            btn.disabled = true;
+            showLoader('loadingData');
+        
+            try {
+                const adminSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+                    auth: {
+                        autoRefreshToken: false,
+                        persistSession: false
+                    }
+                });
+        
+                // Trigger Supabase's native invite email securely
+                const { data, error } = await adminSupabase.auth.admin.inviteUserByEmail(email);
+                
+                if (error) { throw error; }
+        
+                finishInviteProcess(email);
+                fetchUsers(); // Refresh background table
+        
+            } catch (err) {
+                console.error("Invite Error:", err);
+                showErrorToast(err.message || (currentLang === 'en' ? "Failed to send invite." : "ဖိတ်စာပေးပို့ခြင်း မအောင်မြင်ပါ။"));
+            } finally {
+                btn.disabled = false;
+                hideLoader();
+            }
+        }
+
+        function finishInviteProcess(email) {
+            closeInviteAdminModal();
+            
+            document.getElementById('displayInviteEmail').innerText = email;
+            
+            const modal = document.getElementById('inviteSuccessModal');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('.modal-content').classList.remove('scale-95');
+        }
+
+        function closeInviteSuccessModal() {
+            const modal = document.getElementById('inviteSuccessModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
         /* --- FORCE PASSWORD RESET (UI TEMPLATE EMAIL COPY & SEND NOW) --- */
         let currentResetEmail = '';
         function confirmForceResetPassword(id, email) {
@@ -964,10 +1111,6 @@
             const subject = encodeURIComponent("Default Password Set - Action Required");
             window.location.href = `mailto:${currentResetEmail}?subject=${subject}`;
         }
-
-        /* --- UTILS --- */
-        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
-        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
 
         window.addEventListener('load', () => { renderLanguage(); });
     </script>
