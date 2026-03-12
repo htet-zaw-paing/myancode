@@ -65,6 +65,16 @@
         .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
         
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .background-pattern-grid {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
         .hover-underline { position: relative; }
         .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
@@ -115,7 +125,8 @@
 <body class="font-sans selection:bg-myancode-blue selection:text-white no-scroll">
 
     <!-- GLOBAL ENTERPRISE LOADER -->
-    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
+    <!-- Opacity updated to bg-white/95 to prevent background bleed -->
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
         <i data-lucide="code-2" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
         <div class="w-48 max-w-[80vw]">
             <div class="progress-line"></div>
@@ -261,47 +272,27 @@
         </div>
     </div>
 
-    <!-- Products Section -->
+    <!-- Dynamic Products Section -->
     <section id="websites" class="py-24 sm:py-36 bg-[#fbfbfd]">
         <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
             <div class="text-center mb-16 sm:mb-24 reveal">
                 <h2 class="text-4xl sm:text-5xl font-semibold tracking-tight text-myancode-black mb-5" data-i18n="webTitle">Websites</h2>
                 <p class="text-base sm:text-lg text-myancode-darkgray font-normal" data-i18n="webSub">Static architecture. Dynamic impressions.</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Product 1 -->
-                <div class="card-hover icon-hover-container bg-white rounded-3xl p-8 shadow-sm relative overflow-hidden group reveal border border-gray-100">
-                    <button onclick="toggleWishlist('prod1', 'Business & Org', 300000)" class="absolute top-6 right-6 z-20 p-2.5 bg-gray-50/80 backdrop-blur-md rounded-full shadow-sm hover:scale-110 transition-transform text-gray-400 hover:text-myancode-blue" id="wl-btn-prod1"><i data-lucide="heart" class="h-5 w-5 pointer-events-none" id="wl-icon-prod1"></i></button>
-                    <i data-lucide="building-2" class="icon-bounce absolute -top-4 -right-4 p-6 opacity-[0.02] h-48 w-48 text-myancode-black"></i>
-                    <h3 class="text-2xl font-semibold mb-3 relative z-10 tracking-tight" data-i18n="prod1Title">Business & Org</h3>
-                    <p class="text-sm text-gray-500 mb-10 relative z-10 min-h-[60px] leading-relaxed" data-i18n="prod1Desc">Corporate portals built for absolute trust, reliability, and enterprise scale.</p>
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between relative z-10 gap-5 sm:gap-0 pt-6 border-t border-gray-100">
-                        <span class="text-myancode-black text-sm font-semibold tracking-wide">300,000 MMK</span>
-                        <button class="btn-hover-effect bg-myancode-black text-white text-xs px-6 py-3 rounded-full w-full sm:w-auto text-center font-medium tracking-wide shadow-md" data-i18n="btnPurchase">Purchase</button>
-                    </div>
+            
+            <div id="dynamicWebsitesContainer" class="reveal relative min-h-[300px]">
+                <!-- Default Loading Spinner -->
+                <div class="flex justify-center py-20">
+                    <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-myancode-blue"></i>
                 </div>
-                <!-- Product 2 -->
-                <div class="card-hover icon-hover-container bg-white rounded-3xl p-8 shadow-sm relative overflow-hidden group reveal border border-gray-100" style="transition-delay: 100ms;">
-                    <button onclick="toggleWishlist('prod2', 'Personal & Portfolio', 150000)" class="absolute top-6 right-6 z-20 p-2.5 bg-gray-50/80 backdrop-blur-md rounded-full shadow-sm hover:scale-110 transition-transform text-gray-400 hover:text-myancode-blue" id="wl-btn-prod2"><i data-lucide="heart" class="h-5 w-5 pointer-events-none" id="wl-icon-prod2"></i></button>
-                    <i data-lucide="user-circle" class="icon-bounce absolute -top-4 -right-4 p-6 opacity-[0.02] h-48 w-48 text-myancode-black"></i>
-                    <h3 class="text-2xl font-semibold mb-3 relative z-10 tracking-tight" data-i18n="prod2Title">Personal & Portfolio</h3>
-                    <p class="text-sm text-gray-500 mb-10 relative z-10 min-h-[60px] leading-relaxed" data-i18n="prod2Desc">Showcase your individual talent and projects with absolute minimalist perfection.</p>
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between relative z-10 gap-5 sm:gap-0 pt-6 border-t border-gray-100">
-                        <span class="text-myancode-black text-sm font-semibold tracking-wide">150,000 MMK</span>
-                        <button class="btn-hover-effect bg-myancode-black text-white text-xs px-6 py-3 rounded-full w-full sm:w-auto text-center font-medium tracking-wide shadow-md" data-i18n="btnPurchase">Purchase</button>
-                    </div>
-                </div>
-                <!-- Product 3 -->
-                <div class="card-hover icon-hover-container bg-white rounded-3xl p-8 shadow-sm relative overflow-hidden group reveal border border-gray-100" style="transition-delay: 200ms;">
-                    <button onclick="toggleWishlist('prod3', 'Info & Education', 250000)" class="absolute top-6 right-6 z-20 p-2.5 bg-gray-50/80 backdrop-blur-md rounded-full shadow-sm hover:scale-110 transition-transform text-gray-400 hover:text-myancode-blue" id="wl-btn-prod3"><i data-lucide="heart" class="h-5 w-5 pointer-events-none" id="wl-icon-prod3"></i></button>
-                    <i data-lucide="book-open" class="icon-bounce absolute -top-4 -right-4 p-6 opacity-[0.02] h-48 w-48 text-myancode-black"></i>
-                    <h3 class="text-2xl font-semibold mb-3 relative z-10 tracking-tight" data-i18n="prod3Title">Info & Education</h3>
-                    <p class="text-sm text-gray-500 mb-10 relative z-10 min-h-[60px] leading-relaxed" data-i18n="prod3Desc">Clear, incredibly fast, and highly accessible platforms for knowledge sharing.</p>
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between relative z-10 gap-5 sm:gap-0 pt-6 border-t border-gray-100">
-                        <span class="text-myancode-black text-sm font-semibold tracking-wide">250,000 MMK</span>
-                        <button class="btn-hover-effect bg-myancode-black text-white text-xs px-6 py-3 rounded-full w-full sm:w-auto text-center font-medium tracking-wide shadow-md" data-i18n="btnPurchase">Purchase</button>
-                    </div>
-                </div>
+            </div>
+
+            <!-- View More Button -->
+            <div id="viewMoreWebsitesBtn" class="text-center mt-12 hidden reveal">
+                <a href="./website/index.html" class="inline-flex items-center justify-center gap-3 btn-hover-effect bg-white border border-gray-200 text-myancode-black text-sm px-8 py-4 rounded-full font-bold tracking-wide shadow-sm hover:bg-gray-50 transition-colors group">
+                    <span data-i18n="btnViewAllWeb">View all website categories</span> 
+                    <i data-lucide="arrow-right" class="h-4 w-4 transform transition-transform group-hover:translate-x-1"></i>
+                </a>
             </div>
         </div>
     </section>
@@ -399,6 +390,27 @@
         </div>
     </section>
 
+    <!-- Global Enterprise Stats (NEW) -->
+    <section id="enterpriseStats" class="py-20 bg-myancode-black text-white relative overflow-hidden border-t-4 border-myancode-blue">
+        <div class="absolute inset-0 opacity-10 background-pattern-grid pointer-events-none"></div>
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center divide-y md:divide-y-0 md:divide-x divide-gray-800">
+                <div class="reveal p-4">
+                    <h4 class="text-5xl sm:text-6xl font-bold mb-3 tracking-tighter" id="statUsersCount">0</h4>
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-widest mt-2" data-i18n="statUsers">Registered Users</p>
+                </div>
+                <div class="reveal p-4" style="transition-delay: 100ms;">
+                    <h4 class="text-5xl sm:text-6xl font-bold mb-3 tracking-tighter" id="statTemplatesCount">0</h4>
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-widest mt-2" data-i18n="statTemplates">UI Templates</p>
+                </div>
+                <div class="reveal p-4" style="transition-delay: 200ms;">
+                    <h4 class="text-5xl sm:text-6xl font-bold mb-3 tracking-tighter" id="statProjectsCount">N/A</h4>
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-widest mt-2" data-i18n="statProjects">Projects Delivered</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Call to Action -->
     <section class="py-24 sm:py-36 bg-white border-t border-gray-100">
         <div class="max-w-4xl mx-auto px-4 text-center reveal">
@@ -469,6 +481,13 @@
     <script>
         lucide.createIcons();
 
+        let currentSlide = 0;
+        let isFirstLoad = true;
+        const slides = document.querySelectorAll('.slider-img'); 
+        const dots = document.querySelectorAll('.slider-dot'); 
+        const totalSlides = slides.length; 
+        let slideInterval;
+
         /* --- Dictionary & Language --- */
         const dict = {
             en: {
@@ -487,7 +506,7 @@
                 prod1Title: "Business & Org", prod1Desc: "Corporate portals built for absolute trust, reliability, and enterprise scale.",
                 prod2Title: "Personal & Portfolio", prod2Desc: "Showcase your individual talent and projects with absolute minimalist perfection.",
                 prod3Title: "Info & Education", prod3Desc: "Clear, incredibly fast, and highly accessible platforms for knowledge sharing.",
-                btnPurchase: "Purchase", btnViewAllWeb: "View all website categories",
+                btnPurchase: "Purchase", btnViewAllWeb: "View all website categories", btnDetails: "View Details",
                 srvTitle: "Enterprise Services", srvSub: "Comprehensive digital solutions engineered to elevate your brand beyond just the code.",
                 srv1Title: "Advanced Web SEO", srv1Desc: "Data-driven strategies and meticulous on-page optimization to elevate your ranking.",
                 srv2Title: "Domain Acquisition", srv2Desc: "Secure your premium digital identity. We handle complex registration processes seamlessly.",
@@ -511,7 +530,12 @@
                 ftCopyright: "© 2026 MyanCode. All rights reserved. Engineered in Yangon.",
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrOrders: "Orders", hdrLogout: "Sign Out", hdrWorkplace: "Workplace",
                 msgLoggedOut: "Signed out securely.", msgPurchased: "Purchase requested! Our team will contact you shortly.",
-                loadingInit: "Initializing Experience...", loadingAuth: "Authenticating Account...", loadingSec: "Preparing Interface..."
+                loadingInit: "Initializing Experience...", loadingAuth: "Authenticating Account...", loadingSec: "Preparing Interface...",
+                
+                // New Keys for Enterprise Update
+                emptyStateTitle: "Service Temporarily Paused", 
+                emptyStateDesc: "To ensure the absolute best experience and highest quality standards, we are currently upgrading our enterprise server infrastructure. Our templates will be back online shortly.",
+                statUsers: "Registered Users", statTemplates: "UI Templates", statProjects: "Projects Delivered"
             },
             mm: {
                 navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
@@ -529,7 +553,7 @@
                 prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod1Desc: "ယုံကြည်မှုနှင့် ကြီးမားသောလုပ်ငန်းများအတွက် ရည်ရွယ်တည်ဆောက်ထားသော ခိုင်မာသည့် ပေါ်တယ်များ။",
                 prod2Title: "ပုဂ္ဂိုလ်ရေးနှင့် မှတ်တမ်း", prod2Desc: "သင့်ကျွမ်းကျင်မှုနှင့် ပရောဂျက်များကို ရိုးရှင်းသေသပ်စွာ အကောင်းဆုံးပြသပါ။",
                 prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး", prod3Desc: "ဗဟုသုတမျှဝေရန်အတွက် ရှင်းလင်းလွယ်ကူပြီး အလွန်မြန်ဆန်သော ပလက်ဖောင်းများ။",
-                btnPurchase: "ဝယ်ယူရန်", btnViewAllWeb: "ဝက်ဘ်ဆိုက်အမျိုးအစားများအားလုံး ကြည့်ရန်",
+                btnPurchase: "ဝယ်ယူရန်", btnViewAllWeb: "ဝက်ဘ်ဆိုက်အမျိုးအစားများအားလုံး ကြည့်ရန်", btnDetails: "အသေးစိတ်ကြည့်ရန်",
                 srvTitle: "အဆင့်မြင့် ဝန်ဆောင်မှုများ", srvSub: "သင့်လုပ်ငန်းတံဆိပ်ကို ပိုမိုမြင့်မားလာစေရန် ရည်ရွယ်ဖန်တီးထားသော ပြည့်စုံသည့် ဒစ်ဂျစ်တယ်ဖြေရှင်းချက်များ။",
                 srv1Title: "အဆင့်မြင့် SEO ဝန်ဆောင်မှု", srv1Desc: "Google ကဲ့သို့သော ရှာဖွေရေးအင်ဂျင်များတွင် သင့်လုပ်ငန်း ထိပ်ဆုံးမှရပ်တည်နိုင်ရန် ဒေတာအခြေပြု မဟာဗျူဟာများဖြင့် စနစ်တကျ လုပ်ဆောင်ပေးခြင်း။",
                 srv2Title: "ဒိုမိန်းအမည် ဝန်ဆောင်မှု", srv2Desc: "သင့်လုပ်ငန်းအတွက် အကောင်းဆုံး ဒစ်ဂျစ်တယ်အမည်ကို လုံခြုံစွာရယူပါ။",
@@ -553,11 +577,17 @@
                 ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
                 hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrOrders: "အော်ဒါများ", hdrLogout: "အကောင့်ထွက်ရန်", hdrWorkplace: "လုပ်ငန်းခွင်",
                 msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", msgPurchased: "ဝယ်ယူမှု တောင်းဆိုပြီးပါပြီ! ကျွန်ုပ်တို့အဖွဲ့မှ မကြာမီ ဆက်သွယ်ပါမည်။",
-                loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", loadingSec: "ပြင်ဆင်နေပါသည်..."
+                loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", loadingSec: "ပြင်ဆင်နေပါသည်...",
+                
+                // New Keys for Enterprise Update
+                emptyStateTitle: "ဝန်ဆောင်မှု ခေတ္တရပ်နားထားပါသည်", 
+                emptyStateDesc: "အကောင်းဆုံးသော အတွေ့အကြုံနှင့် အရည်အသွေးမြင့်မားစေရန်အတွက် ကျွန်ုပ်တို့၏ ဆာဗာစနစ်များကို အဆင့်မြှင့်တင်နေပါသည်။ ဝက်ဘ်ဆိုက်များကို မကြာမီ ပြန်လည်ကြည့်ရှုနိုင်ပါမည်။",
+                statUsers: "အသုံးပြုသူ စုစုပေါင်း", statTemplates: "ဝက်ဘ်ဆိုက် ဒီဇိုင်းများ", statProjects: "အပ်နှံပြီးသော ပရောဂျက်များ"
             }
         };
 
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
+        window.activeProducts = []; // Cache for language switching
 
         const globalLoader = document.getElementById('globalLoader');
         const loaderText = document.getElementById('loaderText');
@@ -577,8 +607,6 @@
             setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600);
         }
 
-        window.addEventListener('load', () => setTimeout(hideLoader, 600));
-
         /* --- REAL SUPABASE AUTHENTICATION --- */
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
@@ -589,7 +617,7 @@
         }
         
         let currentUser = null;
-        let currentUserWishlist = []; // Wishlist array loaded purely from Supabase metadata
+        let currentUserWishlist = []; 
 
         if (supabaseInstance) {
             supabaseInstance.auth.onAuthStateChange((event, session) => {
@@ -601,7 +629,6 @@
                         avatar_url: session.user.user_metadata?.avatar_url || null,
                         role: session.user.user_metadata?.role || 'user'
                     };
-                    // Load Wishlist from Cloud
                     currentUserWishlist = session.user.user_metadata?.wishlist || [];
                 } else {
                     currentUser = null;
@@ -623,8 +650,10 @@
                 const key = el.getAttribute('data-i18n-placeholder');
                 if (dict[currentLang][key]) el.placeholder = dict[currentLang][key];
             });
+            
             updateAuthUI(); 
             if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
+            if(window.activeProducts && window.activeProducts.length > 0) renderDynamicWebsites(window.activeProducts);
         }
 
         function setLanguage(lang) {
@@ -656,7 +685,7 @@
                         </button>
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
                             <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
-                            ${currentUser.role === 'admin' ? `<a href="./admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
+                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="./admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
                             <a href="profile/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrProfile}</a>
                             <button onclick="toggleProfile(event)" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrOrders}</button>
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
@@ -668,7 +697,7 @@
                         <span class="capitalize text-sm font-bold truncate max-w-[200px]">${currentUser.name}</span> 
                         ${mobileAvatarHTML}
                     </div>
-                    ${currentUser.role === 'admin' ? `<a href="./admin-dashboard/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
+                    ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="./admin-dashboard/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
                         <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
                     </a>` : ''}
                     <a href="profile/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
@@ -700,8 +729,10 @@
             
             const heroSection = document.getElementById('heroSection');
             const isScrolled = window.scrollY > (heroSection ? heroSection.offsetHeight - 60 : 0);
-            const theme = slides[currentSlide].getAttribute('data-theme');
-            updateHeaderTheme(theme, isScrolled);
+            if (slides.length > 0 && slides[currentSlide]) {
+                const theme = slides[currentSlide].getAttribute('data-theme');
+                updateHeaderTheme(theme, isScrolled);
+            }
             updateWishlistCount();
             updateWishlistCardIcons();
             lucide.createIcons();
@@ -733,9 +764,7 @@
                 showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); 
             }
             
-            // Sync Wishlist strictly to Supabase user_metadata
             syncWishlistToSupabase();
-            
             updateWishlistCount(); updateWishlistCardIcons();
             if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
         }
@@ -761,10 +790,10 @@
                 return `
                 <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                     <div>
-                        <h4 class="font-semibold text-sm mb-1">${dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name}</h4>
+                        <h4 class="font-semibold text-sm mb-1 truncate max-w-[150px]">${item.name}</h4>
                         <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
                     </div>
-                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
                 </div>
             `}).join('');
             totalDisplay.textContent = `${total.toLocaleString()} MMK`;
@@ -827,13 +856,6 @@
             setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
         }
 
-        let currentSlide = 0;
-        let isFirstLoad = true;
-        const slides = document.querySelectorAll('.slider-img'); 
-        const dots = document.querySelectorAll('.slider-dot'); 
-        const totalSlides = slides.length; 
-        let slideInterval;
-        
         function updateHeaderTheme(theme, isScrolled) {
             const nav = document.getElementById('mainNav'); const navTextElements = document.querySelectorAll('.nav-link, .nav-icon, #navLogoText');
             if (isScrolled) {
@@ -898,7 +920,9 @@
 
         window.addEventListener('scroll', () => {
             const heroSection = document.getElementById('heroSection'); const isScrolled = window.scrollY > (heroSection ? heroSection.offsetHeight - 60 : 0);
-            const theme = slides[currentSlide].getAttribute('data-theme'); updateHeaderTheme(theme, isScrolled);
+            if (slides.length > 0 && slides[currentSlide]) {
+                const theme = slides[currentSlide].getAttribute('data-theme'); updateHeaderTheme(theme, isScrolled);
+            }
         });
 
         document.querySelectorAll('.mega-nav-link').forEach(anchor => {
@@ -923,9 +947,150 @@
         }
         window.addEventListener("scroll", reveal); reveal();
 
+        /* --- DYNAMIC DATABASE INTEGRATION (WEBSITES & STATS) --- */
+        async function fetchHomePageData() {
+            if (!supabaseInstance) {
+                hideLoader();
+                return;
+            }
+            
+            const container = document.getElementById('dynamicWebsitesContainer');
+            const viewMoreBtn = document.getElementById('viewMoreWebsitesBtn');
+            
+            try {
+                const { data: products, error } = await supabaseInstance
+                    .from('products')
+                    .select('*')
+                    .eq('product_status', 'active')
+                    .order('created_at', { ascending: false });
+                    
+                if (error) throw error;
+                
+                window.activeProducts = products || [];
+                
+                // Initialize Enterprise Stats
+                initEnterpriseStats(window.activeProducts.length);
+                
+                // Render Dynamic Templates
+                renderDynamicWebsites(window.activeProducts);
+                
+            } catch (err) {
+                console.error('Error fetching websites:', err);
+                container.innerHTML = `<div class="text-center text-red-500 font-medium tracking-wide py-10">Failed to load templates securely.</div>`;
+            } finally {
+                hideLoader(); // <-- Ensured the loading screen disappears successfully
+            }
+        }
+
+        async function initEnterpriseStats(templateCount) {
+            animateValue('statTemplatesCount', 0, templateCount, 1500);
+            
+            let userCount = 0; 
+            try {
+                // Attempt to fetch real count if possible (Requires public 'get_user_count' RPC to function correctly)
+                const { data, error } = await supabaseInstance.rpc('get_user_count'); 
+                if (data !== null && !error) userCount = data;
+            } catch(e) { } 
+            
+            if (userCount > 0) {
+                animateValue('statUsersCount', 0, userCount, 2000);
+            } else {
+                document.getElementById('statUsersCount').innerText = '0';
+            }
+            
+            // Projects stat is intentionally set to N/A as requested
+            const projStat = document.getElementById('statProjectsCount');
+            if (projStat) projStat.innerHTML = 'N/A';
+        }
+
+        function animateValue(id, start, end, duration) {
+            if (start === end) {
+                let obj = document.getElementById(id);
+                if (obj && id !== 'statProjectsCount') obj.innerHTML = end;
+                return;
+            }
+            let range = end - start;
+            let current = start;
+            let increment = end > start ? 1 : -1;
+            let stepTime = Math.abs(Math.floor(duration / range));
+            if(stepTime < 20) stepTime = 20; 
+            let obj = document.getElementById(id);
+            if(!obj) return;
+            let timer = setInterval(function() {
+                current += Math.ceil(range / (duration/stepTime));
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                obj.innerHTML = current;
+            }, stepTime);
+        }
+
+        function renderDynamicWebsites(products) {
+            const container = document.getElementById('dynamicWebsitesContainer');
+            const viewMoreBtn = document.getElementById('viewMoreWebsitesBtn');
+
+            if (!products || products.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-[2rem] p-10 sm:p-16 shadow-premium border border-gray-100 text-center max-w-2xl mx-auto my-10">
+                        <div class="w-20 h-20 bg-gray-50 border border-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner-soft">
+                            <i data-lucide="wrench" class="h-8 w-8 text-gray-400"></i>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-myancode-black mb-4 tracking-tight" data-i18n="emptyStateTitle">${dict[currentLang].emptyStateTitle}</h3>
+                        <p class="text-gray-500 leading-relaxed mb-8 text-sm sm:text-base font-medium">${dict[currentLang].emptyStateDesc}</p>
+                        <span class="inline-block px-5 py-2 bg-gray-100 border border-gray-200 text-gray-600 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-inner-soft">System Maintenance</span>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const displayProducts = products.slice(0, 3);
+            
+            const html = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">` + displayProducts.map((p, index) => {
+                const name = currentLang === 'en' ? (p.product_name_en || p.product_name_mm) : (p.product_name_mm || p.product_name_en);
+                const desc = currentLang === 'en' ? (p.product_description_en || 'Enterprise UI Template') : (p.product_description_mm || p.product_description_en || 'Enterprise UI Template');
+                const price = p.product_discount_price || p.product_price || 0;
+                const img = p.product_image || 'https://placehold.co/600x400/f5f5f7/6e6e73?text=UI+Preview';
+                const delay = index * 100;
+                
+                return `
+                <div class="card-hover bg-white rounded-3xl p-8 shadow-sm relative overflow-hidden group border border-gray-100" style="animation: fadeUp 0.6s ease forwards; animation-delay: ${delay}ms; opacity: 0;">
+                    <button onclick="toggleWishlist('${p.product_id}', '${name.replace(/'/g, "\\'")}', ${price})" class="absolute top-6 right-6 z-20 p-2.5 bg-white/80 backdrop-blur-md rounded-full shadow-sm hover:scale-110 transition-transform text-gray-400 hover:text-myancode-blue border border-gray-100" id="wl-btn-${p.product_id}">
+                        <i data-lucide="heart" class="h-5 w-5 pointer-events-none" id="wl-icon-${p.product_id}"></i>
+                    </button>
+                    
+                    <div class="h-48 mb-6 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center relative group-hover:shadow-inner-soft transition-all">
+                        <img src="${img.startsWith('../') ? img.replace('../', './') : img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${name}" onerror="this.src='https://placehold.co/600x400/f5f5f7/6e6e73?text=UI+Preview'">
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold mb-2 relative z-10 tracking-tight text-myancode-black truncate pr-4">${name}</h3>
+                    <p class="text-sm text-gray-500 mb-8 relative z-10 line-clamp-2 leading-relaxed min-h-[40px]">${desc}</p>
+                    
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between relative z-10 gap-5 sm:gap-0 pt-6 border-t border-gray-100">
+                        <div>
+                            <span class="text-myancode-black text-base font-bold tracking-tight block">${price.toLocaleString()} ${p.currency || 'MMK'}</span>
+                            ${p.product_discount_price ? `<span class="text-[10px] text-gray-400 line-through font-semibold">${p.product_price.toLocaleString()} ${p.currency || 'MMK'}</span>` : ''}
+                        </div>
+                        <a href="./website-detail/index.html?id=${p.product_id}" class="btn-hover-effect bg-myancode-black text-white text-xs px-6 py-3 rounded-full w-full sm:w-auto text-center font-medium tracking-wide shadow-md" data-i18n="btnDetails">${dict[currentLang].btnDetails || 'View Details'}</a>
+                    </div>
+                </div>
+                `;
+            }).join('') + `</div>`;
+            
+            container.innerHTML = html;
+            
+            if (products.length > 3) {
+                viewMoreBtn.classList.remove('hidden');
+            } else {
+                viewMoreBtn.classList.add('hidden');
+            }
+            
+            lucide.createIcons();
+            updateWishlistCardIcons(); 
+        }
 
         /* --- DYNAMIC DATABASE SEARCH --- */
-        
         function toggleSearchOverlay() {
             const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
             if(overlay.classList.contains('open')) { 
@@ -963,7 +1128,6 @@
                 return;
             }
 
-            // Immediately show a loading spinner to make UI responsive while fetching from Supabase
             resultsContainer.innerHTML = `
                 <div class="flex justify-center py-6">
                     <i data-lucide="loader-2" class="h-6 w-6 animate-spin text-myancode-blue"></i>
@@ -978,72 +1142,38 @@
                 }
 
                 try {
-                    // Fetch real data from the "products" table safely using *
-                    const { data: dbProducts, error } = await supabaseInstance
-                        .from('products')
-                        .select('*')
-                        .eq('product_status', 'active');
-
-                    if (error) throw error;
+                    const products = window.activeProducts || [];
                     
-                    const products = dbProducts || [];
-
-                    // Super robust fuzzy search supporting heavy misspellings, partial text, and multi-word queries
                     let scoredItems = products.map(item => {
                         const searchStr = [
-                            item.product_name_en || '', 
-                            item.product_name_mm || '', 
-                            item.product_description_en || '', 
-                            item.product_description_mm || '', 
-                            item.category || '',
-                            item.brand || ''
+                            item.product_name_en || '', item.product_name_mm || '', 
+                            item.product_description_en || '', item.product_description_mm || '', 
+                            item.category_id || '', item.product_slug || ''
                         ].join(' ').toLowerCase();
                         
-                        // 1. Exact Substring Match (Strongest Validation)
                         if (searchStr.includes(query)) return { ...item, score: -100 };
                         
                         const queryWords = query.split(/\s+/).filter(w => w);
                         const targetWords = searchStr.split(/[\s,.\-_]+/);
                         
-                        let score = 0;
-                        let matchedWords = 0;
+                        let score = 0; let matchedWords = 0;
                         
                         for (const qWord of queryWords) {
                             let minWordDist = qWord.length;
-                            
                             for (const tWord of targetWords) {
                                 if (!tWord) continue;
-                                
-                                // Direct inclusion (e.g., typing 'sch' matches 'school')
-                                if (tWord.includes(qWord) || qWord.includes(tWord)) {
-                                    minWordDist = -10;
-                                    break;
-                                }
-                                
-                                // Levenshtein Distance for typo tolerance
+                                if (tWord.includes(qWord) || qWord.includes(tWord)) { minWordDist = -10; break; }
                                 const dist = getSimilarityScore(qWord, tWord);
-                                if (dist < minWordDist) {
-                                    minWordDist = dist;
-                                }
+                                if (dist < minWordDist) minWordDist = dist;
                             }
-                            
-                            // Dynamic typo tolerance: allow more typos for longer words
                             const maxAllowedTypos = Math.max(1, Math.floor(qWord.length / 2) + 1);
-                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) {
-                                matchedWords++;
-                            }
+                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) matchedWords++;
                             score += minWordDist;
                         }
-                        
-                        // Filter out items that completely miss query words by applying a huge penalty
-                        if (matchedWords < queryWords.length) {
-                            score += 1000;
-                        }
-                        
+                        if (matchedWords < queryWords.length) score += 1000;
                         return { ...item, score };
                     });
 
-                    // Only keep items that passed the robust spelling/substring validation
                     const results = scoredItems.filter(item => item.score < 1000).sort((a, b) => a.score - b.score).slice(0, 8);
 
                     if (results.length === 0) { 
@@ -1052,20 +1182,15 @@
                     }
 
                     resultsContainer.innerHTML = results.map(item => {
-                        // Dynamically determine names based on the selected language, provide fallbacks
                         const itemName = currentLang === 'en' ? (item.product_name_en || item.product_name_mm || 'Unnamed Product') : (item.product_name_mm || item.product_name_en || 'အမည်မရှိ');
                         const itemDesc = currentLang === 'en' ? (item.product_description_en || '') : (item.product_description_mm || item.product_description_en || '');
                         const fallbackImg = 'https://placehold.co/150x150/f5f5f7/6e6e73?text=Image';
-                        const itemType = item.category || item.brand || 'Product';
+                        const itemType = item.category_id || 'Product';
                         const itemUrl = `./website-detail/index.html?id=${item.product_id}`;
 
-                        // Fix image path for home page (convert ../ to ./)
                         let finalImgUrl = item.product_image || fallbackImg;
-                        if (finalImgUrl.startsWith('../')) {
-                            finalImgUrl = finalImgUrl.replace('../', './');
-                        }
+                        if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', './');
 
-                        // Advanced HTML structure linking to real urls featuring image, name and desc snippet
                         return `
                         <a href="${itemUrl}" onclick="toggleSearchOverlay()" class="mega-nav-link flex items-start p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors group mb-3 border border-transparent hover:border-gray-200">
                             <div class="flex-shrink-0 mr-4 mt-0.5">
@@ -1086,13 +1211,14 @@
                     console.error("Supabase Search Error:", err);
                     resultsContainer.innerHTML = `<p class="text-red-500 text-sm font-medium tracking-wide">Failed to fetch data from the database.</p>`;
                 }
-            }, 300); // 300ms delay to make sure we don't spam the database on every keypress
+            }, 300); 
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             renderLanguage(); 
             showSlide(0); 
             resetAutoPlay();
+            fetchHomePageData(); // Fetch DB Content Automatically
             
             const hash = window.location.hash || window.location.search;
             if (hash.includes('access_token=') || hash.includes('type=signup') || hash.includes('type=recovery')) {
