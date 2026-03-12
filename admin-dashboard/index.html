@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Workspace | MyanCode</title>
+    <title>Enterprise Workspace | MyanCode</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,11 +78,6 @@
         ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Step Transitions */
-        .step-panel { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .step-hidden { opacity: 0; transform: translateX(20px); pointer-events: none; position: absolute; visibility: hidden; }
-        .step-active { opacity: 1; transform: translateX(0); position: relative; visibility: visible; }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen">
@@ -91,7 +86,7 @@
     <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
         <i data-lucide="shield-check" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
         <div class="w-48 max-w-[80vw]"><div class="progress-line"></div></div>
-        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500" data-i18n="loadingAuth">Verifying Access...</span>
+        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500" data-i18n="loadingAuth">Authenticating Identity...</span>
     </div>
 
     <!-- Navigation -->
@@ -103,7 +98,7 @@
                         <div class="h-8 w-8 bg-myancode-black rounded-lg flex items-center justify-center mr-3 transition-transform duration-500 group-hover:rotate-12 shadow-md">
                             <i data-lucide="code-2" class="h-4 w-4 text-white"></i>
                         </div>
-                        <span class="font-bold text-lg sm:text-xl tracking-tight text-myancode-black">MyanCode <span class="bg-red-50 text-red-600 text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-full ml-2 align-middle border border-red-100" data-i18n="adminBadge">Workspace</span></span>
+                        <span class="font-bold text-lg sm:text-xl tracking-tight text-myancode-black">MyanCode <span class="bg-gray-100 text-gray-600 text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-full ml-2 align-middle border border-gray-200" data-i18n="adminBadge">Enterprise</span></span>
                     </a>
                 </div>
                 
@@ -132,68 +127,145 @@
     <!-- Main Dashboard Content -->
     <main class="flex-grow pt-28 sm:pt-36 pb-20 px-4 sm:px-8 w-full max-w-[1440px] mx-auto relative z-10 hidden" id="dashboardContent">
         
-        <!-- Apple-style Segmented Control Tabs -->
+        <!-- Apple-style Segmented Control Tabs (Updated with Overall) -->
         <div class="flex justify-center sm:justify-start mb-10 card-enter" style="animation-delay: 0ms;">
             <div class="inline-flex bg-gray-200/60 p-1.5 rounded-2xl backdrop-blur-sm border border-gray-200/50 shadow-inner-soft overflow-x-auto no-scrollbar max-w-full">
-                <button onclick="switchTab('products')" id="tabBtnProducts" class="px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap">
+                <button onclick="switchTab('overall')" id="tabBtnOverall" class="px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="tabOverall">Overview</span>
+                </button>
+                <button onclick="switchTab('products')" id="tabBtnProducts" class="px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap">
                     <i data-lucide="package" class="w-4 h-4"></i> <span data-i18n="tabProducts">Products</span>
                 </button>
                 <button onclick="switchTab('users')" id="tabBtnUsers" class="px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="users" class="w-4 h-4"></i> <span data-i18n="tabUsers">Users</span>
+                    <i data-lucide="users" class="w-4 h-4"></i> <span data-i18n="tabUsers">Directory</span>
                 </button>
             </div>
         </div>
 
-        <!-- ================= PRODUCTS SECTION ================= -->
-        <div id="productsSection">
-            <!-- Dashboard Analytics Overview -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-                <div class="bg-white rounded-3xl p-6 shadow-premium border border-gray-100 flex items-center justify-between card-enter" style="animation-delay: 100ms;">
-                    <div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statTotalProd">Total Templates</p>
-                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="statTotalProducts">0</h4>
-                    </div>
-                    <div class="h-14 w-14 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100"><i data-lucide="layers" class="w-6 h-6 text-gray-400"></i></div>
+        <!-- ================= OVERALL DASHBOARD SECTION ================= -->
+        <div id="overallSection">
+            <div class="mb-8 card-enter" style="animation-delay: 100ms;">
+                <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="ovwTitle">Operations Center</h1>
+                <p class="text-base text-gray-500 font-medium" data-i18n="ovwSub">High-level metrics and system monitoring for the enterprise workspace.</p>
+            </div>
+
+            <!-- Health Banner -->
+            <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-8 flex items-center gap-4 shadow-sm card-enter" style="animation-delay: 150ms;">
+                <div class="h-10 w-10 bg-white rounded-full flex items-center justify-center shadow-sm text-green-500 flex-shrink-0">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
                 </div>
-                <div class="bg-white rounded-3xl p-6 shadow-premium border border-gray-100 flex items-center justify-between card-enter" style="animation-delay: 200ms;">
-                    <div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statActive">Active Online</p>
-                        <h4 class="text-4xl font-bold text-green-500 tracking-tight" id="statActiveProducts">0</h4>
-                    </div>
-                    <div class="h-14 w-14 rounded-2xl bg-green-50 flex items-center justify-center border border-green-100"><i data-lucide="activity" class="w-6 h-6 text-green-500"></i></div>
-                </div>
-                <div class="bg-white rounded-3xl p-6 shadow-premium border border-gray-100 flex items-center justify-between card-enter" style="animation-delay: 300ms;">
-                    <div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statUsers">Registered Users</p>
-                        <h4 class="text-4xl font-bold text-myancode-blue tracking-tight" id="statTotalUsers">0</h4>
-                    </div>
-                    <div class="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100"><i data-lucide="users" class="w-6 h-6 text-myancode-blue"></i></div>
+                <div>
+                    <h4 class="text-sm font-bold text-green-800" data-i18n="sysHealth">System Health: Optimal</h4>
+                    <p class="text-xs text-green-600 font-medium mt-0.5" data-i18n="sysHealthDesc">All database connections, real-time channels, and APIs are operating normally.</p>
                 </div>
             </div>
 
-            <!-- Table Header & Powerful Search -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 card-enter" style="animation-delay: 400ms;">
-                <div class="mb-2 md:mb-0">
+            <!-- Analytics Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <!-- Data from Users -->
+                <div class="bg-white rounded-[2rem] p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter relative overflow-hidden group" style="animation-delay: 200ms;">
+                    <div class="absolute -right-6 -top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="crown" class="w-32 h-32"></i></div>
+                    <div class="relative z-10">
+                        <div class="h-12 w-12 rounded-2xl bg-yellow-50 flex items-center justify-center border border-yellow-100 mb-6"><i data-lucide="crown" class="w-5 h-5 text-yellow-600"></i></div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statSuperAdmins">Super Admins</p>
+                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="dashSuperAdmins">0</h4>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-[2rem] p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter relative overflow-hidden group" style="animation-delay: 300ms;">
+                    <div class="absolute -right-6 -top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="shield" class="w-32 h-32"></i></div>
+                    <div class="relative z-10">
+                        <div class="h-12 w-12 rounded-2xl bg-purple-50 flex items-center justify-center border border-purple-100 mb-6"><i data-lucide="shield" class="w-5 h-5 text-purple-600"></i></div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statAdmins">Active Admins</p>
+                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="dashAdmins">0</h4>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[2rem] p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter relative overflow-hidden group" style="animation-delay: 400ms;">
+                    <div class="absolute -right-6 -top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="users" class="w-32 h-32"></i></div>
+                    <div class="relative z-10">
+                        <div class="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100 mb-6"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statUsers">Standard Users</p>
+                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="dashUsers">0</h4>
+                    </div>
+                </div>
+
+                <!-- Data from Products -->
+                <div class="bg-white rounded-[2rem] p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter relative overflow-hidden group" style="animation-delay: 500ms;">
+                    <div class="absolute -right-6 -top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="package" class="w-32 h-32"></i></div>
+                    <div class="relative z-10">
+                        <div class="h-12 w-12 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-200 mb-6"><i data-lucide="layers" class="w-5 h-5 text-gray-600"></i></div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statTotalProd">Total Templates</p>
+                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="dashProducts">0</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 card-enter" style="animation-delay: 600ms;">
+                <div class="bg-white rounded-[2rem] p-8 shadow-premium border border-gray-100 flex items-center gap-6">
+                    <div class="h-16 w-16 rounded-full bg-red-50 flex items-center justify-center border border-red-100 flex-shrink-0">
+                        <i data-lucide="alert-octagon" class="w-7 h-7 text-red-500"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-3xl font-bold text-myancode-black tracking-tight mb-1" id="dashLowStock">0</h4>
+                        <p class="text-sm font-medium text-gray-500" data-i18n="statLowStock">Templates out of stock or requiring attention</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-[2rem] p-8 shadow-premium border border-gray-100 flex items-center gap-6">
+                    <div class="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center border border-green-100 flex-shrink-0">
+                        <i data-lucide="activity" class="w-7 h-7 text-green-500"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-3xl font-bold text-myancode-black tracking-tight mb-1" id="dashActiveProd">0</h4>
+                        <p class="text-sm font-medium text-gray-500" data-i18n="statActive">Active Templates deployed to production</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PRODUCTS SECTION ================= -->
+        <div id="productsSection" class="hidden">
+            <!-- Table Header & Powerful Search & Filters -->
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-6 gap-6 card-enter" style="animation-delay: 100ms;">
+                <div class="mb-2 xl:mb-0">
                     <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitle">UI Template Database</h1>
                     <p class="text-sm text-gray-500 font-medium" data-i18n="dashSub">Manage enterprise UI templates, pricing, and live previews.</p>
                 </div>
                 
-                <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                    <div class="relative w-full sm:w-72">
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
+                    <!-- Text Search -->
+                    <div class="relative w-full sm:w-64">
                         <i data-lucide="search" class="absolute left-4 top-3.5 h-4 w-4 text-gray-400"></i>
                         <input type="text" id="searchProducts" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all" placeholder="Search templates..." data-i18n-placeholder="searchProd">
                     </div>
+                    
+                    <!-- Advanced Dropdown Filter -->
+                    <div class="relative w-full sm:w-auto min-w-[160px]">
+                        <select id="productFilter" onchange="setProductFilter(this.value)" class="w-full appearance-none bg-white border border-gray-100 rounded-2xl pl-4 pr-10 py-3 text-sm font-bold text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                            <option value="all" data-i18n="fltAllProd">All Templates</option>
+                            <optgroup label="Status" data-i18n-label="fltGrpStatus">
+                                <option value="active" data-i18n="fltActive">Active Only</option>
+                                <option value="oos" data-i18n="fltOOS">Out of Stock</option>
+                            </optgroup>
+                            <optgroup label="Categories" id="productCategoryFilterGroup" data-i18n-label="fltGrpCategories">
+                                <!-- Populated dynamically -->
+                            </optgroup>
+                        </select>
+                        <i data-lucide="filter" class="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none"></i>
+                    </div>
+
                     <button onclick="openProductModal()" class="w-full sm:w-auto bg-myancode-black text-white px-7 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-premium btn-hover-effect whitespace-nowrap">
-                        <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btnAddProduct">Add UI Template</span>
+                        <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btnAddProduct">Add Template</span>
                     </button>
                 </div>
             </div>
 
             <!-- Products Table -->
-            <div class="bg-white rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 500ms;">
+            <div class="bg-white rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
                 <div class="overflow-x-auto p-2">
                     <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="text-gray-400 font-bold tracking-widest uppercase text-[10px] bg-white">
+                        <thead class="text-gray-400 font-bold tracking-widest uppercase text-[10px] bg-white border-b border-gray-50">
                             <tr>
                                 <th class="px-6 py-5 rounded-tl-2xl" data-i18n="thImage">Item</th>
                                 <th class="px-6 py-5" data-i18n="thSku">SKU & Category</th>
@@ -213,18 +285,31 @@
 
         <!-- ================= USERS SECTION ================= -->
         <div id="usersSection" class="hidden">
-            <!-- Table Header & Powerful Search -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 card-enter" style="animation-delay: 100ms;">
-                <div class="mb-2 md:mb-0">
-                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitleUsers">User Directory</h1>
-                    <p class="text-sm text-gray-500 font-medium" data-i18n="dashSubUsers">Manage registered accounts and security roles.</p>
+            <!-- Table Header & Powerful Search & Filters -->
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-6 gap-6 card-enter" style="animation-delay: 100ms;">
+                <div class="mb-2 xl:mb-0">
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitleUsers">Enterprise Directory</h1>
+                    <p class="text-sm text-gray-500 font-medium" data-i18n="dashSubUsers">Manage registered accounts and organizational clearance roles.</p>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                    <div class="relative w-full sm:w-72">
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
+                    <!-- Text Search -->
+                    <div class="relative w-full sm:w-64">
                         <i data-lucide="search" class="absolute left-4 top-3.5 h-4 w-4 text-gray-400"></i>
-                        <input type="text" id="searchUsers" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all" placeholder="Search users by name or email..." data-i18n-placeholder="searchUsers">
+                        <input type="text" id="searchUsers" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all" placeholder="Search by email..." data-i18n-placeholder="searchUsers">
                     </div>
+
+                    <!-- Role Filter -->
+                    <div class="relative w-full sm:w-auto min-w-[160px]">
+                        <select id="userFilter" onchange="setUserFilter(this.value)" class="w-full appearance-none bg-white border border-gray-100 rounded-2xl pl-4 pr-10 py-3 text-sm font-bold text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                            <option value="all" data-i18n="fltAllUsers">All Accounts</option>
+                            <option value="super-admin" data-i18n="fltSuperAdmins">Super Admins Only</option>
+                            <option value="admin" data-i18n="fltAdmins">Admins Only</option>
+                            <option value="user" data-i18n="fltStandardUsers">Standard Users</option>
+                        </select>
+                        <i data-lucide="filter" class="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none"></i>
+                    </div>
+
                     <!-- INVITE ADMIN BUTTON -->
                     <button onclick="openInviteAdminModal()" class="w-full sm:w-auto bg-myancode-blue text-white px-7 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-premium btn-hover-effect whitespace-nowrap hover:bg-blue-600 transition-colors">
                         <i data-lucide="user-plus" class="w-4 h-4"></i> <span data-i18n="btnInviteAdmin">Invite Admin</span>
@@ -236,11 +321,11 @@
             <div class="bg-white rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
                 <div class="overflow-x-auto p-2">
                     <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="text-gray-400 font-bold tracking-widest uppercase text-[10px] bg-white">
+                        <thead class="text-gray-400 font-bold tracking-widest uppercase text-[10px] bg-white border-b border-gray-50">
                             <tr>
-                                <th class="px-6 py-5 rounded-tl-2xl" data-i18n="thUser">Account</th>
-                                <th class="px-6 py-5" data-i18n="thRole">Security Role</th>
-                                <th class="px-6 py-5" data-i18n="thJoined">Date Joined</th>
+                                <th class="px-6 py-5 rounded-tl-2xl" data-i18n="thUser">Account Identity</th>
+                                <th class="px-6 py-5" data-i18n="thRole">Clearance Role</th>
+                                <th class="px-6 py-5" data-i18n="thJoined">Date Provisioned</th>
                                 <th class="px-6 py-5 text-right rounded-tr-2xl" data-i18n="thActions">Actions</th>
                             </tr>
                         </thead>
@@ -259,10 +344,10 @@
         <div class="h-24 w-24 bg-red-50 rounded-full flex items-center justify-center mb-6 shadow-inner-soft">
             <i data-lucide="shield-alert" class="w-12 h-12 text-red-500"></i>
         </div>
-        <h2 class="text-3xl font-bold tracking-tight text-myancode-black mb-3" data-i18n="errNoAccess">Access Restricted</h2>
-        <p class="text-base text-gray-500 mb-10 max-w-md font-medium leading-relaxed" data-i18n="errNoAccessDesc">Your current security clearance does not permit access to the administrative workspace.</p>
+        <h2 class="text-3xl font-bold tracking-tight text-myancode-black mb-3" data-i18n="errNoAccess">Clearance Restricted</h2>
+        <p class="text-base text-gray-500 mb-10 max-w-md font-medium leading-relaxed" data-i18n="errNoAccessDesc">Your current security clearance does not permit access to the enterprise operations center.</p>
         <button onclick="safeRedirect('../index.html')" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold btn-hover-effect shadow-premium flex items-center gap-2">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Return to Site
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Return to Public Site
         </button>
     </div>
 
@@ -492,38 +577,54 @@
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
         let allProducts = [];
         let allUsers = [];
+        
+        // Active Filters
+        let currentProductFilter = 'all';
+        let currentUserFilter = 'all';
 
         const dict = {
             en: {
-                langSelect: "Language", hdrLogout: "Sign Out", loadingAuth: "Verifying Access...", loadingData: "Syncing Cloud Data...",
-                dashTitle: "UI Template Database", dashSub: "Manage enterprise UI templates, pricing, and live previews.",
-                btnAddProduct: "Add UI Template", adminBadge: "Workspace", btnGoToSite: "View Site",
-                tabProducts: "Products", tabUsers: "Users",
-                dashTitleUsers: "User Directory", dashSubUsers: "Manage registered accounts and security roles.",
+                langSelect: "Language", hdrLogout: "Sign Out", loadingAuth: "Authenticating Identity...", loadingData: "Syncing Cloud Data...",
                 
-                // Stats
-                statTotalProd: "Total Templates", statActive: "Active Online", statUsers: "Registered Users",
+                // Tabs
+                tabOverall: "Overview", tabProducts: "Products", tabUsers: "Directory",
+                
+                // Overall Dashboard
+                ovwTitle: "Operations Center", ovwSub: "High-level metrics and system monitoring for the enterprise workspace.",
+                sysHealth: "System Health: Optimal", sysHealthDesc: "All database connections, real-time channels, and APIs are operating normally.",
+                statSuperAdmins: "Super Admins", statAdmins: "Active Admins", statUsers: "Standard Users",
+                statTotalProd: "Total Templates", statLowStock: "Templates out of stock or requiring attention", statActive: "Active Templates deployed to production",
+                
+                dashTitle: "UI Template Database", dashSub: "Manage enterprise UI templates, pricing, and live previews.",
+                btnAddProduct: "Add Template", adminBadge: "Enterprise", btnGoToSite: "View Site",
+                dashTitleUsers: "Enterprise Directory", dashSubUsers: "Manage registered accounts and organizational clearance roles.",
 
                 // Table Headers
                 thImage: "Item", thName: "Name & Slug", thPrice: "Pricing", thStatus: "Status", thActions: "Actions", thSku: "SKU & Category",
-                thUser: "Account", thRole: "Security Role", thJoined: "Date Joined",
+                thUser: "Account Identity", thRole: "Clearance Role", thJoined: "Date Provisioned",
                 
-                errNoAccess: "Access Restricted", errNoAccessDesc: "Your current security clearance does not permit access to the administrative workspace.",
+                // Filters
+                fltAllProd: "All Templates", fltGrpStatus: "By Status", fltActive: "Active Only", fltOOS: "Out of Stock",
+                fltGrpCategories: "By Category",
+                fltAllUsers: "All Accounts", fltSuperAdmins: "Super Admins Only", fltAdmins: "Admins Only", fltStandardUsers: "Standard Users",
+                
+                errNoAccess: "Clearance Restricted", errNoAccessDesc: "Your current security clearance does not permit access to the enterprise operations center.",
                 modalTitleAdd: "Add UI Template", modalTitleEdit: "Edit Template",
                 lblNameEn: "Template Name (English) *", lblNameMm: "Template Name (Myanmar)", lblSlug: "URL Slug *", lblSku: "SKU (Stock Keeping Unit)",
                 lblPrice: "Regular Price *", lblDiscount: "Discount Price", lblCategory: "Category", lblStock: "Stock Level",
                 lblMainImg: "Main Image URL", lblGallery: "Gallery URLs (Comma separated)",
                 lblDescEn: "Description (English)", lblDescMm: "Description (Myanmar)",
                 btnCancel: "Cancel", btnSave: "Save Database Entry", btnEdit: "Edit", btnDelete: "Delete",
-                btnMakeAdmin: "Promote Admin", btnMakeUser: "Demote User",
+                btnMakeSuperAdmin: "Promote Super Admin", btnMakeAdmin: "Promote Admin", btnMakeUser: "Demote User",
                 btnInviteAdmin: "Invite Admin", modalTitleInvite: "Invite Administrator", btnSendInvite: "Send Invite Link",
                 lblEmail: "Email Address *", inviteHelpText: "Supabase will send an official email with a secure link allowing the user to set their own password and join your workspace.",
                 inviteSuccessTitle: "Invitation Sent", inviteSuccessDesc: "An official invitation link has been securely dispatched via Supabase. The user will be prompted to set their own password upon clicking the link.", inviteSentTo: "Sent To",
                 msgSaveSuccess: "Database entry saved successfully.", msgDeleteSuccess: "Entry securely deleted.", msgRoleUpdated: "Security role updated.",
-                searchProd: "Search templates...", searchUsers: "Search users by name or email...",
+                searchProd: "Search templates...", searchUsers: "Search by email...",
                 msgPassReset: "Password reset to default successfully.",
+                lblProtected: "Protected", lblRestricted: "Restricted",
                 
-                // Confirm Modals & Resets
+                // Confirm Modals
                 confirmDeleteTitle: "Delete Template", confirmDeleteMsg: "Are you sure you want to permanently delete this template from the database?",
                 confirmUserDeleteTitle: "Terminate Account", confirmUserDeleteMsg: "Are you sure you want to completely erase this user account?",
                 confirmRoleTitle: "Update Clearance", confirmRoleMsg: "Are you sure you want to modify this user's security clearance level?",
@@ -532,17 +633,28 @@
             },
             mm: {
                 langSelect: "ဘာသာစကား", hdrLogout: "အကောင့်ထွက်ရန်", loadingAuth: "အခွင့်အာဏာ စစ်ဆေးနေပါသည်...", loadingData: "ဒေတာရယူနေပါသည်...",
-                dashTitle: "ဝက်ဘ်ဆိုက် ကတ်တလောက်", dashSub: "ဝက်ဘ်ဆိုက်များ၊ ဈေးနှုန်းနှင့် လက်ကျန်များကို ပြင်ဆင်ပါ။",
-                btnAddProduct: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", adminBadge: "စီမံခန့်ခွဲရေး", btnGoToSite: "ဝက်ဘ်ဆိုက်သို့",
-                tabProducts: "ကုန်ပစ္စည်းများ", tabUsers: "အသုံးပြုသူများ",
-                dashTitleUsers: "အသုံးပြုသူ လမ်းညွှန်", dashSubUsers: "အကောင့်များနှင့် အခွင့်အာဏာများကို စီမံပါ။",
                 
-                // Stats
-                statTotalProd: "ဝက်ဘ်ဆိုက် စုစုပေါင်း", statActive: "လွှင့်တင်ထားသော", statUsers: "အကောင့် စုစုပေါင်း",
+                // Tabs
+                tabOverall: "အကျဉ်းချုပ်", tabProducts: "ကုန်ပစ္စည်းများ", tabUsers: "လမ်းညွှန်",
+                
+                // Overall Dashboard
+                ovwTitle: "စီမံခန့်ခွဲမှု စင်တာ", ovwSub: "အချက်အလက်များနှင့် လုပ်ဆောင်မှုများကို အကျဉ်းချုပ် ကြည့်ရှုပါ။",
+                sysHealth: "စနစ် အခြေအနေ - ကောင်းမွန်", sysHealthDesc: "ဒေတာဘေ့စ်နှင့် လင့်ခ်များအားလုံး ပုံမှန်အလုပ်လုပ်နေပါသည်။",
+                statSuperAdmins: "အက်ဒမင်ချုပ်များ", statAdmins: "အက်ဒမင်များ", statUsers: "အသုံးပြုသူများ",
+                statTotalProd: "ဝက်ဘ်ဆိုက် စုစုပေါင်း", statLowStock: "လက်ကျန်မရှိသော / အာရုံစိုက်ရန်လိုသော", statActive: "လွှင့်တင်ထားသော ဝက်ဘ်ဆိုက်များ",
+                
+                dashTitle: "ဝက်ဘ်ဆိုက် ကတ်တလောက်", dashSub: "ဝက်ဘ်ဆိုက်များ၊ ဈေးနှုန်းနှင့် လက်ကျန်များကို ပြင်ဆင်ပါ။",
+                btnAddProduct: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", adminBadge: "လုပ်ငန်းသုံး", btnGoToSite: "ဝက်ဘ်ဆိုက်သို့",
+                dashTitleUsers: "အသုံးပြုသူ လမ်းညွှန်", dashSubUsers: "အကောင့်များနှင့် အခွင့်အာဏာများကို စီမံပါ။",
 
                 // Table Headers
                 thImage: "အရာဝတ္ထု", thName: "အမည် နှင့် Slug", thPrice: "ဈေးနှုန်း", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ချက်များ", thSku: "SKU နှင့် အမျိုးအစား",
                 thUser: "အကောင့်", thRole: "အခွင့်အာဏာ", thJoined: "ဝင်ရောက်သည့်နေ့",
+                
+                // Filters
+                fltAllProd: "အားလုံး", fltGrpStatus: "အခြေအနေအရ", fltActive: "လွှင့်တင်ထားသော", fltOOS: "လက်ကျန်မရှိသော",
+                fltGrpCategories: "အမျိုးအစားအရ",
+                fltAllUsers: "အကောင့်အားလုံး", fltSuperAdmins: "အက်ဒမင်ချုပ်များသာ", fltAdmins: "အက်ဒမင်များသာ", fltStandardUsers: "သာမန်အသုံးပြုသူ",
                 
                 errNoAccess: "ဝင်ရောက်ခွင့် ကန့်သတ်ထားသည်", errNoAccessDesc: "သင့်အကောင့်သည် ဤစီမံခန့်ခွဲရေး နေရာသို့ ဝင်ရောက်ခွင့် မရှိပါ။",
                 modalTitleAdd: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", modalTitleEdit: "ဝက်ဘ်ဆိုက် ပြင်ဆင်မည်",
@@ -551,15 +663,16 @@
                 lblMainImg: "ပင်မ ပုံလင့်ခ် (URL)", lblGallery: "ပုံများလင့်ခ် (ကော်မာခံ၍ရေးပါ)",
                 lblDescEn: "အကြောင်းအရာ (English)", lblDescMm: "အကြောင်းအရာ (Myanmar)",
                 btnCancel: "ပယ်ဖျက်မည်", btnSave: "ဒေတာဘေ့စ်သို့ သိမ်းမည်", btnEdit: "ပြင်မည်", btnDelete: "ဖျက်မည်",
-                btnMakeAdmin: "အက်ဒမင် ပြောင်းမည်", btnMakeUser: "သာမန်အသုံးပြုသူ ပြောင်းမည်",
+                btnMakeSuperAdmin: "အက်ဒမင်ချုပ် ပြောင်းမည်", btnMakeAdmin: "အက်ဒမင် ပြောင်းမည်", btnMakeUser: "သာမန်အသုံးပြုသူ ပြောင်းမည်",
                 btnInviteAdmin: "အက်ဒမင် ဖိတ်ကြားမည်", modalTitleInvite: "အက်ဒမင်အသစ် ဖိတ်ကြားမည်", btnSendInvite: "ဖိတ်စာ ပေးပို့မည်",
                 lblEmail: "အီးမေးလ် *", inviteHelpText: "Supabase မှ အသုံးပြုသူထံသို့ တရားဝင်ဖိတ်စာ လင့်ခ်ပေးပို့သွားမည်ဖြစ်သည်။ အသုံးပြုသူမှ မိမိစကားဝှက်ကို ကိုယ်တိုင်သတ်မှတ်နိုင်မည်ဖြစ်သည်။",
                 inviteSuccessTitle: "ဖိတ်ကြားမှု အောင်မြင်ပါသည်", inviteSuccessDesc: "Supabase မှတဆင့် ဖိတ်စာပေးပို့ပြီးပါပြီ။ လင့်ခ်ကိုနှိပ်၍ အသုံးပြုသူမှ စကားဝှက်သတ်မှတ်နိုင်ပါသည်။", inviteSentTo: "ပေးပို့ထားသော အီးမေးလ်",
                 msgSaveSuccess: "ဒေတာဘေ့စ် သိမ်းဆည်းမှု အောင်မြင်ပါသည်!", msgDeleteSuccess: "အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။", msgRoleUpdated: "အခွင့်အာဏာ ပြောင်းလဲမှု အောင်မြင်ပါသည်!",
-                searchProd: "ဝက်ဘ်ဆိုက်များကို ရှာဖွေပါ...", searchUsers: "အသုံးပြုသူများကို ရှာဖွေပါ...",
+                searchProd: "ရှာဖွေပါ...", searchUsers: "အီးမေးလ်ဖြင့် ရှာဖွေပါ...",
                 msgPassReset: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းလဲပြီးပါပြီ။",
+                lblProtected: "ကာကွယ်ထားသည်", lblRestricted: "ကန့်သတ်ထားသည်",
                 
-                // Confirm Modals & Resets
+                // Confirm Modals
                 confirmDeleteTitle: "ဝက်ဘ်ဆိုက် ဖျက်မည်", confirmDeleteMsg: "ဤဝက်ဘ်ဆိုက်ကို ဒေတာဘေ့စ်မှ အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
                 confirmUserDeleteTitle: "အကောင့် ဖျက်သိမ်းမည်", confirmUserDeleteMsg: "ဤအသုံးပြုသူ အကောင့်ကို အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
                 confirmRoleTitle: "အခွင့်အာဏာ ပြောင်းမည်", confirmRoleMsg: "ဤအသုံးပြုသူ၏ အခွင့်အာဏာ အဆင့်ကို ပြောင်းလဲရန် သေချာပါသလား?",
@@ -575,6 +688,9 @@
             document.documentElement.lang = currentLang; 
             document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
+            document.querySelectorAll('[data-i18n-label]').forEach(el => { const key = el.getAttribute('data-i18n-label'); if (dict[currentLang][key]) el.label = dict[currentLang][key]; });
+            
+            updateOverallDashboard();
             renderTable(document.getElementById('searchProducts').value);
             renderUsersTable(document.getElementById('searchUsers').value);
         }
@@ -589,9 +705,7 @@
             if (!text) return false;
             query = query.toLowerCase().replace(/\s+/g, '');
             text = text.toLowerCase().replace(/\s+/g, '');
-            
             if (text.includes(query)) return true;
-            
             let matchCount = 0; let tempText = text.split('');
             for (let char of query) { let idx = tempText.indexOf(char); if (idx !== -1) { matchCount++; tempText.splice(idx, 1); } }
             return (matchCount / query.length) >= 0.75;
@@ -599,6 +713,19 @@
 
         document.getElementById('searchProducts').addEventListener('input', (e) => renderTable(e.target.value));
         document.getElementById('searchUsers').addEventListener('input', (e) => renderUsersTable(e.target.value));
+
+        /* --- FILTERING LOGIC --- */
+        function setProductFilter(val) { currentProductFilter = val; renderTable(document.getElementById('searchProducts').value); }
+        function setUserFilter(val) { currentUserFilter = val; renderUsersTable(document.getElementById('searchUsers').value); }
+
+        function populateCategoryFilter() {
+            const selectGroup = document.getElementById('productCategoryFilterGroup');
+            const categories = [...new Set(allProducts.map(p => p.category_id).filter(Boolean))].sort();
+            
+            selectGroup.innerHTML = categories.map(cat => 
+                `<option value="cat-${cat}">${cat}</option>`
+            ).join('');
+        }
 
         /* --- CUSTOM CONFIRM MODAL LOGIC --- */
         let activeConfirmCallback = null;
@@ -641,16 +768,13 @@
 
         /* --- UTILS --- */
         function safeRedirect(path) {
-            try {
-                // In restricted iframes (like Canvas/CodePen), window.location.href might throw a SyntaxError if unresolved
-                window.location.href = path;
-            } catch (e) {
+            try { window.location.href = path; } 
+            catch (e) {
                 console.warn('Redirect blocked in restricted environment:', e);
                 hideLoader();
                 document.getElementById('dashboardContent').classList.add('hidden');
                 const unauthScreen = document.getElementById('unauthorizedScreen');
-                unauthScreen.classList.remove('hidden'); 
-                unauthScreen.classList.add('flex');
+                unauthScreen.classList.remove('hidden'); unauthScreen.classList.add('flex');
                 unauthScreen.querySelector('h2').innerText = currentLang === 'en' ? 'Authentication Required' : 'အကောင့်ဝင်ရန် လိုအပ်ပါသည်';
                 unauthScreen.querySelector('p').innerText = currentLang === 'en' ? 'Please log in to access the admin workspace. (Redirect prevented in preview environment)' : 'ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။ (Preview တွင် Redirect လုပ်၍မရပါ)';
             }
@@ -661,52 +785,90 @@
 
         /* --- TABS LOGIC --- */
         function switchTab(tab) {
-            const pSec = document.getElementById('productsSection'); const uSec = document.getElementById('usersSection');
-            const pBtn = document.getElementById('tabBtnProducts'); const uBtn = document.getElementById('tabBtnUsers');
+            const oSec = document.getElementById('overallSection');
+            const pSec = document.getElementById('productsSection'); 
+            const uSec = document.getElementById('usersSection');
+            
+            const oBtn = document.getElementById('tabBtnOverall');
+            const pBtn = document.getElementById('tabBtnProducts'); 
+            const uBtn = document.getElementById('tabBtnUsers');
 
-            if (tab === 'products') {
-                pSec.classList.remove('hidden'); uSec.classList.add('hidden');
+            // Reset all buttons
+            oBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
+            pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
+            uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
+
+            // Hide all sections
+            oSec.classList.add('hidden');
+            pSec.classList.add('hidden'); 
+            uSec.classList.add('hidden');
+
+            if (tab === 'overall') {
+                oSec.classList.remove('hidden');
+                oBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
+                updateOverallDashboard();
+            } else if (tab === 'products') {
+                pSec.classList.remove('hidden');
                 pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
-                uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
-                fetchProducts();
             } else {
-                pSec.classList.add('hidden'); uSec.classList.remove('hidden');
+                uSec.classList.remove('hidden');
                 uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
-                pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
-                fetchUsers();
             }
             lucide.createIcons();
+        }
+
+        function updateOverallDashboard() {
+            // Recalculate everything for the dashboard view
+            document.getElementById('dashProducts').innerText = allProducts.length;
+            document.getElementById('dashLowStock').innerText = allProducts.filter(p => p.product_stock <= 10).length;
+            document.getElementById('dashActiveProd').innerText = allProducts.filter(p => p.product_status === 'active' || !p.product_status).length;
+            
+            let countSuperAdmins = 0;
+            let countAdmins = 0;
+            let countUsers = 0;
+
+            allUsers.forEach(u => {
+                const role = u.raw_user_meta_data?.role || 'user';
+                if (role === 'super-admin') countSuperAdmins++;
+                else if (role === 'admin') countAdmins++;
+                else countUsers++;
+            });
+
+            document.getElementById('dashSuperAdmins').innerText = countSuperAdmins;
+            document.getElementById('dashAdmins').innerText = countAdmins;
+            document.getElementById('dashUsers').innerText = countUsers;
         }
 
         /* --- SUPABASE INIT & AUTH VERIFICATION --- */
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
-        
-        // 👉 ADD YOUR SERVICE ROLE KEY HERE FOR ADMIN INVITES TO WORK 👈
         const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzAyNTA5MSwiZXhwIjoyMDg4NjAxMDkxfQ.MKa5S7aqtuYJHvrxucvNB_miuUMg9_2EZuXug4KOhwo';
         
         let supabaseInstance = null; let currentUser = null;
         
         if (window.supabase) {
-            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                // CHANGED: Must be true so it can read the email invite token from the URL
-                auth: { detectSessionInUrl: true } 
-            });
-            
+            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: true } });
             supabaseInstance.auth.onAuthStateChange((event, session) => {
                 if (session) { currentUser = session.user; checkAdminStatus(); } 
                 else { safeRedirect('../login/index.html'); }
             });
         }
 
-        function checkAdminStatus() {
+        async function checkAdminStatus() {
             const role = currentUser?.user_metadata?.role;
-            if (role === 'admin') {
-                document.getElementById('dashboardContent').classList.remove('hidden'); document.getElementById('dashboardContent').classList.add('flex', 'flex-col');
-                document.getElementById('unauthorizedScreen').classList.add('hidden'); fetchProducts();
-                if(supabaseInstance) { supabaseInstance.rpc('admin_get_users').then(({data}) => { if(data) document.getElementById('statTotalUsers').innerText = data.length; }); }
+            if (role === 'admin' || role === 'super-admin') {
+                document.getElementById('dashboardContent').classList.remove('hidden'); 
+                document.getElementById('dashboardContent').classList.add('flex', 'flex-col');
+                document.getElementById('unauthorizedScreen').classList.add('hidden'); 
                 
-                // Initialize Super Low-Latency Real-Time Sync
+                // Fetch data for all tabs simultaneously in the background so the dashboard is ready
+                await Promise.all([fetchProducts(true), fetchUsers(true)]);
+                
+                // Initialize the Overview tab calculations
+                updateOverallDashboard();
+                hideLoader();
+                
+                // Real-Time Sync
                 setupRealtimeSync();
             } else {
                 hideLoader(); document.getElementById('dashboardContent').classList.add('hidden');
@@ -718,51 +880,28 @@
 
         /* --- REAL-TIME LOW-LATENCY ENGINE --- */
         function setupRealtimeSync() {
-            // 1. Instant WebSocket Real-time for Products Table (Memory Injection for Zero Latency)
             supabaseInstance
                 .channel('admin-products-sync')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
-                    console.log("⚡ Realtime Update Received:", payload);
+                    if (payload.eventType === 'INSERT') allProducts.unshift(payload.new);
+                    else if (payload.eventType === 'UPDATE') { const index = allProducts.findIndex(p => p.product_id === payload.new.product_id); if (index !== -1) allProducts[index] = payload.new; } 
+                    else if (payload.eventType === 'DELETE') allProducts = allProducts.filter(p => p.product_id !== payload.old.product_id);
                     
-                    if (payload.eventType === 'INSERT') {
-                        allProducts.unshift(payload.new);
-                    } else if (payload.eventType === 'UPDATE') {
-                        const index = allProducts.findIndex(p => p.product_id === payload.new.product_id);
-                        if (index !== -1) allProducts[index] = payload.new;
-                    } else if (payload.eventType === 'DELETE') {
-                        allProducts = allProducts.filter(p => p.product_id !== payload.old.product_id);
-                    }
+                    populateCategoryFilter();
+                    updateOverallDashboard();
+                    renderTable(document.getElementById('searchProducts').value);
+                }).subscribe();
 
-                    // Instantly update stats and table without network delay
-                    document.getElementById('statTotalProducts').innerText = allProducts.length;
-                    document.getElementById('statActiveProducts').innerText = allProducts.filter(p => p.product_status === 'active' || !p.product_status).length;
-                    
-                    const currentSearch = document.getElementById('searchProducts').value;
-                    renderTable(currentSearch);
-                })
-                .subscribe((status) => {
-                    console.log("🔌 Realtime Socket Status:", status);
-                });
-
-            // 2. High-Frequency Silent Polling for Users (Supabase auth.users does not support direct sockets)
             setInterval(() => {
-                const usersSection = document.getElementById('usersSection');
-                if (!usersSection.classList.contains('hidden') && document.visibilityState === 'visible') {
-                    fetchUsers(true); // Silently refresh user table if viewing it actively
-                } else if (document.visibilityState === 'visible') {
-                    // Otherwise just silently update the stat counter
-                    supabaseInstance.rpc('admin_get_users').then(({data}) => { 
-                        if(data) document.getElementById('statTotalUsers').innerText = data.length; 
-                    });
+                if (document.visibilityState === 'visible') {
+                    // Silently refresh user table to keep overview and directory in sync
+                    fetchUsers(true); 
                 }
-            }, 3000); // 3-second latency for user updates across different admins
+            }, 5000); 
             
-            // 3. Auto-Resume when switching back to this browser tab
             document.addEventListener("visibilitychange", () => {
                 if (document.visibilityState === "visible") {
-                    const pSec = document.getElementById('productsSection');
-                    if (!pSec.classList.contains('hidden')) fetchProducts(true);
-                    else fetchUsers(true);
+                    fetchProducts(true); fetchUsers(true);
                 }
             });
         }
@@ -774,8 +913,9 @@
                 const { data, error } = await supabaseInstance.from('products').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
                 allProducts = data || [];
-                document.getElementById('statTotalProducts').innerText = allProducts.length;
-                document.getElementById('statActiveProducts').innerText = allProducts.filter(p => p.product_status === 'active' || !p.product_status).length;
+                
+                populateCategoryFilter();
+                updateOverallDashboard();
                 renderTable(document.getElementById('searchProducts').value);
             } catch (err) {
                 if (!silent) showErrorToast(err.message);
@@ -786,15 +926,27 @@
         function renderTable(searchQuery = '') {
             const tbody = document.getElementById('productsTableBody');
             let filteredProducts = allProducts;
+            
+            // Apply Search
             if (searchQuery) {
-                filteredProducts = allProducts.filter(p => 
+                filteredProducts = filteredProducts.filter(p => 
                     superFuzzySearch(searchQuery, p.product_name_en) || superFuzzySearch(searchQuery, p.product_name_mm) || 
                     superFuzzySearch(searchQuery, p.product_slug) || superFuzzySearch(searchQuery, p.product_sku) || superFuzzySearch(searchQuery, p.category_id)
                 );
             }
+            
+            // Apply Filters
+            if (currentProductFilter === 'active') {
+                filteredProducts = filteredProducts.filter(p => p.product_status === 'active' || !p.product_status);
+            } else if (currentProductFilter === 'oos') {
+                filteredProducts = filteredProducts.filter(p => p.product_stock <= 0);
+            } else if (currentProductFilter.startsWith('cat-')) {
+                const targetCat = currentProductFilter.replace('cat-', '');
+                filteredProducts = filteredProducts.filter(p => p.category_id === targetCat);
+            }
 
             if (filteredProducts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No database entries found matching search.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No entries found matching filters.</td></tr>`;
                 return;
             }
 
@@ -918,31 +1070,40 @@
 
         /* --- CRUD LOGIC FOR USERS & ROLES --- */
         async function fetchUsers(silent = false) {
-            if (!silent) showLoader('loadingData');
             try {
                 const { data, error } = await supabaseInstance.rpc('admin_get_users');
                 if (error) throw error;
                 allUsers = data || [];
-                document.getElementById('statTotalUsers').innerText = allUsers.length;
+                updateOverallDashboard();
                 renderUsersTable(document.getElementById('searchUsers').value);
             } catch (err) {
-                if (!silent) showErrorToast(currentLang === 'en' ? "Failed to load users. Setup SQL RPC." : "ဒေတာရယူ၍မရပါ။ SQL RPC သတ်မှတ်ရန်လိုအပ်ပါသည်။");
-                document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load users via RPC.</td></tr>`;
-            } finally { if (!silent) hideLoader(); }
+                console.error("Failed to load users via RPC:", err);
+            }
         }
 
         function renderUsersTable(searchQuery = '') {
             const tbody = document.getElementById('usersTableBody');
             let filteredUsers = allUsers;
+            const myCurrentRole = currentUser?.user_metadata?.role || 'user';
+            
+            // Apply Search
             if (searchQuery) {
-                filteredUsers = allUsers.filter(u => {
+                filteredUsers = filteredUsers.filter(u => {
                     const meta = u.raw_user_meta_data || {};
                     return superFuzzySearch(searchQuery, meta.full_name) || superFuzzySearch(searchQuery, u.email);
                 });
             }
 
+            // Apply Roles Filter
+            if (currentUserFilter !== 'all') {
+                filteredUsers = filteredUsers.filter(u => {
+                    const role = u.raw_user_meta_data?.role || 'user';
+                    return role === currentUserFilter;
+                });
+            }
+
             if (filteredUsers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No accounts found matching search.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No accounts found matching filters.</td></tr>`;
                 return;
             }
 
@@ -950,11 +1111,44 @@
                 const meta = u.raw_user_meta_data || {};
                 const name = meta.full_name || u.email.split('@')[0];
                 const role = meta.role || 'user';
+                const isSuperAdmin = role === 'super-admin';
                 const isMe = currentUser && u.id === currentUser.id;
                 
                 const avatar = meta.avatar_url 
                     ? `<img src="${meta.avatar_url}" class="h-12 w-12 rounded-full object-cover border border-gray-200 shadow-sm">` 
                     : `<div class="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 border border-gray-100 shadow-sm"><i data-lucide="user" class="w-5 h-5"></i></div>`;
+
+                let badgeHtml = '';
+                if (isSuperAdmin) {
+                    badgeHtml = `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-yellow-50 text-yellow-600 border border-yellow-200 uppercase tracking-widest shadow-inner-soft"><i data-lucide="crown" class="w-3 h-3 mr-1 mt-0.5"></i> Super Admin</span>`;
+                } else if (role === 'admin') {
+                    badgeHtml = `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-widest shadow-inner-soft"><i data-lucide="shield" class="w-3 h-3 mr-1 mt-0.5"></i> Admin</span>`;
+                } else {
+                    badgeHtml = `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-gray-100 text-gray-600 border border-gray-200 uppercase tracking-widest shadow-inner-soft">User</span>`;
+                }
+
+                let actionsHtml = '';
+                if (isMe) {
+                    actionsHtml = `<span class="text-[10px] text-gray-300 uppercase tracking-widest font-bold ml-2">${dict[currentLang].lblProtected}</span>`;
+                } else if (isSuperAdmin && myCurrentRole !== 'super-admin') {
+                    actionsHtml = `<span class="text-[10px] text-red-300 uppercase tracking-widest font-bold ml-2">${dict[currentLang].lblRestricted}</span>`;
+                } else {
+                    actionsHtml += `<button onclick="confirmForceResetPassword('${u.id}', '${u.email}')" class="text-green-600 hover:text-green-800 mx-1 p-2 bg-green-50 rounded-xl transition-transform hover:scale-105" title="Force Reset Password"><i data-lucide="key" class="w-4 h-4"></i></button>`;
+                    
+                    if (role === 'super-admin') {
+                        if (myCurrentRole === 'super-admin') {
+                            actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-orange-500 hover:text-orange-700 mx-1 p-2 bg-orange-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeAdmin}"><i data-lucide="arrow-down" class="w-4 h-4"></i></button>`;
+                        }
+                    } else if (role === 'admin') {
+                        if (myCurrentRole === 'super-admin') {
+                            actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'super-admin')" class="text-yellow-600 hover:text-yellow-800 mx-1 p-2 bg-yellow-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeSuperAdmin}"><i data-lucide="crown" class="w-4 h-4"></i></button>`;
+                        }
+                        actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'user')" class="text-orange-500 hover:text-orange-700 mx-1 p-2 bg-orange-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeUser}"><i data-lucide="user-minus" class="w-4 h-4"></i></button>`;
+                    } else {
+                        actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-purple-500 hover:text-purple-700 mx-1 p-2 bg-purple-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeAdmin}"><i data-lucide="shield" class="w-4 h-4"></i></button>`;
+                    }
+                    actionsHtml += `<button onclick="confirmDeleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-xl transition-transform hover:scale-105 mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                }
 
                 return `
                 <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
@@ -968,25 +1162,14 @@
                         </div>
                     </td>
                     <td class="px-6 py-5 whitespace-nowrap">
-                        ${role === 'admin' 
-                            ? `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-widest shadow-inner-soft"><i data-lucide="shield" class="w-3 h-3 mr-1 mt-0.5"></i> Admin</span>`
-                            : `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-gray-100 text-gray-600 border border-gray-200 uppercase tracking-widest shadow-inner-soft">User</span>`
-                        }
+                        ${badgeHtml}
                     </td>
                     <td class="px-6 py-5 whitespace-nowrap text-xs text-gray-500 font-bold tracking-wide font-mono">
                         ${new Date(u.created_at).toLocaleDateString()}
                     </td>
                     <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex items-center justify-end opacity-40 group-hover:opacity-100 transition-opacity">
-                            <!-- Secure Force Password Reset Action -->
-                            <button onclick="confirmForceResetPassword('${u.id}', '${u.email}')" class="text-green-600 hover:text-green-800 mx-1 p-2 bg-green-50 rounded-xl transition-transform hover:scale-105" title="Force Reset Password"><i data-lucide="key" class="w-4 h-4"></i></button>
-                        ${!isMe ? `
-                            ${role === 'admin' 
-                                ? `<button onclick="confirmChangeUserRole('${u.id}', 'user')" class="text-orange-500 hover:text-orange-700 mx-1 p-2 bg-orange-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeUser}"><i data-lucide="user-minus" class="w-4 h-4"></i></button>`
-                                : `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-purple-500 hover:text-purple-700 mx-1 p-2 bg-purple-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeAdmin}"><i data-lucide="shield" class="w-4 h-4"></i></button>`
-                            }
-                            <button onclick="confirmDeleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-xl transition-transform hover:scale-105 mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        ` : '<span class="text-[10px] text-gray-300 uppercase tracking-widest font-bold ml-2">Protected</span>'}
+                            ${actionsHtml}
                         </div>
                     </td>
                 </tr>
@@ -995,8 +1178,8 @@
             lucide.createIcons();
         }
 
-        function confirmChangeUserRole(id, newRole) { openConfirmModal(dict[currentLang].confirmRoleTitle, dict[currentLang].confirmRoleMsg, false, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_set_role', { target_user_id: id, new_role: newRole }); if (error) throw error; showToast(dict[currentLang].msgRoleUpdated); fetchUsers(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
-        function confirmDeleteUser(id) { openConfirmModal(dict[currentLang].confirmUserDeleteTitle, dict[currentLang].confirmUserDeleteMsg, true, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_delete_user', { target_user_id: id }); if (error) throw error; showToast(dict[currentLang].msgDeleteSuccess); fetchUsers(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
+        function confirmChangeUserRole(id, newRole) { openConfirmModal(dict[currentLang].confirmRoleTitle, dict[currentLang].confirmRoleMsg, false, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_set_role', { target_user_id: id, new_role: newRole }); if (error) throw error; showToast(dict[currentLang].msgRoleUpdated); fetchUsers(); hideLoader(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
+        function confirmDeleteUser(id) { openConfirmModal(dict[currentLang].confirmUserDeleteTitle, dict[currentLang].confirmUserDeleteMsg, true, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_delete_user', { target_user_id: id }); if (error) throw error; showToast(dict[currentLang].msgDeleteSuccess); fetchUsers(); hideLoader(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
 
         /* --- INVITE ADMIN FLOW (SUPABASE NATIVE) --- */
         function openInviteAdminModal() {
@@ -1022,38 +1205,30 @@
             showLoader('loadingData');
 
             try {
-                // 1. Create admin client using Service Role Key
                 const adminSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
                     auth: { autoRefreshToken: false, persistSession: false }
                 });
 
-                // Get absolute current URL strictly without any hash or query parameters to guarantee perfect matching
                 const exactDashboardUrl = window.location.href.split(/[?#]/)[0];
                 
-                // You can check your browser console when inviting to verify the URL being sent
-                console.log("Dispatching invite with precise Redirect URL: ", exactDashboardUrl);
-
-                // 2. Trigger native invite WITH auto-admin role and precise Redirect URL
                 const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(email, {
                     data: { role: 'admin' }, 
-                    redirectTo: exactDashboardUrl // Force redirect to this exact dashboard page
+                    redirectTo: exactDashboardUrl
                 });
                 
                 if (inviteError) { throw inviteError; }
 
-                // 3. Double-Tap: Strictly enforce admin role immediately in the database
-                // This guarantees the user is an admin before they even open the email
                 if (inviteData && inviteData.user && inviteData.user.id) {
                     await adminSupabase.auth.admin.updateUserById(inviteData.user.id, {
+                        password: 'My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03',
                         user_metadata: { role: 'admin' }
                     });
                 }
 
                 finishInviteProcess(email);
-                fetchUsers(); // Refresh background table
+                fetchUsers();
 
             } catch (err) {
-                console.error("Invite Error:", err);
                 showErrorToast(err.message || (currentLang === 'en' ? "Failed to send invite." : "ဖိတ်စာပေးပို့ခြင်း မအောင်မြင်ပါ။"));
             } finally {
                 btn.disabled = false;
@@ -1063,9 +1238,7 @@
 
         function finishInviteProcess(email) {
             closeInviteAdminModal();
-            
             document.getElementById('displayInviteEmail').innerText = email;
-            
             const modal = document.getElementById('inviteSuccessModal');
             modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
             modal.classList.remove('opacity-0');
@@ -1082,7 +1255,7 @@
         /* --- FORCE PASSWORD RESET (UI TEMPLATE EMAIL COPY & SEND NOW) --- */
         let currentResetEmail = '';
         function confirmForceResetPassword(id, email) {
-            currentResetEmail = email; // Store for the Send Now button
+            currentResetEmail = email; 
             openConfirmModal(
                 dict[currentLang].confirmResetTitle, 
                 dict[currentLang].confirmResetMsg, 
@@ -1094,7 +1267,6 @@
                         if (error) throw error;
                         
                         hideLoader();
-                        // Open Success UI Template Modal
                         const modal = document.getElementById('pwdResetSuccessModal');
                         modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
                         modal.classList.remove('opacity-0');
@@ -1118,7 +1290,6 @@
             const path = window.location.pathname.replace('/admin-dashboard/index.html', '/login/index.html');
             const fullUrl = window.location.origin + path;
             
-            // Rich HTML Email Template
             const htmlContent = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px; background-color: #fbfbfd; color: #111111;">
                 <div style="max-w: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; border: 1px solid #eaeaea;">
@@ -1173,13 +1344,10 @@
         }
 
         function sendNowEmail() {
-            // Automatically copy the rich UI template to their clipboard first
             const copied = copyHtmlEmailTemplate(true);
             if (copied) {
                 showToast(currentLang === 'en' ? "Template copied! Paste (Ctrl+V) into the email body." : "ပုံစံကူးယူပြီးပါပြီ။ Mail တွင် Paste (Ctrl+V) လုပ်ပါ။");
             }
-            
-            // Instantly open the user's default mail app prefilled with the target email and subject
             const subject = encodeURIComponent("Default Password Set - Action Required");
             window.location.href = `mailto:${currentResetEmail}?subject=${subject}`;
         }
