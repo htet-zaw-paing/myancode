@@ -718,27 +718,53 @@
 
         /* --- REAL-TIME LOW-LATENCY ENGINE --- */
         function setupRealtimeSync() {
-            // 1. Instant WebSocket Real-time for Products Table
+            // 1. Instant WebSocket Real-time for Products Table (Memory Injection for Zero Latency)
             supabaseInstance
                 .channel('admin-products-sync')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
-                    // Update data silently without showing loader
-                    fetchProducts(true); 
+                    console.log("⚡ Realtime Update Received:", payload);
+                    
+                    if (payload.eventType === 'INSERT') {
+                        allProducts.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const index = allProducts.findIndex(p => p.product_id === payload.new.product_id);
+                        if (index !== -1) allProducts[index] = payload.new;
+                    } else if (payload.eventType === 'DELETE') {
+                        allProducts = allProducts.filter(p => p.product_id !== payload.old.product_id);
+                    }
+
+                    // Instantly update stats and table without network delay
+                    document.getElementById('statTotalProducts').innerText = allProducts.length;
+                    document.getElementById('statActiveProducts').innerText = allProducts.filter(p => p.product_status === 'active' || !p.product_status).length;
+                    
+                    const currentSearch = document.getElementById('searchProducts').value;
+                    renderTable(currentSearch);
                 })
-                .subscribe();
+                .subscribe((status) => {
+                    console.log("🔌 Realtime Socket Status:", status);
+                });
 
             // 2. High-Frequency Silent Polling for Users (Supabase auth.users does not support direct sockets)
             setInterval(() => {
                 const usersSection = document.getElementById('usersSection');
-                if (!usersSection.classList.contains('hidden')) {
-                    fetchUsers(true); // Silently refresh user table if viewing it
-                } else {
+                if (!usersSection.classList.contains('hidden') && document.visibilityState === 'visible') {
+                    fetchUsers(true); // Silently refresh user table if viewing it actively
+                } else if (document.visibilityState === 'visible') {
                     // Otherwise just silently update the stat counter
                     supabaseInstance.rpc('admin_get_users').then(({data}) => { 
                         if(data) document.getElementById('statTotalUsers').innerText = data.length; 
                     });
                 }
             }, 3000); // 3-second latency for user updates across different admins
+            
+            // 3. Auto-Resume when switching back to this browser tab
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === "visible") {
+                    const pSec = document.getElementById('productsSection');
+                    if (!pSec.classList.contains('hidden')) fetchProducts(true);
+                    else fetchUsers(true);
+                }
+            });
         }
 
         /* --- CRUD LOGIC FOR PRODUCTS (UI TEMPLATES) --- */
