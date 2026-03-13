@@ -112,7 +112,7 @@
                         </div>
                     </div>
                     
-                    <!-- NEW Security/Password Button -->
+                    <!-- Security/Password Button -->
                     <button onclick="openForcePasswordModal(false)" class="hidden sm:flex text-xs sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 px-4 py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-2 shadow-sm btn-hover-effect">
                         <i data-lucide="key" class="w-4 h-4 text-gray-400"></i> <span data-i18n="btnChangePwd">Security</span>
                     </button>
@@ -352,7 +352,7 @@
         </button>
     </div>
 
-    <!-- FORCE PASSWORD CHANGE MODAL (AUTO-LAUNCH FOR INVITED USERS) -->
+    <!-- FORCE PASSWORD CHANGE MODAL -->
     <div id="forcePasswordModal" class="fixed inset-0 z-[300] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
         <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-2xl relative overflow-hidden modal-content transition-transform duration-300 scale-95">
             <button id="closePwdBtn" onclick="closeForcePasswordModal()" class="absolute top-6 right-6 p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -367,7 +367,8 @@
                     <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNewPwd">New Password *</label>
                     <input type="password" id="newSecurePassword" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input focus:bg-white focus:ring-1 focus:ring-myancode-black" placeholder="••••••••">
                 </div>
-                <button onclick="saveNewPassword()" id="btnSaveNewPwd" class="w-full px-6 py-4 rounded-xl text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 btn-hover-effect">
+                <!-- Changed to type="button" to completely prevent any hidden form submissions -->
+                <button type="button" onclick="saveNewPassword()" id="btnSaveNewPwd" class="w-full px-6 py-4 rounded-xl text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 btn-hover-effect">
                     <i data-lucide="lock" class="w-4 h-4"></i> <span data-i18n="btnSavePwd">Secure Account</span>
                 </button>
             </div>
@@ -840,17 +841,17 @@
         const initialUrlStr = window.location.href;
         const initialHash = window.location.hash;
         
-        // MAGIC LINK FIX: Ensure we do NOT redirect if Supabase is currently processing an auth state!
         const isProcessingAuth = initialUrlStr.includes('code=') || initialUrlStr.includes('access_token=');
         const hasAuthError = initialHash.includes('error=');
         
-        let forcePwdTriggered = false; // PREVENTS INFINITE LOOP
+        // --- CRITICAL BUG FIX: PREVENTS INFINITE LOOP ---
+        let forcePwdTriggered = false; 
 
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: true } });
             
             if (isProcessingAuth && !hasAuthError) {
-                showLoader('loadingAuth'); // Don't let anything else happen until Supabase is done!
+                showLoader('loadingAuth'); 
             }
 
             supabaseInstance.auth.onAuthStateChange((event, session) => {
@@ -858,32 +859,33 @@
                     currentUser = session.user; 
                     checkAdminStatus(); 
                     
-                    // --- AUTO-LOGIN & FORCE PASSWORD CHANGE LOGIC ---
-                    // Dynamically read URL so we don't reuse the stale URL variables from initial load
+                    // The bug was caused by evaluating the initial URL variables over and over!
                     const liveUrl = window.location.href;
-                    if (!forcePwdTriggered && (liveUrl.includes('type=invite') || liveUrl.includes('type=recovery') || liveUrl.includes('code='))) {
-                        forcePwdTriggered = true; // Lock it so it only happens once!
+                    const liveHash = window.location.hash;
+                    
+                    // We only fire this logic ONCE. Once the modal opens, forcePwdTriggered becomes true and locks it forever.
+                    if (!forcePwdTriggered && (liveHash.includes('type=invite') || liveHash.includes('type=recovery') || liveUrl.includes('code='))) {
+                        forcePwdTriggered = true; // Lock it! It will never open again.
+                        
                         setTimeout(() => {
                             openForcePasswordModal(true); 
-                            history.replaceState(null, null, window.location.pathname); // Wipe the token from the URL!
+                            // This cleanly wipes the URL so refreshing the page doesn't re-trigger anything
+                            history.replaceState(null, null, window.location.pathname); 
                         }, 1000);
                     }
                 } 
                 else { 
-                    // Handle explicit errors from Supabase (like expired links)
                     if (window.location.hash.includes('error=')) {
                         hideLoader();
                         const params = new URLSearchParams(window.location.hash.replace('#', '?'));
                         const errorDesc = params.get('error_description') || 'Authentication failed.';
                         showErrorToast(decodeURIComponent(errorDesc).replace(/\+/g, ' '));
-                        history.replaceState(null, null, window.location.pathname); // Clear URL
+                        history.replaceState(null, null, window.location.pathname); 
                         
-                        // Send them to login after showing the error so they aren't stuck on a blank dashboard
                         setTimeout(() => { safeRedirect('../login/index.html'); }, 3500);
                         return;
                     }
 
-                    // CRITICAL FIX: Only kick the user out if we are NOT currently trying to process a magic link
                     if (!isProcessingAuth) {
                         safeRedirect('../login/index.html'); 
                     }
@@ -1227,11 +1229,6 @@
                 const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(email, { data: { role: 'admin' }, redirectTo: exactDashboardUrl });
                 if (inviteError) throw inviteError;
                 
-                // --- CRITICAL CHANGE ---
-                // We removed the 'updateUserById' call that forced a default password immediately.
-                // Modifying the user's password right after generating the invite instantly invalidates the Magic Link token.
-                // Now, the Magic Link stays pure, automatically authenticates them, and forces them to set their password upon entering the dashboard!
-
                 finishInviteProcess(email); fetchUsers();
             } catch (err) {
                 showErrorToast(err.message || (currentLang === 'en' ? "Failed to send invite." : "ဖိတ်စာပေးပို့ခြင်း မအောင်မြင်ပါ။"));
@@ -1313,6 +1310,9 @@
                 
                 showToast(dict[currentLang].msgPwdSaved);
                 closeForcePasswordModal();
+                
+                // Clear out the input so it's clean next time
+                document.getElementById('newSecurePassword').value = '';
             } catch (err) {
                 showErrorToast(err.message);
             } finally {
