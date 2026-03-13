@@ -839,21 +839,32 @@
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: true } });
             
+            // MAGIC LINK FIX: Check the URL first! If there is an auth token, show loading and WAIT.
+            const isProcessingAuth = window.location.href.includes('code=') || window.location.href.includes('access_token=');
+            if (isProcessingAuth) {
+                showLoader('loadingAuth'); // Don't let anything else happen until Supabase is done!
+            }
+
             supabaseInstance.auth.onAuthStateChange((event, session) => {
                 if (session) { 
                     currentUser = session.user; 
                     checkAdminStatus(); 
                     
                     // --- AUTO-LOGIN & FORCE PASSWORD CHANGE LOGIC ---
-                    const hash = window.location.hash;
-                    if (hash.includes('type=invite') || hash.includes('type=recovery')) {
+                    const urlStr = window.location.href;
+                    if (urlStr.includes('type=invite') || urlStr.includes('type=recovery') || urlStr.includes('code=')) {
                         setTimeout(() => {
-                            openForcePasswordModal(true); // true = hide close button to enforce action
-                            history.replaceState(null, null, ' '); // Clean URL Hash instantly
-                        }, 800);
+                            openForcePasswordModal(true); 
+                            history.replaceState(null, null, window.location.pathname); // Wipe the token from the URL!
+                        }, 1000);
                     }
                 } 
-                else { safeRedirect('../login/index.html'); }
+                else { 
+                    // CRITICAL FIX: Only kick the user out if we are NOT currently trying to process a magic link
+                    if (!window.location.href.includes('code=') && !window.location.href.includes('access_token=')) {
+                        safeRedirect('../login/index.html'); 
+                    }
+                }
             });
         }
 
