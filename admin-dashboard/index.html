@@ -857,11 +857,9 @@
                     currentUser = session.user; 
                     checkAdminStatus(); 
                     
-                    const liveUrl = window.location.href;
-                    
-                    // Trigger the force password change if they came from an invite/recovery link
-                    // The lock `!forcePwdTriggered` ensures it ONLY happens exactly once.
-                    if (!forcePwdTriggered && (liveUrl.includes('type=invite') || liveUrl.includes('type=recovery') || liveUrl.includes('code='))) {
+                    // FIXED: Supabase instantly removes the token from the live URL upon successful login.
+                    // We MUST use 'initialUrlStr' here to detect the invite link. The 'forcePwdTriggered' flag guarantees no loops!
+                    if (!forcePwdTriggered && (initialUrlStr.includes('type=invite') || initialUrlStr.includes('type=recovery') || initialUrlStr.includes('code=') || initialUrlStr.includes('access_token='))) {
                         forcePwdTriggered = true; // Lock it! It will never open again during this session.
                         
                         setTimeout(() => {
