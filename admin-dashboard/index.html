@@ -112,6 +112,11 @@
                         </div>
                     </div>
                     
+                    <!-- NEW Security/Password Button -->
+                    <button onclick="openForcePasswordModal(false)" class="hidden sm:flex text-xs sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 px-4 py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-2 shadow-sm btn-hover-effect">
+                        <i data-lucide="key" class="w-4 h-4 text-gray-400"></i> <span data-i18n="btnChangePwd">Security</span>
+                    </button>
+
                     <a href="../index.html" onclick="event.preventDefault(); safeRedirect('../index.html')" class="hidden sm:flex text-xs sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 px-5 py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-2 shadow-sm btn-hover-effect">
                         <i data-lucide="external-link" class="w-4 h-4 text-gray-400"></i> <span data-i18n="btnGoToSite">View Site</span>
                     </a>
@@ -345,6 +350,28 @@
         <button onclick="safeRedirect('../index.html')" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold btn-hover-effect shadow-premium flex items-center gap-2">
             <i data-lucide="arrow-left" class="w-4 h-4"></i> Return to Public Site
         </button>
+    </div>
+
+    <!-- FORCE PASSWORD CHANGE MODAL (AUTO-LAUNCH FOR INVITED USERS) -->
+    <div id="forcePasswordModal" class="fixed inset-0 z-[300] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-2xl relative overflow-hidden modal-content transition-transform duration-300 scale-95">
+            <button id="closePwdBtn" onclick="closeForcePasswordModal()" class="absolute top-6 right-6 p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-[1.5rem] bg-orange-50 mb-6 border border-orange-100 shadow-inner-soft">
+                <i data-lucide="shield-check" class="h-8 w-8 text-orange-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold tracking-tight text-myancode-black mb-2 text-center" data-i18n="pwdChangeTitle">Update Password</h3>
+            <p class="text-sm text-gray-500 mb-8 text-center leading-relaxed font-medium" data-i18n="pwdChangeDesc">Secure your enterprise account by setting a new, private password.</p>
+
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNewPwd">New Password *</label>
+                    <input type="password" id="newSecurePassword" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input focus:bg-white focus:ring-1 focus:ring-myancode-black" placeholder="••••••••">
+                </div>
+                <button onclick="saveNewPassword()" id="btnSaveNewPwd" class="w-full px-6 py-4 rounded-xl text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 btn-hover-effect">
+                    <i data-lucide="lock" class="w-4 h-4"></i> <span data-i18n="btnSavePwd">Secure Account</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- ENTERPRISE UI TEMPLATE MODAL (Create / Edit) -->
@@ -612,7 +639,9 @@
                 confirmUserDeleteTitle: "Terminate Account", confirmUserDeleteMsg: "Are you sure you want to completely erase this user account?",
                 confirmRoleTitle: "Update Clearance", confirmRoleMsg: "Are you sure you want to modify this user's security clearance level?",
                 confirmResetTitle: "Force Reset Password", confirmResetMsg: "Reset this user's password to the organizational default? A UI template to copy the email notification will open upon success.",
-                pwdResetTitle: "Password Reset Successful", pwdResetDesc: "The password is now set to default. Click Send Now to open your email app and paste the UI template."
+                pwdResetTitle: "Password Reset Successful", pwdResetDesc: "The password is now set to default. Click Send Now to open your email app and paste the UI template.",
+                pwdChangeTitle: "Update Password", pwdChangeDesc: "Secure your enterprise account by setting a new, private password.",
+                lblNewPwd: "New Password *", btnSavePwd: "Secure Account", msgPwdSaved: "Password successfully updated!", btnChangePwd: "Security"
             },
             mm: {
                 langSelect: "ဘာသာစကား", hdrLogout: "အကောင့်ထွက်ရန်", loadingAuth: "အခွင့်အာဏာ စစ်ဆေးနေပါသည်...", loadingData: "ဒေတာရယူနေပါသည်...",
@@ -648,7 +677,9 @@
                 confirmUserDeleteTitle: "အကောင့် ဖျက်သိမ်းမည်", confirmUserDeleteMsg: "ဤအသုံးပြုသူ အကောင့်ကို အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
                 confirmRoleTitle: "အခွင့်အာဏာ ပြောင်းမည်", confirmRoleMsg: "ဤအသုံးပြုသူ၏ အခွင့်အာဏာ အဆင့်ကို ပြောင်းလဲရန် သေချာပါသလား?",
                 confirmResetTitle: "မူလစကားဝှက်သို့ ပြောင်းမည်", confirmResetMsg: "ဤအသုံးပြုသူ၏ စကားဝှက်ကို မူလစကားဝှက်သို့ အတင်းအကျပ်ပြောင်းမည်လား? အောင်မြင်ပါက အီးမေးလ်ပို့ရန် ပုံစံတစ်ခု ကျလာပါမည်။",
-                pwdResetTitle: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်", pwdResetDesc: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းပြီးပါပြီ။ Send Now ကို နှိပ်ပြီး Email ကို ပေးပို့ပါ။"
+                pwdResetTitle: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်", pwdResetDesc: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းပြီးပါပြီ။ Send Now ကို နှိပ်ပြီး Email ကို ပေးပို့ပါ။",
+                pwdChangeTitle: "စကားဝှက် ပြောင်းရန်", pwdChangeDesc: "သင့်အကောင့်ကို လုံခြုံစေရန်အတွက် ကိုယ်ပိုင် စကားဝှက်အသစ်တစ်ခု သတ်မှတ်ပါ။",
+                lblNewPwd: "စကားဝှက်အသစ် *", btnSavePwd: "လုံခြုံရေး အတည်ပြုမည်", msgPwdSaved: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်!", btnChangePwd: "လုံခြုံရေး"
             }
         };
 
@@ -807,8 +838,21 @@
         
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: true } });
+            
             supabaseInstance.auth.onAuthStateChange((event, session) => {
-                if (session) { currentUser = session.user; checkAdminStatus(); } 
+                if (session) { 
+                    currentUser = session.user; 
+                    checkAdminStatus(); 
+                    
+                    // --- AUTO-LOGIN & FORCE PASSWORD CHANGE LOGIC ---
+                    const hash = window.location.hash;
+                    if (hash.includes('type=invite') || hash.includes('type=recovery')) {
+                        setTimeout(() => {
+                            openForcePasswordModal(true); // true = hide close button to enforce action
+                            history.replaceState(null, null, ' '); // Clean URL Hash instantly
+                        }, 800);
+                    }
+                } 
                 else { safeRedirect('../login/index.html'); }
             });
         }
@@ -1192,6 +1236,50 @@
             const modal = document.getElementById('pwdResetSuccessModal');
             modal.classList.add('opacity-0'); modal.querySelector('.modal-content').classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        /* --- FORCE PASSWORD CHANGE LOGIC --- */
+        function openForcePasswordModal(isForce = false) {
+            document.getElementById('newSecurePassword').value = '';
+            const modal = document.getElementById('forcePasswordModal');
+            const closeBtn = document.getElementById('closePwdBtn');
+            
+            if(isForce) { closeBtn.classList.add('hidden'); } 
+            else { closeBtn.classList.remove('hidden'); }
+            
+            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
+            modal.classList.remove('opacity-0'); modal.querySelector('.modal-content').classList.remove('scale-95');
+        }
+
+        function closeForcePasswordModal() {
+            const modal = document.getElementById('forcePasswordModal');
+            modal.classList.add('opacity-0'); modal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        async function saveNewPassword() {
+            const newPwd = document.getElementById('newSecurePassword').value;
+            if (!newPwd || newPwd.length < 6) {
+                showErrorToast(currentLang === 'en' ? "Password must be at least 6 characters." : "စကားဝှက် အနည်းဆုံး ၆ လုံး ရှိရပါမည်။");
+                return;
+            }
+            
+            const btn = document.getElementById('btnSaveNewPwd');
+            btn.disabled = true;
+            showLoader('loadingData');
+            
+            try {
+                const { error } = await supabaseInstance.auth.updateUser({ password: newPwd });
+                if (error) throw error;
+                
+                showToast(dict[currentLang].msgPwdSaved);
+                closeForcePasswordModal();
+            } catch (err) {
+                showErrorToast(err.message);
+            } finally {
+                btn.disabled = false;
+                hideLoader();
+            }
         }
 
         function copyHtmlEmailTemplate(silent = false) {
