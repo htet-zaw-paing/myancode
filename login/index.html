@@ -183,7 +183,7 @@
 
     <!-- Main Content for Login Form -->
     <main class="flex-grow flex items-center justify-center px-4 pt-32 pb-24 w-full relative z-10">
-        <div class="bg-white rounded-[2rem] p-8 sm:p-10 w-full max-w-sm shadow-2xl relative border border-gray-100">
+        <div class="bg-white rounded-[2rem] p-8 sm:p-10 w-full max-w-sm shadow-2xl relative border border-gray-100" id="loginFormContainer">
             <div class="flex items-center justify-center mb-8 text-myancode-black cursor-pointer" onclick="window.location.href='../index.html'">
                 <i data-lucide="code-2" class="h-6 w-6 mr-2"></i>
                 <span class="font-semibold tracking-wide text-lg">MyanCode</span>
@@ -322,7 +322,8 @@
                 prod1Title: "Business & Org", prod3Title: "Info & Education",
                 loginTitle: "Login", lblEmail: "Email", lblPass: "Password", btnLoginSubmit: "Sign In",
                 noAccount: "Don't have an account?", btnRegisterSwap: "Register", loadingAuth: "Authenticating Account...", msgSuccess: "Welcome back!",
-                errFillAll: "Please fill in all fields correctly.", errInvalidCreds: "Invalid email or password.", errUnverified: "Please verify your email first! Check your inbox for the invite or confirmation link.",
+                errFillAll: "Please fill in all fields correctly.", errInvalidCreds: "Invalid email or password.", 
+                errUnverified: "Security Lock: You must click the official 'Accept Invite' or verification link sent to your email to securely access the workspace.",
                 forgotPass: "Forgot Password?", resetPassTitle: "Reset Password", resetPassDesc: "Enter your email address and we will send you a link to reset your password.", 
                 btnSendReset: "Send Reset Link", msgResetSent: "Password reset link sent! Check your inbox.", btnCancel: "Cancel",
                 setNewPassTitle: "Set New Password", setNewPassDesc: "Please enter your new password (at least 6 characters).", 
@@ -342,7 +343,8 @@
                 prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး",
                 loginTitle: "အကောင့်ဝင်ရန်", lblEmail: "အီးမေးလ်", lblPass: "စကားဝှက်", btnLoginSubmit: "လုံခြုံစွာ ဝင်ရောက်မည်",
                 noAccount: "အကောင့်မရှိသေးဘူးလား?", btnRegisterSwap: "အကောင့်သစ်ဖွင့်ရန်", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", msgSuccess: "ပြန်လည်ကြိုဆိုပါတယ်!",
-                errFillAll: "အချက်အလက်အားလုံးကို မှန်ကန်စွာ ဖြည့်စွက်ပါ။", errInvalidCreds: "အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။", errUnverified: "ကျေးဇူးပြု၍ သင့်အီးမေးလ်ကို အရင်အတည်ပြုပါ! Inbox တွင် ဖိတ်စာ (သို့) အတည်ပြုလင့်ခ်ကို စစ်ဆေးပါ။",
+                errFillAll: "အချက်အလက်အားလုံးကို မှန်ကန်စွာ ဖြည့်စွက်ပါ။", errInvalidCreds: "အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။", 
+                errUnverified: "လုံခြုံရေး: အီးမေးလ်ထဲသို့ရောက်ရှိလာသော တရားဝင်ဖိတ်စာလင့်ခ် (သို့) အတည်ပြုလင့်ခ်ကို နှိပ်မှသာ အလိုအလျောက် ဝင်ရောက်နိုင်ပါမည်။",
                 forgotPass: "စကားဝှက်မေ့နေပါသလား?", resetPassTitle: "စကားဝှက် ပြန်လည်သတ်မှတ်မည်", resetPassDesc: "သင့်အီးမေးလ်ကို ထည့်ပါ။ စကားဝှက်အသစ်လုပ်ရန် လင့်ခ်ပို့ပေးပါမည်။", 
                 btnSendReset: "လင့်ခ် ပို့မည်", msgResetSent: "စကားဝှက်ပြန်လည်သတ်မှတ်ရန် လင့်ခ်ပို့လိုက်ပါပြီ! Inbox ကို စစ်ဆေးပါ။", btnCancel: "ပယ်ဖျက်မည်",
                 setNewPassTitle: "စကားဝှက်အသစ် သတ်မှတ်မည်", setNewPassDesc: "စကားဝှက်အသစ်ကို ရိုက်ထည့်ပါ။ (အနည်းဆုံး ၆ လုံး)", 
@@ -367,6 +369,15 @@
 
         // STRICT SUPABASE SESSION LISTENER WITH AUTO ROUTING
         if (supabaseInstance) {
+            
+            // Instantly hide the login form if a magic link/invite token is detected in the URL
+            // This prevents auto-fill errors and gives a pure, seamless loading experience
+            if (window.location.hash.includes('access_token=')) {
+                showLoader('loadingAuth');
+                const formEl = document.getElementById('loginFormContainer');
+                if (formEl) formEl.style.opacity = '0';
+            }
+
             supabaseInstance.auth.onAuthStateChange((event, session) => {
                 if (session) {
                     const hash = window.location.hash || window.location.search;
@@ -385,19 +396,19 @@
                         return;
                     }
 
-                    // 2. Admin Invite Flow - Auto Redirect to Admin Dashboard to force password change
-                    if (hash.includes('type=invite')) {
-                        showLoader('loadingAuth');
-                        window.location.replace('../admin-dashboard/index.html#type=invite');
+                    // 2. Admin/Super-Admin Invite Flow - Redirect to Admin Dashboard with hash to force password reset
+                    if (userRole === 'admin' || userRole === 'super-admin') {
+                        if (hash.includes('access_token=') || hash.includes('type=invite') || hash.includes('type=signup')) {
+                            window.location.replace('../admin-dashboard/index.html#type=invite');
+                        } else {
+                            window.location.replace('../admin-dashboard/index.html');
+                        }
                         return;
                     }
 
-                    // 3. Already Logged In - Redirect away from login page automatically
-                    if (userRole === 'admin' || userRole === 'super-admin') {
-                        window.location.replace('../admin-dashboard/index.html');
-                    } else {
-                        window.location.replace('../index.html');
-                    }
+                    // 3. Normal User Auto-login Route
+                    window.location.replace('../index.html');
+                    
                 } else {
                     currentUser = null;
                     currentUserWishlist = [];
@@ -825,9 +836,8 @@
                 if (error.message.includes('Invalid login credentials')) {
                     customErrorMsg = dict[currentLang].errInvalidCreds;
                 } else if (error.message.includes('Email not confirmed')) {
-                    customErrorMsg = currentLang === 'en' 
-                        ? "Please verify your email first! Check your inbox for the invite or confirmation link."
-                        : "ကျေးဇူးပြု၍ သင့်အီးမေးလ်ကို အရင်အတည်ပြုပါ! Inbox တွင် ဖိတ်စာ (သို့) အတည်ပြုလင့်ခ်ကို စစ်ဆေးပါ။";
+                    // Update the error message so the user understands WHY they can't log in manually
+                    customErrorMsg = dict[currentLang].errUnverified;
                 } else if (error.message.toLowerCase().includes('rate limit') || error.message.toLowerCase().includes('too many requests')) {
                     customErrorMsg = dict[currentLang].errEmailLimit;
                 }
@@ -863,12 +873,10 @@
             
             if (hash.includes('type=recovery')) {
                 setTimeout(() => openRecoveryModal(), 400);
-            } else if (hash.includes('type=invite')) {
-                showLoader('loadingAuth'); // Don't remove hash, let onAuthStateChange handle the redirect seamlessly!
             } else if (hash.includes('access_token=') || hash.includes('type=signup')) {
                 setTimeout(() => {
                     showToast(currentLang === 'en' ? "Email verification successful! You can now log in." : "အီးမေးလ်အတည်ပြုခြင်း အောင်မြင်ပါသည်။ အကောင့်ဝင်နိုင်ပါပြီ။");
-                    history.replaceState(null, null, ' '); 
+                    // We DO NOT replace the history here if it's an invite, so the onAuthStateChange can seamlessly route it!
                 }, 500);
             }
         });
