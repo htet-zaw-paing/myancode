@@ -41,7 +41,7 @@
         .btn-hover-effect:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
         
         .card-hover { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); }
+        .card-hover:hover { transform: translateY(-6px); }
 
         .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
@@ -65,6 +65,14 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .user-avatar-global { transition: all 0.3s ease; }
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
+
+        /* Super Ultra Modern Custom Dual Range Slider */
+        .range-slider { position: relative; width: 100%; height: 6px; background-color: #e5e5ea; border-radius: 9999px; margin-top: 1rem; margin-bottom: 1rem; }
+        .range-slider .progress { position: absolute; height: 100%; background-color: #111111; border-radius: 9999px; left: 0%; right: 0%; transition: left 0.1s, right 0.1s; }
+        .range-slider input[type="range"] { position: absolute; width: 100%; height: 6px; top: 0; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; z-index: 20; margin: 0; padding: 0; border: none; outline: none; }
+        .range-slider input[type="range"]::-webkit-slider-thumb { height: 22px; width: 22px; border-radius: 50%; background: #ffffff; border: 2px solid #111111; box-shadow: 0 4px 10px rgba(0,0,0,0.15); pointer-events: auto; -webkit-appearance: none; cursor: grab; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s; margin-top: -8px; }
+        .range-slider input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); box-shadow: 0 6px 14px rgba(0,0,0,0.2); }
+        .range-slider input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.05); }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-blue selection:text-white no-scroll">
@@ -183,18 +191,106 @@
 
     <!-- PRODUCT LISTING HEADER -->
     <section class="pt-32 sm:pt-40 pb-12 sm:pb-16 px-4 sm:px-6 relative">
-        <div class="max-w-[1024px] mx-auto text-center reveal active">
+        <div class="max-w-[1280px] mx-auto text-center reveal active">
             <h2 class="text-[10px] tracking-[0.4em] text-myancode-blue uppercase mb-4 font-bold" data-i18n="shopEyebrow">Premium Templates</h2>
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-myancode-black mb-6" data-i18n="shopTitle">Engineered Websites.</h1>
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-myancode-black mb-6" data-i18n="shopTitle">Engineered Websites.</h1>
             <p class="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto" data-i18n="shopSub">Browse our exclusive collection of enterprise-ready digital assets, designed for supreme performance.</p>
         </div>
     </section>
 
-    <!-- PRODUCT GRID / EMPTY STATE -->
-    <section class="pb-24 sm:pb-36 px-4 sm:px-6">
-        <div class="max-w-[1024px] mx-auto">
-            <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Products OR Empty State injected here by JS -->
+    <!-- PRODUCT GRID & FILTER SECTION -->
+    <section class="pb-24 sm:pb-36 px-4 sm:px-6 relative z-10">
+        <div class="max-w-[1280px] mx-auto">
+            
+            <!-- Mobile Filter Toggle -->
+            <button id="mobileFilterBtn" class="lg:hidden w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-2xl mb-6 shadow-sm font-semibold transition-all hover:border-myancode-blue" onclick="document.getElementById('filterSidebar').classList.toggle('hidden')">
+                <span class="flex items-center gap-2 text-myancode-black"><i data-lucide="sliders-horizontal" class="h-5 w-5"></i> <span data-i18n="filterTitle">Filters</span></span>
+                <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400"></i>
+            </button>
+
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
+                
+                <!-- FILTER SIDEBAR -->
+                <aside id="filterSidebar" class="hidden lg:block w-full lg:w-[280px] flex-shrink-0 z-20 relative">
+                    <div class="sticky top-24 space-y-8 bg-white/60 backdrop-blur-3xl p-6 sm:p-7 rounded-[2rem] border border-gray-100 shadow-[0_8px_40px_rgba(0,0,0,0.03)]">
+                        
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold text-myancode-black flex items-center gap-2"><i data-lucide="filter" class="h-5 w-5 text-myancode-black"></i> <span data-i18n="filterTitle">Filters</span></h3>
+                            <button onclick="resetFilters()" class="text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-red-500 transition-colors" data-i18n="btnReset">Reset</button>
+                        </div>
+
+                        <!-- Categories -->
+                        <div>
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4" data-i18n="categories">Categories</h4>
+                            <div id="categoryFilterContainer" class="flex flex-wrap gap-2">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <hr class="border-gray-100/80">
+
+                        <!-- Price Range Slider -->
+                        <div>
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-6 flex justify-between items-center">
+                                <span data-i18n="priceRange">Price Range</span>
+                            </h4>
+                            
+                            <!-- Custom Dual Slider UI -->
+                            <div class="px-2">
+                                <div class="range-slider">
+                                    <div class="progress"></div>
+                                    <input type="range" id="priceMinInput" min="0" max="10000000" step="10000" value="0" oninput="handleMinPrice(event)">
+                                    <input type="range" id="priceMaxInput" min="0" max="10000000" step="10000" value="10000000" oninput="handleMaxPrice(event)">
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between mt-8 gap-4">
+                                <div class="w-1/2 bg-gray-50/80 border border-gray-100 rounded-2xl p-3 text-center transition-colors hover:border-gray-300">
+                                    <span class="block text-[9px] text-gray-400 font-bold uppercase tracking-wider mb-1" data-i18n="minPrice">Min</span>
+                                    <span class="text-sm font-extrabold text-myancode-black block truncate" id="minPriceDisplay">0</span>
+                                </div>
+                                <span class="text-gray-300 font-bold">-</span>
+                                <div class="w-1/2 bg-gray-50/80 border border-gray-100 rounded-2xl p-3 text-center transition-colors hover:border-gray-300">
+                                    <span class="block text-[9px] text-gray-400 font-bold uppercase tracking-wider mb-1" data-i18n="maxPrice">Max</span>
+                                    <span class="text-sm font-extrabold text-myancode-black block truncate" id="maxPriceDisplay">10,000,000</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </aside>
+
+                <!-- MAIN PRODUCT AREA -->
+                <div class="flex-1 min-w-0">
+                    
+                    <!-- Sort & Meta Bar -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 bg-white/40 backdrop-blur-xl p-3 sm:pl-6 rounded-[2rem] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative z-30">
+                        <div class="text-sm font-medium text-gray-500 hidden sm:block">
+                            <span id="resultsCountDisplay" class="font-bold text-myancode-black">0 Results</span>
+                        </div>
+                        
+                        <div class="w-full sm:w-auto flex items-center gap-4">
+                            <span class="text-[10px] font-bold tracking-widest uppercase text-gray-400 whitespace-nowrap hidden md:block" data-i18n="sortTitle">Sort By</span>
+                            <div class="relative w-full sm:w-[240px]">
+                                <select id="sortSelect" onchange="handleSortChange(event)" class="w-full appearance-none bg-white border border-gray-200 text-myancode-black py-3 pl-5 pr-12 rounded-[1rem] focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all font-semibold text-sm cursor-pointer shadow-sm">
+                                    <option value="default" data-i18n="sortDefault">Latest / Default</option>
+                                    <option value="price-asc" data-i18n="sortPriceAsc">Price: Low to High</option>
+                                    <option value="price-desc" data-i18n="sortPriceDesc">Price: High to Low</option>
+                                    <option value="name-asc" data-i18n="sortNameAsc">Name: A to Z</option>
+                                    <option value="name-desc" data-i18n="sortNameDesc">Name: Z to A</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GRID -->
+                    <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
+                        <!-- Products OR Empty State injected here by JS -->
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </section>
@@ -261,8 +357,14 @@
         lucide.createIcons();
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
 
-        // Global Products Array
+        // Global Products Array & Filter State
         let activeProducts = [];
+        let minPriceFilter = 0;
+        let maxPriceFilter = 10000000;
+        let absoluteMinPrice = 0;
+        let absoluteMaxPrice = 10000000;
+        let currentCategory = 'all';
+        let currentSort = 'default';
 
         const dict = {
             en: {
@@ -278,12 +380,12 @@
                 msgLoggedOut: "Signed out securely.", loadingInit: "Initializing Experience...", loadingAuth: "Authenticating...", loadingData: "Loading Catalog...",
                 shopEyebrow: "Premium Templates", shopTitle: "Engineered Websites.", shopSub: "Browse our exclusive collection of enterprise-ready digital assets, designed for supreme performance.",
                 btnViewDetails: "View Details",
-                
-                // Empty State Texts
-                emptyStateTitle: "Service Temporarily Unavailable",
-                emptyStateDesc: "Currently, our website services are unavailable. Our catalog is undergoing maintenance. Please explore our other services or contact support for immediate assistance.",
-                btnHome: "Return to Home", btnSupport: "Contact Support",
-                prod1Title: "Business & Org", prod3Title: "Info & Education"
+                emptyStateTitle: "Service Temporarily Unavailable", emptyStateDesc: "Currently, our website services are unavailable. Our catalog is undergoing maintenance. Please explore our other services or contact support for immediate assistance.",
+                btnHome: "Return to Home", btnSupport: "Contact Support", prod1Title: "Business & Org", prod3Title: "Info & Education",
+                // Filters & Sorting Translations
+                filterTitle: "Filters", sortTitle: "Sort By", priceRange: "Price Range", categories: "Categories", allCategories: "All Categories",
+                sortDefault: "Latest / Default", sortPriceAsc: "Price: Low to High", sortPriceDesc: "Price: High to Low", sortNameAsc: "Name: A to Z", sortNameDesc: "Name: Z to A",
+                minPrice: "Min", maxPrice: "Max", btnApply: "Apply Filters", btnReset: "Reset", noResultsFilter: "No products match your criteria.", resultsCount: "Results"
             },
             mm: {
                 navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
@@ -298,12 +400,12 @@
                 msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", loadingData: "ကတ်တလောက်ရယူနေပါသည်...",
                 shopEyebrow: "အဆင့်မြင့် ဝက်ဘ်ဆိုက်များ", shopTitle: "အကောင်းမွန်ဆုံးသော ဖန်တီးမှု။", shopSub: "ကြီးမားသောလုပ်ငန်းများအတွက် အထူးရည်ရွယ်တည်ဆောက်ထားသော စွမ်းဆောင်ရည်မြင့် ဝက်ဘ်ဆိုက်များကို လေ့လာကြည့်ရှုပါ။",
                 btnViewDetails: "အသေးစိတ်ကြည့်ရန်",
-                
-                // Empty State Texts
-                emptyStateTitle: "ဝန်ဆောင်မှု ယာယီပိတ်ထားပါသည်",
-                emptyStateDesc: "လက်ရှိတွင် ဝက်ဘ်ဆိုက် ဝန်ဆောင်မှု မရနိုင်သေးပါ။ ကျွန်ုပ်တို့၏ ကတ်တလောက်ကို ပြင်ဆင်နေပါသည်။ အခြားဝန်ဆောင်မှုများကို လေ့လာပါ သို့မဟုတ် အကူအညီရယူပါ။",
-                btnHome: "ပင်မစာမျက်နှာသို့", btnSupport: "ဆက်သွယ်ရန်",
-                prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး"
+                emptyStateTitle: "ဝန်ဆောင်မှု ယာယီပိတ်ထားပါသည်", emptyStateDesc: "လက်ရှိတွင် ဝက်ဘ်ဆိုက် ဝန်ဆောင်မှု မရနိုင်သေးပါ။ ကျွန်ုပ်တို့၏ ကတ်တလောက်ကို ပြင်ဆင်နေပါသည်။ အခြားဝန်ဆောင်မှုများကို လေ့လာပါ သို့မဟုတ် အကူအညီရယူပါ။",
+                btnHome: "ပင်မစာမျက်နှာသို့", btnSupport: "ဆက်သွယ်ရန်", prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး",
+                // Filters & Sorting Translations
+                filterTitle: "စစ်ထုတ်ရန်", sortTitle: "စီစဥ်ရန်", priceRange: "စျေးနှုန်းအပိုင်းအခြား", categories: "အမျိုးအစားများ", allCategories: "အမျိုးအစားအားလုံး",
+                sortDefault: "နောက်ဆုံးရ / ပုံမှန်", sortPriceAsc: "စျေးနှုန်း: နည်းရာမှများသို့", sortPriceDesc: "စျေးနှုန်း: များရာမှနည်းသို့", sortNameAsc: "အမည်: A မှ Z", sortNameDesc: "အမည်: Z မှ A",
+                minPrice: "အနည်းဆုံး", maxPrice: "အများဆုံး", btnApply: "အသုံးပြုမည်", btnReset: "ပြန်လည်သတ်မှတ်မည်", noResultsFilter: "သင်ရှာဖွေသော အချက်အလက်များနှင့် ကိုက်ညီမှုမရှိပါ။", resultsCount: "ရလဒ်များ"
             }
         };
 
@@ -344,7 +446,9 @@
             document.documentElement.lang = currentLang; 
             document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
-            updateAuthUI(); renderProducts();
+            updateAuthUI(); 
+            if(activeProducts.length > 0) populateCategories();
+            renderProducts();
             if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
         }
 
@@ -393,6 +497,98 @@
             updateWishlistCount(); lucide.createIcons();
         }
 
+        /* --- Filtering & Sorting Logic --- */
+        function populateCategories() {
+            const container = document.getElementById('categoryFilterContainer');
+            if (!container) return;
+            
+            const cats = [...new Set(activeProducts.map(p => p.category || 'Uncategorized'))].filter(c => c);
+            
+            let html = `<button onclick="setCategory('all')" class="cat-btn ${currentCategory === 'all' ? 'bg-myancode-black text-white border-myancode-black shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:border-myancode-black shadow-sm'} text-xs px-4 py-2.5 rounded-[0.8rem] border transition-all font-semibold" data-cat="all" data-i18n="allCategories">${dict[currentLang]['allCategories']}</button>`;
+            
+            cats.forEach(cat => {
+                const activeClass = currentCategory === cat ? 'bg-myancode-black text-white border-myancode-black shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:border-myancode-black shadow-sm';
+                html += `<button onclick="setCategory('${cat}')" class="cat-btn ${activeClass} text-xs px-4 py-2.5 rounded-[0.8rem] border transition-all font-semibold" data-cat="${cat}">${cat}</button>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if(btn.dataset.cat === cat) {
+                    btn.classList.add('bg-myancode-black', 'text-white', 'border-myancode-black', 'shadow-md');
+                    btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200', 'shadow-sm');
+                } else {
+                    btn.classList.remove('bg-myancode-black', 'text-white', 'border-myancode-black', 'shadow-md');
+                    btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200', 'shadow-sm');
+                }
+            });
+            renderProducts();
+        }
+
+        function handleMinPrice(e) {
+            let minVal = parseInt(e.target.value);
+            let maxVal = parseInt(document.getElementById("priceMaxInput").value);
+            if (minVal >= maxVal) { minVal = maxVal - 1000; e.target.value = minVal; }
+            minPriceFilter = minVal;
+            document.getElementById("minPriceDisplay").innerText = minVal.toLocaleString();
+            updateSliderProgress(); renderProducts();
+        }
+
+        function handleMaxPrice(e) {
+            let maxVal = parseInt(e.target.value);
+            let minVal = parseInt(document.getElementById("priceMinInput").value);
+            if (maxVal <= minVal) { maxVal = minVal + 1000; e.target.value = maxVal; }
+            maxPriceFilter = maxVal;
+            document.getElementById("maxPriceDisplay").innerText = maxVal.toLocaleString();
+            updateSliderProgress(); renderProducts();
+        }
+
+        function updateSliderProgress() {
+            const minInput = document.getElementById("priceMinInput");
+            const maxInput = document.getElementById("priceMaxInput");
+            const progress = document.querySelector(".range-slider .progress");
+            if(!minInput || !maxInput || !progress) return;
+            
+            const min = parseInt(minInput.min) || 0;
+            const max = parseInt(minInput.max) || 10000000;
+            if (max === min) { progress.style.left = "0%"; progress.style.right = "0%"; return; }
+            
+            const minPercent = ((minPriceFilter - min) / (max - min)) * 100;
+            const maxPercent = ((maxPriceFilter - min) / (max - min)) * 100;
+            
+            progress.style.left = minPercent + "%";
+            progress.style.right = (100 - maxPercent) + "%";
+        }
+
+        function handleSortChange(e) { currentSort = e.target.value; renderProducts(); }
+
+        function resetFilters() {
+            currentCategory = 'all'; currentSort = 'default';
+            minPriceFilter = absoluteMinPrice; maxPriceFilter = absoluteMaxPrice;
+            
+            const minInput = document.getElementById("priceMinInput"); const maxInput = document.getElementById("priceMaxInput");
+            if(minInput) minInput.value = absoluteMinPrice; if(maxInput) maxInput.value = absoluteMaxPrice;
+            
+            document.getElementById("minPriceDisplay").innerText = absoluteMinPrice.toLocaleString();
+            document.getElementById("maxPriceDisplay").innerText = absoluteMaxPrice.toLocaleString();
+            document.getElementById("sortSelect").value = 'default';
+            
+            updateSliderProgress();
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if(btn.dataset.cat === 'all') {
+                    btn.classList.add('bg-myancode-black', 'text-white', 'border-myancode-black', 'shadow-md');
+                    btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200', 'shadow-sm');
+                } else {
+                    btn.classList.remove('bg-myancode-black', 'text-white', 'border-myancode-black', 'shadow-md');
+                    btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200', 'shadow-sm');
+                }
+            });
+            renderProducts();
+        }
+
         /* --- REAL DATABASE FETCHING --- */
         async function fetchLiveProducts() {
             if (!supabaseInstance) return;
@@ -408,6 +604,30 @@
                 if (error) throw error;
                 
                 activeProducts = data || [];
+                
+                // Initialize Filters Dynamically
+                if(activeProducts.length > 0) {
+                    absoluteMaxPrice = Math.max(...activeProducts.map(p => p.product_discount_price || p.product_price));
+                    absoluteMinPrice = Math.min(...activeProducts.map(p => p.product_discount_price || p.product_price));
+                    if(absoluteMinPrice === absoluteMaxPrice) absoluteMinPrice = 0; // Fallback for slider
+
+                    maxPriceFilter = absoluteMaxPrice;
+                    minPriceFilter = absoluteMinPrice;
+                    
+                    const maxInput = document.getElementById('priceMaxInput');
+                    const minInput = document.getElementById('priceMinInput');
+                    if(maxInput && minInput) {
+                        maxInput.max = absoluteMaxPrice; maxInput.min = absoluteMinPrice;
+                        minInput.max = absoluteMaxPrice; minInput.min = absoluteMinPrice;
+                        maxInput.value = absoluteMaxPrice; minInput.value = absoluteMinPrice;
+                        
+                        document.getElementById("maxPriceDisplay").innerText = absoluteMaxPrice.toLocaleString();
+                        document.getElementById("minPriceDisplay").innerText = absoluteMinPrice.toLocaleString();
+                        updateSliderProgress();
+                    }
+                    populateCategories();
+                }
+
                 renderProducts();
             } catch (err) {
                 console.error("Error fetching products:", err);
@@ -419,70 +639,129 @@
 
         function renderProducts() {
             const grid = document.getElementById('productGrid');
+            const resultCountEl = document.getElementById('resultsCountDisplay');
+            const filterSidebar = document.getElementById('filterSidebar');
+            const mobileFilterBtn = document.getElementById('mobileFilterBtn');
+
             if (!grid) return;
 
-            // ENTERPRISE EMPTY STATE
+            // ENTERPRISE EMPTY STATE (Global APIs failed / No DB entries)
             if (activeProducts.length === 0) {
+                if (filterSidebar) filterSidebar.style.display = 'none'; // Force hide safely
+                if (mobileFilterBtn) mobileFilterBtn.style.display = 'none';
+                
                 grid.className = "w-full max-w-2xl mx-auto flex flex-col items-center justify-center text-center py-20 px-4";
                 grid.innerHTML = `
                     <div class="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-8 border border-gray-100 shadow-sm">
                         <i data-lucide="package-x" class="h-10 w-10 text-gray-400"></i>
                     </div>
-                    <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-myancode-black mb-4">${dict[currentLang].emptyStateTitle}</h3>
+                    <h3 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-4">${dict[currentLang].emptyStateTitle}</h3>
                     <p class="text-sm text-gray-500 mb-10 leading-relaxed max-w-lg mx-auto">${dict[currentLang].emptyStateDesc}</p>
                     <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                        <a href="../index.html" class="btn-hover-effect bg-myancode-black text-white text-xs px-8 py-3.5 rounded-full font-semibold tracking-wide shadow-md flex items-center justify-center gap-2">
+                        <a href="../index.html" class="btn-hover-effect bg-myancode-black text-white text-xs px-8 py-3.5 rounded-full font-bold tracking-wide shadow-md flex items-center justify-center gap-2">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> ${dict[currentLang].btnHome}
                         </a>
-                        <a href="../index.html#services" class="btn-hover-effect bg-white text-myancode-black border border-gray-200 text-xs px-8 py-3.5 rounded-full font-semibold tracking-wide hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors">
+                        <a href="../index.html#services" class="btn-hover-effect bg-white text-myancode-black border border-gray-200 text-xs px-8 py-3.5 rounded-full font-bold tracking-wide hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors">
                             <i data-lucide="headphones" class="w-4 h-4"></i> ${dict[currentLang].btnSupport}
                         </a>
                     </div>
                 `;
+                if(resultCountEl) resultCountEl.innerText = "0 " + dict[currentLang].resultsCount;
                 lucide.createIcons();
                 return;
             }
 
-            grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8";
+            // Restore visibility (Fixing the missing sidebar issue)
+            if (filterSidebar) {
+                filterSidebar.style.display = ''; // Reverts safely back to CSS handling
+                filterSidebar.classList.remove('lg:hidden'); // Strip out any buggy classes applied during initialization
+            }
+            if (mobileFilterBtn) mobileFilterBtn.style.display = '';
 
-            grid.innerHTML = activeProducts.map((p, index) => {
+
+            // Apply Filters
+            let filtered = activeProducts.filter(p => {
+                const price = p.product_discount_price || p.product_price;
+                const pCat = p.category || 'Uncategorized';
+                const catMatch = currentCategory === 'all' || pCat === currentCategory;
+                const priceMatch = price >= minPriceFilter && price <= maxPriceFilter;
+                return catMatch && priceMatch;
+            });
+
+            // Apply Sort
+            filtered.sort((a, b) => {
+                const priceA = a.product_discount_price || a.product_price;
+                const priceB = b.product_discount_price || b.product_price;
+                const nameA = currentLang === 'en' ? (a.product_name_en || a.product_name_mm || '') : (a.product_name_mm || a.product_name_en || '');
+                const nameB = currentLang === 'en' ? (b.product_name_en || b.product_name_mm || '') : (b.product_name_mm || b.product_name_en || '');
+
+                if (currentSort === 'price-asc') return priceA - priceB;
+                if (currentSort === 'price-desc') return priceB - priceA;
+                if (currentSort === 'name-asc') return nameA.localeCompare(nameB);
+                if (currentSort === 'name-desc') return nameB.localeCompare(nameA);
+                return 0; 
+            });
+
+            if(resultCountEl) resultCountEl.innerText = filtered.length + " " + dict[currentLang].resultsCount;
+
+            // No Results Found for Filter
+            if (filtered.length === 0) {
+                 grid.className = "col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 flex flex-col items-center justify-center text-center py-24 px-4 bg-white/40 backdrop-blur-xl rounded-[2rem] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]";
+                 grid.innerHTML = `
+                    <div class="h-16 w-16 bg-white rounded-full flex items-center justify-center mb-6 border border-gray-100 shadow-sm">
+                        <i data-lucide="filter-x" class="h-8 w-8 text-gray-300"></i>
+                    </div>
+                    <h3 class="text-xl font-bold tracking-tight text-myancode-black mb-3" data-i18n="noResultsFilter">${dict[currentLang].noResultsFilter}</h3>
+                    <button onclick="resetFilters()" class="mt-4 btn-hover-effect bg-gray-50 border border-gray-200 text-myancode-black text-xs px-8 py-3 rounded-full font-bold tracking-wider hover:bg-gray-100 transition-colors uppercase" data-i18n="btnReset">${dict[currentLang].btnReset}</button>
+                 `;
+                 lucide.createIcons();
+                 return;
+            }
+
+            grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8";
+
+            grid.innerHTML = filtered.map((p, index) => {
                 const name = currentLang === 'en' ? (p.product_name_en || p.product_name_mm) : (p.product_name_mm || p.product_name_en);
                 const desc = currentLang === 'en' ? (p.product_description_en || p.product_description_mm || '') : (p.product_description_mm || p.product_description_en || '');
                 const viewDetailsTxt = dict[currentLang].btnViewDetails;
                 
                 const price = p.product_discount_price || p.product_price;
-                const originalPriceHtml = p.product_discount_price ? `<span class="text-[11px] font-semibold text-gray-400 line-through">${p.product_price.toLocaleString()} ${p.currency || 'MMK'}</span>` : '';
-                const brand = p.brand || 'MyanCode Exclusive';
+                const originalPriceHtml = p.product_discount_price ? `<span class="text-[11px] font-bold text-gray-400 line-through">${p.product_price.toLocaleString()} ${p.currency || 'MMK'}</span>` : '';
+                const brand = p.brand || p.category || 'MyanCode Exclusive';
                 
                 const imgSrc = p.product_image || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'/><circle cx='8.5' cy='8.5' r='1.5'/><polyline points='21 15 16 10 5 21'/></svg>";
                 
-                const delay = index * 100;
+                const delay = index * 50; // Faster staggering
                 const inWishlist = currentUserWishlist.some(w => w.id === p.product_id);
                 const heartClass = inWishlist ? "text-myancode-blue fill-myancode-blue" : "text-gray-400";
 
                 return `
-                <div class="card-hover bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col group relative reveal" style="transition-delay: ${delay}ms;">
-                    <!-- Wishlist absolute toggle -->
-                    <button onclick="toggleWishlist('${p.product_id}', '${name}', ${price})" class="absolute top-8 right-8 z-20 p-2.5 bg-white/80 backdrop-blur-md rounded-full shadow-sm hover:scale-110 transition-transform">
-                        <i data-lucide="heart" class="h-4 w-4 ${heartClass} transition-colors duration-300" id="wl-icon-grid-${p.product_id}"></i>
+                <div class="card-hover bg-white/70 backdrop-blur-md rounded-[24px] p-4 sm:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white flex flex-col group relative reveal hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 overflow-hidden" style="transition-delay: ${delay}ms;">
+                    
+                    <!-- Ambient animated gradient -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-myancode-blue/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0"></div>
+
+                    <button onclick="toggleWishlist('${p.product_id}', '${name}', ${price})" class="absolute top-8 right-8 z-20 p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-md hover:scale-110 transition-transform hover:bg-white group/btn">
+                        <i data-lucide="heart" class="h-4 w-4 ${heartClass} transition-colors duration-300 group-hover/btn:text-red-500" id="wl-icon-grid-${p.product_id}"></i>
                     </button>
                     
-                    <div class="rounded-2xl overflow-hidden mb-5 aspect-[4/3] relative bg-gray-50 border border-gray-50 flex items-center justify-center">
+                    <div class="rounded-2xl overflow-hidden mb-5 aspect-[4/3] relative bg-gray-50 flex items-center justify-center z-10 border border-gray-100/50">
                         <img src="${imgSrc}" class="${p.product_image ? 'w-full h-full object-cover' : 'w-16 h-16 opacity-50'} transition-transform duration-700 group-hover:scale-105" alt="${name}" loading="lazy"/>
-                        <span class="absolute top-3 left-3 bg-white/90 backdrop-blur text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest text-myancode-black shadow-sm">${brand}</span>
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500"></div>
+                        <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest text-myancode-black shadow-sm">${brand}</span>
                     </div>
                     
-                    <div class="flex-1 flex flex-col px-1">
-                        <h3 class="text-xl font-semibold tracking-tight text-myancode-black mb-2 truncate">${name}</h3>
+                    <div class="flex-1 flex flex-col z-10 px-1">
+                        <h3 class="text-xl font-bold tracking-tight text-myancode-black mb-2 truncate group-hover:text-myancode-blue transition-colors duration-300">${name}</h3>
                         <p class="text-sm text-gray-500 mb-6 line-clamp-2 leading-relaxed flex-1">${desc}</p>
                         
                         <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
                             <div class="flex flex-col">
                                 ${originalPriceHtml}
-                                <span class="text-base font-bold text-myancode-black">${price.toLocaleString()} ${p.currency || 'MMK'}</span>
+                                <span class="text-lg font-extrabold text-myancode-black tracking-tight">${price.toLocaleString()} <span class="text-xs font-bold text-gray-400 uppercase tracking-widest ml-0.5">${p.currency || 'MMK'}</span></span>
                             </div>
-                            <a href="../website-detail/index.html?id=${p.product_id}" class="bg-myancode-black text-white text-[11px] uppercase tracking-widest px-5 py-3 rounded-full font-bold btn-hover-effect flex items-center gap-1.5 shadow-md hover:bg-gray-800">
-                                ${viewDetailsTxt} <i data-lucide="arrow-right" class="h-3 w-3"></i>
+                            <a href="../website-detail/index.html?id=${p.product_id}" class="bg-gray-50 text-myancode-black hover:bg-myancode-black hover:text-white text-[11px] uppercase tracking-widest px-5 py-3 rounded-full font-bold btn-hover-effect flex items-center gap-2 shadow-sm transition-all duration-300 border border-gray-200 hover:border-transparent">
+                                ${viewDetailsTxt} <i data-lucide="arrow-right" class="h-3 w-3 transition-transform group-hover:translate-x-1"></i>
                             </a>
                         </div>
                     </div>
@@ -606,7 +885,6 @@
                 return;
             }
 
-            // Instantly show loading state
             resultsContainer.innerHTML = `
                 <div class="flex justify-center py-6">
                     <i data-lucide="loader-2" class="h-6 w-6 animate-spin text-myancode-blue"></i>
@@ -621,7 +899,6 @@
                 }
 
                 try {
-                    // Fetch real data from the "products" table safely using *
                     const { data: dbProducts, error } = await supabaseInstance
                         .from('products')
                         .select('*')
@@ -631,7 +908,6 @@
                     
                     const products = dbProducts || [];
 
-                    // Super robust fuzzy search supporting heavy misspellings, partial text, and multi-word queries
                     let scoredItems = products.map(item => {
                         const searchStr = [
                             item.product_name_en || '', 
@@ -642,7 +918,6 @@
                             item.brand || ''
                         ].join(' ').toLowerCase();
                         
-                        // 1. Exact Substring Match (Strongest Validation)
                         if (searchStr.includes(query)) return { ...item, score: -100 };
                         
                         const queryWords = query.split(/\s+/).filter(w => w);
@@ -653,40 +928,20 @@
                         
                         for (const qWord of queryWords) {
                             let minWordDist = qWord.length;
-                            
                             for (const tWord of targetWords) {
                                 if (!tWord) continue;
-                                
-                                // Direct inclusion (e.g., typing 'sch' matches 'school')
-                                if (tWord.includes(qWord) || qWord.includes(tWord)) {
-                                    minWordDist = -10;
-                                    break;
-                                }
-                                
-                                // Levenshtein Distance for typo tolerance
+                                if (tWord.includes(qWord) || qWord.includes(tWord)) { minWordDist = -10; break; }
                                 const dist = getSimilarityScore(qWord, tWord);
-                                if (dist < minWordDist) {
-                                    minWordDist = dist;
-                                }
+                                if (dist < minWordDist) minWordDist = dist;
                             }
-                            
-                            // Dynamic typo tolerance: allow more typos for longer words
                             const maxAllowedTypos = Math.max(1, Math.floor(qWord.length / 2) + 1);
-                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) {
-                                matchedWords++;
-                            }
+                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) matchedWords++;
                             score += minWordDist;
                         }
-                        
-                        // Filter out items that completely miss query words by applying a huge penalty
-                        if (matchedWords < queryWords.length) {
-                            score += 1000;
-                        }
-                        
+                        if (matchedWords < queryWords.length) score += 1000;
                         return { ...item, score };
                     });
 
-                    // Only keep items that passed the robust spelling/substring validation
                     const results = scoredItems.filter(item => item.score < 1000).sort((a, b) => a.score - b.score).slice(0, 8);
 
                     if (results.length === 0) { 
@@ -700,7 +955,6 @@
                         const fallbackImg = 'https://placehold.co/150x150/f5f5f7/6e6e73?text=Image';
                         const itemType = item.category || item.brand || 'Product';
                         
-                        // Correct path pointing to website-detail inside subfolder
                         const itemUrl = `../website-detail/index.html?id=${item.product_id}`;
 
                         return `
