@@ -231,7 +231,7 @@
         </div>
     </div>
 
-    <!-- SET NEW PASSWORD MODAL -->
+    <!-- SET NEW PASSWORD MODAL (RECOVERY FLOW) -->
     <div id="recoveryModal" class="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
         <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="recoveryModalContent">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-50 mb-6">
@@ -355,6 +355,22 @@
 
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
 
+        /* --- MAGIC LINK / INVITE AUTO-DETECTION ENGINE --- */
+        // This stops the user from seeing the login form and using auto-fill when clicking an email link!
+        const currentUrlStr = window.location.href;
+        const isAuthFlow = currentUrlStr.includes('access_token=') || 
+                           currentUrlStr.includes('type=invite') || 
+                           currentUrlStr.includes('type=recovery') || 
+                           currentUrlStr.includes('code=');
+
+        if (isAuthFlow) {
+            document.addEventListener('DOMContentLoaded', () => {
+                const formEl = document.getElementById('loginFormContainer');
+                if (formEl) formEl.style.display = 'none'; // Completely hide the form so the browser can't auto-fill!
+                showLoader('loadingAuth'); // Show the loading screen while Supabase does the background login
+            });
+        }
+
         /* --- REAL SUPABASE AUTHENTICATION --- */
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
@@ -369,22 +385,12 @@
 
         // STRICT SUPABASE SESSION LISTENER WITH AUTO ROUTING
         if (supabaseInstance) {
-            
-            // Instantly hide the login form if a magic link/invite token is detected in the URL
-            // This prevents auto-fill errors and gives a pure, seamless loading experience
-            if (window.location.hash.includes('access_token=')) {
-                showLoader('loadingAuth');
-                const formEl = document.getElementById('loginFormContainer');
-                if (formEl) formEl.style.opacity = '0';
-            }
-
             supabaseInstance.auth.onAuthStateChange((event, session) => {
                 if (session) {
-                    const hash = window.location.hash || window.location.search;
                     const userRole = session.user?.user_metadata?.role;
 
-                    // 1. Password Recovery Flow - Stay on this page
-                    if (hash.includes('type=recovery')) {
+                    // 1. Password Recovery Flow - Stay on this page and show Reset Modal
+                    if (currentUrlStr.includes('type=recovery')) {
                         currentUser = {
                             name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                             email: session.user.email,
@@ -393,12 +399,14 @@
                             role: userRole || 'user'
                         };
                         updateAuthUI();
+                        hideLoader();
+                        setTimeout(() => openRecoveryModal(), 400);
                         return;
                     }
 
-                    // 2. Admin/Super-Admin Invite Flow - Redirect to Admin Dashboard with hash to force password reset
+                    // 2. MAGIC LINK REDIRECT - Automatically route Admins to the dashboard instantly!
                     if (userRole === 'admin' || userRole === 'super-admin') {
-                        if (hash.includes('access_token=') || hash.includes('type=invite') || hash.includes('type=signup')) {
+                        if (isAuthFlow) {
                             window.location.replace('../admin-dashboard/index.html#type=invite');
                         } else {
                             window.location.replace('../admin-dashboard/index.html');
@@ -412,7 +420,22 @@
                 } else {
                     currentUser = null;
                     currentUserWishlist = [];
-                    updateAuthUI();
+                    
+                    // Only show the login form if we are NOT waiting for a magic link to process
+                    if (!isAuthFlow) {
+                        updateAuthUI();
+                        hideLoader();
+                    } else {
+                        // Fallback just in case the magic link is expired/invalid (Waits 4 seconds max)
+                        setTimeout(() => {
+                            const formEl = document.getElementById('loginFormContainer');
+                            if (formEl && formEl.style.display === 'none') {
+                                formEl.style.display = 'block';
+                                hideLoader();
+                                showErrorToast(currentLang === 'en' ? "Invite link expired or invalid." : "လင့်ခ် သက်တမ်းကုန်သွားပါပြီ။");
+                            }
+                        }, 4000);
+                    }
                 }
             });
         } else {
@@ -868,17 +891,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             renderLanguage();
-            
-            const hash = window.location.hash || window.location.search;
-            
-            if (hash.includes('type=recovery')) {
-                setTimeout(() => openRecoveryModal(), 400);
-            } else if (hash.includes('access_token=') || hash.includes('type=signup')) {
-                setTimeout(() => {
-                    showToast(currentLang === 'en' ? "Email verification successful! You can now log in." : "အီးမေးလ်အတည်ပြုခြင်း အောင်မြင်ပါသည်။ အကောင့်ဝင်နိုင်ပါပြီ။");
-                    // We DO NOT replace the history here if it's an invite, so the onAuthStateChange can seamlessly route it!
-                }, 500);
-            }
         });
     </script>
 </body>
