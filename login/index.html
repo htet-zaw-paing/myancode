@@ -322,7 +322,7 @@
                 prod1Title: "Business & Org", prod3Title: "Info & Education",
                 loginTitle: "Login", lblEmail: "Email", lblPass: "Password", btnLoginSubmit: "Sign In",
                 noAccount: "Don't have an account?", btnRegisterSwap: "Register", loadingAuth: "Authenticating Account...", msgSuccess: "Welcome back!",
-                errFillAll: "Please fill in all fields correctly.", errInvalidCreds: "Invalid email or password.", errUnverified: "Please verify your email first! Check your inbox.",
+                errFillAll: "Please fill in all fields correctly.", errInvalidCreds: "Invalid email or password.", errUnverified: "Please verify your email first! Check your inbox for the invite or confirmation link.",
                 forgotPass: "Forgot Password?", resetPassTitle: "Reset Password", resetPassDesc: "Enter your email address and we will send you a link to reset your password.", 
                 btnSendReset: "Send Reset Link", msgResetSent: "Password reset link sent! Check your inbox.", btnCancel: "Cancel",
                 setNewPassTitle: "Set New Password", setNewPassDesc: "Please enter your new password (at least 6 characters).", 
@@ -342,7 +342,7 @@
                 prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး",
                 loginTitle: "အကောင့်ဝင်ရန်", lblEmail: "အီးမေးလ်", lblPass: "စကားဝှက်", btnLoginSubmit: "လုံခြုံစွာ ဝင်ရောက်မည်",
                 noAccount: "အကောင့်မရှိသေးဘူးလား?", btnRegisterSwap: "အကောင့်သစ်ဖွင့်ရန်", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", msgSuccess: "ပြန်လည်ကြိုဆိုပါတယ်!",
-                errFillAll: "အချက်အလက်အားလုံးကို မှန်ကန်စွာ ဖြည့်စွက်ပါ။", errInvalidCreds: "အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။", errUnverified: "ကျေးဇူးပြု၍ သင့်အီးမေးလ်ကို အရင်အတည်ပြုပါ! Inbox ကိုစစ်ဆေးပါ။",
+                errFillAll: "အချက်အလက်အားလုံးကို မှန်ကန်စွာ ဖြည့်စွက်ပါ။", errInvalidCreds: "အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။", errUnverified: "ကျေးဇူးပြု၍ သင့်အီးမေးလ်ကို အရင်အတည်ပြုပါ! Inbox တွင် ဖိတ်စာ (သို့) အတည်ပြုလင့်ခ်ကို စစ်ဆေးပါ။",
                 forgotPass: "စကားဝှက်မေ့နေပါသလား?", resetPassTitle: "စကားဝှက် ပြန်လည်သတ်မှတ်မည်", resetPassDesc: "သင့်အီးမေးလ်ကို ထည့်ပါ။ စကားဝှက်အသစ်လုပ်ရန် လင့်ခ်ပို့ပေးပါမည်။", 
                 btnSendReset: "လင့်ခ် ပို့မည်", msgResetSent: "စကားဝှက်ပြန်လည်သတ်မှတ်ရန် လင့်ခ်ပို့လိုက်ပါပြီ! Inbox ကို စစ်ဆေးပါ။", btnCancel: "ပယ်ဖျက်မည်",
                 setNewPassTitle: "စကားဝှက်အသစ် သတ်မှတ်မည်", setNewPassDesc: "စကားဝှက်အသစ်ကို ရိုက်ထည့်ပါ။ (အနည်းဆုံး ၆ လုံး)", 
@@ -365,23 +365,44 @@
         let currentUser = null;
         let currentUserWishlist = [];
 
-        // STRICT SUPABASE SESSION LISTENER
+        // STRICT SUPABASE SESSION LISTENER WITH AUTO ROUTING
         if (supabaseInstance) {
             supabaseInstance.auth.onAuthStateChange((event, session) => {
                 if (session) {
-                    currentUser = {
-                        name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
-                        email: session.user.email,
-                        id: session.user.id,
-                        avatar_url: session.user.user_metadata?.avatar_url || null,
-                        role: session.user.user_metadata?.role || 'user'
-                    };
-                    currentUserWishlist = session.user.user_metadata?.wishlist || [];
+                    const hash = window.location.hash || window.location.search;
+                    const userRole = session.user?.user_metadata?.role;
+
+                    // 1. Password Recovery Flow - Stay on this page
+                    if (hash.includes('type=recovery')) {
+                        currentUser = {
+                            name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                            email: session.user.email,
+                            id: session.user.id,
+                            avatar_url: session.user.user_metadata?.avatar_url || null,
+                            role: userRole || 'user'
+                        };
+                        updateAuthUI();
+                        return;
+                    }
+
+                    // 2. Admin Invite Flow - Auto Redirect to Admin Dashboard to force password change
+                    if (hash.includes('type=invite')) {
+                        showLoader('loadingAuth');
+                        window.location.replace('../admin-dashboard/index.html#type=invite');
+                        return;
+                    }
+
+                    // 3. Already Logged In - Redirect away from login page automatically
+                    if (userRole === 'admin' || userRole === 'super-admin') {
+                        window.location.replace('../admin-dashboard/index.html');
+                    } else {
+                        window.location.replace('../index.html');
+                    }
                 } else {
                     currentUser = null;
                     currentUserWishlist = [];
+                    updateAuthUI();
                 }
-                updateAuthUI();
             });
         } else {
             updateAuthUI();
@@ -416,7 +437,7 @@
                         </button>
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
                             <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
-                            ${currentUser.role === 'admin' ? `<a href="../admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
+                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
                             <button onclick="window.location.href='../profile/index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
                             <button onclick="window.location.href='../index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrOrders}</button>
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
@@ -427,7 +448,7 @@
                         <span class="capitalize text-sm font-bold truncate max-w-[200px]">${currentUser.name}</span> 
                         ${mobileAvatarHTML}
                     </div>
-                    ${currentUser.role === 'admin' ? `<a href="../admin-dashboard/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
+                    ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
                         <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
                     </a>` : ''}
                     <button onclick="window.location.href='../profile/index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
@@ -804,7 +825,9 @@
                 if (error.message.includes('Invalid login credentials')) {
                     customErrorMsg = dict[currentLang].errInvalidCreds;
                 } else if (error.message.includes('Email not confirmed')) {
-                    customErrorMsg = dict[currentLang].errUnverified;
+                    customErrorMsg = currentLang === 'en' 
+                        ? "Please verify your email first! Check your inbox for the invite or confirmation link."
+                        : "ကျေးဇူးပြု၍ သင့်အီးမေးလ်ကို အရင်အတည်ပြုပါ! Inbox တွင် ဖိတ်စာ (သို့) အတည်ပြုလင့်ခ်ကို စစ်ဆေးပါ။";
                 } else if (error.message.toLowerCase().includes('rate limit') || error.message.toLowerCase().includes('too many requests')) {
                     customErrorMsg = dict[currentLang].errEmailLimit;
                 }
@@ -818,7 +841,7 @@
             // SMART REDIRECT BASED ON ROLE
             const userRole = data.user?.user_metadata?.role;
             setTimeout(() => { 
-                if (userRole === 'admin') {
+                if (userRole === 'admin' || userRole === 'super-admin') {
                     window.location.href = '../admin-dashboard/index.html'; 
                 } else {
                     window.location.href = '../index.html'; 
@@ -840,6 +863,8 @@
             
             if (hash.includes('type=recovery')) {
                 setTimeout(() => openRecoveryModal(), 400);
+            } else if (hash.includes('type=invite')) {
+                showLoader('loadingAuth'); // Don't remove hash, let onAuthStateChange handle the redirect seamlessly!
             } else if (hash.includes('access_token=') || hash.includes('type=signup')) {
                 setTimeout(() => {
                     showToast(currentLang === 'en' ? "Email verification successful! You can now log in." : "အီးမေးလ်အတည်ပြုခြင်း အောင်မြင်ပါသည်။ အကောင့်ဝင်နိုင်ပါပြီ။");
