@@ -835,13 +835,19 @@
         const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzAyNTA5MSwiZXhwIjoyMDg4NjAxMDkxfQ.MKa5S7aqtuYJHvrxucvNB_miuUMg9_2EZuXug4KOhwo';
         
         let supabaseInstance = null; let currentUser = null;
+
+        // URL Parsing Variables
+        const urlStr = window.location.href;
+        const currentHash = window.location.hash;
+        
+        // MAGIC LINK FIX: Ensure we do NOT redirect if Supabase is currently processing an auth state!
+        const isProcessingAuth = urlStr.includes('code=') || urlStr.includes('access_token=');
+        const hasAuthError = currentHash.includes('error=');
         
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: true } });
             
-            // MAGIC LINK FIX: Check the URL first! If there is an auth token, show loading and WAIT.
-            const isProcessingAuth = window.location.href.includes('code=') || window.location.href.includes('access_token=');
-            if (isProcessingAuth) {
+            if (isProcessingAuth && !hasAuthError) {
                 showLoader('loadingAuth'); // Don't let anything else happen until Supabase is done!
             }
 
@@ -851,8 +857,7 @@
                     checkAdminStatus(); 
                     
                     // --- AUTO-LOGIN & FORCE PASSWORD CHANGE LOGIC ---
-                    const urlStr = window.location.href;
-                    if (urlStr.includes('type=invite') || urlStr.includes('type=recovery') || urlStr.includes('code=')) {
+                    if (currentHash.includes('type=invite') || currentHash.includes('type=recovery') || urlStr.includes('code=')) {
                         setTimeout(() => {
                             openForcePasswordModal(true); 
                             history.replaceState(null, null, window.location.pathname); // Wipe the token from the URL!
@@ -860,8 +865,21 @@
                     }
                 } 
                 else { 
+                    // Handle explicit errors from Supabase (like expired links)
+                    if (window.location.hash.includes('error=')) {
+                        hideLoader();
+                        const params = new URLSearchParams(window.location.hash.replace('#', '?'));
+                        const errorDesc = params.get('error_description') || 'Authentication failed.';
+                        showErrorToast(decodeURIComponent(errorDesc).replace(/\+/g, ' '));
+                        history.replaceState(null, null, window.location.pathname); // Clear URL
+                        
+                        // Send them to login after showing the error so they aren't stuck on a blank dashboard
+                        setTimeout(() => { safeRedirect('../login/index.html'); }, 3500);
+                        return;
+                    }
+
                     // CRITICAL FIX: Only kick the user out if we are NOT currently trying to process a magic link
-                    if (!window.location.href.includes('code=') && !window.location.href.includes('access_token=')) {
+                    if (!isProcessingAuth) {
                         safeRedirect('../login/index.html'); 
                     }
                 }
@@ -1203,7 +1221,12 @@
                 const exactDashboardUrl = window.location.href.split(/[?#]/)[0];
                 const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(email, { data: { role: 'admin' }, redirectTo: exactDashboardUrl });
                 if (inviteError) throw inviteError;
-                if (inviteData && inviteData.user && inviteData.user.id) { await adminSupabase.auth.admin.updateUserById(inviteData.user.id, { password: 'My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03', user_metadata: { role: 'admin' } }); }
+                
+                // --- CRITICAL CHANGE ---
+                // We removed the 'updateUserById' call that forced a default password immediately.
+                // Modifying the user's password right after generating the invite instantly invalidates the Magic Link token.
+                // Now, the Magic Link stays pure, automatically authenticates them, and forces them to set their password upon entering the dashboard!
+
                 finishInviteProcess(email); fetchUsers();
             } catch (err) {
                 showErrorToast(err.message || (currentLang === 'en' ? "Failed to send invite." : "ဖိတ်စာပေးပို့ခြင်း မအောင်မြင်ပါ။"));
