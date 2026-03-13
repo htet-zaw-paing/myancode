@@ -367,7 +367,6 @@
                     <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNewPwd">New Password *</label>
                     <input type="password" id="newSecurePassword" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input focus:bg-white focus:ring-1 focus:ring-myancode-black" placeholder="••••••••">
                 </div>
-                <!-- Changed to type="button" to completely prevent any hidden form submissions -->
                 <button type="button" onclick="saveNewPassword()" id="btnSaveNewPwd" class="w-full px-6 py-4 rounded-xl text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 btn-hover-effect">
                     <i data-lucide="lock" class="w-4 h-4"></i> <span data-i18n="btnSavePwd">Secure Account</span>
                 </button>
@@ -839,10 +838,9 @@
 
         // URL Parsing Variables (Initial Load)
         const initialUrlStr = window.location.href;
-        const initialHash = window.location.hash;
         
-        const isProcessingAuth = initialUrlStr.includes('code=') || initialUrlStr.includes('access_token=');
-        const hasAuthError = initialHash.includes('error=');
+        // MAGIC LINK FIX: Ensure we do NOT redirect if Supabase is currently processing an auth state!
+        const isProcessingAuth = initialUrlStr.includes('code=') || initialUrlStr.includes('access_token=') || initialUrlStr.includes('type=invite');
         
         // --- CRITICAL BUG FIX: PREVENTS INFINITE LOOP ---
         let forcePwdTriggered = false; 
@@ -850,8 +848,8 @@
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: true } });
             
-            if (isProcessingAuth && !hasAuthError) {
-                showLoader('loadingAuth'); 
+            if (isProcessingAuth) {
+                showLoader('loadingAuth'); // Keep loader up while processing
             }
 
             supabaseInstance.auth.onAuthStateChange((event, session) => {
@@ -859,17 +857,16 @@
                     currentUser = session.user; 
                     checkAdminStatus(); 
                     
-                    // The bug was caused by evaluating the initial URL variables over and over!
                     const liveUrl = window.location.href;
-                    const liveHash = window.location.hash;
                     
-                    // We only fire this logic ONCE. Once the modal opens, forcePwdTriggered becomes true and locks it forever.
-                    if (!forcePwdTriggered && (liveHash.includes('type=invite') || liveHash.includes('type=recovery') || liveUrl.includes('code='))) {
-                        forcePwdTriggered = true; // Lock it! It will never open again.
+                    // Trigger the force password change if they came from an invite/recovery link
+                    // The lock `!forcePwdTriggered` ensures it ONLY happens exactly once.
+                    if (!forcePwdTriggered && (liveUrl.includes('type=invite') || liveUrl.includes('type=recovery') || liveUrl.includes('code='))) {
+                        forcePwdTriggered = true; // Lock it! It will never open again during this session.
                         
                         setTimeout(() => {
                             openForcePasswordModal(true); 
-                            // This cleanly wipes the URL so refreshing the page doesn't re-trigger anything
+                            // Clean the URL so refreshing doesn't re-trigger
                             history.replaceState(null, null, window.location.pathname); 
                         }, 1000);
                     }
@@ -886,6 +883,7 @@
                         return;
                     }
 
+                    // Only kick the user out if we are NOT currently trying to process a magic link
                     if (!isProcessingAuth) {
                         safeRedirect('../login/index.html'); 
                     }
@@ -1228,6 +1226,11 @@
                 const exactDashboardUrl = window.location.href.split(/[?#]/)[0];
                 const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(email, { data: { role: 'admin' }, redirectTo: exactDashboardUrl });
                 if (inviteError) throw inviteError;
+                
+                // Do NOT set password here, it invalidates the invite link immediately!
+                if (inviteData && inviteData.user && inviteData.user.id) { 
+                    await adminSupabase.auth.admin.updateUserById(inviteData.user.id, { user_metadata: { role: 'admin' } }); 
+                }
                 
                 finishInviteProcess(email); fetchUsers();
             } catch (err) {
