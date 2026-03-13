@@ -836,14 +836,16 @@
         
         let supabaseInstance = null; let currentUser = null;
 
-        // URL Parsing Variables
-        const urlStr = window.location.href;
-        const currentHash = window.location.hash;
+        // URL Parsing Variables (Initial Load)
+        const initialUrlStr = window.location.href;
+        const initialHash = window.location.hash;
         
         // MAGIC LINK FIX: Ensure we do NOT redirect if Supabase is currently processing an auth state!
-        const isProcessingAuth = urlStr.includes('code=') || urlStr.includes('access_token=');
-        const hasAuthError = currentHash.includes('error=');
+        const isProcessingAuth = initialUrlStr.includes('code=') || initialUrlStr.includes('access_token=');
+        const hasAuthError = initialHash.includes('error=');
         
+        let forcePwdTriggered = false; // PREVENTS INFINITE LOOP
+
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: true } });
             
@@ -857,7 +859,10 @@
                     checkAdminStatus(); 
                     
                     // --- AUTO-LOGIN & FORCE PASSWORD CHANGE LOGIC ---
-                    if (currentHash.includes('type=invite') || currentHash.includes('type=recovery') || urlStr.includes('code=')) {
+                    // Dynamically read URL so we don't reuse the stale URL variables from initial load
+                    const liveUrl = window.location.href;
+                    if (!forcePwdTriggered && (liveUrl.includes('type=invite') || liveUrl.includes('type=recovery') || liveUrl.includes('code='))) {
+                        forcePwdTriggered = true; // Lock it so it only happens once!
                         setTimeout(() => {
                             openForcePasswordModal(true); 
                             history.replaceState(null, null, window.location.pathname); // Wipe the token from the URL!
