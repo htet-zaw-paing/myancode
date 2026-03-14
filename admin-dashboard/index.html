@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Enterprise Workspace | MyanCode</title>
+    <title>Admin Workspace | MyanCode</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,12 +17,21 @@
     <script>
         tailwind.config = {
             theme: {
+                screens: {
+                    'xxs': '280px',
+                    'xs': '380px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
                 extend: {
                     fontFamily: { sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'] },
                     colors: { myancode: { black: '#111111', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } },
                     boxShadow: {
-                        'premium': '0 10px 40px -10px rgba(0,0,0,0.08)',
-                        'premium-hover': '0 20px 40px -10px rgba(0,0,0,0.12)',
+                        'premium': '0 4px 24px -6px rgba(0, 0, 0, 0.05)',
+                        'premium-hover': '0 12px 32px -8px rgba(0, 0, 0, 0.08)',
                         'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
                     }
                 }
@@ -37,12 +46,15 @@
         html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] th, html[lang="mm"] td { letter-spacing: normal; }
         html[lang="mm"] .uppercase, html[lang="mm"] .capitalize, html[lang="mm"] .tracking-widest { text-transform: none; letter-spacing: normal; }
         
-        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
+        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.06) !important; }
         
-        .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
+        .btn-hover-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-1.5px); box-shadow: 0 10px 25px -8px rgba(0,0,0,0.12); }
         .btn-hover-effect:active:not(:disabled) { transform: translateY(0) scale(0.98); }
         .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .card-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-hover-effect:hover { transform: translateY(-3px); box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08); }
 
         .card-enter { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
         
@@ -56,8 +68,8 @@
         .progress-line::after { content: ''; position: absolute; left: -50%; top: 0; height: 100%; width: 50%; background-color: #111111; border-radius: 4px; animation: lineAnim 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
         @keyframes lineAnim { 0% { left: -50%; width: 50%; } 50% { width: 20%; } 100% { left: 100%; width: 50%; } }
 
-        .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
-        .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .dropdown-menu { transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95) translateY(-10px); pointer-events: none; }
         
         th { border-bottom: 1px solid #eaeaea; }
         tr { transition: background-color 0.2s ease; }
@@ -70,7 +82,7 @@
         .modal-hidden .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; pointer-events: none; }
 
         .premium-input { transition: all 0.3s ease; }
-        .premium-input:focus { background-color: #ffffff; border-color: #111111; box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.05); }
+        .premium-input:focus { background-color: #ffffff; border-color: #111111; box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.04); }
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -84,45 +96,101 @@
 
     <!-- GLOBAL LOADER -->
     <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
-        <i data-lucide="shield-check" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
-        <div class="w-48 max-w-[80vw]"><div class="progress-line"></div></div>
-        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500" data-i18n="loadingAuth">Authenticating Identity...</span>
+        <i data-lucide="shield-check" class="h-8 w-8 xxs:h-10 xxs:w-10 sm:h-12 sm:w-12 text-myancode-black mb-4 sm:mb-6 animate-pulse"></i>
+        <div class="w-32 sm:w-48 max-w-[80vw]"><div class="progress-line"></div></div>
+        <span id="loaderText" class="mt-4 sm:mt-6 text-[8px] sm:text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 text-center px-4" data-i18n="loadingAuth">Authenticating Identity...</span>
     </div>
 
     <!-- Navigation -->
     <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] glass-nav">
-        <div class="max-w-[1440px] mx-auto px-4 sm:px-8">
-            <div class="flex justify-between items-center h-16 sm:h-20">
+        <div class="max-w-[1440px] mx-auto px-2 xxs:px-4 sm:px-8">
+            <div class="flex justify-between items-center h-14 xxs:h-16 sm:h-20">
                 <div class="flex items-center">
                     <a href="../index.html" onclick="event.preventDefault(); safeRedirect('../index.html')" class="flex-shrink-0 flex items-center cursor-pointer group">
-                        <div class="h-8 w-8 bg-myancode-black rounded-lg flex items-center justify-center mr-3 transition-transform duration-500 group-hover:rotate-12 shadow-md">
-                            <i data-lucide="code-2" class="h-4 w-4 text-white"></i>
+                        <div class="h-6 w-6 xxs:h-7 xxs:w-7 sm:h-8 sm:w-8 bg-myancode-black rounded-md sm:rounded-lg flex items-center justify-center mr-2 sm:mr-3 transition-transform duration-500 group-hover:rotate-12 shadow-md">
+                            <i data-lucide="code-2" class="h-3 w-3 sm:h-4 sm:w-4 text-white"></i>
                         </div>
-                        <span class="font-bold text-lg sm:text-xl tracking-tight text-myancode-black">MyanCode <span class="bg-gray-100 text-gray-600 text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-full ml-2 align-middle border border-gray-200" data-i18n="adminBadge">Enterprise</span></span>
+                        <span class="font-bold text-[11px] xxs:text-xs xs:text-sm sm:text-xl tracking-tight text-myancode-black whitespace-nowrap">MyanCode <span class="hidden xs:inline-block bg-gray-100 text-gray-600 text-[7px] sm:text-[9px] font-bold tracking-widest uppercase px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ml-1 sm:ml-2 align-middle border border-gray-200" data-i18n="adminBadge">Admin Workspace</span></span>
                     </a>
                 </div>
                 
-                <div class="flex items-center space-x-3 sm:space-x-5">
+                <div class="flex items-center space-x-1 xxs:space-x-2 sm:space-x-5">
+                    
+                    <!-- MUSIC SPACE (Native Custom Player - Bypasses Bans) -->
+                    <div class="relative" id="musicContainer">
+                        <button onclick="toggleMusicDropdown(event)" class="h-7 w-7 xxs:h-8 xxs:w-8 sm:h-10 sm:w-auto sm:px-4 sm:py-2.5 flex items-center justify-center sm:justify-start gap-2 rounded-full bg-gray-100/80 hover:bg-gray-200 transition-colors duration-300 group text-myancode-black shadow-inner-soft btn-hover-effect">
+                            <i data-lucide="radio" class="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform duration-300"></i>
+                            <span class="hidden sm:inline text-xs font-bold" data-i18n="btnMusic">Radio</span>
+                        </button>
+                        <div id="musicDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-2 sm:mt-3 w-[260px] xs:w-[300px] sm:w-[360px] bg-white rounded-[1.5rem] sm:rounded-[2rem] shadow-premium border border-gray-100 p-2 sm:p-3 z-50 text-black">
+                            <div class="px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-50 flex justify-between items-center mb-2 sm:mb-3">
+                                <div>
+                                    <div class="text-[8px] sm:text-[10px] uppercase tracking-widest text-gray-400 font-bold" data-i18n="musicSpace">Focus Space</div>
+                                    <div class="text-[10px] sm:text-xs font-bold text-myancode-black">Native Live Radio</div>
+                                </div>
+                                <div class="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-blue-50 flex items-center justify-center">
+                                    <i data-lucide="radio" class="w-3 h-3 sm:w-4 sm:h-4 text-myancode-blue animate-pulse"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Custom HTML5 Audio Player (Bypasses all iframe/region blocks) -->
+                            <div class="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-inner-soft border border-gray-100 flex flex-col">
+                                <div class="w-full h-24 sm:h-32 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-lg sm:rounded-xl mb-4 relative overflow-hidden flex items-center justify-center shadow-sm">
+                                    <div class="absolute inset-0 bg-black/10"></div>
+                                    <i data-lucide="headphones" class="w-8 h-8 sm:w-10 sm:h-10 text-white/90 relative z-10 transition-transform duration-500" id="radioArtIcon"></i>
+                                    <!-- Animated bars -->
+                                    <div id="audioVisualizer" class="absolute bottom-3 right-3 flex items-end gap-1 opacity-0 transition-opacity duration-300">
+                                        <div class="w-1.5 bg-white/80 rounded-t-sm h-2 animate-[pulse_0.8s_ease-in-out_infinite_alternate]"></div>
+                                        <div class="w-1.5 bg-white/80 rounded-t-sm h-4 animate-[pulse_1.2s_ease-in-out_infinite_alternate]"></div>
+                                        <div class="w-1.5 bg-white/80 rounded-t-sm h-3 animate-[pulse_1s_ease-in-out_infinite_alternate]"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-between items-center w-full">
+                                    <div>
+                                        <h4 class="font-bold text-myancode-black text-[11px] sm:text-sm tracking-tight leading-tight">Lo-Fi & Chill Beats</h4>
+                                        <p class="text-[9px] sm:text-[10px] font-medium text-green-600 flex items-center gap-1 mt-0.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> 24/7 Global Stream
+                                        </p>
+                                    </div>
+                                    <button onclick="toggleNativeAudio()" id="nativeAudioBtn" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all">
+                                        <i data-lucide="play" id="nativeAudioIcon" class="w-4 h-4 sm:w-5 sm:h-5 ml-0.5"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="w-full mt-4 flex items-center gap-2 px-1">
+                                    <i data-lucide="volume-2" class="w-3 h-3 sm:w-4 sm:h-4 text-gray-400"></i>
+                                    <input type="range" id="nativeAudioVolume" min="0" max="1" step="0.05" value="0.5" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black" oninput="document.getElementById('nativeAudioPlayer').volume = this.value">
+                                </div>
+                                
+                                <!-- The actual stream (Hidden) -->
+                                <audio id="nativeAudioPlayer" preload="none" onended="handleRadioError()" onerror="handleRadioError()">
+                                    <source src="https://streams.ilovemusic.de/iloveradio17.mp3" type="audio/mpeg">
+                                </audio>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LANGUAGE CONTAINER -->
                     <div class="relative" id="langContainer">
-                        <button onclick="toggleLangDropdown(event)" class="h-10 w-10 flex items-center justify-center rounded-full bg-gray-100/80 hover:bg-gray-200 transition-colors duration-300 group text-myancode-black shadow-inner-soft"><i data-lucide="globe" class="h-4 w-4 group-hover:rotate-45 transition-transform duration-300"></i></button>
-                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-3 w-40 bg-white rounded-2xl shadow-premium border border-gray-100 py-2 z-50 text-black">
-                            <div class="px-4 pb-2 mb-2 border-b border-gray-50 text-[10px] uppercase tracking-widest text-gray-400 font-bold" data-i18n="langSelect">Language</div>
-                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">English</button>
-                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">မြန်မာ</button>
+                        <button onclick="toggleLangDropdown(event)" class="h-7 w-7 xxs:h-8 xxs:w-8 sm:h-10 sm:w-10 flex items-center justify-center rounded-full bg-gray-100/80 hover:bg-gray-200 transition-colors duration-300 group text-myancode-black shadow-inner-soft btn-hover-effect"><i data-lucide="globe" class="h-3 w-3 sm:h-4 sm:w-4 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-2 sm:mt-3 w-32 sm:w-40 bg-white rounded-xl sm:rounded-2xl shadow-premium border border-gray-100 py-1.5 sm:py-2 z-50 text-black">
+                            <div class="px-3 sm:px-4 pb-1.5 sm:pb-2 mb-1.5 sm:mb-2 border-b border-gray-50 text-[8px] sm:text-[10px] uppercase tracking-widest text-gray-400 font-bold" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">English</button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">မြန်မာ</button>
                         </div>
                     </div>
                     
-                    <!-- Security/Password Button -->
-                    <button onclick="openForcePasswordModal(false)" class="hidden sm:flex text-xs sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 px-4 py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-2 shadow-sm btn-hover-effect">
-                        <i data-lucide="key" class="w-4 h-4 text-gray-400"></i> <span data-i18n="btnChangePwd">Security</span>
+                    <button onclick="openForcePasswordModal(false)" class="flex text-[9px] sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 p-1.5 xxs:px-2.5 xxs:py-1.5 sm:px-4 sm:py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-1 sm:gap-2 shadow-sm btn-hover-effect">
+                        <i data-lucide="key" class="w-3 h-3 sm:w-4 sm:h-4 text-gray-500"></i> <span class="hidden md:inline" data-i18n="btnChangePwd">Security</span>
                     </button>
 
-                    <a href="../index.html" onclick="event.preventDefault(); safeRedirect('../index.html')" class="hidden sm:flex text-xs sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 px-5 py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-2 shadow-sm btn-hover-effect">
-                        <i data-lucide="external-link" class="w-4 h-4 text-gray-400"></i> <span data-i18n="btnGoToSite">View Site</span>
+                    <a href="../index.html" onclick="event.preventDefault(); safeRedirect('../index.html')" class="flex text-[9px] sm:text-sm font-semibold bg-white text-myancode-black border border-gray-200 p-1.5 xxs:px-2.5 xxs:py-1.5 sm:px-5 sm:py-2.5 rounded-full hover:bg-gray-50 transition-colors items-center gap-1 sm:gap-2 shadow-sm btn-hover-effect">
+                        <i data-lucide="external-link" class="w-3 h-3 sm:w-4 sm:h-4 text-gray-500"></i> <span class="hidden md:inline" data-i18n="btnGoToSite">View Site</span>
                     </a>
                     
-                    <button onclick="handleLogout()" class="text-xs sm:text-sm font-bold bg-myancode-black text-white px-5 sm:px-6 py-2.5 rounded-full hover:bg-gray-800 transition-colors flex items-center gap-2 shadow-md btn-hover-effect">
-                        <i data-lucide="log-out" class="w-4 h-4 opacity-80"></i> <span class="hidden sm:inline" data-i18n="hdrLogout">Sign Out</span>
+                    <button onclick="handleLogout()" class="text-[9px] sm:text-sm font-bold bg-myancode-black text-white p-1.5 xxs:px-3 xxs:py-1.5 sm:px-6 sm:py-2.5 rounded-full hover:bg-gray-800 transition-colors flex items-center gap-1 sm:gap-2 shadow-md btn-hover-effect">
+                        <i data-lucide="log-out" class="w-3 h-3 sm:w-4 sm:h-4 opacity-90"></i> <span class="hidden xs:inline" data-i18n="hdrLogout">Sign Out</span>
                     </button>
                 </div>
             </div>
@@ -130,98 +198,101 @@
     </nav>
 
     <!-- Main Dashboard Content -->
-    <main class="flex-grow pt-28 sm:pt-36 pb-20 px-4 sm:px-8 w-full max-w-[1440px] mx-auto relative z-10 hidden" id="dashboardContent">
+    <main class="flex-grow pt-20 xxs:pt-24 sm:pt-36 pb-12 sm:pb-20 px-2 xxs:px-4 sm:px-8 w-full max-w-[1440px] mx-auto relative z-10 hidden" id="dashboardContent">
         
         <!-- Apple-style Segmented Control Tabs -->
-        <div class="flex justify-center sm:justify-start mb-10 card-enter" style="animation-delay: 0ms;">
-            <div class="inline-flex bg-gray-200/60 p-1.5 rounded-2xl backdrop-blur-sm border border-gray-200/50 shadow-inner-soft overflow-x-auto no-scrollbar max-w-full">
-                <button onclick="switchTab('overall')" id="tabBtnOverall" class="px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="tabOverall">Overview</span>
+        <div class="flex justify-center sm:justify-start mb-6 sm:mb-10 card-enter" style="animation-delay: 0ms;">
+            <div class="inline-flex bg-gray-200/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-gray-200/50 shadow-inner-soft overflow-x-auto no-scrollbar max-w-full">
+                <button onclick="switchTab('overall')" id="tabBtnOverall" class="px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+                    <i data-lucide="layout-dashboard" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="tabOverall">Overview</span>
                 </button>
-                <button onclick="switchTab('products')" id="tabBtnProducts" class="px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="package" class="w-4 h-4"></i> <span data-i18n="tabProducts">Products</span>
+                <button onclick="switchTab('products')" id="tabBtnProducts" class="px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+                    <i data-lucide="package" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="tabProducts">Products</span>
                 </button>
-                <button onclick="switchTab('users')" id="tabBtnUsers" class="px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="users" class="w-4 h-4"></i> <span data-i18n="tabUsers">Directory</span>
+                <button onclick="switchTab('users')" id="tabBtnUsers" class="px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+                    <i data-lucide="users" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="tabUsers">Users</span>
+                </button>
+                <button onclick="switchTab('newsletter')" id="tabBtnNewsletter" class="px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+                    <i data-lucide="mail" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="tabNewsletter">Newsletter</span>
                 </button>
             </div>
         </div>
 
         <!-- ================= OVERALL DASHBOARD SECTION ================= -->
         <div id="overallSection">
-            <div class="mb-8 card-enter" style="animation-delay: 100ms;">
-                <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="ovwTitle">Operations Center</h1>
-                <p class="text-base text-gray-500 font-medium" data-i18n="ovwSub">High-level metrics and system monitoring for the enterprise workspace.</p>
+            <div class="mb-5 sm:mb-8 card-enter px-1 sm:px-0" style="animation-delay: 100ms;">
+                <h1 class="text-xl xxs:text-2xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-1 sm:mb-2" data-i18n="ovwTitle">Dashboard Overview</h1>
+                <p class="text-xs sm:text-base text-gray-500 font-medium" data-i18n="ovwSub">High-level metrics and system performance.</p>
             </div>
 
             <!-- Health Banner -->
-            <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-8 flex items-center gap-4 shadow-sm card-enter" style="animation-delay: 150ms;">
-                <div class="h-10 w-10 bg-white rounded-full flex items-center justify-center shadow-sm text-green-500 flex-shrink-0">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+            <div class="bg-green-50 border border-green-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-5 sm:mb-8 flex items-center gap-3 sm:gap-4 shadow-sm card-enter" style="animation-delay: 150ms;">
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-white rounded-full flex items-center justify-center shadow-sm text-green-500 flex-shrink-0">
+                    <i data-lucide="check-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold text-green-800" data-i18n="sysHealth">System Health: Optimal</h4>
-                    <p class="text-xs text-green-600 font-medium mt-0.5" data-i18n="sysHealthDesc">All database connections, real-time channels, and APIs are operating normally.</p>
+                    <h4 class="text-xs sm:text-sm font-bold text-green-800" data-i18n="sysHealth">System Status: Online</h4>
+                    <p class="text-[9px] sm:text-xs text-green-600 font-medium mt-0.5" data-i18n="sysHealthDesc">All services, databases, and APIs are running smoothly.</p>
                 </div>
             </div>
 
             <!-- Analytics Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <div class="bg-white rounded-[2rem] p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter relative overflow-hidden group" style="animation-delay: 200ms;">
-                    <div class="absolute -right-6 -top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="crown" class="w-32 h-32"></i></div>
+            <div class="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-10">
+                <div class="bg-white rounded-2xl sm:rounded-[2rem] p-4 xxs:p-5 sm:p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter card-hover-effect relative overflow-hidden group" style="animation-delay: 200ms;">
+                    <div class="absolute -right-4 -top-4 sm:-right-6 sm:-top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="crown" class="w-20 h-20 sm:w-32 sm:h-32"></i></div>
                     <div class="relative z-10">
-                        <div class="h-12 w-12 rounded-2xl bg-yellow-50 flex items-center justify-center border border-yellow-100 mb-6"><i data-lucide="crown" class="w-5 h-5 text-yellow-600"></i></div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statSuperAdmins">Super Admins</p>
-                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="dashSuperAdmins">0</h4>
+                        <div class="h-8 w-8 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-yellow-50 flex items-center justify-center border border-yellow-100 mb-3 sm:mb-6"><i data-lucide="crown" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600"></i></div>
+                        <p class="text-[9px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statSuperAdmins">Super Admins</p>
+                        <h4 class="text-2xl xxs:text-3xl sm:text-4xl font-bold text-myancode-black tracking-tight" id="dashSuperAdmins">0</h4>
                     </div>
                 </div>
                 
-                <div class="bg-white rounded-[2rem] p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter relative overflow-hidden group" style="animation-delay: 300ms;">
-                    <div class="absolute -right-6 -top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="shield" class="w-32 h-32"></i></div>
+                <div class="bg-white rounded-2xl sm:rounded-[2rem] p-4 xxs:p-5 sm:p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter card-hover-effect relative overflow-hidden group" style="animation-delay: 300ms;">
+                    <div class="absolute -right-4 -top-4 sm:-right-6 sm:-top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="shield" class="w-20 h-20 sm:w-32 sm:h-32"></i></div>
                     <div class="relative z-10">
-                        <div class="h-12 w-12 rounded-2xl bg-purple-50 flex items-center justify-center border border-purple-100 mb-6"><i data-lucide="shield" class="w-5 h-5 text-purple-600"></i></div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statAdmins">Active Admins</p>
-                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="dashAdmins">0</h4>
+                        <div class="h-8 w-8 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-purple-50 flex items-center justify-center border border-purple-100 mb-3 sm:mb-6"><i data-lucide="shield" class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600"></i></div>
+                        <p class="text-[9px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statAdmins">Active Admins</p>
+                        <h4 class="text-2xl xxs:text-3xl sm:text-4xl font-bold text-myancode-black tracking-tight" id="dashAdmins">0</h4>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter relative overflow-hidden group" style="animation-delay: 400ms;">
-                    <div class="absolute -right-6 -top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="users" class="w-32 h-32"></i></div>
+                <div class="bg-white rounded-2xl sm:rounded-[2rem] p-4 xxs:p-5 sm:p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter card-hover-effect relative overflow-hidden group" style="animation-delay: 400ms;">
+                    <div class="absolute -right-4 -top-4 sm:-right-6 sm:-top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="users" class="w-20 h-20 sm:w-32 sm:h-32"></i></div>
                     <div class="relative z-10">
-                        <div class="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100 mb-6"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statUsers">Standard Users</p>
-                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="dashUsers">0</h4>
+                        <div class="h-8 w-8 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100 mb-3 sm:mb-6"><i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"></i></div>
+                        <p class="text-[9px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statUsers">Standard Users</p>
+                        <h4 class="text-2xl xxs:text-3xl sm:text-4xl font-bold text-myancode-black tracking-tight" id="dashUsers">0</h4>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-[2rem] p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter relative overflow-hidden group" style="animation-delay: 500ms;">
-                    <div class="absolute -right-6 -top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="package" class="w-32 h-32"></i></div>
+                <div class="bg-white rounded-2xl sm:rounded-[2rem] p-4 xxs:p-5 sm:p-6 shadow-premium border border-gray-100 flex flex-col justify-between card-enter card-hover-effect relative overflow-hidden group" style="animation-delay: 500ms;">
+                    <div class="absolute -right-4 -top-4 sm:-right-6 sm:-top-6 text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500"><i data-lucide="package" class="w-20 h-20 sm:w-32 sm:h-32"></i></div>
                     <div class="relative z-10">
-                        <div class="h-12 w-12 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-200 mb-6"><i data-lucide="layers" class="w-5 h-5 text-gray-600"></i></div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statTotalProd">Total Templates</p>
-                        <h4 class="text-4xl font-bold text-myancode-black tracking-tight" id="dashProducts">0</h4>
+                        <div class="h-8 w-8 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-200 mb-3 sm:mb-6"><i data-lucide="layers" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600"></i></div>
+                        <p class="text-[9px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1" data-i18n="statTotalProd">Total Templates</p>
+                        <h4 class="text-2xl xxs:text-3xl sm:text-4xl font-bold text-myancode-black tracking-tight" id="dashProducts">0</h4>
                     </div>
                 </div>
             </div>
-
+            
             <!-- Secondary Metrics -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 card-enter" style="animation-delay: 600ms;">
-                <div class="bg-white rounded-[2rem] p-8 shadow-premium border border-gray-100 flex items-center gap-6">
-                    <div class="h-16 w-16 rounded-full bg-red-50 flex items-center justify-center border border-red-100 flex-shrink-0">
-                        <i data-lucide="alert-octagon" class="w-7 h-7 text-red-500"></i>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 card-enter" style="animation-delay: 600ms;">
+                <div class="bg-white rounded-2xl sm:rounded-[2rem] p-4 xxs:p-5 sm:p-8 shadow-premium border border-gray-100 flex items-center gap-4 sm:gap-6 card-hover-effect">
+                    <div class="h-10 w-10 sm:h-16 sm:w-16 rounded-full bg-red-50 flex items-center justify-center border border-red-100 flex-shrink-0">
+                        <i data-lucide="alert-octagon" class="w-5 h-5 sm:w-7 sm:h-7 text-red-500"></i>
                     </div>
                     <div>
-                        <h4 class="text-3xl font-bold text-myancode-black tracking-tight mb-1" id="dashLowStock">0</h4>
-                        <p class="text-sm font-medium text-gray-500" data-i18n="statLowStock">Templates out of stock or requiring attention</p>
+                        <h4 class="text-xl xxs:text-2xl sm:text-3xl font-bold text-myancode-black tracking-tight mb-0.5 sm:mb-1" id="dashLowStock">0</h4>
+                        <p class="text-[10px] sm:text-sm font-medium text-gray-500 leading-snug" data-i18n="statLowStock">Templates out of stock or requiring attention</p>
                     </div>
                 </div>
-                <div class="bg-white rounded-[2rem] p-8 shadow-premium border border-gray-100 flex items-center gap-6">
-                    <div class="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center border border-green-100 flex-shrink-0">
-                        <i data-lucide="activity" class="w-7 h-7 text-green-500"></i>
+                <div class="bg-white rounded-2xl sm:rounded-[2rem] p-4 xxs:p-5 sm:p-8 shadow-premium border border-gray-100 flex items-center gap-4 sm:gap-6 card-hover-effect">
+                    <div class="h-10 w-10 sm:h-16 sm:w-16 rounded-full bg-green-50 flex items-center justify-center border border-green-100 flex-shrink-0">
+                        <i data-lucide="activity" class="w-5 h-5 sm:w-7 sm:h-7 text-green-500"></i>
                     </div>
                     <div>
-                        <h4 class="text-3xl font-bold text-myancode-black tracking-tight mb-1" id="dashActiveProd">0</h4>
-                        <p class="text-sm font-medium text-gray-500" data-i18n="statActive">Active Templates deployed to production</p>
+                        <h4 class="text-xl xxs:text-2xl sm:text-3xl font-bold text-myancode-black tracking-tight mb-0.5 sm:mb-1" id="dashActiveProd">0</h4>
+                        <p class="text-[10px] sm:text-sm font-medium text-gray-500 leading-snug" data-i18n="statActive">Active Templates deployed to production</p>
                     </div>
                 </div>
             </div>
@@ -230,22 +301,22 @@
         <!-- ================= PRODUCTS SECTION ================= -->
         <div id="productsSection" class="hidden">
             <!-- Table Header & Powerful Search & Filters -->
-            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-6 gap-6 card-enter" style="animation-delay: 100ms;">
-                <div class="mb-2 xl:mb-0">
-                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitle">UI Template Database</h1>
-                    <p class="text-sm text-gray-500 font-medium" data-i18n="dashSub">Manage enterprise UI templates, pricing, and live previews.</p>
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-4 sm:mb-6 gap-3 sm:gap-6 card-enter px-1 sm:px-0" style="animation-delay: 100ms;">
+                <div class="mb-1 sm:mb-0">
+                    <h1 class="text-lg xxs:text-xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-0.5 sm:mb-1" data-i18n="dashTitle">Product Management</h1>
+                    <p class="text-[10px] sm:text-sm text-gray-500 font-medium leading-snug" data-i18n="dashSub">Manage your templates, pricing, and inventory.</p>
                 </div>
                 
-                <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
+                <div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 sm:gap-3 w-full xl:w-auto">
                     <!-- Text Search -->
-                    <div class="relative w-full sm:w-64">
-                        <i data-lucide="search" class="absolute left-4 top-3.5 h-4 w-4 text-gray-400"></i>
-                        <input type="text" id="searchProducts" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all" placeholder="Search templates..." data-i18n-placeholder="searchProd">
+                    <div class="relative w-full xs:w-auto flex-1">
+                        <i data-lucide="search" class="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 h-3 w-3 sm:h-4 sm:w-4 text-gray-400"></i>
+                        <input type="text" id="searchProducts" class="w-full pl-8 sm:pl-11 pr-3 sm:pr-4 py-2 sm:py-3 bg-gray-50 hover:bg-gray-100/50 border border-gray-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium text-myancode-black focus:bg-white focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all duration-200" placeholder="Search templates..." data-i18n-placeholder="searchProd">
                     </div>
                     
                     <!-- Advanced Dropdown Filter -->
-                    <div class="relative w-full sm:w-auto min-w-[160px]">
-                        <select id="productFilter" onchange="setProductFilter(this.value)" class="w-full appearance-none bg-white border border-gray-100 rounded-2xl pl-4 pr-10 py-3 text-sm font-bold text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                    <div class="relative w-full xs:w-auto min-w-[120px] sm:min-w-[160px]">
+                        <select id="productFilter" onchange="setProductFilter(this.value)" class="w-full appearance-none bg-gray-50 hover:bg-gray-100/50 border border-gray-100 rounded-xl sm:rounded-2xl pl-3 sm:pl-4 pr-8 sm:pr-10 py-2 sm:py-3 text-xs sm:text-sm font-bold text-myancode-black focus:bg-white focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm cursor-pointer transition-all duration-200">
                             <option value="all" data-i18n="fltAllProd">All Templates</option>
                             <optgroup label="Status" data-i18n-label="fltGrpStatus">
                                 <option value="active" data-i18n="fltActive">Active Only</option>
@@ -255,30 +326,30 @@
                                 <!-- Populated dynamically -->
                             </optgroup>
                         </select>
-                        <i data-lucide="filter" class="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none"></i>
+                        <i data-lucide="filter" class="absolute right-3 sm:right-4 top-2.5 sm:top-3.5 h-3 w-3 sm:h-4 sm:w-4 text-gray-400 pointer-events-none"></i>
                     </div>
 
-                    <button onclick="openProductModal()" class="w-full sm:w-auto bg-myancode-black text-white px-7 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-premium btn-hover-effect whitespace-nowrap">
-                        <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btnAddProduct">Add Template</span>
+                    <button onclick="openProductModal()" class="w-full xs:w-auto bg-myancode-black text-white px-4 py-2 xxs:px-5 xxs:py-2.5 sm:px-7 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 shadow-premium btn-hover-effect whitespace-nowrap">
+                        <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnAddProduct">Add Template</span>
                     </button>
                 </div>
             </div>
 
             <!-- Products Table -->
-            <div class="bg-white rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
-                <div class="overflow-x-auto p-2">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="text-gray-400 font-bold tracking-widest uppercase text-[10px] bg-white border-b border-gray-50">
+            <div class="bg-white rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
+                <div class="overflow-x-auto p-1 sm:p-2 no-scrollbar">
+                    <table class="w-full text-left whitespace-nowrap">
+                        <thead class="text-gray-500 font-bold tracking-widest uppercase text-[8px] xxs:text-[9px] sm:text-[10px] bg-gray-50/80 border-b border-gray-100">
                             <tr>
-                                <th class="px-6 py-5 rounded-tl-2xl" data-i18n="thImage">Item</th>
-                                <th class="px-6 py-5" data-i18n="thSku">SKU & Category</th>
-                                <th class="px-6 py-5" data-i18n="thPrice">Pricing</th>
-                                <th class="px-6 py-5" data-i18n="thStatus">Status</th>
-                                <th class="px-6 py-5 text-right rounded-tr-2xl" data-i18n="thActions">Actions</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 rounded-tl-xl sm:rounded-tl-2xl font-semibold" data-i18n="thImage">Product</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thSku">SKU & Category</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thPrice">Pricing</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thStatus">Status</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 text-right rounded-tr-xl sm:rounded-tr-2xl font-semibold" data-i18n="thActions">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="productsTableBody" class="text-gray-700">
-                            <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 italic font-medium">Loading database architecture...</td></tr>
+                        <tbody id="productsTableBody" class="text-gray-700 text-[10px] sm:text-sm">
+                            <tr><td colspan="5" class="px-4 py-8 sm:px-6 sm:py-12 text-center text-gray-400 italic font-medium">Loading database architecture...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -288,51 +359,86 @@
         <!-- ================= USERS SECTION ================= -->
         <div id="usersSection" class="hidden">
             <!-- Table Header & Powerful Search & Filters -->
-            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-6 gap-6 card-enter" style="animation-delay: 100ms;">
-                <div class="mb-2 xl:mb-0">
-                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-1" data-i18n="dashTitleUsers">Enterprise Directory</h1>
-                    <p class="text-sm text-gray-500 font-medium" data-i18n="dashSubUsers">Manage registered accounts and organizational clearance roles.</p>
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-4 sm:mb-6 gap-3 sm:gap-6 card-enter px-1 sm:px-0" style="animation-delay: 100ms;">
+                <div class="mb-1 sm:mb-0">
+                    <h1 class="text-lg xxs:text-xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-0.5 sm:mb-1" data-i18n="dashTitleUsers">User Management</h1>
+                    <p class="text-[10px] sm:text-sm text-gray-500 font-medium leading-snug" data-i18n="dashSubUsers">Manage user accounts, roles, and access permissions.</p>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
+                <div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 sm:gap-3 w-full xl:w-auto">
                     <!-- Text Search -->
-                    <div class="relative w-full sm:w-64">
-                        <i data-lucide="search" class="absolute left-4 top-3.5 h-4 w-4 text-gray-400"></i>
-                        <input type="text" id="searchUsers" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-medium text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all" placeholder="Search by email..." data-i18n-placeholder="searchUsers">
+                    <div class="relative w-full xs:w-auto flex-1">
+                        <i data-lucide="search" class="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 h-3 w-3 sm:h-4 sm:w-4 text-gray-400"></i>
+                        <input type="text" id="searchUsers" class="w-full pl-8 sm:pl-11 pr-3 sm:pr-4 py-2 sm:py-3 bg-gray-50 hover:bg-gray-100/50 border border-gray-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium text-myancode-black focus:bg-white focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all duration-200" placeholder="Search by email..." data-i18n-placeholder="searchUsers">
                     </div>
 
                     <!-- Role Filter -->
-                    <div class="relative w-full sm:w-auto min-w-[160px]">
-                        <select id="userFilter" onchange="setUserFilter(this.value)" class="w-full appearance-none bg-white border border-gray-100 rounded-2xl pl-4 pr-10 py-3 text-sm font-bold text-myancode-black focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                    <div class="relative w-full xs:w-auto min-w-[120px] sm:min-w-[160px]">
+                        <select id="userFilter" onchange="setUserFilter(this.value)" class="w-full appearance-none bg-gray-50 hover:bg-gray-100/50 border border-gray-100 rounded-xl sm:rounded-2xl pl-3 sm:pl-4 pr-8 sm:pr-10 py-2 sm:py-3 text-xs sm:text-sm font-bold text-myancode-black focus:bg-white focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm cursor-pointer transition-all duration-200">
                             <option value="all" data-i18n="fltAllUsers">All Accounts</option>
                             <option value="super-admin" data-i18n="fltSuperAdmins">Super Admins Only</option>
                             <option value="admin" data-i18n="fltAdmins">Admins Only</option>
                             <option value="user" data-i18n="fltStandardUsers">Standard Users</option>
                         </select>
-                        <i data-lucide="filter" class="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none"></i>
+                        <i data-lucide="filter" class="absolute right-3 sm:right-4 top-2.5 sm:top-3.5 h-3 w-3 sm:h-4 sm:w-4 text-gray-400 pointer-events-none"></i>
                     </div>
 
-                    <!-- INVITE ADMIN BUTTON -->
-                    <button onclick="openInviteAdminModal()" class="w-full sm:w-auto bg-myancode-blue text-white px-7 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-premium btn-hover-effect whitespace-nowrap hover:bg-blue-600 transition-colors">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i> <span data-i18n="btnInviteAdmin">Invite Admin</span>
+                    <button onclick="openInviteAdminModal()" class="w-full xs:w-auto bg-myancode-blue text-white px-4 py-2 xxs:px-5 xxs:py-2.5 sm:px-7 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 shadow-premium btn-hover-effect whitespace-nowrap hover:bg-blue-600 transition-colors">
+                        <i data-lucide="user-plus" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnInviteAdmin">Invite Admin</span>
                     </button>
                 </div>
             </div>
 
             <!-- Users Table -->
-            <div class="bg-white rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
-                <div class="overflow-x-auto p-2">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="text-gray-400 font-bold tracking-widest uppercase text-[10px] bg-white border-b border-gray-50">
+            <div class="bg-white rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
+                <div class="overflow-x-auto p-1 sm:p-2 no-scrollbar">
+                    <table class="w-full text-left whitespace-nowrap">
+                        <thead class="text-gray-500 font-bold tracking-widest uppercase text-[8px] xxs:text-[9px] sm:text-[10px] bg-gray-50/80 border-b border-gray-100">
                             <tr>
-                                <th class="px-6 py-5 rounded-tl-2xl" data-i18n="thUser">Account Identity</th>
-                                <th class="px-6 py-5" data-i18n="thRole">Clearance Role</th>
-                                <th class="px-6 py-5" data-i18n="thJoined">Date Provisioned</th>
-                                <th class="px-6 py-5 text-right rounded-tr-2xl" data-i18n="thActions">Actions</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 rounded-tl-xl sm:rounded-tl-2xl font-semibold" data-i18n="thUser">User Account</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thRole">Role & Access</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thJoined">Join Date</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 text-right rounded-tr-xl sm:rounded-tr-2xl font-semibold" data-i18n="thActions">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="usersTableBody" class="text-gray-700">
-                            <tr><td colspan="4" class="px-6 py-12 text-center text-gray-400 italic font-medium">Loading security protocols...</td></tr>
+                        <tbody id="usersTableBody" class="text-gray-700 text-[10px] sm:text-sm">
+                            <tr><td colspan="4" class="px-4 py-8 sm:px-6 sm:py-12 text-center text-gray-400 italic font-medium">Loading security protocols...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= NEWSLETTER SECTION ================= -->
+        <div id="newsletterSection" class="hidden">
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-4 sm:mb-6 gap-3 sm:gap-6 card-enter px-1 sm:px-0" style="animation-delay: 100ms;">
+                <div class="mb-1 sm:mb-0">
+                    <h1 class="text-lg xxs:text-xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-0.5 sm:mb-1" data-i18n="dashTitleNews">Newsletter Campaigns</h1>
+                    <p class="text-[10px] sm:text-sm text-gray-500 font-medium leading-snug" data-i18n="dashSubNews">Broadcast HTML emails to your subscriber base.</p>
+                </div>
+
+                <div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 sm:gap-3 w-full xl:w-auto">
+                    <!-- Compose Newsletter Button -->
+                    <button onclick="openNewsletterModal()" class="w-full xs:w-auto bg-myancode-black text-white px-4 py-2 xxs:px-5 xxs:py-2.5 sm:px-7 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 shadow-premium btn-hover-effect whitespace-nowrap">
+                        <i data-lucide="send" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnComposeNews">Compose Email</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Subscribers Table -->
+            <div class="bg-white rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
+                <div class="overflow-x-auto p-1 sm:p-2 no-scrollbar">
+                    <table class="w-full text-left whitespace-nowrap">
+                        <thead class="text-gray-500 font-bold tracking-widest uppercase text-[8px] xxs:text-[9px] sm:text-[10px] bg-gray-50/80 border-b border-gray-100">
+                            <tr>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 rounded-tl-xl sm:rounded-tl-2xl font-semibold" data-i18n="thUser">Subscriber Identity</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thJoined">Subscription Date</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thStatus">Status</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 text-right rounded-tr-xl sm:rounded-tr-2xl font-semibold" data-i18n="thActions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subscribersTableBody" class="text-gray-700 text-[10px] sm:text-sm">
+                            <tr><td colspan="4" class="px-4 py-8 sm:px-6 sm:py-12 text-center text-gray-400 italic font-medium">Fetching subscription lists...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -341,34 +447,34 @@
     </main>
 
     <!-- NOT AUTHORIZED SCREEN -->
-    <div id="unauthorizedScreen" class="hidden flex-grow flex-col items-center justify-center pt-32 px-4 text-center">
-        <div class="h-24 w-24 bg-red-50 rounded-full flex items-center justify-center mb-6 shadow-inner-soft">
-            <i data-lucide="shield-alert" class="w-12 h-12 text-red-500"></i>
+    <div id="unauthorizedScreen" class="hidden flex-grow flex-col items-center justify-center pt-20 sm:pt-32 px-4 text-center">
+        <div class="h-16 w-16 sm:h-24 sm:w-24 bg-red-50 rounded-full flex items-center justify-center mb-4 sm:mb-6 shadow-inner-soft">
+            <i data-lucide="shield-alert" class="w-8 h-8 sm:w-12 sm:h-12 text-red-500"></i>
         </div>
-        <h2 class="text-3xl font-bold tracking-tight text-myancode-black mb-3" data-i18n="errNoAccess">Clearance Restricted</h2>
-        <p class="text-base text-gray-500 mb-10 max-w-md font-medium leading-relaxed" data-i18n="errNoAccessDesc">Your current security clearance does not permit access to the enterprise operations center.</p>
-        <button onclick="safeRedirect('../index.html')" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold btn-hover-effect shadow-premium flex items-center gap-2">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Return to Public Site
+        <h2 class="text-xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-2 sm:mb-3" data-i18n="errNoAccess">Access Denied</h2>
+        <p class="text-xs sm:text-base text-gray-500 mb-6 sm:mb-10 max-w-md font-medium leading-relaxed" data-i18n="errNoAccessDesc">Your current security clearance does not permit access to the enterprise operations center.</p>
+        <button onclick="safeRedirect('../index.html')" class="bg-myancode-black text-white px-6 py-3 sm:px-10 sm:py-4 rounded-full text-xs sm:text-sm font-bold btn-hover-effect shadow-premium flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-3 h-3 sm:w-4 sm:h-4"></i> Return to Public Site
         </button>
     </div>
 
     <!-- FORCE PASSWORD CHANGE MODAL -->
-    <div id="forcePasswordModal" class="fixed inset-0 z-[300] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-2xl relative overflow-hidden modal-content transition-transform duration-300 scale-95">
-            <button id="closePwdBtn" onclick="closeForcePasswordModal()" class="absolute top-6 right-6 p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
-            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-[1.5rem] bg-orange-50 mb-6 border border-orange-100 shadow-inner-soft">
-                <i data-lucide="shield-check" class="h-8 w-8 text-orange-500"></i>
+    <div id="forcePasswordModal" class="fixed inset-0 z-[300] bg-black/60 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-2 sm:px-0">
+        <div class="bg-white p-5 xxs:p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-md shadow-2xl relative overflow-hidden modal-content transition-transform duration-300 scale-95 border border-gray-100">
+            <button id="closePwdBtn" onclick="closeForcePasswordModal()" class="absolute top-3 right-3 sm:top-6 sm:right-6 p-1.5 sm:p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+            <div class="mx-auto flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-xl sm:rounded-[1.5rem] bg-orange-50 mb-4 sm:mb-6 border border-orange-100 shadow-inner-soft">
+                <i data-lucide="shield-check" class="h-6 w-6 sm:h-8 sm:w-8 text-orange-500"></i>
             </div>
-            <h3 class="text-2xl font-bold tracking-tight text-myancode-black mb-2 text-center" data-i18n="pwdChangeTitle">Update Password</h3>
-            <p class="text-sm text-gray-500 mb-8 text-center leading-relaxed font-medium" data-i18n="pwdChangeDesc">Secure your enterprise account by setting a new, private password.</p>
+            <h3 class="text-lg sm:text-2xl font-bold tracking-tight text-myancode-black mb-1 sm:mb-2 text-center" data-i18n="pwdChangeTitle">Update Password</h3>
+            <p class="text-[10px] sm:text-sm text-gray-500 mb-5 sm:mb-8 text-center leading-relaxed font-medium" data-i18n="pwdChangeDesc">Secure your enterprise account by setting a new, private password.</p>
 
-            <div class="space-y-5">
+            <div class="space-y-4 sm:space-y-5">
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNewPwd">New Password *</label>
-                    <input type="password" id="newSecurePassword" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input focus:bg-white focus:ring-1 focus:ring-myancode-black" placeholder="••••••••">
+                    <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNewPwd">New Password *</label>
+                    <input type="password" id="newSecurePassword" required class="w-full px-4 py-2.5 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input focus:bg-white focus:ring-1 focus:ring-myancode-black transition-all duration-200" placeholder="••••••••">
                 </div>
-                <button type="button" onclick="saveNewPassword()" id="btnSaveNewPwd" class="w-full px-6 py-4 rounded-xl text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 btn-hover-effect">
-                    <i data-lucide="lock" class="w-4 h-4"></i> <span data-i18n="btnSavePwd">Secure Account</span>
+                <button type="button" onclick="saveNewPassword()" id="btnSaveNewPwd" class="w-full px-4 py-3 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95 flex items-center justify-center gap-1.5 sm:gap-2 btn-hover-effect">
+                    <i data-lucide="lock" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnSavePwd">Secure Account</span>
                 </button>
             </div>
         </div>
@@ -376,99 +482,99 @@
 
     <!-- ENTERPRISE UI TEMPLATE MODAL (Create / Edit) -->
     <div id="productModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-md modal-overlay" onclick="closeProductModal()"></div>
-        <div class="bg-[#fbfbfd] w-full max-w-5xl max-h-[90vh] sm:rounded-[2.5rem] rounded-t-3xl rounded-b-none shadow-2xl relative flex flex-col modal-content overflow-hidden mt-auto sm:m-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeProductModal()"></div>
+        <div class="bg-[#fbfbfd] w-[98%] max-w-5xl h-[95vh] sm:h-auto sm:max-h-[90vh] rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl relative flex flex-col modal-content overflow-hidden m-1 sm:m-4 mt-auto sm:mt-auto border border-gray-100">
             
-            <div class="px-8 py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200 text-myancode-black"><i data-lucide="layout-template" class="w-5 h-5"></i></div>
-                    <h3 class="text-xl font-bold text-myancode-black tracking-tight" id="modalTitle" data-i18n="modalTitleAdd">Add UI Template</h3>
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 shadow-sm shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="h-8 w-8 sm:h-10 sm:w-10 bg-gray-50 rounded-lg sm:rounded-xl flex items-center justify-center border border-gray-200 text-myancode-black"><i data-lucide="layout-template" class="w-4 h-4 sm:w-5 sm:h-5"></i></div>
+                    <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black tracking-tight" id="modalTitle" data-i18n="modalTitleAdd">Add UI Template</h3>
                 </div>
-                <button onclick="closeProductModal()" class="p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeProductModal()" class="p-1.5 sm:p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
             </div>
             
-            <div class="p-6 sm:p-8 overflow-y-auto no-scrollbar flex-1 relative">
-                <form id="productForm" class="space-y-8 max-w-4xl mx-auto">
+            <div class="p-4 sm:p-8 overflow-y-auto no-scrollbar flex-1 relative">
+                <form id="productForm" class="space-y-4 sm:space-y-8 max-w-4xl mx-auto">
                     <input type="hidden" id="formProductId">
                     
                     <!-- Section 1: Identification -->
-                    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="info" class="w-4 h-4"></i> Identification</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm">
+                        <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 sm:mb-6 flex items-center gap-1.5 sm:gap-2 border-b border-gray-50 pb-2 sm:pb-4"><i data-lucide="info" class="w-3 h-3 sm:w-4 sm:h-4"></i> Identification</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNameEn">Template Name (English) *</label>
-                                <input type="text" id="pNameEn" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="e.g. Corporate Pro">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNameEn">Template Name (English) *</label>
+                                <input type="text" id="pNameEn" required class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="e.g. Corporate Pro">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblNameMm">Template Name (Myanmar)</label>
-                                <input type="text" id="pNameMm" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="e.g. စီးပွားရေး Pro">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNameMm">Template Name (Myanmar)</label>
+                                <input type="text" id="pNameMm" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="e.g. စီးပွားရေး Pro">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblSlug">URL Slug *</label>
-                                <input type="text" id="pSlug" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm premium-input font-mono text-xs text-gray-600" placeholder="e.g. corporate-pro">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblSlug">URL Slug *</label>
+                                <input type="text" id="pSlug" required class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm premium-input font-mono text-gray-600 transition-all duration-200" placeholder="e.g. corporate-pro">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblSku">SKU (Stock Keeping Unit)</label>
-                                <input type="text" id="pSku" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm premium-input font-mono text-xs font-bold text-myancode-black" placeholder="e.g. MC-001">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblSku">SKU (Stock Keeping Unit)</label>
+                                <input type="text" id="pSku" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm premium-input font-mono font-bold text-myancode-black transition-all duration-200" placeholder="e.g. MC-001">
                             </div>
                         </div>
                     </div>
 
                     <!-- Section 2: Economics & Inventory -->
-                    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="credit-card" class="w-4 h-4"></i> Economics & Inventory</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm">
+                        <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 sm:mb-6 flex items-center gap-1.5 sm:gap-2 border-b border-gray-50 pb-2 sm:pb-4"><i data-lucide="credit-card" class="w-3 h-3 sm:w-4 sm:h-4"></i> Economics & Inventory</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-6">
                             <div class="sm:col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblPrice">Regular Price *</label>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblPrice">Regular Price *</label>
                                 <div class="relative">
-                                    <span class="absolute left-4 top-3.5 text-sm font-bold text-gray-400">MMK</span>
-                                    <input type="number" id="pPrice" required class="w-full pl-14 pr-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-bold text-myancode-black premium-input" placeholder="0">
+                                    <span class="absolute left-3 sm:left-4 top-2 sm:top-3.5 text-xs sm:text-sm font-bold text-gray-400">MMK</span>
+                                    <input type="number" id="pPrice" required class="w-full pl-10 sm:pl-14 pr-3 sm:pr-5 py-2 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-myancode-black premium-input transition-all duration-200" placeholder="0">
                                 </div>
                             </div>
                             <div class="sm:col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblDiscount">Discount Price</label>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblDiscount">Discount Price</label>
                                 <div class="relative">
-                                    <span class="absolute left-4 top-3.5 text-sm font-bold text-gray-400">MMK</span>
-                                    <input type="number" id="pDiscount" class="w-full pl-14 pr-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-bold text-red-500 premium-input" placeholder="0">
+                                    <span class="absolute left-3 sm:left-4 top-2 sm:top-3.5 text-xs sm:text-sm font-bold text-gray-400">MMK</span>
+                                    <input type="number" id="pDiscount" class="w-full pl-10 sm:pl-14 pr-3 sm:pr-5 py-2 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-red-500 premium-input transition-all duration-200" placeholder="0">
                                 </div>
                             </div>
                             <div class="sm:col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblCategory">Category</label>
-                                <input type="text" id="pCategory" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="e.g. Business">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblCategory">Category</label>
+                                <input type="text" id="pCategory" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="e.g. Business">
                             </div>
                             <div class="sm:col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblStock">Stock Level</label>
-                                <input type="number" id="pStock" value="99" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-bold text-myancode-black premium-input">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblStock">Stock Level</label>
+                                <input type="number" id="pStock" value="99" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-myancode-black premium-input transition-all duration-200">
                             </div>
                         </div>
                     </div>
 
                     <!-- Section 3: Media & Integrations -->
-                    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="image" class="w-4 h-4"></i> Media & Integrations</h4>
-                        <div class="space-y-6">
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm">
+                        <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 sm:mb-6 flex items-center gap-1.5 sm:gap-2 border-b border-gray-50 pb-2 sm:pb-4"><i data-lucide="image" class="w-3 h-3 sm:w-4 sm:h-4"></i> Media & Integrations</h4>
+                        <div class="space-y-4 sm:space-y-6">
                             
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblMainImg">Main Image URL</label>
-                                <div class="flex gap-3">
-                                    <div class="h-12 w-16 flex-shrink-0 bg-gray-100 rounded-xl border border-gray-200 overflow-hidden" id="previewMainImgContainer">
-                                        <i data-lucide="image" class="w-5 h-5 text-gray-400 m-auto mt-3.5"></i>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblMainImg">Main Image URL</label>
+                                <div class="flex gap-2 sm:gap-3">
+                                    <div class="h-8 w-12 sm:h-12 sm:w-16 flex-shrink-0 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-200 overflow-hidden flex items-center justify-center shadow-inner-soft" id="previewMainImgContainer">
+                                        <i data-lucide="image" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
                                     </div>
-                                    <input type="url" id="pMainImg" oninput="updateImagePreview(this.value)" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="https://...">
+                                    <input type="url" id="pMainImg" oninput="updateImagePreview(this.value)" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="https://...">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblGallery">Gallery URLs (Comma separated)</label>
-                                <textarea id="pGallery" rows="2" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input resize-none" placeholder="url1, url2, url3..."></textarea>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblGallery">Gallery URLs (Comma separated)</label>
+                                <textarea id="pGallery" rows="2" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input resize-none transition-all duration-200" placeholder="url1, url2, url3..."></textarea>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblDescEn">Description (English)</label>
-                                    <textarea id="pDescEn" rows="4" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input resize-none" placeholder="Detailed product description..."></textarea>
+                                    <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblDescEn">Description (English)</label>
+                                    <textarea id="pDescEn" rows="4" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input resize-none transition-all duration-200" placeholder="Detailed product description..."></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblDescMm">Description (Myanmar)</label>
-                                    <textarea id="pDescMm" rows="4" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input resize-none" placeholder="အသေးစိတ် အချက်အလက်များ..."></textarea>
+                                    <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblDescMm">Description (Myanmar)</label>
+                                    <textarea id="pDescMm" rows="4" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input resize-none transition-all duration-200" placeholder="အသေးစိတ် အချက်အလက်များ..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -476,122 +582,163 @@
                 </form>
             </div>
             
-            <div class="px-8 py-6 border-t border-gray-200/60 flex justify-end gap-4 bg-white z-10">
-                <button type="button" onclick="closeProductModal()" class="px-8 py-3.5 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
-                <button type="button" id="btnSaveProduct" onclick="saveProduct()" class="px-10 py-3.5 rounded-full text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-premium transition-all btn-hover-effect flex items-center gap-2">
-                    <i data-lucide="check" class="w-4 h-4"></i> <span data-i18n="btnSave">Save Database Entry</span>
+            <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-2 sm:gap-4 bg-white z-10 shrink-0">
+                <button type="button" onclick="closeProductModal()" class="px-4 py-2 sm:px-8 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button type="button" id="btnSaveProduct" onclick="saveProduct()" class="px-5 py-2 sm:px-10 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-premium transition-all btn-hover-effect flex items-center gap-1.5 sm:gap-2">
+                    <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnSave">Save Database Entry</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPOSE NEWSLETTER MODAL -->
+    <div id="newsletterModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden px-1 sm:px-0">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeNewsletterModal()"></div>
+        <div class="bg-[#fbfbfd] w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl relative flex flex-col modal-content overflow-hidden mt-auto sm:m-4 border border-gray-100">
+            
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 shadow-sm shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="h-8 w-8 sm:h-10 sm:w-10 bg-gray-50 rounded-lg sm:rounded-xl flex items-center justify-center border border-gray-200 text-myancode-black"><i data-lucide="mail" class="w-4 h-4 sm:w-5 sm:h-5"></i></div>
+                    <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black tracking-tight" data-i18n="modalTitleNews">Compose Newsletter</h3>
+                </div>
+                <button onclick="closeNewsletterModal()" class="p-1.5 sm:p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+            </div>
+            
+            <div class="p-4 sm:p-8 overflow-y-auto no-scrollbar flex-1 relative">
+                <form id="newsletterComposeForm" class="space-y-4 sm:space-y-8 max-w-3xl mx-auto">
+                    <!-- Email Content Section -->
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm">
+                        <div class="space-y-4 sm:space-y-6">
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNewsSubject">Email Subject *</label>
+                                <input type="text" id="newsSubject" required class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="e.g. Exciting Updates from MyanCode!">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNewsHtml">Rich HTML Content *</label>
+                                <textarea id="newsHtml" rows="8" sm:rows="12" required class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-mono premium-input resize-y transition-all duration-200" placeholder="<h2>Hello!</h2><p>Here are the latest updates...</p>"></textarea>
+                                <p class="text-[9px] sm:text-[11px] text-gray-400 mt-2 sm:mt-3 font-medium flex items-start gap-1 sm:gap-1.5"><i data-lucide="info" class="w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 shrink-0"></i> <span data-i18n="newsHtmlHelp">Use standard inline HTML and CSS. The unsubscribe link will be automatically appended to the bottom.</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-2 sm:gap-4 bg-white z-10 shrink-0">
+                <button type="button" onclick="closeNewsletterModal()" class="px-4 py-2 sm:px-8 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button type="button" id="btnSendNewsletter" onclick="sendNewsletter()" class="px-5 py-2 sm:px-10 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-premium transition-all btn-hover-effect flex items-center gap-1.5 sm:gap-2">
+                    <i data-lucide="send" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnSendNews">Send Campaign via Resend</span>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- INVITE ADMIN MODAL (SUPABASE NATIVE FLOW) -->
-    <div id="inviteAdminModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-md modal-overlay" onclick="closeInviteAdminModal()"></div>
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative flex flex-col modal-content mt-auto sm:m-4">
+    <div id="inviteAdminModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden px-2 sm:px-0">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeInviteAdminModal()"></div>
+        <div class="bg-white w-[98%] max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl relative flex flex-col modal-content mt-auto sm:m-4 border border-gray-100">
             
-            <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center z-10">
-                <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 text-myancode-blue"><i data-lucide="user-plus" class="w-5 h-5"></i></div>
-                    <h3 class="text-xl font-bold text-myancode-black tracking-tight" data-i18n="modalTitleInvite">Invite Administrator</h3>
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-100 flex justify-between items-center z-10 shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="h-8 w-8 sm:h-10 sm:w-10 bg-blue-50 rounded-lg sm:rounded-xl flex items-center justify-center border border-blue-100 text-myancode-blue"><i data-lucide="user-plus" class="w-4 h-4 sm:w-5 sm:h-5"></i></div>
+                    <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black tracking-tight" data-i18n="modalTitleInvite">Invite Administrator</h3>
                 </div>
-                <button onclick="closeInviteAdminModal()" class="p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeInviteAdminModal()" class="p-1.5 sm:p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
             </div>
             
-            <div class="p-8">
-                <div class="space-y-6">
+            <div class="p-5 sm:p-8">
+                <div class="space-y-4 sm:space-y-6">
                     <div>
-                        <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2" data-i18n="lblEmail">Email Address *</label>
-                        <input type="email" id="inviteEmail" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-2xl text-sm font-medium premium-input" placeholder="admin@example.com">
-                        <p class="text-[11px] text-gray-400 mt-3 font-medium flex items-start gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 mt-0.5 shrink-0"></i> <span data-i18n="inviteHelpText">Supabase will send an official email with a secure link allowing the user to set their own password and join your workspace.</span></p>
+                        <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblEmail">Email Address *</label>
+                        <input type="email" id="inviteEmail" required class="w-full px-4 py-2.5 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="admin@example.com">
+                        <p class="text-[9px] sm:text-[11px] text-gray-400 mt-2 sm:mt-3 font-medium flex items-start gap-1 sm:gap-1.5"><i data-lucide="info" class="w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 shrink-0"></i> <span data-i18n="inviteHelpText">Supabase will send an official email with a secure link allowing the user to set their own password and join your workspace.</span></p>
                     </div>
                 </div>
             </div>
             
-            <div class="px-8 pb-8 pt-2 flex justify-end gap-3 z-10">
-                <button type="button" onclick="closeInviteAdminModal()" class="flex-1 py-3.5 rounded-2xl text-sm font-bold text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
-                <button type="button" id="btnSubmitInvite" onclick="submitInviteAdmin()" class="flex-[1.5] py-3.5 rounded-2xl text-sm font-bold text-white bg-myancode-blue hover:bg-blue-600 shadow-md transition-all btn-hover-effect flex items-center justify-center gap-2">
-                    <i data-lucide="send" class="w-4 h-4"></i> <span data-i18n="btnSendInvite">Send Invite Link</span>
+            <div class="px-4 pb-4 pt-1 sm:px-8 sm:pb-8 sm:pt-2 flex justify-end gap-2 sm:gap-3 z-10 shrink-0">
+                <button type="button" onclick="closeInviteAdminModal()" class="flex-1 py-2 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button type="button" id="btnSubmitInvite" onclick="submitInviteAdmin()" class="flex-[1.5] py-2 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-white bg-myancode-blue hover:bg-blue-600 shadow-md transition-all btn-hover-effect flex items-center justify-center gap-1.5 sm:gap-2">
+                    <i data-lucide="send" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnSendInvite">Send Invite Link</span>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- UI TEMPLATE: INVITE SUCCESS MODAL -->
-    <div id="inviteSuccessModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-sm shadow-2xl relative overflow-hidden text-center modal-content transition-transform duration-300 scale-95">
-            <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-blue-50 mb-6 border border-blue-100 shadow-inner-soft">
-                <i data-lucide="mail-check" class="h-10 w-10 text-myancode-blue"></i>
+    <div id="inviteSuccessModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-2 sm:px-0">
+        <div class="bg-white p-5 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-sm shadow-2xl relative overflow-hidden text-center modal-content transition-transform duration-300 scale-95 border border-gray-100">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 sm:h-20 sm:w-20 rounded-xl sm:rounded-[1.5rem] bg-blue-50 mb-4 sm:mb-6 border border-blue-100 shadow-inner-soft">
+                <i data-lucide="mail-check" class="h-8 w-8 sm:h-10 sm:w-10 text-myancode-blue"></i>
             </div>
-            <h3 class="text-2xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="inviteSuccessTitle">Invitation Sent</h3>
-            <p class="text-sm text-gray-500 mb-8 leading-relaxed font-medium" data-i18n="inviteSuccessDesc">An official invitation link has been securely dispatched via Supabase. The user will be prompted to set their own password upon clicking the link.</p>
+            <h3 class="text-lg sm:text-2xl font-bold tracking-tight text-myancode-black mb-1 sm:mb-2" data-i18n="inviteSuccessTitle">Invitation Sent</h3>
+            <p class="text-[10px] sm:text-sm text-gray-500 mb-5 sm:mb-8 leading-relaxed font-medium" data-i18n="inviteSuccessDesc">An official invitation link has been securely dispatched via Supabase. The user will be prompted to set their own password upon clicking the link.</p>
 
-            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center mb-8 shadow-inner-soft">
-                <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1.5" data-i18n="inviteSentTo">Sent To</p>
-                <code class="text-[13px] font-bold text-myancode-blue truncate block" id="displayInviteEmail">email@domain.com</code>
+            <div class="bg-gray-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 text-center mb-5 sm:mb-8 shadow-inner-soft">
+                <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1 sm:mb-1.5" data-i18n="inviteSentTo">Sent To</p>
+                <code class="text-[11px] sm:text-[13px] font-bold text-myancode-blue truncate block" id="displayInviteEmail">email@domain.com</code>
             </div>
 
-            <button onclick="closeInviteSuccessModal()" class="w-full px-6 py-4 rounded-xl text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95">Done</button>
+            <button onclick="closeInviteSuccessModal()" class="w-full px-4 py-3 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95">Done</button>
         </div>
     </div>
 
     <!-- UI TEMPLATE: PASSWORD RESET SUCCESS MODAL (SEND NOW FLOW) -->
-    <div id="pwdResetSuccessModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-xl shadow-2xl relative overflow-hidden text-center modal-content transition-transform duration-300 scale-95">
-            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-[1.5rem] bg-green-50 mb-6 border border-green-100 shadow-inner-soft">
-                <i data-lucide="check-circle" class="h-8 w-8 text-green-500"></i>
+    <div id="pwdResetSuccessModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-2 sm:px-0">
+        <div class="bg-white p-5 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-xl shadow-2xl relative overflow-hidden text-center modal-content transition-transform duration-300 scale-95 border border-gray-100">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-xl sm:rounded-[1.5rem] bg-green-50 mb-4 sm:mb-6 border border-green-100 shadow-inner-soft">
+                <i data-lucide="check-circle" class="h-6 w-6 sm:h-8 sm:w-8 text-green-500"></i>
             </div>
-            <h3 class="text-2xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="pwdResetTitle">Password Reset Successful</h3>
-            <p class="text-sm text-gray-500 mb-6" data-i18n="pwdResetDesc">The password is now set to default. Click Send Now to open your email app and paste the UI template.</p>
+            <h3 class="text-lg sm:text-2xl font-bold tracking-tight text-myancode-black mb-1 sm:mb-2" data-i18n="pwdResetTitle">Password Reset Successful</h3>
+            <p class="text-[10px] sm:text-sm text-gray-500 mb-4 sm:mb-6" data-i18n="pwdResetDesc">The password is now set to default. Click Send Now to open your email app and paste the UI template.</p>
 
-            <div class="bg-gray-50 rounded-2xl p-5 mb-8 border border-gray-100 text-left relative shadow-inner-soft">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="layout-template" class="w-3 h-3"></i> Rich HTML Email Preview</p>
-                <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm pointer-events-none select-none">
-                    <h4 class="font-bold text-sm text-black mb-2 tracking-tight">Account Recovery Initiated</h4>
-                    <p class="text-[11px] text-gray-500 leading-relaxed mb-4 font-medium">Hello,<br>You are verified as an owner by our organization. Your account password has been successfully recovered and reset.</p>
-                    <div class="bg-gray-50 p-3 rounded-lg text-center mb-4 border border-gray-100 shadow-inner-soft">
-                        <span class="text-[9px] text-gray-400 uppercase font-bold tracking-widest block mb-1.5">Temporary Password</span>
-                        <code class="text-[12px] font-bold text-black break-all">My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03</code>
+            <div class="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-5 mb-5 sm:mb-8 border border-gray-100 text-left relative shadow-inner-soft">
+                <p class="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2"><i data-lucide="layout-template" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i> Rich HTML Email Preview</p>
+                <div class="bg-white p-3 sm:p-5 rounded-lg sm:rounded-xl border border-gray-200 shadow-sm pointer-events-none select-none">
+                    <h4 class="font-bold text-xs sm:text-sm text-black mb-1.5 sm:mb-2 tracking-tight">Account Recovery Initiated</h4>
+                    <p class="text-[9px] sm:text-[11px] text-gray-500 leading-relaxed mb-3 sm:mb-4 font-medium">Hello,<br>You are verified as an owner by our organization. Your account password has been successfully recovered and reset.</p>
+                    <div class="bg-gray-50 p-2.5 sm:p-3 rounded-md sm:rounded-lg text-center mb-3 sm:mb-4 border border-gray-100 shadow-inner-soft">
+                        <span class="text-[7px] sm:text-[9px] text-gray-400 uppercase font-bold tracking-widest block mb-1 sm:mb-1.5">Temporary Password</span>
+                        <code class="text-[10px] sm:text-[12px] font-bold text-black break-all">My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03</code>
                     </div>
-                    <div class="inline-block bg-black text-white text-[10px] font-bold px-4 py-2 rounded-full">Proceed to Login</div>
+                    <div class="inline-block bg-black text-white text-[8px] sm:text-[10px] font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">Proceed to Login</div>
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-3 w-full">
-                <button onclick="closePwdResetModal()" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors">Done</button>
-                <button onclick="copyHtmlEmailTemplate()" class="flex-[1.5] px-6 py-4 rounded-xl text-sm font-bold text-myancode-black bg-gray-50 border border-gray-200 hover:bg-gray-100 shadow-sm transition-all flex items-center justify-center gap-2 btn-hover-effect">
-                    <i data-lucide="copy" class="w-4 h-4"></i> Copy Template
+            <div class="flex flex-col xs:flex-row gap-2 sm:gap-3 w-full">
+                <button onclick="closePwdResetModal()" class="flex-1 px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors">Done</button>
+                <button onclick="copyHtmlEmailTemplate()" class="flex-[1.5] px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-myancode-black bg-gray-50 border border-gray-200 hover:bg-gray-100 shadow-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 btn-hover-effect">
+                    <i data-lucide="copy" class="w-3 h-3 sm:w-4 sm:h-4"></i> Copy Template
                 </button>
-                <button onclick="sendNowEmail()" class="flex-[1.5] px-6 py-4 rounded-xl text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all flex items-center justify-center gap-2 btn-hover-effect">
-                    <i data-lucide="send" class="w-4 h-4"></i> Send Now
+                <button onclick="sendNowEmail()" class="flex-[1.5] px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all flex items-center justify-center gap-1.5 sm:gap-2 btn-hover-effect">
+                    <i data-lucide="send" class="w-3 h-3 sm:w-4 sm:h-4"></i> Send Now
                 </button>
             </div>
         </div>
     </div>
 
     <!-- CUSTOM ACTION CONFIRMATION MODAL -->
-    <div id="actionConfirmModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 text-center relative overflow-hidden" id="actionConfirmModalContent">
-            <div id="acModalIconContainer" class="mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-gray-50 mb-6 shadow-inner-soft border border-gray-100">
-                <i id="acModalIcon" data-lucide="alert-circle" class="h-10 w-10 text-gray-500"></i>
+    <div id="actionConfirmModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-2 sm:px-0">
+        <div class="bg-white p-5 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 text-center relative overflow-hidden border border-gray-100" id="actionConfirmModalContent">
+            <div id="acModalIconContainer" class="mx-auto flex items-center justify-center h-12 w-12 sm:h-20 sm:w-20 rounded-xl sm:rounded-[1.5rem] bg-gray-50 mb-4 sm:mb-6 shadow-inner-soft border border-gray-100">
+                <i id="acModalIcon" data-lucide="alert-circle" class="h-6 w-6 sm:h-10 sm:w-10 text-gray-500"></i>
             </div>
-            <h3 id="acModalTitle" class="text-2xl font-bold tracking-tight text-myancode-black mb-3">Are you sure?</h3>
-            <p id="acModalMessage" class="text-sm text-gray-500 mb-8 leading-relaxed font-medium">This action cannot be undone.</p>
-            <div class="flex space-x-3 w-full">
-                <button onclick="closeConfirmModal()" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors" data-i18n="btnCancel">Cancel</button>
-                <button id="acModalConfirmBtn" class="flex-1 px-6 py-4 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-95">Confirm</button>
+            <h3 id="acModalTitle" class="text-lg sm:text-2xl font-bold tracking-tight text-myancode-black mb-1.5 sm:mb-3">Are you sure?</h3>
+            <p id="acModalMessage" class="text-[10px] sm:text-sm text-gray-500 mb-5 sm:mb-8 leading-relaxed font-medium">This action cannot be undone.</p>
+            <div class="flex space-x-2 sm:space-x-3 w-full">
+                <button onclick="closeConfirmModal()" class="flex-1 px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button id="acModalConfirmBtn" class="flex-1 px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95">Confirm</button>
             </div>
         </div>
     </div>
 
     <!-- Notification Toasts -->
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center whitespace-nowrap">
-        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
-        <span id="toast-msg" class="text-sm font-bold tracking-wide">Success!</span>
+    <div id="toast" class="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center whitespace-nowrap">
+        <i data-lucide="check-circle-2" class="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 text-green-400"></i>
+        <span id="toast-msg" class="text-xs sm:text-sm font-bold tracking-wide">Success!</span>
     </div>
-    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center whitespace-nowrap">
-        <i data-lucide="alert-triangle" class="h-5 w-5 mr-3 text-white"></i>
-        <span id="error-toast-msg" class="text-sm font-bold tracking-wide">Error!</span>
+    <div id="error-toast" class="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl shadow-premium transform translate-y-24 opacity-0 transition-all duration-500 z-[1000] flex items-center justify-center whitespace-nowrap">
+        <i data-lucide="alert-triangle" class="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 text-white"></i>
+        <span id="error-toast-msg" class="text-xs sm:text-sm font-bold tracking-wide">Error!</span>
     </div>
 
     <script>
@@ -600,6 +747,7 @@
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
         let allProducts = [];
         let allUsers = [];
+        let allSubscribers = [];
         
         let currentProductFilter = 'all';
         let currentUserFilter = 'all';
@@ -607,79 +755,87 @@
         const dict = {
             en: {
                 langSelect: "Language", hdrLogout: "Sign Out", loadingAuth: "Authenticating Identity...", loadingData: "Syncing Cloud Data...",
-                tabOverall: "Overview", tabProducts: "Products", tabUsers: "Directory",
-                ovwTitle: "Operations Center", ovwSub: "High-level metrics and system monitoring for the enterprise workspace.",
-                sysHealth: "System Health: Optimal", sysHealthDesc: "All database connections, real-time channels, and APIs are operating normally.",
+                tabOverall: "Overview", tabProducts: "Products", tabUsers: "Users", tabNewsletter: "Newsletter",
+                ovwTitle: "Dashboard Overview", ovwSub: "High-level metrics and system performance.",
+                sysHealth: "System Status: Online", sysHealthDesc: "All services, databases, and APIs are running smoothly.",
                 statSuperAdmins: "Super Admins", statAdmins: "Active Admins", statUsers: "Standard Users",
                 statTotalProd: "Total Templates", statLowStock: "Templates out of stock or requiring attention", statActive: "Active Templates deployed to production",
-                dashTitle: "UI Template Database", dashSub: "Manage enterprise UI templates, pricing, and live previews.",
-                btnAddProduct: "Add Template", adminBadge: "Enterprise", btnGoToSite: "View Site",
-                dashTitleUsers: "Enterprise Directory", dashSubUsers: "Manage registered accounts and organizational clearance roles.",
-                thImage: "Item", thName: "Name & Slug", thPrice: "Pricing", thStatus: "Status", thActions: "Actions", thSku: "SKU & Category",
-                thUser: "Account Identity", thRole: "Clearance Role", thJoined: "Date Provisioned",
+                dashTitle: "Product Management", dashSub: "Manage your templates, pricing, and inventory.",
+                btnAddProduct: "Add Template", adminBadge: "Admin Workspace", btnGoToSite: "View Site",
+                dashTitleUsers: "User Management", dashSubUsers: "Manage user accounts, roles, and access permissions.",
+                dashTitleNews: "Newsletter Campaigns", dashSubNews: "Broadcast HTML emails to your subscriber base.", btnComposeNews: "Compose Email",
+                thImage: "Product", thName: "Name & Slug", thPrice: "Pricing", thStatus: "Status", thActions: "Actions", thSku: "SKU & Category",
+                thUser: "User Account", thRole: "Role & Access", thJoined: "Join Date",
                 fltAllProd: "All Templates", fltGrpStatus: "By Status", fltActive: "Active Only", fltOOS: "Out of Stock",
                 fltGrpCategories: "By Category",
                 fltAllUsers: "All Accounts", fltSuperAdmins: "Super Admins Only", fltAdmins: "Admins Only", fltStandardUsers: "Standard Users",
-                errNoAccess: "Clearance Restricted", errNoAccessDesc: "Your current security clearance does not permit access to the enterprise operations center.",
-                modalTitleAdd: "Add UI Template", modalTitleEdit: "Edit Template",
+                errNoAccess: "Access Denied", errNoAccessDesc: "Your current security clearance does not permit access to the enterprise operations center.",
+                modalTitleAdd: "Add UI Template", modalTitleEdit: "Edit Template", modalTitleNews: "Compose Newsletter",
                 lblNameEn: "Template Name (English) *", lblNameMm: "Template Name (Myanmar)", lblSlug: "URL Slug *", lblSku: "SKU (Stock Keeping Unit)",
                 lblPrice: "Regular Price *", lblDiscount: "Discount Price", lblCategory: "Category", lblStock: "Stock Level",
                 lblMainImg: "Main Image URL", lblGallery: "Gallery URLs (Comma separated)",
                 lblDescEn: "Description (English)", lblDescMm: "Description (Myanmar)",
-                btnCancel: "Cancel", btnSave: "Save Database Entry", btnEdit: "Edit", btnDelete: "Delete",
+                lblNewsSubject: "Email Subject *", lblNewsHtml: "Rich HTML Content *", newsHtmlHelp: "Use standard inline HTML and CSS. The unsubscribe link will be automatically appended to the bottom.",
+                btnCancel: "Cancel", btnSave: "Save Database Entry", btnEdit: "Edit", btnDelete: "Delete", btnSendNews: "Send Campaign via Resend",
                 btnMakeSuperAdmin: "Promote Super Admin", btnMakeAdmin: "Promote Admin", btnMakeUser: "Demote User",
                 btnInviteAdmin: "Invite Admin", modalTitleInvite: "Invite Administrator", btnSendInvite: "Send Invite Link",
                 lblEmail: "Email Address *", inviteHelpText: "Supabase will send an official email with a secure link allowing the user to set their own password and join your workspace.",
                 inviteSuccessTitle: "Invitation Sent", inviteSuccessDesc: "An official invitation link has been securely dispatched via Supabase. The user will be prompted to set their own password upon clicking the link.", inviteSentTo: "Sent To",
-                msgSaveSuccess: "Database entry saved successfully.", msgDeleteSuccess: "Entry securely deleted.", msgRoleUpdated: "Security role updated.",
+                msgSaveSuccess: "Database entry saved successfully.", msgDeleteSuccess: "Entry securely deleted.", msgRoleUpdated: "Security role updated.", msgNewsSent: "Newsletter dispatched successfully to all subscribers!", msgSubDeleteSuccess: "Subscriber removed successfully.",
                 searchProd: "Search templates...", searchUsers: "Search by email...",
                 msgPassReset: "Password reset to default successfully.",
                 lblProtected: "Protected", lblRestricted: "Restricted",
                 confirmDeleteTitle: "Delete Template", confirmDeleteMsg: "Are you sure you want to permanently delete this template from the database?",
                 confirmUserDeleteTitle: "Terminate Account", confirmUserDeleteMsg: "Are you sure you want to completely erase this user account?",
+                confirmSubDeleteTitle: "Delete Subscriber", confirmSubDeleteMsg: "Are you sure you want to permanently remove this email from your mailing list?",
                 confirmRoleTitle: "Update Clearance", confirmRoleMsg: "Are you sure you want to modify this user's security clearance level?",
                 confirmResetTitle: "Force Reset Password", confirmResetMsg: "Reset this user's password to the organizational default? A UI template to copy the email notification will open upon success.",
                 pwdResetTitle: "Password Reset Successful", pwdResetDesc: "The password is now set to default. Click Send Now to open your email app and paste the UI template.",
                 pwdChangeTitle: "Update Password", pwdChangeDesc: "Secure your enterprise account by setting a new, private password.",
-                lblNewPwd: "New Password *", btnSavePwd: "Secure Account", msgPwdSaved: "Password successfully updated!", btnChangePwd: "Security"
+                lblNewPwd: "New Password *", btnSavePwd: "Secure Account", msgPwdSaved: "Password successfully updated!", btnChangePwd: "Security",
+                btnMusic: "Radio", musicSpace: "Focus Space"
             },
             mm: {
                 langSelect: "ဘာသာစကား", hdrLogout: "အကောင့်ထွက်ရန်", loadingAuth: "အခွင့်အာဏာ စစ်ဆေးနေပါသည်...", loadingData: "ဒေတာရယူနေပါသည်...",
-                tabOverall: "အကျဉ်းချုပ်", tabProducts: "ကုန်ပစ္စည်းများ", tabUsers: "လမ်းညွှန်",
-                ovwTitle: "စီမံခန့်ခွဲမှု စင်တာ", ovwSub: "အချက်အလက်များနှင့် လုပ်ဆောင်မှုများကို အကျဉ်းချုပ် ကြည့်ရှုပါ။",
-                sysHealth: "စနစ် အခြေအနေ - ကောင်းမွန်", sysHealthDesc: "ဒေတာဘေ့စ်နှင့် လင့်ခ်များအားလုံး ပုံမှန်အလုပ်လုပ်နေပါသည်။",
+                tabOverall: "အကျဉ်းချုပ်", tabProducts: "ကုန်ပစ္စည်းများ", tabUsers: "အသုံးပြုသူများ", tabNewsletter: "သတင်းလွှာ",
+                ovwTitle: "အကျဉ်းချုပ် အချက်အလက်များ", ovwSub: "စနစ်ပိုင်းဆိုင်ရာ အချက်အလက်များနှင့် လုပ်ဆောင်မှုများ",
+                sysHealth: "စနစ် အခြေအနေ - ပုံမှန်", sysHealthDesc: "ဆာဗာနှင့် ဒေတာဘေ့စ် ချိတ်ဆက်မှုအားလုံး ပုံမှန်အလုပ်လုပ်နေပါသည်။",
                 statSuperAdmins: "အက်ဒမင်ချုပ်များ", statAdmins: "အက်ဒမင်များ", statUsers: "အသုံးပြုသူများ",
                 statTotalProd: "ဝက်ဘ်ဆိုက် စုစုပေါင်း", statLowStock: "လက်ကျန်မရှိသော / အာရုံစိုက်ရန်လိုသော", statActive: "လွှင့်တင်ထားသော ဝက်ဘ်ဆိုက်များ",
-                dashTitle: "ဝက်ဘ်ဆိုက် ကတ်တလောက်", dashSub: "ဝက်ဘ်ဆိုက်များ၊ ဈေးနှုန်းနှင့် လက်ကျန်များကို ပြင်ဆင်ပါ။",
-                btnAddProduct: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", adminBadge: "လုပ်ငန်းသုံး", btnGoToSite: "ဝက်ဘ်ဆိုက်သို့",
-                dashTitleUsers: "အသုံးပြုသူ လမ်းညွှန်", dashSubUsers: "အကောင့်များနှင့် အခွင့်အာဏာများကို စီမံပါ။",
-                thImage: "အရာဝတ္ထု", thName: "အမည် နှင့် Slug", thPrice: "ဈေးနှုန်း", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ချက်များ", thSku: "SKU နှင့် အမျိုးအစား",
-                thUser: "အကောင့်", thRole: "အခွင့်အာဏာ", thJoined: "ဝင်ရောက်သည့်နေ့",
+                dashTitle: "ကုန်ပစ္စည်း စီမံခန့်ခွဲမှု", dashSub: "ဝက်ဘ်ဆိုက်များ၊ ဈေးနှုန်းနှင့် လက်ကျန်များကို စီမံပါ။",
+                btnAddProduct: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", adminBadge: "စီမံခန့်ခွဲသူ ဧရိယာ", btnGoToSite: "ဝက်ဘ်ဆိုက်သို့",
+                dashTitleUsers: "အသုံးပြုသူများ စီမံခန့်ခွဲမှု", dashSubUsers: "အကောင့်များနှင့် အခွင့်အာဏာ အဆင့်များကို စီမံပါ။",
+                dashTitleNews: "သတင်းလွှာနှင့် ကြော်ငြာများ", dashSubNews: "စာရင်းသွင်းထားသူများထံ အီးမေးလ်များ ပေးပို့ပါ။", btnComposeNews: "အီးမေးလ် ရေးရန်",
+                thImage: "ပုံ", thName: "အမည် နှင့် Slug", thPrice: "ဈေးနှုန်း", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ချက်များ", thSku: "SKU နှင့် အမျိုးအစား",
+                thUser: "အကောင့် အချက်အလက်", thRole: "အခွင့်အာဏာ အဆင့်", thJoined: "စတင်အသုံးပြုသည့်နေ့",
                 fltAllProd: "အားလုံး", fltGrpStatus: "အခြေအနေအရ", fltActive: "လွှင့်တင်ထားသော", fltOOS: "လက်ကျန်မရှိသော",
                 fltGrpCategories: "အမျိုးအစားအရ",
                 fltAllUsers: "အကောင့်အားလုံး", fltSuperAdmins: "အက်ဒမင်ချုပ်များသာ", fltAdmins: "အက်ဒမင်များသာ", fltStandardUsers: "သာမန်အသုံးပြုသူ",
                 errNoAccess: "ဝင်ရောက်ခွင့် ကန့်သတ်ထားသည်", errNoAccessDesc: "သင့်အကောင့်သည် ဤစီမံခန့်ခွဲရေး နေရာသို့ ဝင်ရောက်ခွင့် မရှိပါ။",
-                modalTitleAdd: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", modalTitleEdit: "ဝက်ဘ်ဆိုက် ပြင်ဆင်မည်",
+                modalTitleAdd: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", modalTitleEdit: "ဝက်ဘ်ဆိုက် ပြင်ဆင်မည်", modalTitleNews: "သတင်းလွှာ ရေးရန်",
                 lblNameEn: "အမည် (English) *", lblNameMm: "အမည် (Myanmar)", lblSlug: "လင့်ခ်အမည် *", lblSku: "SKU (ကုဒ်နံပါတ်)",
                 lblPrice: "မူလ ဈေးနှုန်း *", lblDiscount: "လျှော့ဈေး", lblCategory: "အမျိုးအစား", lblStock: "လက်ကျန် အရေအတွက်",
                 lblMainImg: "ပင်မ ပုံလင့်ခ် (URL)", lblGallery: "ပုံများလင့်ခ် (ကော်မာခံ၍ရေးပါ)",
                 lblDescEn: "အကြောင်းအရာ (English)", lblDescMm: "အကြောင်းအရာ (Myanmar)",
-                btnCancel: "ပယ်ဖျက်မည်", btnSave: "ဒေတာဘေ့စ်သို့ သိမ်းမည်", btnEdit: "ပြင်မည်", btnDelete: "ဖျက်မည်",
+                lblNewsSubject: "အီးမေးလ် အကြောင်းအရာ *", lblNewsHtml: "HTML စာသား *", newsHtmlHelp: "Inline HTML နှင့် CSS ကို အသုံးပြုပါ။ Unsubscribe လင့်ခ်ကို အောက်ခြေတွင် အလိုအလျောက် ထည့်သွင်းပေးပါမည်။",
+                btnCancel: "ပယ်ဖျက်မည်", btnSave: "ဒေတာဘေ့စ်သို့ သိမ်းမည်", btnEdit: "ပြင်မည်", btnDelete: "ဖျက်မည်", btnSendNews: "Resend ဖြင့် ပေးပို့မည်",
                 btnMakeSuperAdmin: "အက်ဒမင်ချုပ် ပြောင်းမည်", btnMakeAdmin: "အက်ဒမင် ပြောင်းမည်", btnMakeUser: "သာမန်အသုံးပြုသူ ပြောင်းမည်",
                 btnInviteAdmin: "အက်ဒမင် ဖိတ်ကြားမည်", modalTitleInvite: "အက်ဒမင်အသစ် ဖိတ်ကြားမည်", btnSendInvite: "ဖိတ်စာ ပေးပို့မည်",
                 lblEmail: "အီးမေးလ် *", inviteHelpText: "Supabase မှ အသုံးပြုသူထံသို့ တရားဝင်ဖိတ်စာ လင့်ခ်ပေးပို့သွားမည်ဖြစ်သည်။ အသုံးပြုသူမှ မိမိစကားဝှက်ကို ကိုယ်တိုင်သတ်မှတ်နိုင်မည်ဖြစ်သည်။",
                 inviteSuccessTitle: "ဖိတ်ကြားမှု အောင်မြင်ပါသည်", inviteSuccessDesc: "Supabase မှတဆင့် ဖိတ်စာပေးပို့ပြီးပါပြီ။ လင့်ခ်ကိုနှိပ်၍ အသုံးပြုသူမှ စကားဝှက်သတ်မှတ်နိုင်ပါသည်။", inviteSentTo: "ပေးပို့ထားသော အီးမေးလ်",
-                msgSaveSuccess: "ဒေတာဘေ့စ် သိမ်းဆည်းမှု အောင်မြင်ပါသည်!", msgDeleteSuccess: "အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။", msgRoleUpdated: "အခွင့်အာဏာ ပြောင်းလဲမှု အောင်မြင်ပါသည်!",
+                msgSaveSuccess: "ဒေတာဘေ့စ် သိမ်းဆည်းမှု အောင်မြင်ပါသည်!", msgDeleteSuccess: "အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။", msgRoleUpdated: "အခွင့်အာဏာ ပြောင်းလဲမှု အောင်မြင်ပါသည်!", msgNewsSent: "စာရင်းသွင်းထားသူများအားလုံးထံ အီးမေးလ်ပေးပို့ပြီးပါပြီ!", msgSubDeleteSuccess: "စာရင်းသွင်းသူအား ဖယ်ရှားပြီးပါပြီ။",
                 searchProd: "ရှာဖွေပါ...", searchUsers: "အီးမေးလ်ဖြင့် ရှာဖွေပါ...",
                 msgPassReset: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းလဲပြီးပါပြီ။",
                 lblProtected: "ကာကွယ်ထားသည်", lblRestricted: "ကန့်သတ်ထားသည်",
                 confirmDeleteTitle: "ဝက်ဘ်ဆိုက် ဖျက်မည်", confirmDeleteMsg: "ဤဝက်ဘ်ဆိုက်ကို ဒေတာဘေ့စ်မှ အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
                 confirmUserDeleteTitle: "အကောင့် ဖျက်သိမ်းမည်", confirmUserDeleteMsg: "ဤအသုံးပြုသူ အကောင့်ကို အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
+                confirmSubDeleteTitle: "စာရင်းသွင်းသူ ဖယ်ရှားမည်", confirmSubDeleteMsg: "ဤအီးမေးလ်အား သင်၏ သတင်းလွှာစာရင်းမှ အပြီးအပိုင် ဖယ်ရှားရန် သေချာပါသလား?",
                 confirmRoleTitle: "အခွင့်အာဏာ ပြောင်းမည်", confirmRoleMsg: "ဤအသုံးပြုသူ၏ အခွင့်အာဏာ အဆင့်ကို ပြောင်းလဲရန် သေချာပါသလား?",
                 confirmResetTitle: "မူလစကားဝှက်သို့ ပြောင်းမည်", confirmResetMsg: "ဤအသုံးပြုသူ၏ စကားဝှက်ကို မူလစကားဝှက်သို့ အတင်းအကျပ်ပြောင်းမည်လား? အောင်မြင်ပါက အီးမေးလ်ပို့ရန် ပုံစံတစ်ခု ကျလာပါမည်။",
                 pwdResetTitle: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်", pwdResetDesc: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းပြီးပါပြီ။ Send Now ကို နှိပ်ပြီး Email ကို ပေးပို့ပါ။",
                 pwdChangeTitle: "စကားဝှက် ပြောင်းရန်", pwdChangeDesc: "သင့်အကောင့်ကို လုံခြုံစေရန်အတွက် ကိုယ်ပိုင် စကားဝှက်အသစ်တစ်ခု သတ်မှတ်ပါ။",
-                lblNewPwd: "စကားဝှက်အသစ် *", btnSavePwd: "လုံခြုံရေး အတည်ပြုမည်", msgPwdSaved: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်!", btnChangePwd: "လုံခြုံရေး"
+                lblNewPwd: "စကားဝှက်အသစ် *", btnSavePwd: "လုံခြုံရေး အတည်ပြုမည်", msgPwdSaved: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်!", btnChangePwd: "လုံခြုံရေး",
+                btnMusic: "ရေဒီယို", musicSpace: "အပန်းဖြေ နေရာ"
             }
         };
 
@@ -698,8 +854,70 @@
         }
 
         function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
-        function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); }
-        document.addEventListener('click', (e) => { const drop = document.getElementById('langDropdown'); const btn = document.getElementById('langContainer'); if (drop && !drop.classList.contains('dropdown-hidden') && (!btn || !btn.contains(e.target))) drop.classList.add('dropdown-hidden'); });
+        
+        function toggleLangDropdown(e) { 
+            e.stopPropagation(); 
+            document.getElementById('musicDropdown').classList.add('dropdown-hidden'); 
+            document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); 
+        }
+
+        function toggleMusicDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('langDropdown').classList.add('dropdown-hidden'); 
+            document.getElementById('musicDropdown').classList.toggle('dropdown-hidden');
+        }
+
+        document.addEventListener('click', (e) => { 
+            const langDrop = document.getElementById('langDropdown'); 
+            const langBtn = document.getElementById('langContainer'); 
+            if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden'); 
+            
+            const musicDrop = document.getElementById('musicDropdown');
+            const musicBtn = document.getElementById('musicContainer');
+            if (musicDrop && !musicDrop.classList.contains('dropdown-hidden') && (!musicBtn || !musicBtn.contains(e.target))) musicDrop.classList.add('dropdown-hidden');
+        });
+
+        /* --- NATIVE AUDIO PLAYER LOGIC --- */
+        function toggleNativeAudio() {
+            const audio = document.getElementById('nativeAudioPlayer');
+            const icon = document.getElementById('nativeAudioIcon');
+            const visualizer = document.getElementById('audioVisualizer');
+            const artIcon = document.getElementById('radioArtIcon');
+            
+            audio.volume = document.getElementById('nativeAudioVolume').value;
+            
+            if (audio.paused) {
+                audio.play().then(() => {
+                    icon.setAttribute('data-lucide', 'pause');
+                    icon.classList.remove('ml-0.5'); 
+                    visualizer.classList.remove('opacity-0');
+                    artIcon.classList.add('scale-110');
+                    lucide.createIcons();
+                }).catch(e => {
+                    showErrorToast(currentLang === 'en' ? "Unable to connect to radio stream." : "ရေဒီယိုလိုင်းနှင့် ချိတ်ဆက်၍မရပါ။");
+                });
+            } else {
+                audio.pause();
+                icon.setAttribute('data-lucide', 'play');
+                icon.classList.add('ml-0.5'); 
+                visualizer.classList.add('opacity-0');
+                artIcon.classList.remove('scale-110');
+                lucide.createIcons();
+            }
+        }
+
+        function handleRadioError() {
+            const icon = document.getElementById('nativeAudioIcon');
+            const visualizer = document.getElementById('audioVisualizer');
+            icon.setAttribute('data-lucide', 'play');
+            icon.classList.add('ml-0.5');
+            visualizer.classList.add('opacity-0');
+            lucide.createIcons();
+            showErrorToast(currentLang === 'en' ? "Stream disconnected. Reconnecting..." : "လိုင်းပြတ်သွားပါသည်။ ပြန်လည်ချိတ်ဆက်နေပါသည်...");
+            const audio = document.getElementById('nativeAudioPlayer');
+            audio.load();
+        }
+        /* --------------------------------- */
 
         function superFuzzySearch(query, text) {
             if (!query) return true;
@@ -737,14 +955,14 @@
             activeConfirmCallback = onConfirm;
 
             if (isDanger) {
-                iconContainer.className = "mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-red-50 mb-6 shadow-inner-soft border border-red-100";
-                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-10 w-10 text-red-500"></i>';
-                confirmBtn.className = "flex-1 px-6 py-4 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-95 bg-red-600 hover:bg-red-700";
+                iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 sm:h-20 sm:w-20 rounded-xl sm:rounded-[1.5rem] bg-red-50 mb-4 sm:mb-6 shadow-inner-soft border border-red-100";
+                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-6 w-6 sm:h-10 sm:w-10 text-red-500"></i>';
+                confirmBtn.className = "flex-1 px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 bg-red-600 hover:bg-red-700";
                 confirmBtn.innerText = currentLang === 'en' ? 'Confirm Danger Action' : 'အတည်ပြု လုပ်ဆောင်မည်';
             } else {
-                iconContainer.className = "mx-auto flex items-center justify-center h-20 w-20 rounded-[1.5rem] bg-blue-50 mb-6 shadow-inner-soft border border-blue-100";
-                iconContainer.innerHTML = '<i data-lucide="info" class="h-10 w-10 text-myancode-blue"></i>';
-                confirmBtn.className = "flex-1 px-6 py-4 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-95 bg-myancode-black hover:bg-gray-800";
+                iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 sm:h-20 sm:w-20 rounded-xl sm:rounded-[1.5rem] bg-blue-50 mb-4 sm:mb-6 shadow-inner-soft border border-blue-100";
+                iconContainer.innerHTML = '<i data-lucide="info" class="h-6 w-6 sm:h-10 sm:w-10 text-myancode-blue"></i>';
+                confirmBtn.className = "flex-1 px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 bg-myancode-black hover:bg-gray-800";
                 confirmBtn.innerText = currentLang === 'en' ? 'Confirm Action' : 'အတည်ပြု လုပ်ဆောင်မည်';
             }
             
@@ -782,29 +1000,39 @@
             const oSec = document.getElementById('overallSection');
             const pSec = document.getElementById('productsSection'); 
             const uSec = document.getElementById('usersSection');
+            const nSec = document.getElementById('newsletterSection');
             
             const oBtn = document.getElementById('tabBtnOverall');
             const pBtn = document.getElementById('tabBtnProducts'); 
             const uBtn = document.getElementById('tabBtnUsers');
+            const nBtn = document.getElementById('tabBtnNewsletter');
 
-            oBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
-            pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
-            uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
+            const inactiveClass = "px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap";
+            const activeClass = "px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap";
+
+            oBtn.className = inactiveClass;
+            pBtn.className = inactiveClass;
+            uBtn.className = inactiveClass;
+            nBtn.className = inactiveClass;
 
             oSec.classList.add('hidden');
             pSec.classList.add('hidden'); 
             uSec.classList.add('hidden');
+            nSec.classList.add('hidden');
 
             if (tab === 'overall') {
                 oSec.classList.remove('hidden');
-                oBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
+                oBtn.className = activeClass;
                 updateOverallDashboard();
             } else if (tab === 'products') {
                 pSec.classList.remove('hidden');
-                pBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
-            } else {
+                pBtn.className = activeClass;
+            } else if (tab === 'users') {
                 uSec.classList.remove('hidden');
-                uBtn.className = "px-8 py-2.5 rounded-xl text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-2 whitespace-nowrap";
+                uBtn.className = activeClass;
+            } else {
+                nSec.classList.remove('hidden');
+                nBtn.className = activeClass;
             }
             lucide.createIcons();
         }
@@ -836,20 +1064,15 @@
         
         let supabaseInstance = null; let currentUser = null;
 
-        // URL Parsing Variables (Initial Load)
         const initialUrlStr = window.location.href;
-        
-        // MAGIC LINK FIX: Ensure we do NOT redirect if Supabase is currently processing an auth state!
         const isProcessingAuth = initialUrlStr.includes('code=') || initialUrlStr.includes('access_token=') || initialUrlStr.includes('type=invite');
-        
-        // --- CRITICAL BUG FIX: PREVENTS INFINITE LOOP ---
         let forcePwdTriggered = false; 
 
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: true } });
             
             if (isProcessingAuth) {
-                showLoader('loadingAuth'); // Keep loader up while processing
+                showLoader('loadingAuth'); 
             }
 
             supabaseInstance.auth.onAuthStateChange((event, session) => {
@@ -857,14 +1080,11 @@
                     currentUser = session.user; 
                     checkAdminStatus(); 
                     
-                    // FIXED: Supabase instantly removes the token from the live URL upon successful login.
-                    // We MUST use 'initialUrlStr' here to detect the invite link. The 'forcePwdTriggered' flag guarantees no loops!
                     if (!forcePwdTriggered && (initialUrlStr.includes('type=invite') || initialUrlStr.includes('type=recovery') || initialUrlStr.includes('code=') || initialUrlStr.includes('access_token='))) {
-                        forcePwdTriggered = true; // Lock it! It will never open again during this session.
+                        forcePwdTriggered = true; 
                         
                         setTimeout(() => {
                             openForcePasswordModal(true); 
-                            // Clean the URL so refreshing doesn't re-trigger
                             history.replaceState(null, null, window.location.pathname); 
                         }, 1000);
                     }
@@ -881,7 +1101,6 @@
                         return;
                     }
 
-                    // Only kick the user out if we are NOT currently trying to process a magic link
                     if (!isProcessingAuth) {
                         safeRedirect('../login/index.html'); 
                     }
@@ -896,7 +1115,7 @@
                 document.getElementById('dashboardContent').classList.add('flex', 'flex-col');
                 document.getElementById('unauthorizedScreen').classList.add('hidden'); 
                 
-                await Promise.all([fetchProducts(true), fetchUsers(true)]);
+                await Promise.all([fetchProducts(true), fetchUsers(true), fetchSubscribers(true)]);
                 
                 updateOverallDashboard();
                 hideLoader();
@@ -930,7 +1149,7 @@
             
             document.addEventListener("visibilitychange", () => {
                 if (document.visibilityState === "visible") {
-                    fetchProducts(true); fetchUsers(true);
+                    fetchProducts(true); fetchUsers(true); fetchSubscribers(true);
                 }
             });
         }
@@ -972,7 +1191,7 @@
             }
 
             if (filteredProducts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No entries found matching filters.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 sm:px-6 sm:py-16 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No entries found matching filters.</td></tr>`;
                 return;
             }
 
@@ -984,33 +1203,33 @@
                 
                 return `
                 <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="h-14 w-20 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 shadow-sm flex items-center justify-center relative">
-                            <img src="${img}" class="${p.product_image ? 'h-full w-full object-cover' : 'h-6 w-6 opacity-50'}" alt="${name}">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="h-8 w-12 xxs:h-10 xxs:w-14 sm:h-14 sm:w-20 rounded-lg sm:rounded-xl bg-gray-100 overflow-hidden border border-gray-200 shadow-sm flex items-center justify-center relative">
+                            <img src="${img}" class="${p.product_image ? 'h-full w-full object-cover' : 'h-4 w-4 sm:h-6 sm:w-6 opacity-50'}" alt="${name}">
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="font-bold text-myancode-black truncate max-w-[200px] sm:max-w-[300px] text-[15px]">${name}</div>
-                        <div class="text-[11px] text-gray-400 font-mono mt-1 truncate max-w-[200px] sm:max-w-[300px]">${p.product_slug}</div>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="font-bold text-myancode-black truncate max-w-[120px] xxs:max-w-[150px] sm:max-w-[300px] text-[10px] xxs:text-[11px] sm:text-[15px]">${name}</div>
+                        <div class="text-[8px] xxs:text-[9px] sm:text-[11px] text-gray-400 font-mono mt-0.5 sm:mt-1 truncate max-w-[120px] xxs:max-w-[150px] sm:max-w-[300px]">${p.product_slug}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="font-bold text-myancode-black text-sm">${price.toLocaleString()} ${p.currency || 'MMK'}</div>
-                        ${p.product_discount_price ? `<div class="text-[10px] text-gray-400 line-through font-semibold">${p.product_price.toLocaleString()} ${p.currency || 'MMK'}</div>` : ''}
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="font-bold text-myancode-black text-[10px] sm:text-sm">${price.toLocaleString()} ${p.currency || 'MMK'}</div>
+                        ${p.product_discount_price ? `<div class="text-[8px] sm:text-[10px] text-gray-400 line-through font-semibold">${p.product_price.toLocaleString()} ${p.currency || 'MMK'}</div>` : ''}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex flex-col gap-1 items-start">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="flex flex-col gap-0.5 sm:gap-1 items-start">
                             ${p.product_stock > 0 
-                                ? `<span class="px-3 py-1 inline-flex text-[9px] leading-5 font-bold rounded-full bg-green-50 text-green-600 border border-green-100 uppercase tracking-widest shadow-inner-soft">In Stock (${p.product_stock})</span>`
-                                : `<span class="px-3 py-1 inline-flex text-[9px] leading-5 font-bold rounded-full bg-red-50 text-red-600 border border-red-100 uppercase tracking-widest shadow-inner-soft">Out of Stock</span>`
+                                ? `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[9px] leading-[10px] sm:leading-5 font-bold rounded-full bg-green-50 text-green-600 border border-green-100 uppercase tracking-widest shadow-inner-soft">In Stock (${p.product_stock})</span>`
+                                : `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[9px] leading-[10px] sm:leading-5 font-bold rounded-full bg-red-50 text-red-600 border border-red-100 uppercase tracking-widest shadow-inner-soft">Out of Stock</span>`
                             }
-                            <span class="text-[10px] text-gray-500 font-mono font-bold ml-1">${sku}</span>
+                            <span class="text-[8px] sm:text-[10px] text-gray-500 font-mono font-bold ml-1">${sku}</span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex items-center justify-end opacity-40 group-hover:opacity-100 transition-opacity">
-                            <a href="../website-detail/index.html?id=${p.product_id}" target="_blank" class="text-gray-500 hover:text-myancode-black mx-1 p-2 bg-gray-100 rounded-xl transition-transform hover:scale-105" title="View Detail Page"><i data-lucide="external-link" class="w-4 h-4"></i></a>
-                            <button onclick="openProductModal('${p.product_id}')" class="text-myancode-blue hover:text-blue-700 mx-1 p-2 bg-blue-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnEdit}"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                            <button onclick="confirmDeleteProduct('${p.product_id}')" class="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-xl transition-transform hover:scale-105 mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                        <div class="flex items-center justify-end opacity-100 sm:opacity-40 group-hover:opacity-100 transition-opacity">
+                            <a href="../website-detail/index.html?id=${p.product_id}" target="_blank" class="text-gray-500 hover:text-myancode-black mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-gray-100 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="View Detail Page"><i data-lucide="external-link" class="w-3 h-3 sm:w-4 sm:h-4"></i></a>
+                            <button onclick="openProductModal('${p.product_id}')" class="text-myancode-blue hover:text-blue-700 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-blue-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnEdit}"><i data-lucide="edit-3" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>
+                            <button onclick="confirmDeleteProduct('${p.product_id}')" class="text-red-500 hover:text-red-700 p-1.5 sm:p-2 bg-red-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105 mx-0.5 sm:mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -1022,7 +1241,7 @@
         function updateImagePreview(val) {
             const container = document.getElementById('previewMainImgContainer');
             if (val) { container.innerHTML = `<img src="${val}" class="w-full h-full object-cover">`; }
-            else { container.innerHTML = `<i data-lucide="image" class="w-5 h-5 text-gray-400 m-auto mt-3.5"></i>`; lucide.createIcons(); }
+            else { container.innerHTML = `<i data-lucide="image" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>`; lucide.createIcons(); }
         }
 
         function openProductModal(productId = null) {
@@ -1128,7 +1347,7 @@
             }
 
             if (filteredUsers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide">No accounts found matching filters.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 sm:px-6 sm:py-16 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No accounts found matching filters.</td></tr>`;
                 return;
             }
 
@@ -1140,60 +1359,60 @@
                 const isMe = currentUser && u.id === currentUser.id;
                 
                 const avatar = meta.avatar_url 
-                    ? `<img src="${meta.avatar_url}" class="h-12 w-12 rounded-full object-cover border border-gray-200 shadow-sm">` 
-                    : `<div class="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 border border-gray-100 shadow-sm"><i data-lucide="user" class="w-5 h-5"></i></div>`;
+                    ? `<img src="${meta.avatar_url}" class="h-8 w-8 sm:h-12 sm:w-12 rounded-full object-cover border border-gray-200 shadow-sm">` 
+                    : `<div class="h-8 w-8 sm:h-12 sm:w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 border border-gray-100 shadow-sm"><i data-lucide="user" class="w-3 h-3 sm:w-5 sm:h-5"></i></div>`;
 
                 let badgeHtml = '';
                 if (isSuperAdmin) {
-                    badgeHtml = `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-yellow-50 text-yellow-600 border border-yellow-200 uppercase tracking-widest shadow-inner-soft"><i data-lucide="crown" class="w-3 h-3 mr-1 mt-0.5"></i> Super Admin</span>`;
+                    badgeHtml = `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-yellow-50 text-yellow-600 border border-yellow-200 uppercase tracking-widest shadow-inner-soft"><i data-lucide="crown" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 mt-0.5"></i> Super Admin</span>`;
                 } else if (role === 'admin') {
-                    badgeHtml = `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-widest shadow-inner-soft"><i data-lucide="shield" class="w-3 h-3 mr-1 mt-0.5"></i> Admin</span>`;
+                    badgeHtml = `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-widest shadow-inner-soft"><i data-lucide="shield" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 mt-0.5"></i> Admin</span>`;
                 } else {
-                    badgeHtml = `<span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-gray-100 text-gray-600 border border-gray-200 uppercase tracking-widest shadow-inner-soft">User</span>`;
+                    badgeHtml = `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-gray-100 text-gray-600 border border-gray-200 uppercase tracking-widest shadow-inner-soft">User</span>`;
                 }
 
                 let actionsHtml = '';
                 if (isMe) {
-                    actionsHtml = `<span class="text-[10px] text-gray-300 uppercase tracking-widest font-bold ml-2">${dict[currentLang].lblProtected}</span>`;
+                    actionsHtml = `<span class="text-[8px] sm:text-[10px] text-gray-300 uppercase tracking-widest font-bold ml-1 sm:ml-2">${dict[currentLang].lblProtected}</span>`;
                 } else if (isSuperAdmin && myCurrentRole !== 'super-admin') {
-                    actionsHtml = `<span class="text-[10px] text-red-300 uppercase tracking-widest font-bold ml-2">${dict[currentLang].lblRestricted}</span>`;
+                    actionsHtml = `<span class="text-[8px] sm:text-[10px] text-red-300 uppercase tracking-widest font-bold ml-1 sm:ml-2">${dict[currentLang].lblRestricted}</span>`;
                 } else {
-                    actionsHtml += `<button onclick="confirmForceResetPassword('${u.id}', '${u.email}')" class="text-green-600 hover:text-green-800 mx-1 p-2 bg-green-50 rounded-xl transition-transform hover:scale-105" title="Force Reset Password"><i data-lucide="key" class="w-4 h-4"></i></button>`;
+                    actionsHtml += `<button onclick="confirmForceResetPassword('${u.id}', '${u.email}')" class="text-green-600 hover:text-green-800 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-green-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="Force Reset Password"><i data-lucide="key" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
                     
                     if (role === 'super-admin') {
                         if (myCurrentRole === 'super-admin') {
-                            actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-orange-500 hover:text-orange-700 mx-1 p-2 bg-orange-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeAdmin}"><i data-lucide="arrow-down" class="w-4 h-4"></i></button>`;
+                            actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-orange-500 hover:text-orange-700 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-orange-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeAdmin}"><i data-lucide="arrow-down" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
                         }
                     } else if (role === 'admin') {
                         if (myCurrentRole === 'super-admin') {
-                            actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'super-admin')" class="text-yellow-600 hover:text-yellow-800 mx-1 p-2 bg-yellow-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeSuperAdmin}"><i data-lucide="crown" class="w-4 h-4"></i></button>`;
+                            actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'super-admin')" class="text-yellow-600 hover:text-yellow-800 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-yellow-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeSuperAdmin}"><i data-lucide="crown" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
                         }
-                        actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'user')" class="text-orange-500 hover:text-orange-700 mx-1 p-2 bg-orange-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeUser}"><i data-lucide="user-minus" class="w-4 h-4"></i></button>`;
+                        actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'user')" class="text-orange-500 hover:text-orange-700 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-orange-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeUser}"><i data-lucide="user-minus" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
                     } else {
-                        actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-purple-500 hover:text-purple-700 mx-1 p-2 bg-purple-50 rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeAdmin}"><i data-lucide="shield" class="w-4 h-4"></i></button>`;
+                        actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-purple-500 hover:text-purple-700 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-purple-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="${dict[currentLang].btnMakeAdmin}"><i data-lucide="shield" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
                     }
-                    actionsHtml += `<button onclick="confirmDeleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-xl transition-transform hover:scale-105 mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                    actionsHtml += `<button onclick="confirmDeleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-1.5 sm:p-2 bg-red-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105 mx-0.5 sm:mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
                 }
 
                 return `
                 <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
-                    <td class="px-6 py-5 whitespace-nowrap">
-                        <div class="flex items-center gap-4">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-2 sm:gap-4">
                             ${avatar}
                             <div>
-                                <div class="font-bold text-myancode-black capitalize text-[15px]">${name} ${isMe ? '<span class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-2 uppercase tracking-widest align-middle border border-blue-200 shadow-inner-soft">You</span>' : ''}</div>
-                                <div class="text-xs text-gray-400 mt-1 font-mono">${u.email}</div>
+                                <div class="font-bold text-myancode-black capitalize text-[10px] xxs:text-[11px] sm:text-[15px]">${name} ${isMe ? '<span class="text-[7px] sm:text-[9px] bg-blue-100 text-blue-600 px-1.5 sm:px-2 py-0.5 rounded-full ml-1 sm:ml-2 uppercase tracking-widest align-middle border border-blue-200 shadow-inner-soft">You</span>' : ''}</div>
+                                <div class="text-[8px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1 font-mono">${u.email}</div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-5 whitespace-nowrap">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
                         ${badgeHtml}
                     </td>
-                    <td class="px-6 py-5 whitespace-nowrap text-xs text-gray-500 font-bold tracking-wide font-mono">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-[9px] sm:text-xs text-gray-500 font-bold tracking-wide font-mono">
                         ${new Date(u.created_at).toLocaleDateString()}
                     </td>
-                    <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex items-center justify-end opacity-40 group-hover:opacity-100 transition-opacity">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                        <div class="flex items-center justify-end opacity-100 sm:opacity-40 group-hover:opacity-100 transition-opacity">
                             ${actionsHtml}
                         </div>
                     </td>
@@ -1312,7 +1531,6 @@
                 showToast(dict[currentLang].msgPwdSaved);
                 closeForcePasswordModal();
                 
-                // Clear out the input so it's clean next time
                 document.getElementById('newSecurePassword').value = '';
             } catch (err) {
                 showErrorToast(err.message);
@@ -1357,6 +1575,122 @@
             const copied = copyHtmlEmailTemplate(true);
             if (copied) showToast(currentLang === 'en' ? "Template copied! Paste (Ctrl+V) into the email body." : "ပုံစံကူးယူပြီးပါပြီ။ Mail တွင် Paste (Ctrl+V) လုပ်ပါ။");
             window.location.href = `mailto:${currentResetEmail}?subject=${encodeURIComponent("Default Password Set - Action Required")}`;
+        }
+
+        /* --- NEWSLETTER SUBSCRIPTION LOGIC (COMPLETED) --- */
+        async function fetchSubscribers(silent = false) {
+            try {
+                const { data, error } = await supabaseInstance.from('subscribers').select('*').order('subscribed_at', { ascending: false });
+                if (error) throw error;
+                allSubscribers = data || [];
+                renderSubscribersTable();
+            } catch (err) {
+                console.error("Failed to load subscribers:", err);
+                if (!silent) showErrorToast("Failed to load subscribers.");
+                document.getElementById('subscribersTableBody').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load subscribers.</td></tr>`;
+            }
+        }
+
+        function renderSubscribersTable() {
+            const tbody = document.getElementById('subscribersTableBody');
+            if (allSubscribers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 sm:px-6 sm:py-16 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No active subscribers found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = allSubscribers.map(sub => {
+                const statusHtml = sub.confirmed 
+                    ? '<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-green-50 text-green-600 border border-green-100 uppercase tracking-widest shadow-inner-soft">Active</span>'
+                    : '<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-gray-100 text-gray-500 border border-gray-200 uppercase tracking-widest shadow-inner-soft">Pending</span>';
+
+                return `
+                <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-2 sm:gap-4">
+                            <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 border border-gray-100 shadow-sm"><i data-lucide="mail" class="w-3 h-3 sm:w-4 sm:h-4"></i></div>
+                            <div>
+                                <div class="font-bold text-myancode-black text-[10px] xxs:text-[11px] sm:text-sm">${sub.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-[9px] sm:text-xs text-gray-500 font-bold tracking-wide font-mono">
+                        ${new Date(sub.subscribed_at).toLocaleDateString()}
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        ${statusHtml}
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                        <div class="flex items-center justify-end opacity-100 sm:opacity-40 group-hover:opacity-100 transition-opacity">
+                            <button onclick="confirmDeleteSubscriber('${sub.id}')" class="text-red-500 hover:text-red-700 p-1.5 sm:p-2 bg-red-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105 mx-0.5 sm:mx-1" title="${dict[currentLang].btnDelete}"><i data-lucide="trash-2" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function confirmDeleteSubscriber(id) {
+            openConfirmModal(dict[currentLang].confirmSubDeleteTitle, dict[currentLang].confirmSubDeleteMsg, true, async () => {
+                showLoader('loadingData');
+                try {
+                    const { error } = await supabaseInstance.from('subscribers').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast(dict[currentLang].msgSubDeleteSuccess);
+                    fetchSubscribers(true);
+                } catch (err) {
+                    showErrorToast(err.message);
+                } finally {
+                    hideLoader();
+                }
+            });
+        }
+
+        function openNewsletterModal() {
+            document.getElementById('newsletterComposeForm').reset();
+            document.getElementById('newsletterModal').classList.remove('modal-hidden');
+        }
+
+        function closeNewsletterModal() {
+            document.getElementById('newsletterModal').classList.add('modal-hidden');
+        }
+
+        async function sendNewsletter() {
+            const subject = document.getElementById('newsSubject').value.trim();
+            const htmlContent = document.getElementById('newsHtml').value.trim();
+
+            if (!subject || !htmlContent) {
+                showErrorToast(currentLang === 'en' ? "Please fill out both subject and content." : "အကြောင်းအရာနှင့် စာသားကို ပြည့်စုံစွာ ဖြည့်ပါ။");
+                return;
+            }
+
+            const btn = document.getElementById('btnSendNewsletter');
+            btn.disabled = true;
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span data-i18n="btnSendNews">Sending...</span>';
+            lucide.createIcons();
+
+            showLoader('loadingData');
+            
+            try {
+                // Call the Postgres RPC function to send emails
+                const { error } = await supabaseInstance.rpc('send_newsletter', {
+                    email_subject: subject,
+                    html_content: htmlContent
+                });
+
+                if (error) throw error;
+
+                showToast(dict[currentLang].msgNewsSent);
+                closeNewsletterModal();
+            } catch (err) {
+                console.error("Newsletter error:", err);
+                showErrorToast(err.message || "Failed to send newsletter.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+                hideLoader();
+            }
         }
 
         window.addEventListener('load', () => { renderLanguage(); });
