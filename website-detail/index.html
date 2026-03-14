@@ -196,7 +196,7 @@
                 <span class="text-myancode-black truncate max-w-[200px] sm:max-w-none" id="bcProductName">...</span>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20" id="mainContentGrid">
                 
                 <div class="space-y-4 reveal active lg:sticky lg:top-0 self-start" id="galleryContainer">
             
@@ -248,7 +248,7 @@
     </section>
 
     <!-- RECOMMENDED PRODUCTS -->
-    <section class="py-20 sm:py-32 bg-[#fbfbfd] border-t border-gray-100">
+    <section class="py-20 sm:py-32 bg-[#fbfbfd] border-t border-gray-100" id="recommendedSection">
         <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
             <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-myancode-black mb-10 reveal" data-i18n="recommended">You May Also Like</h3>
             
@@ -338,7 +338,9 @@
                 // Detail Page Keys
                 btnViewDetails: "View Details", inStock: "In Stock", outOfStock: "Out of Stock", sku: "SKU", brand: "Brand", category: "Category",
                 recommended: "You May Also Like", btnAddToCart: "Purchase Template", btnAddWishlist: "Add to Wishlist",
-                notFound: "Product not found."
+                notFound: "Product not found.",
+                // Empty Link State
+                emptyLinkTitle: "Product Link Incomplete", emptyLinkDesc: "It appears you accessed this page directly or the product identifier is missing. To view a specific template's details, please browse our catalog.", btnBrowse: "Browse Templates"
             },
             mm: {
                 navHome: "ပင်မစာမျက်နှာ", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
@@ -354,7 +356,9 @@
                 // Detail Page Keys
                 btnViewDetails: "အသေးစိတ်ကြည့်ရန်", inStock: "ပစ္စည်းရှိသည်", outOfStock: "ပစ္စည်းကုန်နေသည်", sku: "SKU", brand: "အမှတ်တံဆိပ်", category: "အမျိုးအစား",
                 recommended: "သင်နှစ်သက်နိုင်သော အခြားအရာများ", btnAddToCart: "ဝယ်ယူမည်", btnAddWishlist: "စာရင်းသို့ထည့်မည်",
-                notFound: "ကုန်ပစ္စည်း မတွေ့ပါ။"
+                notFound: "ကုန်ပစ္စည်း မတွေ့ပါ။",
+                // Empty Link State
+                emptyLinkTitle: "လင့်ခ် မပြည့်စုံပါ", emptyLinkDesc: "သင်သည် ဤစာမျက်နှာကို တိုက်ရိုက်ဝင်ရောက်ခဲ့ခြင်း သို့မဟုတ် လင့်ခ်အပြည့်အစုံ မပါဝင်ခြင်း ဖြစ်နိုင်ပါသည်။ အသေးစိတ်အချက်အလက်များကို ကြည့်ရှုရန် ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက် ကတ်တလောက်တွင် လေ့လာပါ။", btnBrowse: "ဝက်ဘ်ဆိုက်များ လေ့လာရန်"
             }
         };
 
@@ -381,7 +385,15 @@
             document.documentElement.lang = currentLang; 
             document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
-            updateAuthUI(); renderProductData(); renderRecommendedProducts();
+            updateAuthUI(); 
+            
+            if (currentProduct) {
+                renderProductData(); 
+                renderRecommendedProducts();
+            } else if (activeProducts.length > 0) {
+                renderEmptyLinkState(); // Re-render empty state on language toggle if needed
+            }
+            
             if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
         }
 
@@ -400,7 +412,7 @@
                         <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black flex items-center justify-center">${avatarIconHTML}</button>
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
                             <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
-                            ${currentUser.role === 'admin' ? `<a href="../admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
+                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
                             <button onclick="window.location.href='../profile/index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
                             <button onclick="window.location.href='../index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrOrders}</button>
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
@@ -411,7 +423,7 @@
                         <span class="capitalize text-sm font-bold truncate max-w-[200px]">${currentUser.name}</span> 
                         ${mobileAvatarHTML}
                     </div>
-                    ${currentUser.role === 'admin' ? `<a href="../admin-dashboard/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
+                    ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
                         <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
                     </a>` : ''}
                     <button onclick="window.location.href='../profile/index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
@@ -443,25 +455,23 @@
                 if (error) throw error;
                 activeProducts = data || [];
 
-                // Parse the ?id= parameter from the URL
+                // Parse the URL to get the product SEO slug gracefully
                 const params = new URLSearchParams(window.location.search);
-                const id = params.get('id');
+                const queryIdentifier = params.get('product') || params.get('slug') || params.get('id');
 
-                if (id) {
-                    currentProduct = activeProducts.find(p => p.product_id === id);
-                }
-
-                if (!currentProduct && activeProducts.length > 0) {
-                    currentProduct = activeProducts[0];
+                if (queryIdentifier && activeProducts.length > 0) {
+                    currentProduct = activeProducts.find(p => 
+                        p.product_slug === queryIdentifier || 
+                        p.slug === queryIdentifier || 
+                        p.product_id === queryIdentifier
+                    );
                 }
 
                 if (currentProduct) {
                     renderProductData();
                     renderRecommendedProducts();
                 } else {
-                    document.getElementById('detailName').innerText = dict[currentLang].notFound;
-                    document.getElementById('bcProductName').innerText = "---";
-                    document.getElementById('detailDescription').innerText = "No active products are available right now.";
+                    renderEmptyLinkState();
                 }
             } catch (err) {
                 console.error("Error fetching detail data:", err);
@@ -469,6 +479,34 @@
             } finally {
                 hideLoader();
             }
+        }
+
+        function renderEmptyLinkState() {
+            const container = document.getElementById('mainContentGrid');
+            if(container) {
+                // Replaces the standard grid layout with a beautifully centered professional empty state
+                container.className = "flex flex-col items-center justify-center text-center py-16 sm:py-24 px-4 w-full bg-white/40 backdrop-blur-xl rounded-[2rem] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]";
+                container.innerHTML = `
+                    <div class="h-20 w-20 sm:h-24 sm:w-24 bg-white rounded-full flex items-center justify-center mb-8 border border-gray-100 shadow-sm">
+                        <i data-lucide="link-2-off" class="h-10 w-10 sm:h-12 sm:w-12 text-gray-300"></i>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-4">${dict[currentLang].emptyLinkTitle}</h2>
+                    <p class="text-sm sm:text-base text-gray-500 mb-10 max-w-xl mx-auto leading-relaxed">${dict[currentLang].emptyLinkDesc}</p>
+                    <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        <a href="../website/index.html" class="bg-myancode-black text-white px-8 py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center justify-center gap-2">
+                            <i data-lucide="layout-grid" class="w-4 h-4"></i> ${dict[currentLang].btnBrowse}
+                        </a>
+                        <a href="../index.html" class="bg-white border border-gray-200 text-myancode-black px-8 py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-50 transition-all btn-hover-effect flex items-center justify-center gap-2">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> ${dict[currentLang].navHome}
+                        </a>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+            
+            document.getElementById('bcProductName').innerText = dict[currentLang].notFound;
+            const recSec = document.getElementById('recommendedSection');
+            if(recSec) recSec.style.display = 'none';
         }
 
         function renderProductData() {
@@ -573,6 +611,9 @@
                 const price = p.product_discount_price || p.product_price;
                 const imgSrc = p.product_image || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'/><circle cx='8.5' cy='8.5' r='1.5'/><polyline points='21 15 16 10 5 21'/></svg>";
 
+                // Slug fallback pattern: Try product_slug, then slug, fallback to product_id
+                const productSlug = p.product_slug || p.slug || p.product_id;
+
                 return `
                 <div class="card-hover bg-white rounded-3xl p-4 shadow-sm border border-gray-100 flex flex-col group relative reveal" style="transition-delay: ${delay}ms;">
                     <div class="rounded-2xl overflow-hidden mb-4 aspect-[4/3] relative bg-gray-50 flex items-center justify-center">
@@ -583,7 +624,7 @@
                         <div class="flex items-center gap-2 mb-4">
                             <span class="text-sm font-bold text-myancode-black">${price.toLocaleString()} ${p.currency || 'MMK'}</span>
                         </div>
-                        <a href="../website-detail/index.html?id=${p.product_id}" class="mt-auto text-center bg-gray-50 text-myancode-black text-[11px] uppercase tracking-widest px-4 py-3 rounded-full font-bold btn-hover-effect hover:bg-gray-100 transition-colors">
+                        <a href="../website-detail/index.html?product=${productSlug}" class="mt-auto text-center bg-gray-50 text-myancode-black text-[11px] uppercase tracking-widest px-4 py-3 rounded-full font-bold btn-hover-effect hover:bg-gray-100 transition-colors">
                             ${viewDetailsTxt}
                         </a>
                     </div>
@@ -640,6 +681,7 @@
             if (!currentProduct) return;
             const name = currentLang === 'en' ? (currentProduct.product_name_en || currentProduct.product_name_mm) : (currentProduct.product_name_mm || currentProduct.product_name_en);
             const price = currentProduct.product_discount_price || currentProduct.product_price;
+            // Uses the stable Product ID internally for the wishlist array
             toggleWishlist(currentProduct.product_id, name, price);
         }
 
@@ -803,7 +845,9 @@
                         const fallbackImg = 'https://placehold.co/150x150/f5f5f7/6e6e73?text=Image';
                         const itemType = item.category || item.brand || 'Product';
                         
-                        const itemUrl = `../website-detail/index.html?id=${item.product_id}`;
+                        // Fallback Slug for SEO links
+                        const productSlug = item.product_slug || item.slug || item.product_id;
+                        const itemUrl = `../website-detail/index.html?product=${productSlug}`;
 
                         let finalImgUrl = item.product_image || fallbackImg;
                         if (finalImgUrl.startsWith('./')) {
