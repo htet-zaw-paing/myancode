@@ -484,8 +484,8 @@
                             <tr>
                                 <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 rounded-tl-xl sm:rounded-tl-2xl font-semibold" data-i18n="thUser">Subscriber Identity</th>
                                 <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thJoined">Subscription Date</th>
-                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thStatus">Status</th>
-                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 text-right rounded-tr-xl sm:rounded-tr-2xl font-semibold" data-i18n="thActions">Actions</th>
+                                <th class="px-2 py-2 xxs:px-3 sm:px-6 sm:py-4 font-semibold" data-i18n="thStatus">Status</th>
+                                <th class="px-2 py-2 xxs:px-3 sm:px-6 sm:py-4 text-right rounded-tr-xl sm:rounded-tr-2xl font-semibold" data-i18n="thActions">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="subscribersTableBody" class="text-gray-700 text-[10px] sm:text-sm">
@@ -504,6 +504,10 @@
                     <p class="text-[10px] sm:text-sm text-gray-500 font-medium leading-snug" data-i18n="dashSubEstimator">Manage requests submitted via the new Package Builder engine.</p>
                 </div>
                 <div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 sm:gap-3 w-full xl:w-auto">
+                    <div class="relative w-full xs:w-auto flex-1">
+                        <i data-lucide="search" class="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 h-3 w-3 sm:h-4 sm:w-4 text-gray-400"></i>
+                        <input type="text" id="searchPkgOrders" class="w-full pl-8 sm:pl-11 pr-3 sm:pr-4 py-2 sm:py-3 bg-gray-50 hover:bg-gray-100/50 border border-gray-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium text-myancode-black focus:bg-white focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all duration-200" placeholder="Search by Order ID or Name..." data-i18n-placeholder="searchOrders">
+                    </div>
                     <button onclick="fetchPkgOrders()" class="w-full xs:w-auto bg-gray-100 text-myancode-black px-4 py-2 xxs:px-5 xxs:py-2.5 sm:px-7 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 hover:bg-gray-200 transition-colors btn-hover-effect whitespace-nowrap">
                         <i data-lucide="refresh-cw" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnRefresh">Refresh</span>
                     </button>
@@ -518,11 +522,12 @@
                                 <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 rounded-tl-xl sm:rounded-tl-2xl font-semibold">Order ID & Date</th>
                                 <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Client Contact</th>
                                 <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Architecture</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Status</th>
                                 <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 text-right rounded-tr-xl sm:rounded-tr-2xl font-semibold">Total Engine Value</th>
                             </tr>
                         </thead>
                         <tbody id="pkgOrdersTableBody" class="text-gray-700 text-[10px] sm:text-sm">
-                            <tr><td colspan="4" class="px-4 py-8 sm:px-6 sm:py-12 text-center text-gray-400 italic font-medium">Initializing fetch...</td></tr>
+                            <tr><td colspan="5" class="px-4 py-8 sm:px-6 sm:py-12 text-center text-gray-400 italic font-medium">Initializing fetch...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -947,6 +952,7 @@
         let allSubscribers = [];
         let allCategories = [];
         let allFeatures = [];
+        let allPkgOrders = [];
         let currentProductFilter = 'all';
         let currentUserFilter = 'all';
 
@@ -982,7 +988,7 @@
                 lblEmail: "Email Address *", inviteHelpText: "Supabase will send an official email with a secure link allowing the user to set their own password and join your workspace.",
                 inviteSuccessTitle: "Invitation Sent", inviteSuccessDesc: "An official invitation link has been securely dispatched via Supabase. The user will be prompted to set their own password upon clicking the link.", inviteSentTo: "Sent To",
                 msgSaveSuccess: "Database entry saved successfully.", msgDeleteSuccess: "Entry securely deleted.", msgRoleUpdated: "Security role updated.", msgNewsSent: "Newsletter dispatched successfully to all subscribers!", msgSubDeleteSuccess: "Subscriber removed successfully.",
-                searchProd: "Search templates...", searchUsers: "Search by email...",
+                searchProd: "Search templates...", searchUsers: "Search by email...", searchOrders: "Search by Order ID or Name...",
                 msgPassReset: "Password reset to default successfully.",
                 lblProtected: "Protected", lblRestricted: "Restricted",
                 confirmDeleteTitle: "Delete Entry", confirmDeleteMsg: "Are you sure you want to permanently delete this from the database?",
@@ -994,7 +1000,8 @@
                 pwdResetTitle: "Password Reset Successful", pwdResetDesc: "The password is now set to default. Click Send Now to open your email app and paste the UI template.",
                 pwdChangeTitle: "Update Password", pwdChangeDesc: "Secure your enterprise account by setting a new, private password.",
                 lblNewPwd: "New Password *", btnSavePwd: "Secure Account", msgPwdSaved: "Password successfully updated!", btnChangePwd: "Security",
-                btnMusic: "Radio", musicSpace: "Focus Space"
+                btnMusic: "Radio", musicSpace: "Focus Space",
+                stsPending: "Pending", stsProcessing: "Processing", stsConfirmed: "Confirmed", stsCancelled: "Cancelled"
             },
             mm: {
                 langSelect: "ဘာသာစကား", hdrLogout: "အကောင့်ထွက်ရန်", loadingAuth: "အခွင့်အာဏာ စစ်ဆေးနေပါသည်...", loadingData: "ဒေတာရယူနေပါသည်...",
@@ -1027,7 +1034,7 @@
                 lblEmail: "အီးမေးလ် *", inviteHelpText: "Supabase မှ အသုံးပြုသူထံသို့ တရားဝင်ဖိတ်စာ လင့်ခ်ပေးပို့သွားမည်ဖြစ်သည်။ အသုံးပြုသူမှ မိမိစကားဝှက်ကို ကိုယ်တိုင်သတ်မှတ်နိုင်မည်ဖြစ်သည်။",
                 inviteSuccessTitle: "ဖိတ်ကြားမှု အောင်မြင်ပါသည်", inviteSuccessDesc: "Supabase မှတဆင့် ဖိတ်စာပေးပို့ပြီးပါပြီ။ လင့်ခ်ကိုနှိပ်၍ အသုံးပြုသူမှ စကားဝှက်သတ်မှတ်နိုင်ပါသည်။", inviteSentTo: "ပေးပို့ထားသော အီးမေးလ်",
                 msgSaveSuccess: "ဒေတာဘေ့စ် သိမ်းဆည်းမှု အောင်မြင်ပါသည်!", msgDeleteSuccess: "အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။", msgRoleUpdated: "အခွင့်အာဏာ ပြောင်းလဲမှု အောင်မြင်ပါသည်!", msgNewsSent: "စာရင်းသွင်းထားသူများအားလုံးထံ အီးမေးလ်ပေးပို့ပြီးပါပြီ!", msgSubDeleteSuccess: "စာရင်းသွင်းသူအား ဖယ်ရှားပြီးပါပြီ။",
-                searchProd: "ရှာဖွေပါ...", searchUsers: "အီးမေးလ်ဖြင့် ရှာဖွေပါ...",
+                searchProd: "ရှာဖွေပါ...", searchUsers: "အီးမေးလ်ဖြင့် ရှာဖွေပါ...", searchOrders: "Order ID သို့မဟုတ် အမည်ဖြင့် ရှာပါ...",
                 msgPassReset: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းလဲပြီးပါပြီ။",
                 lblProtected: "ကာကွယ်ထားသည်", lblRestricted: "ကန့်သတ်ထားသည်",
                 confirmDeleteTitle: "ဒေတာ ဖျက်မည်", confirmDeleteMsg: "ဤအချက်အလက်ကို ဒေတာဘေ့စ်မှ အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
@@ -1039,7 +1046,8 @@
                 pwdResetTitle: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်", pwdResetDesc: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းပြီးပါပြီ။ Send Now ကို နှိပ်ပြီး Email ကို ပေးပို့ပါ။",
                 pwdChangeTitle: "စကားဝှက် ပြောင်းရန်", pwdChangeDesc: "သင့်အကောင့်ကို လုံခြုံစေရန်အတွက် ကိုယ်ပိုင် စကားဝှက်အသစ်တစ်ခု သတ်မှတ်ပါ။",
                 lblNewPwd: "စကားဝှက်အသစ် *", btnSavePwd: "လုံခြုံရေး အတည်ပြုမည်", msgPwdSaved: "စကားဝှက် ပြောင်းလဲမှု အောင်မြင်ပါသည်!", btnChangePwd: "လုံခြုံရေး",
-                btnMusic: "ရေဒီယို", musicSpace: "အပန်းဖြေ နေရာ"
+                btnMusic: "ရေဒီယို", musicSpace: "အပန်းဖြေ နေရာ",
+                stsPending: "Pending", stsProcessing: "Processing", stsConfirmed: "Confirmed", stsCancelled: "Cancelled"
             }
         };
 
@@ -1056,6 +1064,7 @@
             renderTable(document.getElementById('searchProducts').value);
             renderUsersTable(document.getElementById('searchUsers').value);
             renderPackagesTables();
+            renderPkgOrdersTable(document.getElementById('searchPkgOrders')?.value || '');
         }
 
         function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
@@ -1136,6 +1145,7 @@
 
         document.getElementById('searchProducts').addEventListener('input', (e) => renderTable(e.target.value));
         document.getElementById('searchUsers').addEventListener('input', (e) => renderUsersTable(e.target.value));
+        document.getElementById('searchPkgOrders')?.addEventListener('input', (e) => renderPkgOrdersTable(e.target.value));
 
         function setProductFilter(val) { currentProductFilter = val; renderTable(document.getElementById('searchProducts').value); }
         function setUserFilter(val) { currentUserFilter = val; renderUsersTable(document.getElementById('searchUsers').value); }
@@ -1413,7 +1423,6 @@
         }
 
         function openCategoryModal(id = null) {
-            const modal = document.getElementById('categoryModal');
             document.getElementById('cId').value = id || '';
             document.getElementById('catModalTitle').innerText = id ? 'Edit Category' : 'Add Category';
             
@@ -1431,18 +1440,11 @@
                 document.getElementById('cStatus').value = 'active';
                 document.getElementById('cBasePrice').value = 0;
             }
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0');
-            modal.querySelector('.modal-content').classList.remove('scale-95', 'translate-y-20');
+            document.getElementById('categoryModal').classList.remove('modal-hidden');
         }
 
         function closeCategoryModal() {
-            const modal = document.getElementById('categoryModal');
-            modal.classList.add('opacity-0');
-            modal.querySelector('.modal-content').classList.add('scale-95', 'translate-y-20');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            document.getElementById('categoryModal').classList.add('modal-hidden');
         }
 
         async function saveCategory() {
@@ -1491,7 +1493,6 @@
         }
 
         function openFeatureModal(id = null) {
-            const modal = document.getElementById('featureModal');
             document.getElementById('fId').value = id || '';
             document.getElementById('featModalTitle').innerText = id ? 'Edit Feature' : 'Add Feature';
             
@@ -1516,18 +1517,11 @@
                 document.getElementById('fUnitPrice').value = 0;
                 document.getElementById('fFreeUnits').value = 0;
             }
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0');
-            modal.querySelector('.modal-content').classList.remove('scale-95', 'translate-y-20');
+            document.getElementById('featureModal').classList.remove('modal-hidden');
         }
 
         function closeFeatureModal() {
-            const modal = document.getElementById('featureModal');
-            modal.classList.add('opacity-0');
-            modal.querySelector('.modal-content').classList.add('scale-95', 'translate-y-20');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            document.getElementById('featureModal').classList.add('modal-hidden');
         }
 
         async function saveFeature() {
@@ -1584,7 +1578,7 @@
             const tbody = document.getElementById('pkgOrdersTableBody');
             
             if(!silent) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-gray-400 italic font-medium"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2"></i> Querying Package Orders...</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 italic font-medium"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2"></i> Querying Package Orders...</td></tr>`;
                 lucide.createIcons();
             }
 
@@ -1604,86 +1598,156 @@
 
                 if (error) throw error;
 
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No package orders found.</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = data.map(o => {
-                    const catName = currentLang === 'en' ? (o.pkg_categories?.name_en || 'Unknown Category') : (o.pkg_categories?.name_mm || o.pkg_categories?.name_en || 'Unknown Category');
-                    
-                    let itemsHtml = '<div class="text-[10px] text-gray-400 italic py-2">No additional features selected.</div>';
-                    if (o.pkg_order_items && o.pkg_order_items.length > 0) {
-                        itemsHtml = `<ul class="mt-2 space-y-1.5">` + o.pkg_order_items.map(item => {
-                            const featName = currentLang === 'en' ? (item.pkg_features?.name_en || 'Unknown Feature') : (item.pkg_features?.name_mm || item.pkg_features?.name_en || 'Unknown Feature');
-                            return `<li class="flex items-center justify-between text-[11px] text-gray-600 bg-gray-50/80 px-2 py-1.5 rounded"><div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-myancode-blue"></i> <span class="font-medium truncate max-w-[150px]">${featName}</span></div> <span class="text-gray-400 font-bold bg-white px-1.5 py-0.5 border border-gray-100 rounded shadow-sm">Qty: ${item.qty}</span></li>`;
-                        }).join('') + `</ul>`;
-                    }
-
-                    return `
-                    <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50 cursor-pointer" onclick="toggleOrderDetails('${o.id}')">
-                        <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
-                            <div class="flex items-center gap-2 sm:gap-3">
-                                <i data-lucide="chevron-down" id="icon-${o.id}" class="w-4 h-4 text-gray-400 transition-transform duration-300 flex-shrink-0"></i>
-                                <div>
-                                    <div class="font-mono text-[9px] sm:text-xs font-bold text-myancode-black bg-gray-100 px-2 py-1 rounded-md inline-block mb-1 border border-gray-200">${o.id.split('-')[0]}...</div>
-                                    <div class="text-[8px] sm:text-[10px] text-gray-400 font-bold tracking-wide">${new Date(o.created_at).toLocaleString()}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
-                            <div class="flex items-center gap-2">
-                                <span class="text-[7px] sm:text-[9px] font-bold uppercase tracking-widest text-myancode-blue bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">${o.contact_method}</span>
-                            </div>
-                            <div class="text-[10px] sm:text-sm font-bold text-myancode-black mt-1">${o.contact_handle}</div>
-                        </td>
-                        <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
-                            <div class="font-bold text-myancode-black text-[10px] sm:text-sm">${catName}</div>
-                            <div class="text-[8px] sm:text-xs text-gray-500 font-medium">${o.total_pages} Pages Configured</div>
-                        </td>
-                        <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-right">
-                            <div class="flex flex-col items-end gap-1">
-                                <div class="text-[11px] sm:text-lg font-bold text-myancode-black">${parseFloat(o.total_price).toLocaleString()} MMK</div>
-                                <button onclick="event.stopPropagation(); confirmDeleteOrder('${o.id}')" class="p-1 sm:p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors opacity-0 group-hover:opacity-100 flex items-center gap-1 mt-0.5 sm:mt-1"><i data-lucide="trash-2" class="w-3 h-3"></i> <span class="hidden sm:inline text-[8px] uppercase tracking-widest font-bold">Delete</span></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="details-${o.id}" class="hidden bg-gray-50/50">
-                        <td colspan="4" class="px-2 py-3 sm:px-6 sm:py-4 border-b border-gray-100">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-5 bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-inner-soft">
-                                <div>
-                                    <h4 class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-50 pb-2">Order Information</h4>
-                                    <div class="space-y-2 text-[10px] sm:text-xs">
-                                        <div class="flex justify-between items-center"><span class="text-gray-500">Order ID:</span> <span class="font-mono text-black font-medium text-[9px] sm:text-xs">${o.id}</span></div>
-                                        <div class="flex justify-between items-center"><span class="text-gray-500">Date:</span> <span class="text-black font-medium">${new Date(o.created_at).toLocaleString()}</span></div>
-                                        <div class="flex justify-between items-center"><span class="text-gray-500">Contact Method:</span> <span class="text-black font-medium px-2 py-0.5 bg-gray-100 rounded">${o.contact_method}</span></div>
-                                        <div class="flex justify-between items-center"><span class="text-gray-500">Contact Handle:</span> <span class="text-myancode-blue font-bold">${o.contact_handle}</span></div>
-                                        <div class="flex justify-between items-center"><span class="text-gray-500">Base Architecture:</span> <span class="text-black font-medium">${catName}</span></div>
-                                        <div class="flex justify-between items-center"><span class="text-gray-500">Total Pages:</span> <span class="text-black font-bold">${o.total_pages}</span></div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col h-full">
-                                    <h4 class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-50 pb-2">Configured Features</h4>
-                                    <div class="flex-1 overflow-y-auto pr-1 no-scrollbar max-h-32 sm:max-h-40">
-                                        ${itemsHtml}
-                                    </div>
-                                    <div class="mt-3 sm:mt-4 pt-3 border-t border-gray-100 flex justify-between items-end">
-                                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-500">Final Total</span>
-                                        <div class="text-right">
-                                            <span class="text-sm sm:text-lg font-bold text-myancode-blue leading-none">${parseFloat(o.total_price).toLocaleString()} MMK</span>
-                                            <span class="block text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-green-500 mt-0.5"><i data-lucide="shield-check" class="w-2.5 h-2.5 inline-block mr-0.5 align-middle"></i> Verified Engine Cost</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    `;
-                }).join('');
-                lucide.createIcons();
+                allPkgOrders = data || [];
+                renderPkgOrdersTable(document.getElementById('searchPkgOrders')?.value || '');
             } catch(err) {
                 console.error("Order fetch error", err);
-                if(!silent) tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-500 font-bold">Failed to load orders.</td></tr>`;
+                if(!silent) tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-500 font-bold">Failed to load orders.</td></tr>`;
+            }
+        }
+
+        function renderPkgOrdersTable(searchQuery = '') {
+            const tbody = document.getElementById('pkgOrdersTableBody');
+            let filteredOrders = allPkgOrders;
+
+            if (searchQuery) {
+                filteredOrders = filteredOrders.filter(o => 
+                    superFuzzySearch(searchQuery, o.id) || 
+                    superFuzzySearch(searchQuery, o.customer_name || '')
+                );
+            }
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No package orders found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredOrders.map(o => {
+                const catName = currentLang === 'en' ? (o.pkg_categories?.name_en || 'Unknown Category') : (o.pkg_categories?.name_mm || o.pkg_categories?.name_en || 'Unknown Category');
+                
+                const customerName = o.customer_name || 'N/A';
+                const businessName = o.business_name || 'N/A';
+                const phoneNumber = o.phone_number || 'N/A';
+                const contactEmail = o.contact_email || 'N/A';
+                const location = o.location || 'N/A';
+                
+                let itemsHtml = '<div class="text-[10px] text-gray-400 italic py-2">No additional features selected.</div>';
+                if (o.pkg_order_items && o.pkg_order_items.length > 0) {
+                    itemsHtml = `<ul class="mt-2 space-y-1.5">` + o.pkg_order_items.map(item => {
+                        const featName = currentLang === 'en' ? (item.pkg_features?.name_en || 'Unknown Feature') : (item.pkg_features?.name_mm || item.pkg_features?.name_en || 'Unknown Feature');
+                        return `<li class="flex items-center justify-between text-[11px] text-gray-600 bg-gray-50/80 px-2 py-1.5 rounded"><div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-myancode-blue"></i> <span class="font-medium truncate max-w-[150px]">${featName}</span></div> <span class="text-gray-400 font-bold bg-white px-1.5 py-0.5 border border-gray-100 rounded shadow-sm">Qty: ${item.qty}</span></li>`;
+                    }).join('') + `</ul>`;
+                }
+
+                // Status Management
+                const currentStatus = o.status || 'Pending';
+                const statusColors = {
+                     'Pending': 'bg-yellow-50 text-yellow-600 border-yellow-200',
+                     'Processing': 'bg-blue-50 text-blue-600 border-blue-200',
+                     'Confirmed': 'bg-green-50 text-green-600 border-green-200',
+                     'Cancelled': 'bg-red-50 text-red-600 border-red-200'
+                 };
+                 const sColor = statusColors[currentStatus] || statusColors['Pending'];
+
+                return `
+                <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50 cursor-pointer" onclick="toggleOrderDetails('${o.id}')">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <i data-lucide="chevron-down" id="icon-${o.id}" class="w-4 h-4 text-gray-400 transition-transform duration-300 flex-shrink-0"></i>
+                            <div>
+                                <div class="font-mono text-[9px] sm:text-xs font-bold text-myancode-black bg-gray-100 px-2 py-1 rounded-md inline-block mb-1 border border-gray-200">${o.id.split('-')[0]}...</div>
+                                <div class="text-[8px] sm:text-[10px] text-gray-400 font-bold tracking-wide">${new Date(o.created_at).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-myancode-black text-[10px] sm:text-sm truncate max-w-[100px] sm:max-w-[150px]">${customerName}</span>
+                            <span class="text-[7px] sm:text-[9px] font-bold uppercase tracking-widest text-myancode-blue bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">${o.contact_method}</span>
+                        </div>
+                        <div class="text-[9px] sm:text-xs text-gray-500 font-medium mt-1">${phoneNumber}</div>
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="font-bold text-myancode-black text-[10px] sm:text-sm">${catName}</div>
+                        <div class="text-[8px] sm:text-xs text-gray-500 font-medium">${o.total_pages} Pages Configured</div>
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <select onclick="event.stopPropagation()" onchange="updateOrderStatus('${o.id}', this.value)" class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full px-3 py-1.5 border outline-none cursor-pointer shadow-inner-soft transition-colors ${sColor}">
+                            <option value="Pending" class="text-black bg-white" ${currentStatus === 'Pending' ? 'selected' : ''}>${dict[currentLang].stsPending}</option>
+                            <option value="Processing" class="text-black bg-white" ${currentStatus === 'Processing' ? 'selected' : ''}>${dict[currentLang].stsProcessing}</option>
+                            <option value="Confirmed" class="text-black bg-white" ${currentStatus === 'Confirmed' ? 'selected' : ''}>${dict[currentLang].stsConfirmed}</option>
+                            <option value="Cancelled" class="text-black bg-white" ${currentStatus === 'Cancelled' ? 'selected' : ''}>${dict[currentLang].stsCancelled}</option>
+                        </select>
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-right">
+                        <div class="flex flex-col items-end gap-1">
+                            <div class="text-[11px] sm:text-lg font-bold text-myancode-black">${parseFloat(o.total_price).toLocaleString()} MMK</div>
+                            <button onclick="event.stopPropagation(); confirmDeleteOrder('${o.id}')" class="p-1 sm:p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors opacity-0 group-hover:opacity-100 flex items-center gap-1 mt-0.5 sm:mt-1"><i data-lucide="trash-2" class="w-3 h-3"></i> <span class="hidden sm:inline text-[8px] uppercase tracking-widest font-bold">Delete</span></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="details-${o.id}" class="hidden bg-gray-50/50">
+                    <td colspan="5" class="px-2 py-3 sm:px-6 sm:py-4 border-b border-gray-100">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-5 bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-inner-soft">
+                            <div>
+                                <h4 class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-50 pb-2">Client Information</h4>
+                                <div class="space-y-2 text-[10px] sm:text-xs mb-5 border-b border-gray-50 pb-4">
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Name:</span> <span class="text-black font-bold">${customerName}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Email:</span> <span class="text-black font-medium">${contactEmail}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Phone:</span> <span class="text-black font-medium">${phoneNumber}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Business:</span> <span class="text-black font-medium">${businessName}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Location:</span> <span class="text-black font-medium truncate max-w-[150px] sm:max-w-[200px]" title="${location}">${location}</span></div>
+                                </div>
+
+                                <h4 class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-50 pb-2">Order Information</h4>
+                                <div class="space-y-2 text-[10px] sm:text-xs">
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Order ID:</span> <span class="font-mono text-black font-medium text-[9px] sm:text-xs">${o.id}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Date:</span> <span class="text-black font-medium">${new Date(o.created_at).toLocaleString()}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Contact Method:</span> <span class="text-black font-medium px-2 py-0.5 bg-gray-100 rounded">${o.contact_method}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Contact Handle:</span> <span class="text-myancode-blue font-bold">${o.contact_handle}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Base Architecture:</span> <span class="text-black font-medium">${catName}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Total Pages:</span> <span class="text-black font-bold">${o.total_pages}</span></div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col h-full">
+                                <h4 class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-50 pb-2">Configured Features</h4>
+                                <div class="flex-1 overflow-y-auto pr-1 no-scrollbar max-h-48 sm:max-h-[300px]">
+                                    ${itemsHtml}
+                                </div>
+                                <div class="mt-3 sm:mt-4 pt-3 border-t border-gray-100 flex justify-between items-end">
+                                    <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-500">Final Total</span>
+                                    <div class="text-right">
+                                        <span class="text-sm sm:text-lg font-bold text-myancode-blue leading-none">${parseFloat(o.total_price).toLocaleString()} MMK</span>
+                                        <span class="block text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-green-500 mt-0.5"><i data-lucide="shield-check" class="w-2.5 h-2.5 inline-block mr-0.5 align-middle"></i> Verified Engine Cost</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            showLoader('loadingData');
+            try {
+                const { error } = await supabaseInstance.from('pkg_orders').update({ status: newStatus }).eq('id', orderId);
+                if (error) throw error;
+                
+                // Update local state and re-render quietly
+                const order = allPkgOrders.find(o => o.id === orderId);
+                if (order) order.status = newStatus;
+                renderPkgOrdersTable(document.getElementById('searchPkgOrders')?.value || '');
+                
+                showToast(dict[currentLang].msgSaveSuccess || "Status updated successfully.");
+            } catch (err) {
+                showErrorToast(err.message);
+                // Revert UI change by re-rendering
+                renderPkgOrdersTable(document.getElementById('searchPkgOrders')?.value || '');
+            } finally {
+                hideLoader();
             }
         }
 
@@ -1804,7 +1868,6 @@
         }
 
         function openProductModal(productId = null) {
-            const modal = document.getElementById('productModal');
             document.getElementById('formProductId').value = productId || '';
             document.getElementById('modalTitle').innerText = productId ? dict[currentLang].modalTitleEdit : dict[currentLang].modalTitleAdd;
             
@@ -1830,20 +1893,11 @@
                 document.getElementById('pStock').value = '99';
                 updateImagePreview('');
             }
-            
-            // Clean modal opening logic
-            modal.classList.remove('hidden', 'modal-hidden'); 
-            modal.classList.add('flex'); 
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0'); 
-            modal.querySelector('.modal-content').classList.remove('scale-95', 'translate-y-20');
+            document.getElementById('productModal').classList.remove('modal-hidden');
         }
 
         function closeProductModal() { 
-            const modal = document.getElementById('productModal');
-            modal.classList.add('opacity-0');
-            modal.querySelector('.modal-content').classList.add('scale-95', 'translate-y-20');
-            setTimeout(() => { modal.classList.add('hidden', 'modal-hidden'); modal.classList.remove('flex'); }, 300);
+            document.getElementById('productModal').classList.add('modal-hidden');
         }
 
         async function saveProduct() {
@@ -1997,19 +2051,11 @@
 
         function openInviteAdminModal() {
             document.getElementById('inviteEmail').value = '';
-            const modal = document.getElementById('inviteAdminModal');
-            modal.classList.remove('hidden', 'modal-hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0');
-            modal.querySelector('.modal-content').classList.remove('scale-95', 'translate-y-20');
+            document.getElementById('inviteAdminModal').classList.remove('modal-hidden');
         }
 
         function closeInviteAdminModal() { 
-            const modal = document.getElementById('inviteAdminModal');
-            modal.classList.add('opacity-0');
-            modal.querySelector('.modal-content').classList.add('scale-95', 'translate-y-20');
-            setTimeout(() => { modal.classList.add('hidden', 'modal-hidden'); modal.classList.remove('flex'); }, 300);
+            document.getElementById('inviteAdminModal').classList.add('modal-hidden');
         }
 
         async function submitInviteAdmin() {
@@ -2036,15 +2082,11 @@
         function finishInviteProcess(email) {
             closeInviteAdminModal();
             document.getElementById('displayInviteEmail').innerText = email;
-            const modal = document.getElementById('inviteSuccessModal');
-            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
-            modal.classList.remove('opacity-0'); modal.querySelector('.modal-content').classList.remove('scale-95');
+            document.getElementById('inviteSuccessModal').classList.remove('modal-hidden');
         }
 
         function closeInviteSuccessModal() {
-            const modal = document.getElementById('inviteSuccessModal');
-            modal.classList.add('opacity-0'); modal.querySelector('.modal-content').classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            document.getElementById('inviteSuccessModal').classList.add('modal-hidden');
         }
 
         let currentResetEmail = '';
@@ -2058,37 +2100,28 @@
                         const { error } = await supabaseInstance.rpc('admin_reset_user_password', { target_user_id: id });
                         if (error) throw error;
                         hideLoader();
-                        const modal = document.getElementById('pwdResetSuccessModal');
-                        modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
-                        modal.classList.remove('opacity-0'); modal.querySelector('.modal-content').classList.remove('scale-95');
+                        document.getElementById('pwdResetSuccessModal').classList.remove('modal-hidden');
                     } catch(err) { showErrorToast(err.message); hideLoader(); }
                 }
             );
         }
 
         function closePwdResetModal() {
-            const modal = document.getElementById('pwdResetSuccessModal');
-            modal.classList.add('opacity-0'); modal.querySelector('.modal-content').classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            document.getElementById('pwdResetSuccessModal').classList.add('modal-hidden');
         }
 
         /* --- FORCE PASSWORD CHANGE LOGIC --- */
         function openForcePasswordModal(isForce = false) {
             document.getElementById('newSecurePassword').value = '';
-            const modal = document.getElementById('forcePasswordModal');
             const closeBtn = document.getElementById('closePwdBtn');
-            
             if(isForce) { closeBtn.classList.add('hidden'); } 
             else { closeBtn.classList.remove('hidden'); }
             
-            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
-            modal.classList.remove('opacity-0'); modal.querySelector('.modal-content').classList.remove('scale-95');
+            document.getElementById('forcePasswordModal').classList.remove('modal-hidden');
         }
 
         function closeForcePasswordModal() {
-            const modal = document.getElementById('forcePasswordModal');
-            modal.classList.add('opacity-0'); modal.querySelector('.modal-content').classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            document.getElementById('forcePasswordModal').classList.add('modal-hidden');
         }
 
         async function saveNewPassword() {
@@ -2226,18 +2259,11 @@
 
         function openNewsletterModal() {
             document.getElementById('newsletterComposeForm').reset();
-            document.getElementById('newsletterModal').classList.remove('hidden', 'modal-hidden');
-            document.getElementById('newsletterModal').classList.add('flex');
-            void document.getElementById('newsletterModal').offsetWidth;
-            document.getElementById('newsletterModal').classList.remove('opacity-0');
-            document.getElementById('newsletterModal').querySelector('.modal-content').classList.remove('scale-95', 'translate-y-20');
+            document.getElementById('newsletterModal').classList.remove('modal-hidden');
         }
 
         function closeNewsletterModal() {
-            const modal = document.getElementById('newsletterModal');
-            modal.classList.add('opacity-0');
-            modal.querySelector('.modal-content').classList.add('scale-95', 'translate-y-20');
-            setTimeout(() => { modal.classList.add('hidden', 'modal-hidden'); modal.classList.remove('flex'); }, 300);
+            document.getElementById('newsletterModal').classList.add('modal-hidden');
         }
 
         async function sendNewsletter() {
@@ -2258,6 +2284,7 @@
             showLoader('loadingData');
             
             try {
+                // Call the Postgres RPC function to send emails
                 const { error } = await supabaseInstance.rpc('send_newsletter', {
                     email_subject: subject,
                     html_content: htmlContent
