@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Websites Package Builder | MyanCode</title>
+    <title>Websites Studio | MyanCode</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,10 +13,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Cloudflare Turnstile Script for Newsletter -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     <script>
         tailwind.config = {
             theme: {
+                screens: {
+                    'xs': '400px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                },
                 extend: {
                     fontFamily: { sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'] },
                     colors: { myancode: { black: '#111111', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } }
@@ -100,23 +110,73 @@
     </div>
 
     <!-- Navigation -->
-    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] glass-nav">
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent">
         <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
             <div class="flex justify-between items-center h-14 sm:h-16">
-                <div class="flex items-center">
-                    <button class="md:hidden mr-4 transition-colors duration-300 nav-icon text-myancode-black" onclick="toggleMobileMenu()">
+                <div class="flex items-center h-full">
+                    <button class="md:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-myancode-black" onclick="toggleMobileMenu()">
                         <i data-lucide="menu" class="h-5 w-5"></i>
                     </button>
-                    <a href="../index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
+                    <!-- LOGO LINK -->
+                    <a href="../index.html" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
                         <i data-lucide="code-2" class="h-5 w-5 mr-2 transition-all duration-500 group-hover:rotate-12 nav-icon text-myancode-black"></i>
-                        <span class="font-semibold text-base sm:text-lg tracking-wide transition-colors duration-300 group-hover:text-myancode-blue nav-text text-myancode-black" id="navLogoText">MyanCode</span>
+                        <span class="font-semibold text-lg sm:text-xl tracking-wide transition-colors duration-300 group-hover:text-myancode-blue nav-text text-myancode-black" id="navLogoText">MyanCode</span>
                     </a>
                 </div>
-                <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium">
-                    <a href="../website/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black" data-i18n="navWebsites">Websites</a>
-                    <a href="../comming-soon/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-i18n="navServices">Services</a>
-                    <a href="../comming-soon/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-i18n="navStandard">Standard</a>
-                    <a href="../comming-soon/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-i18n="navProcess">Process</a>
+                
+                <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium items-center h-full">
+                    <a href="../studio/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="../templates/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../services/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    
+                    <!-- FULL-WIDTH APPLE STYLE SUPPORT MEGA MENU -->
+                    <div class="relative group h-full flex items-center">
+                        <button class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link flex items-center gap-1 cursor-pointer text-myancode-black/80" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
+                        
+                        <!-- Invisible bridge -->
+                        <div class="absolute top-[80%] left-0 w-full h-8"></div>
+
+                        <!-- Fixed Full-Width Dropdown Content -->
+                        <div class="fixed top-[56px] sm:top-[64px] left-0 w-full bg-[#fbfbfd]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border-b border-gray-200/60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
+                            <div class="max-w-[1024px] mx-auto px-4 sm:px-6 py-12 flex gap-8 md:gap-16 lg:gap-24 text-black">
+                                
+                                <!-- Column 1: Explore Support -->
+                                <div class="flex-[1.2]">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                                    <div class="flex flex-col gap-4">
+                                        <a href="../guides/index.html" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supGuides">Guides</a>
+                                        <a href="../help/index.html" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                        <a href="../faq/index.html" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supFaq">FAQs</a>
+                                        <a href="../contact-us/index.html" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Column 2: Service Policies -->
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../policies/client/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polClient">Client Policy</a>
+                                        <a href="../policies/studio/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
+                                        <a href="../policies/template/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                        <a href="../policies/service/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                        <a href="../policies/maintenance/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Column 3: Legal & Transactions -->
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../policies/payment/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                        <a href="../policies/refund/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                        <a href="../policies/privacy/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="../policies/terms/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-4 sm:space-x-5">
                     <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i></button>
@@ -152,38 +212,94 @@
                 <div class="w-full md:w-1/3">
                     <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Links</h4>
                     <ul class="space-y-4">
-                        <li><a href="../comming-soon/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="ftSEO">SEO Optimization</span></a></li>
-                        <li><a href="../website/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="prod1Title">Business & Org</span></a></li>
-                        <li><a href="../website/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="prod3Title">Info & Education</span></a></li>
+                        <li><a href="../services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="tradeInTitle">Web Development</span></a></li>
+                        <li><a href="../templates/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="newArrivals">Featured Templates</span></a></li>
+                        <li><a href="../services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="bulkTitle">SEO Optimization</span></a></li>
                     </ul>
                 </div>
                 <div class="w-full md:w-2/3">
                     <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="searchResults">Results</h4>
-                    <div id="megaSearchResults" class="space-y-4"><p class="text-gray-400 text-sm font-light italic" data-i18n="searchHint">Type to discover our enterprise products and services...</p></div>
+                    <div id="megaSearchResults" class="space-y-4"><p class="text-gray-400 text-sm font-light italic" data-i18n="searchHint">Type to discover our products and services...</p></div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- MOBILE MENU DRAWER -->
-    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-white/95 backdrop-blur-3xl z-[80] drawer-left flex flex-col overflow-y-auto">
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#fafafa] z-[80] drawer-left flex flex-col overflow-y-auto">
         <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100/50">
-            <span class="font-semibold tracking-wide text-lg text-black">MyanCode</span>
+            <a href="../index.html" class="font-semibold tracking-wide text-lg text-black">MyanCode</a>
             <button onclick="toggleMobileMenu()" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-600 hover:text-black"><i data-lucide="x" class="h-5 w-5"></i></button>
         </div>
         <div class="flex-1 px-8 py-8 flex flex-col max-w-lg mx-auto w-full">
             <div class="relative mb-10" onclick="toggleMobileMenu(); toggleSearchOverlay();">
                 <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-400"></i>
-                <input type="text" class="w-full pl-10 py-3 border-b border-gray-300 focus:outline-none text-base pointer-events-none bg-transparent" placeholder="Search..." data-i18n-placeholder="searchPlaceholder">
+                <input type="text" class="w-full pl-10 py-3 border-b border-gray-300 focus:outline-none text-base pointer-events-none bg-transparent text-gray-500" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
             </div>
-            <div class="space-y-8 flex-1 text-lg font-medium tracking-wide capitalize">
-                <a href="../website/index.html" onclick="toggleMobileMenu()" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navWebsites">Websites</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i></a>
-                <a href="../comming-soon/index.html" onclick="toggleMobileMenu()" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i></a>
-                <a href="../comming-soon/index.html" onclick="toggleMobileMenu()" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navStandard">Standard</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i></a>
-                <a href="../comming-soon/index.html" onclick="toggleMobileMenu()" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors"><span data-i18n="navProcess">Process</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i></a>
-                <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors pt-4"><span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-4 w-4 text-gray-300"></i></button>
+            
+            <div class="space-y-6 flex-1 text-lg font-medium tracking-wide capitalize">
+                <a href="../studio/index.html" onclick="toggleMobileMenu()" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors mega-nav-link">
+                    <span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i>
+                </a>
+                <a href="../templates/index.html" onclick="toggleMobileMenu()" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors mega-nav-link">
+                    <span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i>
+                </a>
+                <a href="../services/index.html" onclick="toggleMobileMenu()" class="flex justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors mega-nav-link">
+                    <span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-300"></i>
+                </a>
+                
+                <!-- MOBILE SUPPORT ACCORDION (APPLE-STYLE MULTI-GROUP) -->
+                <div class="border-t border-gray-100 pt-4">
+                    <button onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors">
+                        <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down" class="h-4 w-4 text-gray-300 transition-transform"></i>
+                    </button>
+                    <div id="mobSupportDrop" class="hidden flex-col w-full mt-8 pb-2">
+                        
+                        <!-- Group 1 -->
+                        <div class="mb-8">
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                            <div class="flex flex-col gap-4">
+                                <a href="../guides/index.html" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supGuides">Guides</a>
+                                <a href="../help/index.html" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                <a href="../faq/index.html" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supFaq">FAQs</a>
+                                <a href="../contact-us/index.html" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Group 2 -->
+                        <div class="mb-8">
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                            <div class="flex flex-col gap-3">
+                                <a href="../policies/client/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polClient">Client Policy</a>
+                                <a href="../policies/studio/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
+                                <a href="../policies/template/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                <a href="../policies/service/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                <a href="../policies/maintenance/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Group 3 -->
+                        <div>
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                            <div class="flex flex-col gap-3">
+                                <a href="../policies/payment/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                <a href="../policies/refund/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                <a href="../policies/privacy/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                <a href="../policies/terms/index.html" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100">
+                    <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center text-gray-800 hover:text-myancode-blue transition-colors">
+                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-4 w-4 text-gray-300"></i>
+                    </button>
+                </div>
             </div>
-            <div class="border-t border-gray-200 mt-10 pt-8 space-y-6 pb-10">
+            
+            <div class="border-t border-gray-200 pt-8 pb-10">
                 <div id="mobileAuthContainer" class="w-full flex flex-col space-y-6"></div>
                 <button onclick="toggleMobileMenu(); toggleWishlistDrawer();" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize"><span data-i18n="wishlistTitle">Wishlist</span> <i data-lucide="heart" class="h-5 w-5 text-gray-400"></i></button>
             </div>
@@ -408,7 +524,7 @@
                             <input type="text" id="contactHandle" required class="w-full px-5 py-3.5 bg-gray-50 hover:bg-gray-100/80 border border-gray-200 rounded-xl text-sm font-medium premium-input" placeholder="@username or https://...">
                         </div>
 
-                        <button type="submit" id="btnSubmitOrder" class="w-full bg-myancode-black hover:bg-gray-800 text-white font-bold py-5 rounded-2xl shadow-xl transition-all btn-hover-effect flex justify-center items-center gap-2 mt-4 text-lg">
+                        <button type="submit" id="btnSubmitOrder" class="w-full bg-myancode-black hover:bg-gray-800 text-white font-bold py-5 rounded-2xl shadow-xl transition-all btn-hover-effect flex justify-center items-center gap-2 text-lg">
                             <span data-i18n="btnSubmitOrder">Dispatch Secure Request</span> <i data-lucide="check" class="w-5 h-5"></i>
                         </button>
                     </form>
@@ -493,62 +609,97 @@
         </div>
     </div>
 
-    <!-- Detailed Footer -->
-    <footer class="bg-[#fbfbfd] pt-24 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10">
+    <!-- Detailed Footer with Integrated Newsletter -->
+    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10 mt-auto">
         <div class="max-w-[1024px] mx-auto">
-            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-20">
+            
+            <!-- Enterprise Newsletter Card -->
+            <div class="bg-white rounded-[2.5rem] p-8 sm:p-12 mb-20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
+                
+                <!-- Left: Text Content -->
+                <div class="text-center lg:text-left w-full lg:w-1/2 flex flex-col items-center lg:items-start">
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-[#f0f5ff] rounded-full mb-6">
+                        <i data-lucide="mail" class="w-6 h-6 text-[#2997ff]"></i>
+                    </div>
+                    <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-4" data-i18n="nlTitle">Stay Ahead of the Curve</h3>
+                    <p class="text-base text-gray-500 font-normal leading-relaxed max-w-md mx-auto lg:mx-0" data-i18n="nlDesc">Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.</p>
+                </div>
+                
+                <!-- Right: Subscription Form + Turnstile -->
+                <div class="w-full lg:w-1/2">
+                    <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="w-full flex flex-col gap-3">
+                        <div class="relative flex items-center bg-white border border-gray-200 rounded-full p-1.5 shadow-sm transition-all focus-within:border-myancode-black focus-within:ring-1 focus-within:ring-myancode-black">
+                            <div class="pl-5 pr-3 text-gray-400 flex items-center justify-center pointer-events-none">
+                                <i data-lucide="mail" class="w-5 h-5"></i>
+                            </div>
+                            <input type="email" id="newsletterEmail" required class="w-full py-3.5 bg-transparent border-none outline-none text-sm font-medium text-myancode-black placeholder-gray-400 focus:ring-0" placeholder="Enter your email address" data-i18n-placeholder="nlPlaceholder">
+                            <button type="submit" id="btnSubscribe" class="bg-myancode-black text-white px-8 py-3.5 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition shadow-md flex items-center justify-center gap-2 btn-hover-effect whitespace-nowrap shrink-0">
+                                <span data-i18n="btnSubscribe">Subscribe</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Cloudflare Turnstile Widget -->
+                        <div class="cf-turnstile pl-2" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="light"></div>
+                    </form>
+                    
+                    <p class="text-[11px] text-gray-400 mt-4 font-medium tracking-wide uppercase text-center lg:text-left lg:ml-6" data-i18n="nlDisclaimer">We respect your privacy. No spam, ever.</p>
+                </div>
+                
+            </div>
+
+            <!-- Modern Formal Footer Links Grid -->
+            <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-16 border-t border-gray-200 pt-16 mt-16">
                 <div>
-                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftCompany">Company</h4>
-                    <ul class="space-y-3">
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftAbout">About Us</a></li>
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftContact">Contact Us</a></li>
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftCareers">Careers at MyanCode</a></li>
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftYangon">Yangon Office</a></li>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftCompanyTitle">Company</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../about-us/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAboutUs">About Us</a></li>
+                        <li><a href="../contact-us/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftContactUs">Contact Us</a></li>
+                        <li><a href="../updates-news/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftUpdates">Updates & News</a></li>
+                        <li><a href="../careers/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftCareers">Careers</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftHelp">Support</h4>
-                    <ul class="space-y-3">
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftProject">Project Tracking</a></li>
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftFAQ">Client FAQ</a></li>
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftServicePol">Service Policy</a></li>
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftPrivacy">Privacy Policy</a></li>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftStoreTitle">Store</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../studio/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAddOns">Add-Ons</a></li>
+                        <li><a href="../templates/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftTemplates">Templates</a></li>
+                        <li><a href="../services/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftServices">Services</a></li>
+                        <li><a href="../maintenance/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftMaintenance">Maintenance</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftSolutions">Solutions</h4>
-                    <ul class="space-y-3">
-                        <li><a href="../templates/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftWebsites">Static Websites</a></li>
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftSEO">SEO Optimization</a></li>
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftDomain">Domain Registration</a></li>
-                        <li><a href="../comming-soon/index.html" class="hover-underline text-[13px] font-medium text-gray-500 hover:text-black" data-i18n="ftMaint">Enterprise Maintenance</a></li>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftSupportTitle">Support</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../guides/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supGuides">Guides</a></li>
+                        <li><a href="../help/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supHelp">Help Center</a></li>
+                        <li><a href="../faq/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supFaq">FAQs</a></li>
+                        <li><a href="../about/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supLegal">Legal</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="text-[10px] sm:text-xs tracking-[0.25em] font-semibold text-gray-900 uppercase mb-6" data-i18n="ftFollow">Follow Us</h4>
-                    <p class="text-[13px] font-medium text-gray-500 mb-6 leading-relaxed" data-i18n="ftFollowDesc">Keep up-to-date with our latest projects and enterprise tech insights.</p>
-                    <div class="flex space-x-6">
-                        <a href="../comming-soon/index.html" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="facebook" class="h-5 w-5 fill-current"></i></a>
-                        <a href="../comming-soon/index.html" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="instagram" class="h-5 w-5"></i></a>
-                        <a href="../comming-soon/index.html" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="linkedin" class="h-5 w-5 fill-current"></i></a>
+                <div class="xs:col-span-2 md:col-span-1">
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftFollow">Follow Us</h4>
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-5 leading-relaxed pr-4" data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
+                    <div class="flex space-x-5">
+                        <a href="../comming-soon/index.html" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="facebook" class="h-4 w-4 fill-current"></i></a>
+                        <a href="../comming-soon/index.html" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="instagram" class="h-4 w-4"></i></a>
+                        <a href="../comming-soon/index.html" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="linkedin" class="h-4 w-4 fill-current"></i></a>
                     </div>
                 </div>
             </div>
-            <div class="border-t border-gray-200 pt-8 flex justify-center items-center">
-                <p class="text-[11px] text-gray-400 font-medium text-center tracking-wide" data-i18n="ftCopyright">&copy; 2026 MyanCode. All rights reserved. Engineered in Yangon.</p>
+            <div class="border-t border-gray-200 pt-6 pb-2 flex justify-center items-center">
+                <p class="text-[10px] sm:text-[11px] text-gray-400 font-medium text-center tracking-wide" data-i18n="ftCopyright">&copy; 2026 MyanCode. All rights reserved. Engineered in Yangon.</p>
             </div>
         </div>
     </footer>
 
     <!-- Notification Toasts -->
     <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
-        <div id="toastIconContainer" class="flex-shrink-0 flex items-center justify-center mr-3">
-            <i data-lucide="check-circle-2" class="h-5 w-5 text-green-400"></i>
-        </div>
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
         <span id="toast-msg" class="text-sm font-medium tracking-wide">Success!</span>
     </div>
+
     <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
-        <i data-lucide="alert-triangle" class="h-5 w-5 mr-3 text-white"></i>
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-white"></i>
         <span id="error-toast-msg" class="text-sm font-medium tracking-wide">Error!</span>
     </div>
 
@@ -579,16 +730,19 @@
         /* --- Dictionary & Language --- */
         const dict = {
             en: {
-                navWebsites: "Websites", navServices: "Services", navStandard: "Standard", navProcess: "Process",
+                navStudio: "Studio", navWebsites: "Templates", navServices: "Services", navSupport: "Support",
                 langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
                 wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", btnCart: "Cart", wlTotal: "Total", btnContact: "Proceed to Checkout",
                 quickLinks: "Quick Links", searchResults: "Results", searchHint: "Type to discover our enterprise products and services...",
-                ftCompany: "Company", ftAbout: "About Us", ftContact: "Contact Us", ftCareers: "Careers", ftYangon: "Yangon Office",
-                ftHelp: "Support", ftProject: "Project Tracking", ftFAQ: "Client FAQ", ftServicePol: "Service Policy", ftPrivacy: "Privacy Policy",
-                ftSolutions: "Solutions", ftWebsites: "Static Websites", ftSEO: "SEO Optimization", ftDomain: "Domain Registration", ftMaint: "Enterprise Maintenance",
-                ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest projects and enterprise tech insights.", ftCopyright: "© 2026 MyanCode. All rights reserved. Engineered in Yangon.",
-                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrOrders: "Orders", hdrLogout: "Sign Out", hdrWorkplace: "Workplace", msgLoggedOut: "Signed out securely.",
-                prod1Title: "Business & Org", prod3Title: "Info & Education",
+                
+                ftCompanyTitle: "Company", ftAboutUs: "About Us", ftContactUs: "Contact Us", ftUpdates: "Updates & News", ftCareers: "Careers",
+                ftStoreTitle: "Store", ftAddOns: "Add-Ons", ftTemplates: "Templates", ftServices: "Services", ftMaintenance: "Maintenance",
+                ftSupportTitle: "Support", supGuides: "Guides", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal", supContact: "Contact",
+                supHelpTitle: "Explore Support", supPoliciesTitle: "Service Policies", supLegalTitle: "Legal & Transactions",
+                supPolicies: "Policies", polClient: "Client Policy", polStudio: "Studio Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
+                
+                ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest products and tech insights.", ftCopyright: "© 2026 MyanCode. All rights reserved. Engineered in Yangon.",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrHub: "Hub", hdrLogout: "Sign Out", hdrWorkplace: "Workplace", msgLoggedOut: "Signed out securely.",
                 loadingInit: "Initializing Experience...",
                 // Builder Additions
                 heroBadge: "New Estimator Engine", shopEyebrow: "New Estimator Engine", shopTitle: "Build Your Package.", shopSub: "Transparent pricing and enterprise-grade architecture. Customize your website components and get an instant live estimate before ordering.",
@@ -607,19 +761,26 @@
                 qrTele: "Contact us on Telegram", qrMess: "Contact us on Messenger", qrDisc: "Join our Discord server", btnDone: "Done",
                 btnDownload: "Download", btnVisit: "Visit",
                 successHubMsg: "You can view and track your order status in the User Hub.", btnGoHub: "Go to User Hub",
-                errLimitHourly: "You have reached the limit of 1 order per hour. Please try again later.", errLimitDaily: "You have reached the daily limit of 2 orders. Please try again tomorrow."
+                errLimitHourly: "You have reached the limit of 1 order per hour. Please try again later.", errLimitDaily: "You have reached the daily limit of 2 orders. Please try again tomorrow.",
+                
+                nlTitle: "Stay Ahead of the Curve", nlDesc: "Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.",
+                nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
+                msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list."
             },
             mm: {
-                navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStandard: "စံနှုန်းများ", navProcess: "လုပ်ငန်းစဉ်များ",
+                navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ",
                 langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
                 wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", btnCart: "ဝယ်ယူမည့်စာရင်း", wlTotal: "စုစုပေါင်း", btnContact: "ဝယ်ယူရန် ရှေ့ဆက်မည်",
                 quickLinks: "အမြန်လင့်ခ်များ", searchResults: "ရလဒ်များ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...",
-                ftCompany: "ကုမ္ပဏီ", ftAbout: "ကျွန်ုပ်တို့အကြောင်း", ftContact: "ဆက်သွယ်ရန်", ftCareers: "အလုပ်အကိုင်များ", ftYangon: "ရန်ကုန်ရုံးချုပ်",
-                ftHelp: "အကူအညီ", ftProject: "ပရောဂျက် ခြေရာခံရန်", ftFAQ: "အမေးများသောမေးခွန်းများ", ftServicePol: "ဝန်ဆောင်မှုမူဝါဒ", ftPrivacy: "ကိုယ်ရေးအချက်အလက်မူဝါဒ",
-                ftSolutions: "ဖြေရှင်းချက်များ", ftWebsites: "Static ဝက်ဘ်ဆိုက်များ", ftSEO: "SEO အဆင့်မြှင့်တင်ခြင်း", ftDomain: "ဒိုမိန်းအမည် မှတ်ပုံတင်ခြင်း", ftMaint: "ဝက်ဘ်ဆိုက် ထိန်းသိမ်းခြင်း",
+                
+                ftCompanyTitle: "ကုမ္ပဏီ", ftAboutUs: "ကျွန်ုပ်တို့အကြောင်း", ftContactUs: "ဆက်သွယ်ရန်", ftUpdates: "သတင်းနှင့် အသစ်များ", ftCareers: "အလုပ်အကိုင်များ",
+                ftStoreTitle: "စတိုး", ftAddOns: "အပိုပစ္စည်းများ", ftTemplates: "ဝက်ဘ်ဆိုက်များ", ftServices: "ဝန်ဆောင်မှုများ", ftMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
+                ftSupportTitle: "အကူအညီ", supGuides: "လမ်းညွှန်များ", supHelp: "အကူအညီဌာန", supFaq: "အမေးများသောမေးခွန်းများ", supLegal: "တရားဝင်", supContact: "ဆက်သွယ်ရန်",
+                supHelpTitle: "အကူအညီ ရယူရန်", supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ",
+                supPolicies: "မူဝါဒများ", polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
+                
                 ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
-                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrOrders: "အော်ဒါများ", hdrLogout: "အကောင့်ထွက်ရန်", hdrWorkplace: "လုပ်ငန်းခွင်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
-                prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrHub: "ဗဟိုဌာန", hdrLogout: "အကောင့်ထွက်ရန်", hdrWorkplace: "လုပ်ငန်းခွင်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
                 loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...",
                 // Builder Additions
                 heroBadge: "ဈေးနှုန်းတွက်ချက်မှု စနစ်သစ်", shopEyebrow: "ဈေးနှုန်းတွက်ချက်မှု စနစ်သစ်", shopTitle: "လုပ်ငန်းအတွက် ရွေးချယ်ပါ။", shopSub: "ပွင့်လင်းမြင်သာသော ဈေးနှုန်း၊ အဆင့်မြင့်နည်းပညာ။ သင့်ဝက်ဘ်ဆိုက်အတွက် လိုအပ်ချက်များကို စိတ်ကြိုက်ပြင်ဆင်ပြီး ချက်ချင်း အော်ဒါတင်နိုင်ပါသည်။",
@@ -638,7 +799,11 @@
                 qrTele: "Telegram မှ ဆက်သွယ်ရန်", qrMess: "Messenger မှ ဆက်သွယ်ရန်", qrDisc: "Discord ဆာဗာသို့ ဝင်ရောက်ရန်", btnDone: "ပြီးစီးပါပြီ",
                 btnDownload: "ဒေါင်းလုဒ်", btnVisit: "လင့်ခ်သို့သွားမည်",
                 successHubMsg: "သင်၏ အော်ဒါအခြေအနေကို User Hub တွင် ဝင်ရောက်ကြည့်ရှုနိုင်ပါသည်။", btnGoHub: "User Hub သို့ သွားမည်",
-                errLimitHourly: "တစ်နာရီလျှင် အော်ဒါ ၁ ခုသာ တင်နိုင်ပါသည်။ ခေတ္တစောင့်ဆိုင်းပြီးမှ ထပ်မံကြိုးစားပါ။", errLimitDaily: "တစ်ရက်လျှင် အော်ဒါ ၂ ခုသာ တင်နိုင်ပါသည်။ မနက်ဖြန်မှ ထပ်မံကြိုးစားပါ။"
+                errLimitHourly: "တစ်နာရီလျှင် အော်ဒါ ၁ ခုသာ တင်နိုင်ပါသည်။ ခေတ္တစောင့်ဆိုင်းပြီးမှ ထပ်မံကြိုးစားပါ။", errLimitDaily: "တစ်ရက်လျှင် အော်ဒါ ၂ ခုသာ တင်နိုင်ပါသည်။ မနက်ဖြန်မှ ထပ်မံကြိုးစားပါ။",
+                
+                nlTitle: "သတင်းအသစ်များ ရယူရန်", nlDesc: "နောက်ဆုံးရ နည်းပညာသတင်းများနှင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းအသစ်များကို ရယူရန် သင်၏ အီးမေးလ်ကို စာရင်းသွင်းပါ။",
+                nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", nlDisclaimer: "သင်၏ အချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။",
+                msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။"
             }
         };
 
@@ -718,8 +883,9 @@
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
                             <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
                             ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
+                            ${currentUser.role === 'user' ? `<a href="../hub/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
                             <button onclick="window.location.href='../profile/index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
-                            <button onclick="window.location.href='../hub/index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrOrders}</button>
+                            <button onclick="window.location.href='../index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">Orders</button>
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
                         </div>
                     </div>`;
@@ -731,8 +897,11 @@
                     ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
                         <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
                     </a>` : ''}
+                    ${currentUser.role === 'user' ? `<a href="../hub/index.html" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6">
+                        <span>${dict[currentLang].hdrHub}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i>
+                    </a>` : ''}
                     <button onclick="window.location.href='../profile/index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
-                    <button onclick="window.location.href='../hub/index.html'" class="flex justify-between items-center w-full text-myancode-blue transition-colors text-base font-bold tracking-wide capitalize mb-6"><span>${dict[currentLang].hdrOrders}</span> <i data-lucide="package" class="h-5 w-5 text-myancode-blue"></i></button>
+                    <button onclick="window.location.href='../index.html'" class="flex justify-between items-center w-full text-gray-800 hover:text-myancode-blue transition-colors text-base font-medium tracking-wide capitalize mb-6"><span>Orders</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i></button>
                     <button onclick="handleLogout()" class="flex justify-between items-center w-full text-red-500 hover:text-red-600 transition-colors text-base font-medium tracking-wide capitalize pb-6 border-b border-gray-200"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5"></i></button>`;
             } else {
                 desktopAuth.innerHTML = `
@@ -745,6 +914,19 @@
                     </div>`;
             }
             lucide.createIcons();
+            setActiveNavLinks();
+        }
+
+        /* --- Active Nav Links Tracker --- */
+        function setActiveNavLinks() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link[data-nav-path]').forEach(link => {
+                const path = link.getAttribute('data-nav-path');
+                if (path !== '/' && currentPath.includes(path)) {
+                    link.classList.add('text-myancode-blue', 'font-bold', 'active-nav-item');
+                    link.classList.remove('hover:text-myancode-blue', 'text-white/80', 'text-white/90', 'text-myancode-black/80', 'text-myancode-black');
+                }
+            });
         }
 
         /* --- Wishlist System --- */
@@ -813,9 +995,9 @@
 
         /* --- Search System --- */
         const searchCatalog = [
-            { id: 'prod1', type: 'Product', name: 'Business Website', mm: 'စီးပွားရေး ဝက်ဘ်ဆိုက်', icon: 'building-2', url: '../website/index.html', keywords: ['company', 'corporate', 'organization', 'agency', 'commerce', 'business'] },
-            { id: 'prod2', type: 'Product', name: 'Personal Portfolio', mm: 'ပုဂ္ဂိုလ်ရေး မှတ်တမ်း', icon: 'user-circle', url: '../website/index.html', keywords: ['cv', 'resume', 'blog', 'profile', 'freelance', 'personal'] },
-            { id: 'prod3', type: 'Product', name: 'Info & Education', mm: 'သတင်းအချက်အလက်', icon: 'book-open', url: '../website/index.html', keywords: ['school', 'college', 'university', 'learning', 'course', 'academy', 'student', 'education', 'info'] },
+            { id: 'prod1', type: 'Product', name: 'Business Website', mm: 'စီးပွားရေး ဝက်ဘ်ဆိုက်', icon: 'building-2', url: '../templates/index.html', keywords: ['company', 'corporate', 'organization', 'agency', 'commerce', 'business'] },
+            { id: 'prod2', type: 'Product', name: 'Personal Portfolio', mm: 'ပုဂ္ဂိုလ်ရေး မှတ်တမ်း', icon: 'user-circle', url: '../templates/index.html', keywords: ['cv', 'resume', 'blog', 'profile', 'freelance', 'personal'] },
+            { id: 'prod3', type: 'Product', name: 'Info & Education', mm: 'သတင်းအချက်အလက်', icon: 'book-open', url: '../templates/index.html', keywords: ['school', 'college', 'university', 'learning', 'course', 'academy', 'student', 'education', 'info'] },
             { id: 'srv1', type: 'Service', name: 'Advanced Web SEO', mm: 'အဆင့်မြင့် SEO', icon: 'search', url: '../comming-soon/index.html', keywords: ['google', 'ranking', 'search engine', 'marketing', 'optimization', 'seo'] },
             { id: 'srv2', type: 'Service', name: 'Domain Acquisition', mm: 'ဒိုမိန်းအမည်', icon: 'globe-2', url: '../comming-soon/index.html', keywords: ['url', 'address', 'website name', 'registration', 'dot com', 'domain'] },
             { id: 'srv3', type: 'Service', name: 'Maintenance & Security', mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', icon: 'shield-check', url: '../comming-soon/index.html', keywords: ['protection', 'update', 'support', 'hosting', 'safe', 'secure', 'maintenance'] }
@@ -852,28 +1034,46 @@
                 
                 let itemScore = Infinity;
                 
+                // Full phrase exact match check
                 if (allTargets.some(t => t.includes(query))) {
                     itemScore = -100;
                 } else {
-                    let totalWordScore = 0; let matchCount = 0;
+                    // Check word by word for typos
+                    let totalWordScore = 0;
+                    let matchCount = 0;
+                    
                     for (let qWord of queryWords) {
                         let bestWordScore = Infinity;
+                        
                         for (let target of allTargets) {
                             const targetWords = target.split(/\s+/);
                             for (let tWord of targetWords) {
-                                if (tWord.includes(qWord)) { bestWordScore = Math.min(bestWordScore, -50); } 
-                                else {
+                                if (tWord.includes(qWord)) {
+                                    bestWordScore = Math.min(bestWordScore, -50); // High priority for substrings
+                                } else {
                                     const dist = getSimilarityScore(qWord, tWord);
+                                    // Progressive typo leniency: longer words = more allowed typos
                                     const allowedTypos = qWord.length <= 3 ? 1 : (qWord.length <= 6 ? 2 : 3);
-                                    if (dist <= allowedTypos) bestWordScore = Math.min(bestWordScore, dist);
+                                    if (dist <= allowedTypos) {
+                                        bestWordScore = Math.min(bestWordScore, dist);
+                                    }
                                 }
                             }
                         }
-                        if (bestWordScore !== Infinity) { totalWordScore += bestWordScore; matchCount++; }
+                        
+                        if (bestWordScore !== Infinity) {
+                            totalWordScore += bestWordScore;
+                            matchCount++;
+                        }
                     }
-                    if (matchCount > 0 && matchCount === queryWords.length) itemScore = totalWordScore;
-                    else if (matchCount > 0) itemScore = totalWordScore + 10;
+                    
+                    if (matchCount > 0 && matchCount === queryWords.length) {
+                        itemScore = totalWordScore;
+                    } else if (matchCount > 0) {
+                        itemScore = totalWordScore + 10; // Penalty for matching only some words
+                    }
                 }
+                
                 return { ...item, score: itemScore };
             });
             
@@ -886,6 +1086,40 @@
                     <div><h5 class="text-sm font-semibold text-black mb-0.5">${currentLang === 'en' ? item.name : item.mm}</h5><span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">${item.type}</span></div>
                 </a>`).join('');
             lucide.createIcons();
+        }
+
+        /* --- Newsletter Subscription Logic --- */
+        async function handleSubscribe(e) {
+            e.preventDefault();
+            if (!supabaseInstance) { showErrorToast("Database not connected."); return; }
+
+            const emailInput = document.getElementById('newsletterEmail');
+            const btn = document.getElementById('btnSubscribe');
+            const email = emailInput.value.trim();
+
+            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            if (!turnstileResponse) { showErrorToast(currentLang === 'en' ? "Please complete the security check." : "ကျေးဇူးပြု၍ လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); return; }
+            if (!email) return;
+
+            btn.disabled = true; const originalBtnText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>`;
+            lucide.createIcons();
+
+            try {
+                const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
+                if (error) {
+                    if (error.code === '23505') { showToast(dict[currentLang].msgSubscribedAlready); } 
+                    else { throw error; }
+                } else {
+                    showToast(dict[currentLang].msgSubscribedSuccess);
+                    emailInput.value = '';
+                    if (window.turnstile) turnstile.reset();
+                }
+            } catch (err) {
+                showErrorToast(err.message || "Subscription failed. Please try again later.");
+            } finally {
+                btn.disabled = false; btn.innerHTML = originalBtnText;
+            }
         }
 
         /* --- Custom Notification Toasts --- */
@@ -1399,6 +1633,7 @@
         window.addEventListener("scroll", reveal);
 
         window.addEventListener('load', () => {
+            setActiveNavLinks();
             renderLanguage();
             fetchEstimationData();
             
@@ -1409,6 +1644,7 @@
                     nav.classList.remove('border-transparent');
                 } else {
                     nav.classList.remove('shadow-sm');
+                    nav.classList.add('border-transparent');
                 }
             });
             setTimeout(reveal, 100);
