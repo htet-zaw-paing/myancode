@@ -1,24 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Profile Settings | MyanCode</title>
-    
+    <title>My Hub | MyanCode</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="../imgs/web-banners/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Cropper.js CSS for image cropping -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Cropper.js Script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     
     <!-- Cloudflare Turnstile Script for Newsletter -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -27,23 +22,20 @@
         tailwind.config = {
             theme: {
                 screens: {
-                    'xs': '400px',
+                    'xxs': '280px',
+                    'xs': '380px',
                     'sm': '640px',
                     'md': '768px',
                     'lg': '1024px',
                     'xl': '1280px',
+                    '2xl': '1536px',
                 },
                 extend: {
-                    fontFamily: { 
-                        sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'],
-                    },
-                    colors: {
-                        myancode: {
-                            black: '#0a0a0a',
-                            gray: '#f5f5f7',
-                            darkgray: '#6e6e73',
-                            blue: '#2997ff',
-                        }
+                    fontFamily: { sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'] },
+                    colors: { myancode: { black: '#0a0a0a', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } },
+                    boxShadow: {
+                        'premium': '0 4px 24px -6px rgba(0, 0, 0, 0.05)',
+                        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
                     },
                     animation: {
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -55,30 +47,27 @@
     <style>
         html, body {
             width: 100%;
-            overflow-x: hidden;
             position: relative;
             background-color: #fbfbfd;
             color: #0a0a0a;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
         }
+
+        /* Improved Scroll Lock for Sidebar */
         body.no-scroll {
             overflow: hidden !important;
             touch-action: none;
         }
 
         html[lang="mm"] body { font-size: 14px; line-height: 2; }
-        html[lang="mm"] h1 { font-size: 2.5rem; line-height: 1.6; letter-spacing: normal; }
-        html[lang="mm"] h2 { font-size: 2rem; line-height: 1.6; letter-spacing: normal; }
-        html[lang="mm"] h3 { font-size: 1.25rem; line-height: 1.7; letter-spacing: normal; }
-        html[lang="mm"] p { font-size: 0.9rem; line-height: 2.2; }
-        html[lang="mm"] .uppercase, html[lang="mm"] .capitalize { text-transform: none; }
-        html[lang="mm"] .tracking-widest, html[lang="mm"] .tracking-wide, html[lang="mm"] .tracking-\[0\.4em\] { letter-spacing: normal; }
-        
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] th, html[lang="mm"] td { letter-spacing: normal; }
+        html[lang="mm"] .uppercase, html[lang="mm"] .capitalize, html[lang="mm"] .tracking-widest { text-transform: none; letter-spacing: normal; }
+
         #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; }
         .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
         .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
-        
+
         .hover-underline { position: relative; }
         .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
@@ -86,8 +75,11 @@
         .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
         .btn-hover-effect:disabled { opacity: 0.7; cursor: not-allowed; }
-        
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        .card-hover { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08); }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
         #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
@@ -109,33 +101,22 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Custom User Avatar styling */
         .user-avatar-global { transition: all 0.3s ease; }
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
-        
-        /* Profile Image Upload Overlay */
-        .avatar-upload-overlay { opacity: 0; transition: opacity 0.3s ease; background: rgba(0,0,0,0.5); }
-        .avatar-upload-container:hover .avatar-upload-overlay { opacity: 1; cursor: pointer; }
-        
-        /* Cropper customization */
-        .cropper-view-box,
-        .cropper-face {
-          border-radius: 50%;
-        }
-        .cropper-modal {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
     </style>
 </head>
-<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
 
-    <!-- GLOBAL ENTERPRISE LOADER -->
+<body class="font-sans selection:bg-myancode-blue selection:text-white no-scroll flex flex-col min-h-screen">
+
+    <!-- GLOBAL LOADER -->
     <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
-        <i data-lucide="code-2" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
+        <div class="h-12 w-12 sm:h-16 sm:w-16 bg-myancode-black rounded-2xl flex items-center justify-center mb-6 sm:mb-8 shadow-xl animate-pulse">
+            <i data-lucide="code-2" class="h-6 w-6 sm:h-8 sm:w-8 text-white"></i>
+        </div>
         <div class="w-48 max-w-[80vw]">
             <div class="progress-line"></div>
         </div>
-        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 transition-colors" data-i18n="loadingInit">Initializing Experience...</span>
+        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500" data-i18n="loadingInit">Authenticating Access...</span>
     </div>
 
     <!-- Navigation -->
@@ -262,6 +243,7 @@
             <button onclick="toggleMobileMenu()" class="p-2.5 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-600"><i data-lucide="x" class="h-5 w-5"></i></button>
         </div>
         
+        <!-- Added overscroll-contain so internal scrolling doesn't pull the background page -->
         <div class="flex-1 px-8 py-4 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar overscroll-contain">
             
             <!-- Search -->
@@ -330,8 +312,11 @@
                 </div>
             </div>
             
+            <!-- ADJUST THIS CONTAINER'S MARGIN to move Joji (Profile) higher or lower inside the menu -->
+            <!-- mt-8 dictates the top margin (pushes it away from links above). Change to mt-4 or mt-12 -->
+            <!-- pt-8 dictates inner padding. -->
             <div class="border-t border-gray-200 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
-                <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
+                <div id="mobileAuthContainer" class="w-full flex flex-col space-y-6"></div>
                 
                 <div class="border-t border-gray-200 pt-8 mt-6">
                     <button onclick="toggleMobileMenu(); toggleWishlistDrawer();" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide">
@@ -357,131 +342,102 @@
         </div>
     </div>
 
-    <!-- PROFILE DASHBOARD -->
-    <section class="flex-grow pt-32 sm:pt-40 pb-24 sm:pb-36 px-4 sm:px-6 relative z-10 w-full">
-        <div class="max-w-3xl mx-auto">
-            <div class="mb-10 text-center sm:text-left reveal">
-                <h1 class="text-3xl sm:text-5xl font-semibold tracking-tight text-myancode-black mb-3" data-i18n="profSettings">Account Settings</h1>
-                <p class="text-sm sm:text-base text-myancode-darkgray" data-i18n="profSub">Manage your personal details and security preferences.</p>
+    <!-- MAIN HUB CONTENT (Protected) -->
+    <main id="dashboardContent" class="flex-grow hidden pt-28 pb-20 px-4 sm:px-6">
+        <div class="max-w-[1024px] mx-auto w-full relative z-10">
+
+            <!-- Hub Header -->
+            <div class="mb-10 sm:mb-12 reveal">
+                <h2 class="text-[10px] tracking-[0.4em] text-myancode-blue uppercase font-bold mb-2"
+                    data-i18n="hubEyebrow">Client Portal</h2>
+                <h1 class="text-3xl sm:text-5xl font-bold tracking-tight text-myancode-black mb-3" data-i18n="hubTitle">
+                    Your Hub.</h1>
+                <p class="text-sm sm:text-base text-gray-500 font-medium" data-i18n="hubSub">Monitor your enterprise
+                    orders and manage saved templates securely.</p>
             </div>
 
-            <div class="space-y-8">
-                <!-- Public Profile Card -->
-                <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 reveal">
-                    <h3 class="text-lg font-semibold tracking-tight mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="user-circle" class="h-5 w-5 text-myancode-blue"></i> <span data-i18n="profPublic">Public Profile</span></h3>
-                    
-                    <div class="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
-                        <div class="flex flex-col items-center gap-3">
-                            <div class="relative avatar-upload-container rounded-full h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 border-2 border-gray-100 shadow-sm overflow-hidden group">
-                                <img id="profileAvatarPreview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>" class="h-full w-full object-cover bg-gray-50" alt="Avatar">
-                                <div class="absolute inset-0 avatar-upload-overlay flex flex-col items-center justify-center text-white backdrop-blur-sm" onclick="document.getElementById('avatarInput').click()">
-                                    <i data-lucide="camera" class="h-6 w-6 mb-1"></i>
-                                    <span class="text-[10px] font-bold tracking-widest uppercase" data-i18n="profUpload">Upload</span>
-                                </div>
-                                <input type="file" id="avatarInput" accept="image/*" class="hidden" onchange="openCropper(event)">
-                            </div>
-                            <button onclick="removeAvatar()" class="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase tracking-widest transition-colors" data-i18n="profRemoveAv">Remove Icon</button>
-                        </div>
-                        
-                        <div class="flex-1 w-full space-y-4">
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profName">Full Name</label>
-                                <input type="text" id="profileNameInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="Enter your full name">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address (Read-only)</label>
-                                <input type="email" id="profileEmailInput" disabled class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-gray-500 cursor-not-allowed" placeholder="your@email.com">
-                            </div>
-                            <div class="pt-2 text-right sm:text-left">
-                                <button onclick="updateProfileName()" class="btn-hover-effect bg-myancode-black text-white text-xs px-8 py-3.5 rounded-full font-medium tracking-wide shadow-md w-full sm:w-auto" data-i18n="profUpdateBtn">Save Changes</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Security Card -->
-                <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 reveal" style="transition-delay: 100ms;">
-                    <h3 class="text-lg font-semibold tracking-tight mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="shield" class="h-5 w-5 text-green-500"></i> <span data-i18n="profSecurity">Security</span></h3>
-                    
-                    <div class="space-y-4 max-w-md">
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profOldPass">Current Password</label>
-                            <input type="password" id="profileOldPassInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="••••••••">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profPass">New Password</label>
-                            <input type="password" id="profilePassInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="••••••••">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profPassConfirm">Confirm Password</label>
-                            <input type="password" id="profilePassConfirmInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="••••••••">
-                        </div>
-                        <div class="pt-2">
-                            <button onclick="updatePassword()" class="btn-hover-effect bg-gray-100 text-myancode-black hover:bg-gray-200 border border-gray-200 text-xs px-8 py-3.5 rounded-full font-semibold tracking-wide shadow-sm w-full sm:w-auto transition-colors" data-i18n="profUpdatePassBtn">Update Password</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Danger Zone -->
-                <div class="bg-[#fff5f5] rounded-3xl p-6 sm:p-10 shadow-sm border border-red-100 reveal" style="transition-delay: 200ms;">
-                    <h3 class="text-lg font-semibold tracking-tight text-red-600 mb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="h-5 w-5"></i> <span data-i18n="profDanger">Danger Zone</span></h3>
-                    <p class="text-sm text-red-400 mb-6" data-i18n="profDeleteText">Once you delete your account, there is no going back. Please be certain.</p>
-                    <button onclick="deleteAccount()" class="btn-hover-effect bg-red-600 text-white hover:bg-red-700 text-xs px-8 py-3.5 rounded-full font-semibold tracking-wide shadow-sm w-full sm:w-auto transition-colors" data-i18n="profDeleteBtn">Delete Account</button>
+            <!-- Segmented Control Tabs -->
+            <div class="flex justify-center sm:justify-start mb-8 reveal" style="transition-delay: 100ms;">
+                <div
+                    class="inline-flex bg-gray-200/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-gray-200/50 shadow-inner-soft w-full sm:w-auto overflow-x-auto no-scrollbar">
+                    <button onclick="switchHubTab('orders')" id="tabBtnOrders"
+                        class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center justify-center gap-2 whitespace-nowrap">
+                        <i data-lucide="package" class="w-4 h-4"></i> <span data-i18n="tabOrders">Package Orders</span>
+                    </button>
+                    <button onclick="switchHubTab('wishlist')" id="tabBtnWishlist"
+                        class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center justify-center gap-2 whitespace-nowrap">
+                        <i data-lucide="heart" class="w-4 h-4"></i> <span data-i18n="tabWishlist">My Wishlist</span>
+                    </button>
                 </div>
             </div>
+
+            <!-- TAB 1: ORDERS SECTION -->
+            <div id="sectionOrders" class="reveal" style="transition-delay: 200ms;">
+                <div id="ordersContainer" class="grid grid-cols-1 gap-6">
+                    <!-- Orders Injected Here -->
+                    <div class="text-center py-16 text-gray-400 italic">Loading your estimates...</div>
+                </div>
+
+                <!-- Empty Orders Template (Inside Tab) -->
+                <div id="tplEmptyOrders"
+                    class="hidden w-full bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm flex-col items-center">
+                    <div class="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6"><i
+                            data-lucide="package-open" class="h-8 w-8 text-gray-400"></i></div>
+                    <h3 class="text-xl font-bold text-myancode-black mb-2" data-i18n="emptyOrdersTitle">No Orders Found
+                    </h3>
+                    <p class="text-sm text-gray-500 mb-8 max-w-sm mx-auto" data-i18n="emptyOrdersDesc">You haven't
+                        requested any package estimates yet. Head over to our Builder to get started.</p>
+                    <button onclick="window.location.href='../packages/index.html'"
+                        class="bg-myancode-black text-white px-8 py-3 rounded-full text-sm font-bold btn-hover-effect"
+                        data-i18n="btnGoBuilder">Open Package Builder</button>
+                </div>
+            </div>
+
+            <!-- TAB 2: WISHLIST SECTION -->
+            <div id="sectionWishlist" class="hidden reveal">
+                <div id="hubWishlistContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Wishlist Injected Here -->
+                </div>
+
+                <!-- Empty Wishlist Template (Inside Tab) -->
+                <div id="tplEmptyWishlist"
+                    class="hidden w-full col-span-full bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm flex-col items-center">
+                    <div class="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6"><i
+                            data-lucide="heart" class="h-8 w-8 text-gray-400"></i></div>
+                    <h3 class="text-xl font-bold text-myancode-black mb-2" data-i18n="emptyWishlistTitle">Wishlist is
+                        Empty</h3>
+                    <p class="text-sm text-gray-500 mb-8 max-w-sm mx-auto" data-i18n="emptyWishlistDesc">You haven't
+                        saved any architectures or modules yet.</p>
+                    <button onclick="window.location.href='../templates/index.html'"
+                        class="bg-myancode-black text-white px-8 py-3 rounded-full text-sm font-bold btn-hover-effect"
+                        data-i18n="btnGoBuilder">Explore Templates</button>
+                </div>
+            </div>
+
         </div>
-    </section>
+    </main>
 
-    <!-- CROPPER MODAL -->
-    <div id="cropperModal" class="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-4 sm:p-6 rounded-3xl w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="cropperModalContent">
-            <h3 class="text-lg font-semibold mb-4 text-myancode-black flex justify-between items-center">
-                <span data-i18n="cropTitle">Crop Photo</span>
-                <button onclick="cancelCrop()" class="text-gray-400 hover:text-black transition-colors"><i data-lucide="x" class="h-5 w-5"></i></button>
-            </h3>
-            <div class="w-full h-[50vh] sm:h-[400px] bg-gray-100 rounded-xl overflow-hidden relative">
-                <img id="imageToCrop" src="" class="max-w-full block" alt="Picture to crop">
-            </div>
-            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
-                <div class="flex space-x-2">
-                    <button onclick="if(cropperInstance) cropperInstance.zoom(0.1)" class="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 transition-colors shadow-sm"><i data-lucide="zoom-in" class="h-5 w-5"></i></button>
-                    <button onclick="if(cropperInstance) cropperInstance.zoom(-0.1)" class="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 transition-colors shadow-sm"><i data-lucide="zoom-out" class="h-5 w-5"></i></button>
-                </div>
-                <div class="flex space-x-3 w-full sm:w-auto">
-                    <button onclick="cancelCrop()" class="flex-1 sm:flex-none px-6 py-3 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="cropCancel">Cancel</button>
-                    <button onclick="saveCrop()" class="flex-1 sm:flex-none px-8 py-3 rounded-full text-sm font-semibold bg-myancode-black text-white hover:bg-gray-800 shadow-md transition-colors" data-i18n="cropSave">Save</button>
-                </div>
-            </div>
+    <!-- NOT AUTHORIZED SCREEN -->
+    <div id="unauthorizedScreen"
+        class="hidden flex-grow flex-col items-center justify-center pt-32 pb-20 px-4 text-center">
+        <div
+            class="h-20 w-20 sm:h-24 sm:w-24 bg-red-50 rounded-full flex items-center justify-center mb-6 shadow-inner-soft border border-red-100">
+            <i data-lucide="shield-alert" class="w-10 h-10 sm:w-12 sm:h-12 text-red-500"></i>
         </div>
-    </div>
-
-    <!-- CUSTOM CONFIRM MODAL -->
-    <div id="confirmModal" class="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent">
-            <div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
-                <i data-lucide="alert-triangle" class="h-8 w-8 text-red-600"></i>
-            </div>
-            <h3 id="confirmModalTitle" class="text-2xl font-semibold tracking-tight text-myancode-black mb-3">Title</h3>
-            <p id="confirmModalMessage" class="text-sm text-gray-500 mb-6">Message</p>
-
-            <!-- Checkbox for Terms (Danger mode) -->
-            <div id="confirmModalCheckboxContainer" class="hidden mb-6 text-left bg-red-50 p-4 rounded-xl border border-red-100">
-                <label class="flex items-start gap-3 cursor-pointer group">
-                    <input type="checkbox" id="confirmModalCheckbox" class="mt-1 w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                    <span class="text-xs text-red-800 font-medium leading-relaxed" id="confirmModalCheckboxText">I have read the <a href="../comming-soon/index.html" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">Terms and Conditions</a>. I understand that all my data will be permanently deleted and this action cannot be undone.</span>
-                </label>
-            </div>
-
-            <!-- Text Input Confirmation (Danger mode) -->
-            <div id="confirmModalTextContainer" class="hidden mb-6 text-left">
-                <label class="block text-xs font-bold text-gray-500 tracking-widest mb-2" id="confirmModalTextLabel">Type "DeLeTe My AccOunT" to confirm</label>
-                <input type="text" id="confirmModalTextInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all" autocomplete="off">
-            </div>
-
-            <div class="flex space-x-3 w-full">
-                <button onclick="closeConfirmModal()" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" id="confirmModalCancelBtn">Cancel</button>
-                <button id="confirmModalBtn" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-red-600 hover:bg-red-700">Confirm</button>
-            </div>
+        <h2 id="unauthTitle" class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-3"
+            data-i18n="errAuthTitle">Authentication Required</h2>
+        <p id="unauthDesc" class="text-sm sm:text-base text-gray-500 mb-8 max-w-md font-medium leading-relaxed"
+            data-i18n="errAuthDesc">The Hub is exclusively available to registered clients. Admins must use the internal
+            workspace.</p>
+        <div class="flex gap-4">
+            <button onclick="window.location.href='../login/index.html'"
+                class="bg-myancode-black text-white px-8 py-3.5 rounded-full text-sm font-bold btn-hover-effect shadow-md flex items-center gap-2">
+                <i data-lucide="log-in" class="w-4 h-4"></i> <span data-i18n="hdrLogin">Log In</span>
+            </button>
+            <button onclick="window.location.href='../index.html'"
+                class="bg-white text-myancode-black border border-gray-200 px-8 py-3.5 rounded-full text-sm font-bold btn-hover-effect hover:bg-gray-50">
+                Home
+            </button>
         </div>
     </div>
 
@@ -580,12 +536,12 @@
     </div>
 
     <script>
-        lucide.createIcons();
+        /* --- 1. GLOBALS & DICTIONARY --- */
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
 
-        /* --- Dictionary & Language --- */
         const dict = {
             en: {
-                // General Header/Footer Dictionary
+                // Shared Nav & Footer Dictionary
                 navStudio: "Studio", navWebsites: "Templates", navServices: "Services", navSupport: "Support",
                 langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
                 wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", btnCart: "Cart", wlTotal: "Total", btnContact: "Proceed to Checkout",
@@ -600,22 +556,22 @@
                 ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest products and tech insights.", ftCopyright: "© 2026 MyanCode. All rights reserved. Engineered in Yangon.",
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrHub: "Hub", hdrLogout: "Sign Out", hdrWorkplace: "Workplace", msgLoggedOut: "Signed out securely.",
                 
-                loadingInit: "Initializing Experience...", loadingAuth: "Authenticating...", loadingSec: "Preparing Interface...",
+                loadingInit: "Authenticating Access...", errAuthTitle: "Authentication Required", errAuthDesc: "The Hub is exclusively available to registered clients. Admins must use the internal workspace.",
                 
                 nlTitle: "Stay Ahead of the Curve", nlDesc: "Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.",
                 nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
                 msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
-                
-                // Profile Specifics
-                profSettings: "Account Settings", profSub: "Manage your personal details and security preferences.",
-                profPublic: "Public Profile", profUpload: "Upload", profName: "Full Name", profUpdateBtn: "Save Changes", profRemoveAv: "Remove Icon",
-                profSecurity: "Security", profOldPass: "Current Password", profPass: "New Password", profPassConfirm: "Confirm Password", profUpdatePassBtn: "Update Password",
-                profDanger: "Danger Zone", profDeleteText: "Once you delete your account, there is no going back. Please be certain.", profDeleteBtn: "Delete Account",
-                prod1Title: "Business & Org", prod3Title: "Info & Education",
-                cropTitle: "Crop Photo", cropCancel: "Cancel", cropSave: "Save"
+
+                // Hub Specific Dictionary
+                hubEyebrow: "Client Portal", hubTitle: "Your Hub.", hubSub: "Monitor your enterprise orders and manage saved templates securely.",
+                tabOrders: "Package Orders", tabWishlist: "My Wishlist",
+                emptyOrdersTitle: "No Orders Found", emptyOrdersDesc: "You haven't requested any package estimates yet. Head over to our Builder to get started.", btnGoBuilder: "Open Package Builder",
+                emptyWishlistTitle: "Wishlist is Empty", emptyWishlistDesc: "You haven't saved any architectures or modules yet.",
+                stsPending: "Pending", stsProcessing: "Processing", stsConfirmed: "Confirmed", stsCancelled: "Cancelled",
+                lblTotal: "Estimated Total", prod1Title: "Business & Org", prod3Title: "Info & Education"
             },
             mm: {
-                // General Header/Footer Dictionary
+                // Shared Nav & Footer Dictionary
                 navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ",
                 langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
                 wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", btnCart: "ဝယ်ယူမည့်စာရင်း", wlTotal: "စုစုပေါင်း", btnContact: "ဝယ်ယူရန် ရှေ့ဆက်မည်",
@@ -630,57 +586,83 @@
                 ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
                 hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrHub: "ဗဟိုဌာန", hdrLogout: "အကောင့်ထွက်ရန်", hdrWorkplace: "လုပ်ငန်းခွင်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
                 
-                loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", loadingSec: "ပြင်ဆင်နေပါသည်...",
+                loadingInit: "အခွင့်အာဏာ စစ်ဆေးနေပါသည်...", errAuthTitle: "ဝင်ရောက်ခွင့် ကန့်သတ်ထားသည်", errAuthDesc: "Hub ကို သာမန်အသုံးပြုသူများအတွက်သာ ဖွင့်လှစ်ထားသည်။ စီမံခန့်ခွဲသူများ Admin Workspace ကို အသုံးပြုပါ။",
                 
                 nlTitle: "သတင်းအသစ်များ ရယူရန်", nlDesc: "နောက်ဆုံးရ နည်းပညာသတင်းများနှင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းအသစ်များကို ရယူရန် သင်၏ အီးမေးလ်ကို စာရင်းသွင်းပါ။",
                 nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", nlDisclaimer: "သင်၏ အချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။",
                 msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။",
-                
-                // Profile Specifics
-                profSettings: "အကောင့်ဆက်တင်များ", profSub: "သင့်ကိုယ်ရေးအချက်အလက်များနှင့် လုံခြုံရေးများကို ပြင်ဆင်ပါ။",
-                profPublic: "ကိုယ်ရေးအကျဉ်း", profUpload: "ပြောင်းမည်", profName: "အမည်အပြည့်အစုံ", profUpdateBtn: "အချက်အလက်များ သိမ်းဆည်းရန်", profRemoveAv: "ပုံဖယ်ရှားမည်",
-                profSecurity: "လုံခြုံရေး", profOldPass: "လက်ရှိ စကားဝှက်", profPass: "စကားဝှက်အသစ်", profPassConfirm: "စကားဝှက်အသစ် အတည်ပြုရန်", profUpdatePassBtn: "စကားဝှက် ပြောင်းရန်",
-                profDanger: "အကောင့်ဖျက်သိမ်းရေး", profDeleteText: "အကောင့်ကို ဖျက်လိုက်ပါက ပြန်လည်ရယူ၍ မရနိုင်တော့ပါ။ ကျေးဇူးပြု၍ သေချာစွာ စဉ်းစားပါ။", profDeleteBtn: "အကောင့် ဖျက်မည်",
-                prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး",
-                cropTitle: "ဓာတ်ပုံဖြတ်မည်", cropCancel: "ပယ်ဖျက်မည်", cropSave: "သိမ်းဆည်းမည်"
+
+                // Hub Specific Dictionary
+                hubEyebrow: "ဖောက်သည်များအတွက်", hubTitle: "သင့်၏ Hub.", hubSub: "သင်၏ အော်ဒါများနှင့် သိမ်းဆည်းထားမှုများကို လုံခြုံစွာ စီမံခန့်ခွဲပါ။",
+                tabOrders: "အော်ဒါမှတ်တမ်းများ", tabWishlist: "သိမ်းဆည်းစာရင်း",
+                emptyOrdersTitle: "အော်ဒါ မရှိသေးပါ", emptyOrdersDesc: "သင် ဝက်ဘ်ဆိုက် ပက်ကေ့ချ် အော်ဒါမတင်ရသေးပါ။ ယခုပဲ စတင်တည်ဆောက်လိုက်ပါ။", btnGoBuilder: "Package Builder သို့သွားမည်",
+                emptyWishlistTitle: "စာရင်းလွတ်နေပါသည်", emptyWishlistDesc: "သင် မည်သည့်အရာမှ သိမ်းဆည်းထားခြင်းမရှိသေးပါ။",
+                stsPending: "စောင့်ဆိုင်းဆဲ", stsProcessing: "လုပ်ဆောင်နေဆဲ", stsConfirmed: "အတည်ပြုပြီး", stsCancelled: "ပယ်ဖျက်ပြီး",
+                lblTotal: "ကုန်ကျစရိတ်", prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး"
             }
         };
 
-        let currentLang = localStorage.getItem('myancode_lang') || 'en';
-
-        const globalLoader = document.getElementById('globalLoader');
-        const loaderText = document.getElementById('loaderText');
-
+        /* --- 2. UTILITY FUNCTIONS --- */
         function showLoader(i18nKey = 'loadingInit') {
-            loaderText.setAttribute('data-i18n', i18nKey);
-            loaderText.innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit'];
-            globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden');
-            globalLoader.classList.add('opacity-100', 'visibility-visible');
+            const loader = document.getElementById('globalLoader');
+            if (!loader) return;
+            const textEl = document.getElementById('loaderText');
+            if (textEl) textEl.innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit'];
+            loader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden');
+            loader.classList.add('opacity-100', 'visibility-visible');
             document.body.classList.add('no-scroll');
         }
 
         function hideLoader() {
-            globalLoader.classList.remove('opacity-100', 'visibility-visible');
-            globalLoader.classList.add('opacity-0', 'pointer-events-none');
+            const loader = document.getElementById('globalLoader');
+            if (!loader) return;
+            loader.classList.remove('opacity-100', 'visibility-visible');
+            loader.classList.add('opacity-0', 'pointer-events-none');
             document.body.classList.remove('no-scroll');
-            setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600);
+            setTimeout(() => loader.classList.add('visibility-hidden'), 600);
         }
 
-        /* --- REAL SUPABASE AUTHENTICATION --- */
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 50) reveals[i].classList.add("active");
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
+        }
+
+        function showErrorToast(msg) { 
+            const toast = document.getElementById('error-toast'); 
+            document.getElementById('error-toast-msg').textContent = msg; 
+            toast.classList.remove('translate-y-24', 'opacity-0'); 
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
+        }
+
+        function safeRedirect(path) {
+            try { window.location.href = path; }
+            catch (e) { console.warn('Redirect blocked in restricted environment:', e); }
+        }
+
+        /* --- 3. SUPABASE INIT & AUTH --- */
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
-        
+
         let supabaseInstance = null;
-        if (window.supabase) {
-            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                auth: {
-                    detectSessionInUrl: false
-                }
-            });
-        }
-        
         let currentUser = null;
         let currentUserWishlist = [];
+
+        if (window.supabase) {
+            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        lucide.createIcons();
 
         if (supabaseInstance) {
             supabaseInstance.auth.onAuthStateChange((event, session) => {
@@ -693,51 +675,74 @@
                         role: session.user.user_metadata?.role || 'user'
                     };
                     currentUserWishlist = session.user.user_metadata?.wishlist || [];
-                    populateProfileData();
-                    updateAuthUI();
+                    checkUserAccess();
                 } else {
                     currentUser = null;
                     currentUserWishlist = [];
-                    try {
-                        window.location.href = '../login/index.html';
-                    } catch (e) {
-                        document.body.innerHTML = `
-                            <div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-                                <i data-lucide="lock" class="h-12 w-12 text-gray-400 mb-4"></i>
-                                <h2 class="text-2xl font-bold text-gray-800 mb-2">Authentication Required</h2>
-                                <p class="text-gray-500 mb-6">You must be signed in to view your profile.</p>
-                                <a href="../login/index.html" class="px-6 py-3 bg-blue-500 text-white rounded-full">Go to Login</a>
-                            </div>
-                        `;
-                        lucide.createIcons();
-                    }
+                    checkUserAccess();
                 }
+                updateAuthUI();
             });
         } else {
             updateAuthUI();
+            checkUserAccess();
+        }
+
+        /* --- 4. MAIN HUB LOGIC --- */
+        async function checkUserAccess() {
+            try {
+                if (!currentUser) {
+                    document.getElementById('dashboardContent').classList.add('hidden');
+                    const errScreen = document.getElementById('unauthorizedScreen');
+                    errScreen.classList.remove('hidden'); errScreen.classList.add('flex');
+                    const titleEl = document.getElementById('unauthTitle');
+                    const descEl = document.getElementById('unauthDesc');
+                    if (titleEl) titleEl.innerText = currentLang === 'en' ? 'Authentication Required' : 'အကောင့်ဝင်ရန် လိုအပ်ပါသည်';
+                    if (descEl) descEl.innerText = currentLang === 'en' ? 'Please log in to access your secure client portal.' : 'Hub သို့ ဝင်ရောက်ရန် ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ။';
+                    return;
+                }
+
+                if (currentUser.role === 'admin' || currentUser.role === 'super-admin') {
+                    document.getElementById('dashboardContent').classList.add('hidden');
+                    const errScreen = document.getElementById('unauthorizedScreen');
+                    errScreen.classList.remove('hidden'); errScreen.classList.add('flex');
+                    const titleEl = document.getElementById('unauthTitle');
+                    const descEl = document.getElementById('unauthDesc');
+                    if (titleEl) titleEl.innerText = currentLang === 'en' ? 'Access Denied' : 'ဝင်ရောက်ခွင့် ကန့်သတ်ထားသည်';
+                    if (descEl) descEl.innerText = currentLang === 'en' ? 'The Hub is exclusively available to registered clients. Admins must use the internal workspace.' : 'Hub ကို သာမန်အသုံးပြုသူများအတွက်သာ ဖွင့်လှစ်ထားသည်။ စီမံခန့်ခွဲသူများ Admin Workspace ကို အသုံးပြုပါ။';
+                    return;
+                }
+
+                document.getElementById('unauthorizedScreen').classList.add('hidden');
+                document.getElementById('unauthorizedScreen').classList.remove('flex');
+                document.getElementById('dashboardContent').classList.remove('hidden');
+                document.getElementById('dashboardContent').classList.add('flex', 'flex-col');
+
+                await fetchUserOrders();
+                renderHubWishlist();
+            } catch (err) {
+                console.error("Hub Authorization Error:", err);
+            } finally {
+                hideLoader();
+                setTimeout(reveal, 100);
+            }
         }
 
         function renderLanguage() {
-            document.documentElement.lang = currentLang; 
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key];
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if (dict[currentLang][key]) el.placeholder = dict[currentLang][key];
-            });
-            updateAuthUI(); 
+            document.documentElement.lang = currentLang;
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
+            updateAuthUI();
+
+            if (currentUser && currentUser.role === 'user') {
+                renderUserOrders(window.lastFetchedOrders || []);
+                renderHubWishlist();
+            }
+            
             if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
         }
 
-        function setLanguage(lang) {
-            currentLang = lang; localStorage.setItem('myancode_lang', currentLang);
-            renderLanguage(); 
-            const langDropdown = document.getElementById('langDropdown');
-            if (langDropdown) langDropdown.classList.add('dropdown-hidden');
-        }
-
+        function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
         function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
 
         function updateAuthUI() {
@@ -770,6 +775,7 @@
                     </div>
                 `;
                 containerMob.innerHTML = `
+                    <!-- ADJUST 'pb-6' AND 'mb-6' HERE TO CONTROL SPACE BELOW THE USERNAME/ICON. Decrease values (e.g. pb-4 mb-4) to pull the links up -->
                     <div class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide border-b border-gray-100 pb-6 mb-6">
                         <span class="capitalize truncate max-w-[200px]">${currentUser.name}</span> 
                         ${mobileAvatarHTML}
@@ -818,352 +824,164 @@
             });
         }
 
-        /* --- CONFIRMATION MODAL LOGIC --- */
-        let confirmActionCallback = null;
+        /* --- HUB TABS --- */
+        function switchHubTab(tab) {
+            const oSec = document.getElementById('sectionOrders');
+            const wSec = document.getElementById('sectionWishlist');
+            const oBtn = document.getElementById('tabBtnOrders');
+            const wBtn = document.getElementById('tabBtnWishlist');
 
-        function showConfirmModal(title, message, type = 'warning', requireCheckbox = false, requireTextMatch = null, onConfirm) {
-            if (typeof requireTextMatch === 'function') {
-                onConfirm = requireTextMatch;
-                requireTextMatch = null;
+            const inactiveClass = "flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center justify-center gap-2 whitespace-nowrap";
+            const activeClass = "flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center justify-center gap-2 whitespace-nowrap";
+
+            oBtn.className = inactiveClass; wBtn.className = inactiveClass;
+            oSec.classList.add('hidden'); wSec.classList.add('hidden');
+
+            if (tab === 'orders') {
+                oSec.classList.remove('hidden'); oBtn.className = activeClass;
+            } else if (tab === 'wishlist') {
+                wSec.classList.remove('hidden'); wBtn.className = activeClass;
             }
+        }
 
-            const modal = document.getElementById('confirmModal');
-            const content = document.getElementById('confirmModalContent');
-            const titleEl = document.getElementById('confirmModalTitle');
-            const msgEl = document.getElementById('confirmModalMessage');
-            const iconContainer = document.getElementById('confirmModalIcon');
-            const btn = document.getElementById('confirmModalBtn');
-            const cancelBtn = document.getElementById('confirmModalCancelBtn');
-            
-            const checkboxContainer = document.getElementById('confirmModalCheckboxContainer');
-            const checkbox = document.getElementById('confirmModalCheckbox');
-            const checkboxText = document.getElementById('confirmModalCheckboxText');
+        /* --- HUB ORDERS LOGIC --- */
+        async function fetchUserOrders() {
+            if (!supabaseInstance || !currentUser) return;
 
-            const textContainer = document.getElementById('confirmModalTextContainer');
-            const textInput = document.getElementById('confirmModalTextInput');
-            const textLabel = document.getElementById('confirmModalTextLabel');
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('pkg_orders')
+                    .select(`*, pkg_categories(name_en, name_mm)`)
+                    .order('created_at', { ascending: false });
 
-            titleEl.innerText = title;
-            msgEl.innerText = message;
-            confirmActionCallback = onConfirm;
-            cancelBtn.innerText = currentLang === 'en' ? 'Cancel' : 'ပယ်ဖျက်မည်';
-            
-            checkboxText.innerHTML = currentLang === 'en' 
-                ? 'I have read the <a href="../comming-soon/index.html" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">Terms and Conditions</a>. I understand that all my data will be permanently deleted and this action cannot be undone.'
-                : '<a href="../comming-soon/index.html" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">စည်းမျဉ်းစည်းကမ်းများ</a>ကို ကျွန်ုပ်ဖတ်ပြီးပါပြီ။ ကျွန်ုပ်၏ အချက်အလက်များအားလုံးကို အပြီးအပိုင်ဖျက်ပစ်မည်ဖြစ်ပြီး ပြန်လည်ရယူ၍မရနိုင်ကြောင်း နားလည်သဘောပေါက်ပါသည်။';
+                if (error) throw error;
 
-            checkbox.checked = false;
-            textInput.value = '';
+                window.lastFetchedOrders = data || [];
+                renderUserOrders(window.lastFetchedOrders);
+            } catch (err) {
+                console.error("Order fetch error:", err);
+            }
+        }
 
-            const validateBtn = () => {
-                let isValid = true;
-                if (requireCheckbox && !checkbox.checked) isValid = false;
-                if (requireTextMatch && textInput.value !== requireTextMatch) isValid = false;
-                
-                if (isValid) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+        function renderUserOrders(orders) {
+            const container = document.getElementById('ordersContainer');
+            if (!container) return;
+
+            const tplEmpty = document.getElementById('tplEmptyOrders');
+
+            if (!orders || orders.length === 0) {
+                container.innerHTML = '';
+                if (tplEmpty) {
+                    tplEmpty.classList.remove('hidden');
+                    tplEmpty.classList.add('flex');
                 }
-            };
-
-            if (requireCheckbox) {
-                checkboxContainer.classList.remove('hidden');
-                checkbox.onchange = validateBtn;
-            } else {
-                checkboxContainer.classList.add('hidden');
+                return;
             }
 
-            if (requireTextMatch) {
-                textContainer.classList.remove('hidden');
-                textLabel.innerText = currentLang === 'en'
-                    ? `Please type "${requireTextMatch}" to confirm`
-                    : `အတည်ပြုရန် "${requireTextMatch}" ဟု ရိုက်ထည့်ပါ`;
-                textInput.placeholder = requireTextMatch;
-                textInput.oninput = validateBtn;
-            } else {
-                textContainer.classList.add('hidden');
+            if (tplEmpty) {
+                tplEmpty.classList.add('hidden');
+                tplEmpty.classList.remove('flex');
             }
 
-            validateBtn(); // Initial check
+            container.innerHTML = orders.map(o => {
+                const catName = currentLang === 'en' ? (o.pkg_categories?.name_en || 'Custom Package') : (o.pkg_categories?.name_mm || o.pkg_categories?.name_en || 'Custom Package');
+                const date = new Date(o.created_at).toLocaleDateString();
 
-            if (type === 'danger') {
-                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6';
-                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-8 w-8 text-red-600"></i>';
-                btn.className = 'flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-red-600 hover:bg-red-700';
-                btn.innerText = currentLang === 'en' ? 'Delete Permanently' : 'အပြီးအပိုင်ဖျက်မည်';
-            } else {
-                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-6';
-                iconContainer.innerHTML = '<i data-lucide="info" class="h-8 w-8 text-myancode-blue"></i>';
-                btn.className = 'flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-myancode-black hover:bg-gray-800';
-                btn.innerText = currentLang === 'en' ? 'Confirm' : 'အတည်ပြုမည်';
-            }
-            
+                const currentStatus = o.status || 'Pending';
+                const statusColors = {
+                    'Pending': 'bg-yellow-50 text-yellow-600 border-yellow-200',
+                    'Processing': 'bg-blue-50 text-blue-600 border-blue-200',
+                    'Confirmed': 'bg-green-50 text-green-600 border-green-200',
+                    'Cancelled': 'bg-red-50 text-red-600 border-red-200'
+                };
+                const sColor = statusColors[currentStatus] || statusColors['Pending'];
+
+                const statusDictKey = `sts${currentStatus}`;
+                const localizedStatus = dict[currentLang][statusDictKey] || currentStatus;
+
+                return `
+                <div class="bg-white rounded-[1.5rem] sm:rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-5 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group">
+                    <div class="flex items-start sm:items-center gap-4 sm:gap-6 w-full md:w-auto">
+                        <div class="h-12 w-12 sm:h-16 sm:w-16 bg-gray-50 rounded-xl sm:rounded-2xl border border-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-50 transition-colors">
+                            <i data-lucide="package" class="w-5 h-5 sm:w-7 sm:h-7 text-gray-400 group-hover:text-myancode-blue transition-colors"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="font-bold text-base sm:text-xl text-myancode-black truncate">${catName}</h3>
+                                <span class="px-2.5 py-0.5 text-[9px] sm:text-[10px] rounded-full ${sColor} uppercase font-bold tracking-widest whitespace-nowrap border">${localizedStatus}</span>
+                            </div>
+                            <div class="text-[10px] sm:text-sm text-gray-500 font-medium flex flex-wrap items-center gap-x-4 gap-y-1">
+                                <span class="flex items-center gap-1.5"><i data-lucide="hash" class="w-3 h-3"></i> ${o.id.split('-')[0]}</span>
+                                <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3 h-3"></i> ${date}</span>
+                                <span class="flex items-center gap-1.5"><i data-lucide="message-square" class="w-3 h-3"></i> ${o.contact_method}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full md:w-auto flex flex-row md:flex-col items-center md:items-end justify-between gap-2 pt-4 md:pt-0 border-t border-gray-100 md:border-t-0">
+                        <div class="text-left md:text-right">
+                            <p class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">${dict[currentLang].lblTotal}</p>
+                            <h4 class="text-lg sm:text-2xl font-bold text-myancode-black">${parseFloat(o.total_price).toLocaleString()} <span class="text-[10px] sm:text-xs text-gray-400 font-bold">MMK</span></h4>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
             lucide.createIcons();
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth; 
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-
-            btn.onclick = () => {
-                if (btn.disabled) return;
-                closeConfirmModal();
-                if (confirmActionCallback) confirmActionCallback();
-            };
         }
 
-        function closeConfirmModal() {
-            const modal = document.getElementById('confirmModal');
-            const content = document.getElementById('confirmModalContent');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
+        /* --- HUB WISHLIST LOGIC --- */
+        function renderHubWishlist() {
+            const container = document.getElementById('hubWishlistContainer');
+            if (!container) return;
 
-        let cropperInstance = null;
+            const tplEmpty = document.getElementById('tplEmptyWishlist');
 
-        function populateProfileData() {
-            if(!currentUser) return;
-            document.getElementById('profileNameInput').value = currentUser.name;
-            document.getElementById('profileEmailInput').value = currentUser.email;
-            if (currentUser.avatar_url) {
-                document.getElementById('profileAvatarPreview').src = currentUser.avatar_url;
-            }
-        }
-
-        function openCropper(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (file.size > 5 * 1024 * 1024) {
-                showErrorToast(currentLang === 'en' ? "Image must be under 5MB" : "ဖိုင်အရွယ်အစား ၅MB အောက်ရှိရမည်");
+            if (!currentUserWishlist || currentUserWishlist.length === 0) {
+                container.innerHTML = '';
+                if (tplEmpty) {
+                    tplEmpty.classList.remove('hidden');
+                    tplEmpty.classList.add('flex');
+                }
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imageToCrop = document.getElementById('imageToCrop');
-                imageToCrop.src = e.target.result;
-                
-                const modal = document.getElementById('cropperModal');
-                const modalContent = document.getElementById('cropperModalContent');
-                
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                void modal.offsetWidth; // Force reflow
-                modal.classList.remove('opacity-0');
-                modalContent.classList.remove('scale-95');
+            if (tplEmpty) {
+                tplEmpty.classList.add('hidden');
+                tplEmpty.classList.remove('flex');
+            }
 
-                if (cropperInstance) {
-                    cropperInstance.destroy();
+            container.innerHTML = currentUserWishlist.map(item => {
+                const title = dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name;
+                return `
+                <div class="bg-white p-6 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow relative group">
+                    <button onclick="removeHubWishlist('${item.id}')" class="absolute top-4 right-4 p-2 bg-red-50 text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100 hover:scale-105" title="Remove"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <div class="h-12 w-12 bg-pink-50 rounded-xl flex items-center justify-center mb-4 border border-pink-100 text-pink-500"><i data-lucide="heart" class="w-5 h-5 fill-current"></i></div>
+                    <h3 class="font-bold text-lg text-black mb-1 truncate pr-8">${title}</h3>
+                    <p class="text-myancode-blue font-bold text-base mb-6">${item.price.toLocaleString()} MMK</p>
+                    <button onclick="window.location.href='../templates/index.html'" class="w-full bg-gray-50 hover:bg-myancode-black hover:text-white text-gray-600 font-bold py-3 rounded-xl transition-colors text-sm flex justify-center items-center gap-2 btn-hover-effect">
+                        Build This Package <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        async function removeHubWishlist(id) {
+            const index = currentUserWishlist.findIndex(i => i.id === id);
+            if (index > -1) {
+                currentUserWishlist.splice(index, 1);
+                showToast(currentLang === 'en' ? "Item removed." : "ဖယ်ရှားပြီးပါပြီ။");
+
+                if (supabaseInstance && currentUser) {
+                    await supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } });
                 }
-
-                cropperInstance = new Cropper(imageToCrop, {
-                    aspectRatio: 1, 
-                    viewMode: 1,
-                    dragMode: 'move', 
-                    autoCropArea: 1,
-                    restore: false,
-                    guides: true,
-                    center: true,
-                    highlight: false,
-                    cropBoxMovable: false,
-                    cropBoxResizable: false,
-                    toggleDragModeOnDblclick: false,
-                });
-            };
-            reader.readAsDataURL(file);
-            event.target.value = ''; 
-        }
-
-        function cancelCrop() {
-            const modal = document.getElementById('cropperModal');
-            const modalContent = document.getElementById('cropperModalContent');
-            
-            modal.classList.add('opacity-0');
-            modalContent.classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                if (cropperInstance) {
-                    cropperInstance.destroy();
-                    cropperInstance = null;
-                }
-            }, 300);
-        }
-
-        async function saveCrop() {
-            if (!cropperInstance || !supabaseInstance) return;
-            
-            showLoader('loadingSec');
-            
-            const canvas = cropperInstance.getCroppedCanvas({
-                width: 256,
-                height: 256,
-                fillColor: '#fff' 
-            });
-            
-            const base64Avatar = canvas.toDataURL('image/jpeg', 0.8);
-            cancelCrop(); 
-            
-            try {
-                const { error: updateError } = await supabaseInstance.auth.updateUser({
-                    data: { avatar_url: base64Avatar }
-                });
-                
-                if (updateError) throw updateError;
-                
-                currentUser.avatar_url = base64Avatar;
-                document.getElementById('profileAvatarPreview').src = base64Avatar;
-                updateAuthUI();
-                showToast(currentLang === 'en' ? 'Avatar updated successfully' : 'ဓာတ်ပုံပြင်ဆင်မှု အောင်မြင်ပါသည်');
-            } catch(err) {
-                showErrorToast(err.message);
-            } finally {
-                hideLoader();
+                renderHubWishlist();
+                updateWishlistCount();
+                renderWishlistItems();
             }
         }
 
-        function removeAvatar() {
-            if (!currentUser || !supabaseInstance) return;
-            
-            const title = currentLang === 'en' ? "Remove Icon" : "ပုံဖယ်ရှားမည်";
-            const msg = currentLang === 'en' ? "Are you sure you want to remove your custom profile icon?" : "သင့်ကိုယ်ရေးအကျဉ်းပုံကို ဖယ်ရှားရန် သေချာပါသလား?";
-            
-            showConfirmModal(title, msg, 'warning', false, async () => {
-                showLoader('loadingSec');
-                try {
-                    const { error } = await supabaseInstance.auth.updateUser({
-                        data: { avatar_url: null }
-                    });
-                    if (error) throw error;
-                    currentUser.avatar_url = null;
-                    document.getElementById('profileAvatarPreview').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>";
-                    updateAuthUI();
-                    showToast(currentLang === 'en' ? 'Icon removed successfully' : 'ဓာတ်ပုံဖယ်ရှားမှု အောင်မြင်ပါသည်');
-                } catch(err) {
-                    showErrorToast(err.message);
-                } finally {
-                    hideLoader();
-                }
-            });
-        }
-
-        async function updateProfileName() {
-            const newName = document.getElementById('profileNameInput').value.trim();
-            if(!newName || !supabaseInstance || newName === currentUser.name) return;
-            
-            showLoader('loadingSec');
-            try {
-                const { error } = await supabaseInstance.auth.updateUser({
-                    data: { full_name: newName }
-                });
-                
-                if (error) throw error;
-                
-                currentUser.name = newName;
-                updateAuthUI();
-                showToast(currentLang === 'en' ? 'Profile updated successfully' : 'ကိုယ်ရေးအချက်အလက် ပြင်ဆင်မှု အောင်မြင်ပါသည်');
-            } catch(err) {
-                showErrorToast(err.message);
-            } finally {
-                hideLoader();
-            }
-        }
-
-        async function updatePassword() {
-            const oldPass = document.getElementById('profileOldPassInput').value;
-            const pass1 = document.getElementById('profilePassInput').value;
-            const pass2 = document.getElementById('profilePassConfirmInput').value;
-            
-            if (!oldPass) {
-                showErrorToast(currentLang === 'en' ? 'Please enter your current password' : 'စကားဝှက်အဟောင်းကို ရိုက်ထည့်ပါ');
-                return;
-            }
-            if (!pass1 || pass1.length < 6) {
-                showErrorToast(currentLang === 'en' ? 'Password must be at least 6 characters' : 'စကားဝှက်အနည်းဆုံး ၆ လုံးရှိရမည်');
-                return;
-            }
-            if (pass1 !== pass2) {
-                showErrorToast(currentLang === 'en' ? 'Passwords do not match' : 'စကားဝှက်များ မတူညီပါ');
-                return;
-            }
-            
-            showLoader('loadingSec');
-            try {
-                const { error: signInError } = await supabaseInstance.auth.signInWithPassword({
-                    email: currentUser.email,
-                    password: oldPass,
-                });
-
-                if (signInError) {
-                    throw new Error(currentLang === 'en' ? 'Incorrect current password' : 'စကားဝှက်အဟောင်း မှားယွင်းနေပါသည်');
-                }
-
-                const { error } = await supabaseInstance.auth.updateUser({ password: pass1 });
-                if (error) throw error;
-                
-                document.getElementById('profileOldPassInput').value = '';
-                document.getElementById('profilePassInput').value = '';
-                document.getElementById('profilePassConfirmInput').value = '';
-                showToast(currentLang === 'en' ? 'Password updated successfully' : 'စကားဝှက် ပြင်ဆင်မှု အောင်မြင်ပါသည်');
-            } catch(err) {
-                showErrorToast(err.message);
-            } finally {
-                hideLoader();
-            }
-        }
-
-        function deleteAccount() {
-            const title = currentLang === 'en' ? "Delete Account" : "အကောင့် ဖျက်မည်";
-            const confirmMsg = currentLang === 'en' 
-                ? "Are you absolutely sure you want to delete your account? This action is irreversible." 
-                : "အကောင့်ကို ဖျက်ပစ်ရန် သေချာပါသလား? ဤလုပ်ငန်းစဉ်ကို နောက်ပြန်ဆုတ်၍ မရနိုင်ပါ။";
-            
-            showConfirmModal(title, confirmMsg, 'danger', true, 'DeLeTe My AccOunT', async () => {
-                showLoader('loadingSec');
-                try {
-                    const { error } = await supabaseInstance.rpc('delete_user');
-                    
-                    if (error) {
-                        throw new Error(error.message); 
-                    }
-                    
-                    await supabaseInstance.auth.signOut();
-                    
-                    showToast(currentLang === 'en' ? "Account deleted permanently." : "အကောင့်ကို အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။");
-                    
-                    setTimeout(() => {
-                        try { window.location.href = '../index.html'; } catch(e) { window.location.reload(); }
-                    }, 1500);
-                    
-                } catch(err) {
-                    hideLoader();
-                    console.error("Account Deletion Error:", err.message);
-                    console.warn("DEVELOPER: Deletion failed! Did you add the 'delete_user' RPC function in your Supabase SQL Editor?");
-                    
-                    showErrorToast(currentLang === 'en' ? "Deletion failed! Backend function missing. Check console." : "အကောင့်ဖျက်ခြင်း မအောင်မြင်ပါ။ (Backend Function လိုအပ်ပါသည်)");
-                }
-            });
-        } 
-
-        async function syncWishlistToSupabase() {
-            if (supabaseInstance && currentUser) {
-                const { error } = await supabaseInstance.auth.updateUser({
-                    data: { wishlist: currentUserWishlist }
-                });
-                if (error) console.error("Error syncing wishlist:", error);
-            }
-        }
-
+        /* --- Wishlist Drawer System --- */
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
             if (!countSpan) return;
@@ -1215,20 +1033,18 @@
                 showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); 
             }
             
-            syncWishlistToSupabase();
-            updateWishlistCount(); renderWishlistItems();
-        }
-
-        async function handleLogout() {
-            showLoader('loadingAuth');
-            if (supabaseInstance) await supabaseInstance.auth.signOut();
-            try {
-                window.location.href = '../index.html';
-            } catch (e) {
-                window.location.reload();
+            if (supabaseInstance && currentUser) {
+                supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } });
             }
+            
+            updateWishlistCount(); 
+            renderWishlistItems();
+            
+            // Sync with Hub Main View
+            if(typeof renderHubWishlist === 'function') renderHubWishlist();
         }
 
+        /* --- Global Drawers & Overlays --- */
         function toggleMobileMenu() {
             const drawer = document.getElementById('mobileDrawer');
             if(!drawer.classList.contains('open')) { document.getElementById('wishlistDrawer').classList.remove('open'); document.getElementById('wishlistOverlay').classList.remove('open'); }
@@ -1265,29 +1081,7 @@
             }
         });
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').textContent = msg;
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
-        }
-
-        function showErrorToast(msg) { 
-            const toast = document.getElementById('error-toast'); 
-            document.getElementById('error-toast-msg').textContent = msg; 
-            toast.classList.remove('translate-y-24', 'opacity-0'); 
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
-        }
-
-        function reveal() {
-            var reveals = document.querySelectorAll(".reveal");
-            for (var i = 0; i < reveals.length; i++) {
-                var windowHeight = window.innerHeight; var elementTop = reveals[i].getBoundingClientRect().top;
-                if (elementTop < windowHeight - 50) reveals[i].classList.add("active");
-            }
-        }
-        window.addEventListener("scroll", reveal); reveal();
-
+        /* --- Database Search System --- */
         function toggleSearchOverlay() {
             const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
             if(overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } 
@@ -1445,11 +1239,19 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        async function handleLogout() {
+            showLoader('loadingInit');
+            if (supabaseInstance) await supabaseInstance.auth.signOut();
+            window.location.reload();
+        }
+
+        window.addEventListener("scroll", reveal);
+
+        window.addEventListener('load', () => {
             setActiveNavLinks();
-            renderLanguage(); 
-            window.addEventListener('load', () => setTimeout(hideLoader, 600));
+            renderLanguage();
         });
     </script>
 </body>
+
 </html>
