@@ -736,6 +736,27 @@
             return descs[featNameEn] || fallback;
         }
 
+        /* --- Smart Icon Resolver --- */
+        function getCategoryIcon(cat) {
+            let icon = cat.icon ? cat.icon.trim().toLowerCase() : '';
+            // Safe fallbacks for missing or invalid DB icons mapped to actual Lucide icons
+            if (icon === 'service' || icon === 'services') return 'briefcase';
+            if (icon === 'portfolio') return 'user-circle';
+            if (icon === 'business') return 'building-2';
+            if (icon === 'ecommerce') return 'shopping-bag';
+            if (icon === 'education') return 'book-open';
+            if (icon) return icon;
+
+            // Name-based mapping if icon field is completely empty
+            const name = (cat.name_en || '').toLowerCase();
+            if (name.includes('service')) return 'briefcase';
+            if (name.includes('business') || name.includes('corporate')) return 'building-2';
+            if (name.includes('portfolio') || name.includes('personal')) return 'user-circle';
+            if (name.includes('commerce') || name.includes('shop')) return 'shopping-bag';
+            
+            return 'layout';
+        }
+
         /* --- Dictionary & Language --- */
         const dict = {
             en: {
@@ -1011,15 +1032,8 @@
             if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
         });
 
-        /* --- Search System --- */
-        const searchCatalog = [
-            { id: 'prod1', type: 'Product', name: 'Business Website', mm: 'စီးပွားရေး ဝက်ဘ်ဆိုက်', icon: 'building-2', url: '../templates/index.html', keywords: ['company', 'corporate', 'organization', 'agency', 'commerce', 'business'] },
-            { id: 'prod2', type: 'Product', name: 'Personal Portfolio', mm: 'ပုဂ္ဂိုလ်ရေး မှတ်တမ်း', icon: 'user-circle', url: '../templates/index.html', keywords: ['cv', 'resume', 'blog', 'profile', 'freelance', 'personal'] },
-            { id: 'prod3', type: 'Product', name: 'Info & Education', mm: 'သတင်းအချက်အလက်', icon: 'book-open', url: '../templates/index.html', keywords: ['school', 'college', 'university', 'learning', 'course', 'academy', 'student', 'education', 'info'] },
-            { id: 'srv1', type: 'Service', name: 'Advanced Web SEO', mm: 'အဆင့်မြင့် SEO', icon: 'search', url: '../comming-soon/index.html', keywords: ['google', 'ranking', 'search engine', 'marketing', 'optimization', 'seo'] },
-            { id: 'srv2', type: 'Service', name: 'Domain Acquisition', mm: 'ဒိုမိန်းအမည်', icon: 'globe-2', url: '../comming-soon/index.html', keywords: ['url', 'address', 'website name', 'registration', 'dot com', 'domain'] },
-            { id: 'srv3', type: 'Service', name: 'Maintenance & Security', mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', icon: 'shield-check', url: '../comming-soon/index.html', keywords: ['protection', 'update', 'support', 'hosting', 'safe', 'secure', 'maintenance'] }
-        ];
+        /* --- Global Real-Database Search System --- */
+        let searchDebounceTimer;
 
         function toggleSearchOverlay() {
             const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
@@ -1027,83 +1041,145 @@
             else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; }, 400); }
         }
 
-        function getSimilarityScore(a, b) {
-            if (a.length === 0) return b.length; if (b.length === 0) return a.length; 
-            const matrix = []; for (let i = 0; i <= b.length; i++) matrix[i] = [i]; for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-            for (let i = 1; i <= b.length; i++) {
-                for (let j = 1; j <= a.length; j++) {
-                    if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
-                    else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
-                }
-            } return matrix[b.length][a.length];
-        }
+        async function handleMegaSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('megaSearchResults');
+            
+            if (!query) { 
+                resultsContainer.innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; 
+                return; 
+            }
 
-        function handleMegaSearch(e) {
-            const query = e.target.value.toLowerCase().trim(); const resultsContainer = document.getElementById('megaSearchResults');
-            if (!query) { resultsContainer.innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; return; }
+            clearTimeout(searchDebounceTimer);
             
-            const queryWords = query.split(/\s+/).filter(w => w.length > 0);
-            
-            let scoredItems = searchCatalog.map(item => {
-                const nameEn = item.name.toLowerCase(); 
-                const nameMm = item.mm.toLowerCase(); 
-                const keywords = (item.keywords || []).map(k => k.toLowerCase());
-                const allTargets = [nameEn, nameMm, ...keywords];
+            searchDebounceTimer = setTimeout(async () => {
+                resultsContainer.innerHTML = `
+                    <div class="flex items-center gap-3 text-gray-500 py-4">
+                        <i data-lucide="loader-2" class="h-5 w-5 animate-spin text-myancode-blue"></i> 
+                        <span class="text-sm font-medium tracking-wide">Searching entire database...</span>
+                    </div>`;
+                lucide.createIcons();
+
+                let combined = [];
+
+                // 1. Static Pages Data
+                const staticPages = [
+                    { name: 'Studio', mm: 'စတူဒီယို', url: '../studio/index.html', icon: 'code-2', type: 'Pages' },
+                    { name: 'Templates', mm: 'ဝက်ဘ်ဆိုက်များ', url: '../templates/index.html', icon: 'layout-template', type: 'Pages' },
+                    { name: 'Services', mm: 'ဝန်ဆောင်မှုများ', url: '../services/index.html', icon: 'briefcase', type: 'Pages' },
+                    { name: 'About Us', mm: 'ကျွန်ုပ်တို့အကြောင်း', url: '../about-us/index.html', icon: 'info', type: 'Pages' },
+                    { name: 'Contact Us', mm: 'ဆက်သွယ်ရန်', url: '../contact-us/index.html', icon: 'phone', type: 'Pages' },
+                    { name: 'Maintenance', mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', url: '../maintenance/index.html', icon: 'shield-check', type: 'Pages' },
+                    { name: 'Guides', mm: 'လမ်းညွှန်များ', url: '../guides/index.html', icon: 'book-open', type: 'Pages' },
+                    { name: 'User Hub', mm: 'ဗဟိုဌာန', url: '../hub/index.html', icon: 'user', type: 'Pages' }
+                ];
                 
-                let itemScore = Infinity;
-                
-                // Full phrase exact match check
-                if (allTargets.some(t => t.includes(query))) {
-                    itemScore = -100;
-                } else {
-                    // Check word by word for typos
-                    let totalWordScore = 0;
-                    let matchCount = 0;
-                    
-                    for (let qWord of queryWords) {
-                        let bestWordScore = Infinity;
-                        
-                        for (let target of allTargets) {
-                            const targetWords = target.split(/\s+/);
-                            for (let tWord of targetWords) {
-                                if (tWord.includes(qWord)) {
-                                    bestWordScore = Math.min(bestWordScore, -50); // High priority for substrings
-                                } else {
-                                    const dist = getSimilarityScore(qWord, tWord);
-                                    // Progressive typo leniency: longer words = more allowed typos
-                                    const allowedTypos = qWord.length <= 3 ? 1 : (qWord.length <= 6 ? 2 : 3);
-                                    if (dist <= allowedTypos) {
-                                        bestWordScore = Math.min(bestWordScore, dist);
-                                    }
-                                }
-                            }
-                        }
-                        
-                        if (bestWordScore !== Infinity) {
-                            totalWordScore += bestWordScore;
-                            matchCount++;
-                        }
-                    }
-                    
-                    if (matchCount > 0 && matchCount === queryWords.length) {
-                        itemScore = totalWordScore;
-                    } else if (matchCount > 0) {
-                        itemScore = totalWordScore + 10; // Penalty for matching only some words
+                combined.push(...staticPages.filter(p => p.name.toLowerCase().includes(query) || p.mm.toLowerCase().includes(query)));
+
+                // 2. Dynamic Supabase Fetches
+                if (supabaseInstance) {
+                    try {
+                        // Package Categories search
+                        const { data: cats } = await supabaseInstance.from('pkg_categories')
+                            .select('id, name_en, name_mm, icon')
+                            .or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`)
+                            .limit(5);
+                            
+                        if (cats) cats.forEach(c => combined.push({ 
+                            id: c.id, type: 'Packages / Products', name: c.name_en, mm: c.name_mm || c.name_en, 
+                            icon: getCategoryIcon(c), url: '#', action: `selectCategory('${c.id}')` 
+                        }));
+
+                        // Features & Add-ons search
+                        const { data: feats } = await supabaseInstance.from('pkg_features')
+                            .select('id, name_en, name_mm, feature_type')
+                            .or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`)
+                            .limit(5);
+                            
+                        if (feats) feats.forEach(f => combined.push({ 
+                            id: f.id, type: 'Features & Systems', name: f.name_en, mm: f.name_mm || f.name_en, 
+                            icon: 'cpu', url: '#', action: `goToStep(1)` 
+                        }));
+
+                        // Templates search (Safe block in case table varies)
+                        try {
+                            const { data: tpls, error: errT } = await supabaseInstance.from('templates')
+                                .select('id, name')
+                                .ilike('name', `%${query}%`)
+                                .limit(5);
+                                
+                            if (tpls && !errT) tpls.forEach(t => combined.push({ 
+                                id: t.id, type: 'Templates', name: t.name, mm: t.name, 
+                                icon: 'layout', url: `../templates/index.html?search=${encodeURIComponent(t.name)}` 
+                            }));
+                        } catch(e) { }
+
+                        // Services Search (Safe block)
+                        try {
+                            const { data: srvs, error: errS } = await supabaseInstance.from('services')
+                                .select('id, title_en, title_mm, icon')
+                                .or(`title_en.ilike.%${query}%,title_mm.ilike.%${query}%`)
+                                .limit(5);
+                                
+                            if (srvs && !errS) srvs.forEach(s => combined.push({ 
+                                id: s.id, type: 'Services', name: s.title_en, mm: s.title_mm || s.title_en, 
+                                icon: s.icon || 'briefcase', url: `../services/index.html?id=${s.id}` 
+                            }));
+                        } catch(e) { }
+
+                    } catch (dbErr) {
+                        console.error("Database search encountered an error:", dbErr);
                     }
                 }
-                
-                return { ...item, score: itemScore };
-            });
-            
-            const results = scoredItems.filter(item => item.score < 20).sort((a, b) => a.score - b.score);
-            
-            if (results.length === 0) { resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p>`; return; }
-            resultsContainer.innerHTML = results.map(item => `
-                <a href="${item.url}" onclick="toggleSearchOverlay()" class="flex items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors group">
-                    <div class="p-3 bg-white rounded-xl shadow-sm mr-4 group-hover:bg-myancode-black group-hover:text-white transition-colors"><i data-lucide="${item.icon}" class="h-5 w-5"></i></div>
-                    <div><h5 class="text-sm font-semibold text-black mb-0.5">${currentLang === 'en' ? item.name : item.mm}</h5><span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">${item.type}</span></div>
-                </a>`).join('');
-            lucide.createIcons();
+
+                if (combined.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="py-8 text-center">
+                            <i data-lucide="search-x" class="h-10 w-10 text-gray-300 mx-auto mb-3"></i>
+                            <p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No exact results found for' : 'ရလဒ်မတွေ့ပါ'} "<span class="text-black">${e.target.value}</span>"</p>
+                            <p class="text-xs text-gray-400 mt-2">Try searching for keywords like "Business", "Studio", "SEO"</p>
+                        </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+
+                // Group & Build HTML string
+                const grouped = combined.reduce((acc, item) => {
+                    if (!acc[item.type]) acc[item.type] = [];
+                    acc[item.type].push(item);
+                    return acc;
+                }, {});
+
+                let html = '';
+                for (const [type, items] of Object.entries(grouped)) {
+                    html += `
+                    <div class="mb-8 last:mb-0 reveal active">
+                        <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            ${type} <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[9px]">${items.length}</span>
+                        </h4>
+                        <div class="grid grid-cols-1 gap-3">`;
+                    
+                    html += items.map(item => `
+                        <a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 sm:p-4 bg-gray-50 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-2xl transition-all duration-300 group">
+                            <div class="p-3 bg-white rounded-xl shadow-sm mr-4 group-hover:bg-myancode-black group-hover:text-white transition-colors duration-300 transform group-hover:scale-105">
+                                <i data-lucide="${item.icon || 'search'}" class="h-4 w-4 sm:h-5 sm:w-5"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="text-sm font-bold text-myancode-black mb-1 group-hover:text-myancode-blue transition-colors">${currentLang === 'en' ? item.name : item.mm}</h5>
+                                <div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-500 transition-colors">
+                                    View Details <i data-lucide="chevron-right" class="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0"></i>
+                                </div>
+                            </div>
+                        </a>
+                    `).join('');
+                    
+                    html += `</div></div>`;
+                }
+
+                resultsContainer.innerHTML = html;
+                lucide.createIcons();
+
+            }, 600);
         }
 
         /* --- Newsletter Subscription Logic --- */
@@ -1289,11 +1365,13 @@
             if(!grid) return;
             grid.innerHTML = dbCategories.map(c => {
                 const name = currentLang === 'en' ? c.name_en : (c.name_mm || c.name_en);
+                const safeIcon = getCategoryIcon(c); // Use smart icon resolver
+                
                 return `
                 <div onclick="selectCategory('${c.id}')" class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 card-hover flex flex-col justify-between items-start h-full group cursor-pointer relative overflow-hidden">
-                    <div class="absolute -right-10 -bottom-10 opacity-[0.03] text-myancode-black transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12"><i data-lucide="${c.icon || 'layout'}" class="w-48 h-48"></i></div>
+                    <div class="absolute -right-10 -bottom-10 opacity-[0.03] text-myancode-black transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12"><i data-lucide="${safeIcon}" class="w-48 h-48"></i></div>
                     <div class="h-14 w-14 rounded-2xl bg-gray-50 flex items-center justify-center text-myancode-black border border-gray-100 mb-6 group-hover:bg-blue-50 group-hover:text-myancode-blue group-hover:border-blue-100 transition-colors relative z-10">
-                        <i data-lucide="${c.icon || 'layout'}" class="w-6 h-6"></i>
+                        <i data-lucide="${safeIcon}" class="w-6 h-6"></i>
                     </div>
                     <div class="relative z-10">
                         <p class="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-2">Base Architecture</p>
