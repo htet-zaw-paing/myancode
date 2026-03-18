@@ -2100,7 +2100,10 @@
                 async () => {
                     showLoader('loadingData');
                     try {
-                        const { error } = await supabaseInstance.rpc('admin_reset_user_password', { target_user_id: id });
+                        const adminSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+                        const { error } = await adminSupabase.auth.admin.updateUserById(id, { 
+                            password: 'My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03' 
+                        });
                         if (error) throw error;
                         hideLoader();
                         document.getElementById('pwdResetSuccessModal').classList.remove('modal-hidden');
