@@ -553,17 +553,18 @@
         </button>
     </div>
 
-    <!-- FORCE PASSWORD CHANGE MODAL -->
-    <div id="forcePasswordModal" class="fixed inset-0 z-[300] bg-black/60 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-2 sm:px-0">
-        <div class="bg-white p-5 xxs:p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-md shadow-2xl relative overflow-hidden modal-content transition-transform duration-300 scale-95 border border-gray-100">
-            <button id="closePwdBtn" onclick="closeForcePasswordModal()" class="absolute top-3 right-3 sm:top-6 sm:right-6 p-1.5 sm:p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+    <!-- FORCE PASSWORD CHANGE MODAL (FIXED HTML STRUCTURE & CLASSES) -->
+    <div id="forcePasswordModal" class="fixed inset-0 z-[300] flex items-center justify-center modal-hidden px-2 sm:px-0">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-xl modal-overlay"></div>
+        <div class="bg-white p-5 xxs:p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-md shadow-2xl relative overflow-hidden flex flex-col modal-content border border-gray-100">
+            <button id="closePwdBtn" onclick="closeForcePasswordModal()" class="absolute top-3 right-3 sm:top-6 sm:right-6 p-1.5 sm:p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors z-10"><i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
             <div class="mx-auto flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-xl sm:rounded-[1.5rem] bg-orange-50 mb-4 sm:mb-6 border border-orange-100 shadow-inner-soft">
                 <i data-lucide="shield-check" class="h-6 w-6 sm:h-8 sm:w-8 text-orange-500"></i>
             </div>
             <h3 class="text-lg sm:text-2xl font-bold tracking-tight text-myancode-black mb-1 sm:mb-2 text-center" data-i18n="pwdChangeTitle">Update Password</h3>
             <p class="text-[10px] sm:text-sm text-gray-500 mb-5 sm:mb-8 text-center leading-relaxed font-medium" data-i18n="pwdChangeDesc">Secure your enterprise account by setting a new, private password.</p>
 
-            <div class="space-y-4 sm:space-y-5">
+            <div class="space-y-4 sm:space-y-5 w-full">
                 <div>
                     <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNewPwd">New Password *</label>
                     <input type="password" id="newSecurePassword" required class="w-full px-4 py-2.5 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input focus:bg-white focus:ring-1 focus:ring-myancode-black transition-all duration-200" placeholder="••••••••">
@@ -1277,7 +1278,8 @@
         let supabaseInstance = null; let currentUser = null;
 
         const initialUrlStr = window.location.href;
-        const isProcessingAuth = initialUrlStr.includes('code=') || initialUrlStr.includes('access_token=') || initialUrlStr.includes('type=invite');
+        const initialHashStr = window.location.hash;
+        const isProcessingAuth = initialUrlStr.includes('code=') || initialUrlStr.includes('access_token=') || initialUrlStr.includes('type=invite') || initialHashStr.includes('type=invite');
         let forcePwdTriggered = false; 
 
         if (window.supabase) {
@@ -1290,9 +1292,20 @@
                     currentUser = session.user; 
                     checkAdminStatus(); 
                     
-                    if (!forcePwdTriggered && (initialUrlStr.includes('type=invite') || initialUrlStr.includes('type=recovery') || initialUrlStr.includes('code=') || initialUrlStr.includes('access_token='))) {
+                    // Directly check if it's a recovery or invite event by intercepting Supabase event signals
+                    const isRecoveryOrInvite = event === 'PASSWORD_RECOVERY' || 
+                                               initialUrlStr.includes('type=invite') || 
+                                               initialUrlStr.includes('type=recovery') || 
+                                               initialUrlStr.includes('code=') || 
+                                               initialUrlStr.includes('access_token=') ||
+                                               initialHashStr.includes('type=invite');
+
+                    if (!forcePwdTriggered && isRecoveryOrInvite) {
                         forcePwdTriggered = true; 
-                        setTimeout(() => { openForcePasswordModal(true); history.replaceState(null, null, window.location.pathname); }, 1000);
+                        setTimeout(() => { 
+                            openForcePasswordModal(true); 
+                            history.replaceState(null, null, window.location.pathname); 
+                        }, 1000);
                     }
                 } else { 
                     if (window.location.hash.includes('error=')) {
