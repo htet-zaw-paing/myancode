@@ -1240,8 +1240,22 @@
 
         window.addEventListener('load', () => {
             setActiveNavLinks();
-            renderLanguage();
-            setTimeout(hideLoader, 600);
+            renderLanguage(); // Content grows here
+            
+            setTimeout(() => {
+                hideLoader(); // This removes 'no-scroll' and allows page scrolling
+                
+                // If there's a hash in the URL, scroll to it manually now that content is loaded
+                if (window.location.hash) {
+                    setTimeout(() => {
+                        const targetId = window.location.hash;
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }, 50); // Small buffer to ensure body scroll property updates
+                }
+            }, 600); // Wait for the loading screen timeline
         });
     </script>
 </body>
