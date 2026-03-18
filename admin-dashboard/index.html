@@ -1310,8 +1310,16 @@
         }
 
         async function checkAdminStatus() {
-            const role = currentUser?.user_metadata?.role;
-            if (role === 'admin' || role === 'super-admin') {
+            // ✅ NEW SECURE DATABASE CHECK ✅
+            if (!currentUser) return;
+
+            const { data: roleData, error: roleError } = await supabaseInstance
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', currentUser.id)
+                .single();
+
+            if (!roleError && roleData && (roleData.role === 'admin' || roleData.role === 'super-admin')) {
                 document.getElementById('dashboardContent').classList.remove('hidden'); 
                 document.getElementById('dashboardContent').classList.add('flex', 'flex-col');
                 document.getElementById('unauthorizedScreen').classList.add('hidden'); 
@@ -1328,6 +1336,7 @@
                 hideLoader();
                 setupRealtimeSync();
             } else {
+                console.error("Security Block: Not a valid admin.");
                 hideLoader(); document.getElementById('dashboardContent').classList.add('hidden');
                 document.getElementById('unauthorizedScreen').classList.remove('hidden'); document.getElementById('unauthorizedScreen').classList.add('flex');
             }
@@ -2073,7 +2082,17 @@
                 if (inviteError) throw inviteError;
                 
                 if (inviteData && inviteData.user && inviteData.user.id) { 
-                    await adminSupabase.auth.admin.updateUserById(inviteData.user.id, { user_metadata: { role: 'admin' } }); 
+                    // ✅ NEW SECURE TABLE INSERT ✅
+                    const { error: assignRoleError } = await supabaseInstance
+                        .from('user_roles')
+                        .upsert({ 
+                            user_id: inviteData.user.id, 
+                            role: 'admin' 
+                        });
+
+                    if (assignRoleError) {
+                        showErrorToast("Failed to assign admin role: " + assignRoleError.message);
+                    }
                 }
                 
                 finishInviteProcess(email); fetchUsers();
@@ -2310,6 +2329,6 @@
         }
 
         window.addEventListener('load', () => { renderLanguage(); });
-    </script>
+</script>
 </body>
 </html>

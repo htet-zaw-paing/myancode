@@ -739,22 +739,22 @@
         /* --- Smart Icon Resolver --- */
         function getCategoryIcon(cat) {
             let icon = cat.icon ? cat.icon.trim().toLowerCase() : '';
-            // Safe fallbacks for missing or invalid DB icons mapped to actual Lucide icons
-            if (icon === 'service' || icon === 'services') return 'briefcase';
-            if (icon === 'portfolio') return 'user-circle';
-            if (icon === 'business') return 'building-2';
-            if (icon === 'ecommerce') return 'shopping-bag';
-            if (icon === 'education') return 'book-open';
-            if (icon) return icon;
-
-            // Name-based mapping if icon field is completely empty
             const name = (cat.name_en || '').toLowerCase();
-            if (name.includes('service')) return 'briefcase';
-            if (name.includes('business') || name.includes('corporate')) return 'building-2';
-            if (name.includes('portfolio') || name.includes('personal')) return 'user-circle';
-            if (name.includes('commerce') || name.includes('shop')) return 'shopping-bag';
             
-            return 'layout';
+            // Aggressive fallback checks (checks both the DB icon string and the category name) to prevent missing icons
+            if (icon.includes('service') || name.includes('service')) return 'briefcase';
+            if (icon.includes('portfolio') || name.includes('personal') || icon.includes('personal')) return 'user';
+            if (icon.includes('business') || name.includes('business') || name.includes('corporate')) return 'building-2';
+            if (icon.includes('ecommerce') || name.includes('commerce') || name.includes('shop') || icon.includes('shop')) return 'shopping-bag';
+            if (icon.includes('education') || name.includes('education') || icon.includes('edu')) return 'book-open';
+            if (icon.includes('event') || name.includes('event')) return 'calendar';
+            if (icon.includes('blog') || name.includes('blog')) return 'file-text';
+            if (icon.includes('health') || name.includes('health') || name.includes('medical') || icon.includes('medical')) return 'activity';
+            if (icon.includes('food') || name.includes('food') || name.includes('hospitality')) return 'coffee';
+            if (icon.includes('creative') || name.includes('creative') || name.includes('media')) return 'palette';
+
+            // If it made it here and has an icon, trust the DB, otherwise use layout
+            return icon ? icon : 'layout';
         }
 
         /* --- Dictionary & Language --- */
