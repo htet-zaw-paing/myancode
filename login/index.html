@@ -560,13 +560,15 @@
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
         
-        let supabaseInstance = null; let currentUser = null; let currentUserWishlist = [];
+        let supabaseInstance = null; let currentUser = null; let currentUserWishlist = []; let isUpdatingPassword = false;
         if (window.supabase) {
              supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
 
         if (supabaseInstance) {
             supabaseInstance.auth.onAuthStateChange((event, session) => {
+                if (isUpdatingPassword) return; // Prevent redirect and error toast during update flow
+                
                 if (session) {
                     const userRole = session.user?.user_metadata?.role;
 
@@ -999,10 +1001,13 @@
             updateBtn.disabled = true;
             
             showLoader('loadingAuth');
+            isUpdatingPassword = true; // Pause auth state listeners
+            
             const { error } = await supabaseInstance.auth.updateUser({ password: pass });
             hideLoader();
             
             if (error) { 
+                isUpdatingPassword = false;
                 updateBtn.disabled = false;
                 showErrorToast(error.message); 
                 return; 
@@ -1012,7 +1017,13 @@
             showToast(dict[currentLang].msgPassUpdated);
             
             await supabaseInstance.auth.signOut();
-            history.replaceState(null, null, ' ');
+            
+            // Clear URL of recovery tokens and reload for a fresh login state
+            history.replaceState(null, null, window.location.pathname);
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
 
         /* --- Custom Notification Toasts --- */
