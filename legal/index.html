@@ -1090,6 +1090,51 @@
 
         let searchDebounceTimer;
 
+        // Comprehensive Map of every page on the site
+        const SUPER_STATIC_PAGES = [
+            // Core Pages & Navigation
+            { title_en: 'Studio', title_mm: 'စတူဒီယို', url: '../studio/index.html', icon: 'code-2', type: 'Pages & Navigation', desc_en: 'Custom development & enterprise solutions', desc_mm: 'စိတ်ကြိုက်ရေးဆွဲခြင်း' },
+            { title_en: 'Templates', title_mm: 'ဝက်ဘ်ဆိုက်များ', url: '../templates/index.html', icon: 'layout-template', type: 'Pages & Navigation', desc_en: 'Pre-built high-quality website templates', desc_mm: 'အသင့်သုံး ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ' },
+            { title_en: 'Services', title_mm: 'ဝန်ဆောင်မှုများ', url: '../services/index.html', icon: 'briefcase', type: 'Pages & Navigation', desc_en: 'Explore all our digital services', desc_mm: 'ဒီဂျစ်တယ် ဝန်ဆောင်မှုများ' },
+            { title_en: 'Maintenance', title_mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', url: '../maintenance/index.html', icon: 'shield-check', type: 'Pages & Navigation', desc_en: 'Long-term maintenance plans', desc_mm: 'ပြုပြင်ထိန်းသိမ်းရေး အစီအစဉ်များ' },
+            // Support & Help
+            { title_en: 'Help Center', title_mm: 'အကူအညီဌာန', url: '../help/index.html', icon: 'help-circle', type: 'Support & Help', desc_en: 'Get help with our products', desc_mm: 'အကူအညီရယူရန်' },
+            { title_en: 'FAQs', title_mm: 'အမေးများသောမေးခွန်းများ', url: '../faq/index.html', icon: 'message-circle-question', type: 'Support & Help', desc_en: 'Frequently asked questions', desc_mm: 'အမေးများသော မေးခွန်းများ' },
+            { title_en: 'Guides', title_mm: 'လမ်းညွှန်များ', url: '../guides/index.html', icon: 'book-open', type: 'Support & Help', desc_en: 'Step-by-step documentation', desc_mm: 'အသုံးပြုနည်း လမ်းညွှန်များ' },
+            // Company
+            { title_en: 'About Us', title_mm: 'ကျွန်ုပ်တို့အကြောင်း', url: '../about-us/index.html', icon: 'info', type: 'Company', desc_en: 'Learn more about MyanCode', desc_mm: 'MyanCode အကြောင်း' },
+            { title_en: 'Contact Us', title_mm: 'ဆက်သွယ်ရန်', url: '../contact-us/index.html', icon: 'phone', type: 'Company', desc_en: 'Get in touch with our team', desc_mm: 'ဆက်သွယ်ရန်' },
+            { title_en: 'Updates & News', title_mm: 'သတင်းနှင့် အသစ်များ', url: '../updates-news/index.html', icon: 'newspaper', type: 'Company', desc_en: 'Latest announcements', desc_mm: 'နောက်ဆုံးရသတင်းများ' },
+            { title_en: 'Careers', title_mm: 'အလုပ်အကိုင်များ', url: '../careers/index.html', icon: 'users', type: 'Company', desc_en: 'Join the MyanCode team', desc_mm: 'အလုပ်အကိုင် အခွင့်အလမ်းများ' },
+            // Policies & Legal
+            { title_en: 'Customer Policy', title_mm: 'ဖောက်သည် မူဝါဒ', url: '../legal/index.html#client-policy', icon: 'shield', type: 'Policies & Legal', desc_en: 'Rules for our customers', desc_mm: 'ဖောက်သည်များအတွက် စည်းမျဉ်းများ' },
+            { title_en: 'Privacy Policy', title_mm: 'ကိုယ်ရေးအချက်အလက် မူဝါဒ', url: '../legal/index.html#privacy-policy', icon: 'lock', type: 'Policies & Legal', desc_en: 'How we protect your data', desc_mm: 'အချက်အလက် လုံခြုံရေး' },
+            { title_en: 'Terms of Service', title_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ', url: '../legal/index.html#terms-of-service', icon: 'file-text', type: 'Policies & Legal', desc_en: 'Usage terms and conditions', desc_mm: 'အသုံးပြုမှု စည်းမျဉ်းများ' },
+            { title_en: 'Refund Policy', title_mm: 'ငွေပြန်အမ်းရေး မူဝါဒ', url: '../legal/index.html#refund-policy', icon: 'refresh-ccw', type: 'Policies & Legal', desc_en: 'Our refund guidelines', desc_mm: 'ငွေပြန်အမ်းရေး စည်းမျဉ်းများ' },
+            { title_en: 'Payment Policy', title_mm: 'ငွေပေးချေမှု မူဝါဒ', url: '../legal/index.html#payment-policy', icon: 'credit-card', type: 'Policies & Legal', desc_en: 'Accepted payment methods', desc_mm: 'ငွေပေးချေမှု စနစ်များ' },
+            { title_en: 'Studio Policy', title_mm: 'စတူဒီယို မူဝါဒ', url: '../legal/index.html#studio-policy', icon: 'briefcase', type: 'Policies & Legal', desc_en: 'Guidelines for studio services', desc_mm: 'စတူဒီယို စည်းမျဉ်းများ' },
+            { title_en: 'Template Policy', title_mm: 'ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ', url: '../legal/index.html#template-policy', icon: 'layout-template', type: 'Policies & Legal', desc_en: 'Rules for template usage', desc_mm: 'ပုံစံများအတွက် စည်းမျဉ်းများ' },
+            { title_en: 'Service Policy', title_mm: 'ဝန်ဆောင်မှု မူဝါဒ', url: '../legal/index.html#service-policy', icon: 'settings', type: 'Policies & Legal', desc_en: 'General service terms', desc_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ' },
+            // Dashboards
+            { title_en: 'User Hub', title_mm: 'ဗဟိုဌာန', url: '../hub/index.html', icon: 'layout-dashboard', type: 'User Dashboard', desc_en: 'Manage your projects and orders', desc_mm: 'ပရောဂျက်များ စီမံရန်' }
+        ];
+
+        function getCategoryIcon(c) {
+            let icon = c.icon ? c.icon.trim().toLowerCase() : '';
+            const name = (c.name_en || '').toLowerCase();
+            if (icon.includes('service') || name.includes('service')) return 'briefcase';
+            if (icon.includes('portfolio') || name.includes('personal') || icon.includes('personal')) return 'user';
+            if (icon.includes('business') || name.includes('business') || name.includes('corporate')) return 'building-2';
+            if (icon.includes('ecommerce') || name.includes('commerce') || name.includes('shop') || icon.includes('shop')) return 'shopping-bag';
+            if (icon.includes('education') || name.includes('education') || icon.includes('edu')) return 'book-open';
+            if (icon.includes('event') || name.includes('event')) return 'calendar';
+            if (icon.includes('blog') || name.includes('blog')) return 'file-text';
+            if (icon.includes('health') || name.includes('health') || name.includes('medical') || icon.includes('medical')) return 'activity';
+            if (icon.includes('food') || name.includes('food') || name.includes('hospitality')) return 'coffee';
+            if (icon.includes('creative') || name.includes('creative') || name.includes('media')) return 'palette';
+            return icon ? icon : 'layout';
+        }
+
         async function handleMegaSearch(e) {
             const query = e.target.value.toLowerCase().trim();
             const resultsContainer = document.getElementById('megaSearchResults');
@@ -1108,89 +1153,202 @@
 
             clearTimeout(searchDebounceTimer);
             searchDebounceTimer = setTimeout(async () => {
-                if (!supabaseInstance) {
-                    resultsContainer.innerHTML = `<p class="text-red-500 text-sm font-medium tracking-wide">Database connection error. Check Supabase connection.</p>`;
+                let combined = [];
+
+                // 1. Static Pages (Fuzzy match)
+                SUPER_STATIC_PAGES.forEach(p => {
+                    const searchStr = `${p.title_en} ${p.title_mm} ${p.desc_en} ${p.desc_mm} ${p.type}`.toLowerCase();
+                    if (searchStr.includes(query)) {
+                        combined.push({
+                            type: p.type, name: p.title_en, mm: p.title_mm, icon: p.icon,
+                            desc_en: p.desc_en, desc_mm: p.desc_mm, url: p.url, action: null, score: 1000 // high score
+                        });
+                    }
+                });
+
+                // 2. Database Queries
+                if (supabaseInstance) {
+                    const promises = [];
+
+                    // Categories (Foundations)
+                    promises.push(
+                        supabaseInstance.from('pkg_categories')
+                            .select('id, name_en, name_mm, icon')
+                            .or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`)
+                            .limit(4)
+                            .then(({data}) => {
+                                if(data) data.forEach(c => combined.push({ 
+                                    id: c.id, type: 'Website Foundations', name: c.name_en, mm: c.name_mm || c.name_en, 
+                                    icon: getCategoryIcon(c), desc_en: 'Explore this package in our Studio', desc_mm: 'ဝယ်ယူရန် ဤနေရာကို နှိပ်ပါ',
+                                    url: '../studio/index.html', action: null, score: 900 
+                                }));
+                            })
+                    );
+
+                    // Features & Systems
+                    promises.push(
+                        supabaseInstance.from('pkg_features')
+                            .select('id, name_en, name_mm, feature_type')
+                            .or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`)
+                            .limit(4)
+                            .then(({data}) => {
+                                if(data) data.forEach(f => combined.push({ 
+                                    id: f.id, type: 'Features & Systems', name: f.name_en, mm: f.name_mm || f.name_en, 
+                                    icon: 'cpu', desc_en: 'Enterprise system feature available in builder', desc_mm: 'ထည့်သွင်းအသုံးပြုနိုင်သော စနစ်',
+                                    url: '../studio/index.html', action: null, score: 800 
+                                }));
+                            })
+                    );
+
+                    // Services
+                    promises.push(
+                        supabaseInstance.from('services')
+                            .select('id, title_en, title_mm, icon')
+                            .or(`title_en.ilike.%${query}%,title_mm.ilike.%${query}%`)
+                            .limit(4)
+                            .then(({data}) => {
+                                if(data) data.forEach(s => combined.push({ 
+                                    id: s.id, type: 'Services', name: s.title_en, mm: s.title_mm || s.title_en, 
+                                    icon: s.icon || 'briefcase', desc_en: 'Professional digital service offering', desc_mm: 'ကျွမ်းကျင်သော ဒီဂျစ်တယ် ဝန်ဆောင်မှု',
+                                    url: `../services/index.html?id=${s.id}`, action: null, score: 850 
+                                }));
+                            })
+                    );
+
+                    // Templates / Products using robust Typo-Tolerant matching
+                    promises.push(
+                        supabaseInstance.from('products')
+                            .select('*')
+                            .eq('product_status', 'active')
+                            .then(({data}) => {
+                                const products = data || [];
+                                products.forEach(item => {
+                                    const searchStr = [
+                                        item.product_name_en || '', item.product_name_mm || '', 
+                                        item.product_description_en || '', item.product_description_mm || '', 
+                                        item.category_id || '', item.product_slug || ''
+                                    ].join(' ').toLowerCase();
+                                    
+                                    let score = 0;
+                                    
+                                    if (searchStr.includes(query)) {
+                                        score = -100;
+                                    } else {
+                                        const queryWords = query.split(/\s+/).filter(w => w);
+                                        const targetWords = searchStr.split(/[\s,.\-_]+/);
+                                        let matchedWords = 0;
+                                        
+                                        for (const qWord of queryWords) {
+                                            let minWordDist = qWord.length;
+                                            for (const tWord of targetWords) {
+                                                if (!tWord) continue;
+                                                if (tWord.includes(qWord) || qWord.includes(tWord)) { minWordDist = -10; break; }
+                                                const dist = getSimilarityScore(qWord, tWord);
+                                                if (dist < minWordDist) minWordDist = dist;
+                                            }
+                                            const maxAllowedTypos = Math.max(1, Math.floor(qWord.length / 2) + 1);
+                                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) matchedWords++;
+                                            score += minWordDist;
+                                        }
+                                        if (matchedWords < queryWords.length) score += 1000;
+                                    }
+                                    
+                                    if (score < 1000) {
+                                        const productSlug = item.product_slug || item.slug || item.product_id;
+                                        combined.push({
+                                            id: item.product_id, type: 'Templates', 
+                                            name: item.product_name_en || item.product_name_mm || 'Unnamed Product', 
+                                            mm: item.product_name_mm || item.product_name_en || 'အမည်မရှိ', 
+                                            icon: 'layout', image: item.product_image,
+                                            desc_en: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_en || 'Premium Website Template'}`, 
+                                            desc_mm: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_mm || 'အဆင့်မြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းပုံစံ'}`,
+                                            url: `../template-detail/index.html?product=${productSlug}`, action: null,
+                                            score: 1000 - score // Invert so higher is better
+                                        });
+                                    }
+                                });
+                            })
+                    );
+
+                    try {
+                        await Promise.allSettled(promises);
+                    } catch (err) {
+                        console.error("Parallel DB fetch error:", err);
+                    }
+                }
+
+                // Sort by score
+                combined.sort((a, b) => b.score - a.score);
+
+                if (combined.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="py-8 text-center">
+                            <i data-lucide="search-x" class="h-10 w-10 text-gray-300 mx-auto mb-3"></i>
+                            <p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No exact results found for' : 'ရလဒ်မတွေ့ပါ'} "<span class="text-black">${e.target.value}</span>"</p>
+                            <p class="text-xs text-gray-400 mt-2">Try searching for keywords like "Business", "Studio", "Policy" or "SEO"</p>
+                        </div>`;
+                    lucide.createIcons();
                     return;
                 }
 
-                try {
-                    const { data: dbProducts, error } = await supabaseInstance
-                        .from('products')
-                        .select('*')
-                        .eq('product_status', 'active');
+                const groupOrder = [
+                    'Website Foundations', 'Templates', 'Services', 'Features & Systems', 
+                    'Pages & Navigation', 'User Dashboard', 'Company', 'Policies & Legal', 'Support & Help'
+                ];
 
-                    if (error) throw error;
+                const grouped = combined.reduce((acc, item) => {
+                    if (!acc[item.type]) acc[item.type] = [];
+                    if (acc[item.type].length < 4) acc[item.type].push(item);
+                    return acc;
+                }, {});
+
+                const sortedKeys = Object.keys(grouped).sort((a, b) => {
+                    let idxA = groupOrder.indexOf(a); let idxB = groupOrder.indexOf(b);
+                    if (idxA === -1) idxA = 999; if (idxB === -1) idxB = 999;
+                    return idxA - idxB;
+                });
+
+                let html = '';
+                for (const type of sortedKeys) {
+                    const items = grouped[type];
+                    html += `
+                    <div class="mb-8 last:mb-0 reveal active">
+                        <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            ${type} <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[9px]">${items.length}</span>
+                        </h4>
+                        <div class="grid grid-cols-1 gap-3">`;
                     
-                    const products = dbProducts || [];
-
-                    let scoredItems = products.map(item => {
-                        const searchStr = [
-                            item.product_name_en || '', item.product_name_mm || '', 
-                            item.product_description_en || '', item.product_description_mm || '', 
-                            item.category_id || '', item.product_slug || ''
-                        ].join(' ').toLowerCase();
-                        
-                        if (searchStr.includes(query)) return { ...item, score: -100 };
-                        
-                        const queryWords = query.split(/\s+/).filter(w => w);
-                        const targetWords = searchStr.split(/[\s,.\-_]+/);
-                        
-                        let score = 0; let matchedWords = 0;
-                        
-                        for (const qWord of queryWords) {
-                            let minWordDist = qWord.length;
-                            for (const tWord of targetWords) {
-                                if (!tWord) continue;
-                                if (tWord.includes(qWord) || qWord.includes(tWord)) { minWordDist = -10; break; }
-                                const dist = getSimilarityScore(qWord, tWord);
-                                if (dist < minWordDist) minWordDist = dist;
-                            }
-                            const maxAllowedTypos = Math.max(1, Math.floor(qWord.length / 2) + 1);
-                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) matchedWords++;
-                            score += minWordDist;
-                        }
-                        if (matchedWords < queryWords.length) score += 1000;
-                        return { ...item, score };
-                    });
-
-                    const results = scoredItems.filter(item => item.score < 1000).sort((a, b) => a.score - b.score).slice(0, 8);
-
-                    if (results.length === 0) { 
-                        resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p>`; 
-                        return; 
-                    }
-
-                    resultsContainer.innerHTML = results.map(item => {
-                        const itemName = currentLang === 'en' ? (item.product_name_en || item.product_name_mm || 'Unnamed Product') : (item.product_name_mm || item.product_name_en || 'အမည်မရှိ');
-                        const itemDesc = currentLang === 'en' ? (item.product_description_en || '') : (item.product_description_mm || item.product_description_en || '');
+                    html += items.map(item => {
+                        const title = currentLang === 'en' ? item.name : item.mm;
+                        const desc = currentLang === 'en' ? (item.desc_en || '') : (item.desc_mm || item.desc_en || '');
                         const fallbackImg = 'https://placehold.co/150x150/ffffff/6e6e73?text=Image';
-                        const itemType = item.category_id || 'Product';
-                        const productSlug = item.product_slug || item.slug || item.product_id;
-                        const itemUrl = `../template-detail/index.html?product=${productSlug}`;
+                        
+                        let finalImgUrl = item.image || fallbackImg;
+                        if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', '../');
 
-                        let finalImgUrl = item.product_image || fallbackImg;
-                        if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', './');
+                        const imgBlock = item.image 
+                            ? `<div class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg mr-4 overflow-hidden shadow-sm flex-shrink-0 group-hover:shadow-md transition-all group-hover:scale-105 z-10 border border-gray-100"><img src="${finalImgUrl}" class="w-full h-full object-cover" onerror="this.src='${fallbackImg}'"></div>`
+                            : `<div class="p-3 bg-white rounded-xl shadow-sm mr-4 group-hover:bg-myancode-black group-hover:text-white transition-colors duration-300 transform group-hover:scale-105 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-4 w-4 sm:h-5 sm:w-5"></i></div>`;
 
                         return `
-                        <a href="${itemUrl}" onclick="toggleSearchOverlay()" class="mega-nav-link flex items-start p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors group mb-3 border border-transparent hover:border-gray-200">
-                            <div class="flex-shrink-0 mr-4 mt-0.5 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
-                                <img src="${finalImgUrl}" alt="${itemName}" class="h-12 w-12 sm:h-14 sm:w-14 object-contain mix-blend-multiply group-hover:scale-105 transition-transform" onerror="this.src='${fallbackImg}'">
+                        <a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 sm:p-4 bg-gray-50 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                            ${imgBlock}
+                            <div class="flex-1 min-w-0 z-10">
+                                <h5 class="text-sm font-bold text-myancode-black group-hover:text-myancode-blue transition-colors truncate">${title}</h5>
+                                ${desc ? `<p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${desc}</p>` : ''}
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <h5 class="text-sm font-semibold tracking-wide text-black truncate pr-2 group-hover:text-myancode-blue transition-colors">${itemName}</h5>
-                                    <span class="text-[9px] font-bold tracking-widest uppercase text-gray-500 bg-gray-200/80 px-2 py-0.5 rounded-full whitespace-nowrap">${itemType}</span>
-                                </div>
-                                <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${itemDesc}</p>
+                            <div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-myancode-blue transition-colors z-10 opacity-0 sm:opacity-100">
+                                <i data-lucide="chevron-right" class="h-4 w-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0"></i>
                             </div>
                         </a>`;
                     }).join('');
                     
-                    lucide.createIcons();
-                } catch (err) {
-                    console.error("Supabase Search Error:", err);
-                    resultsContainer.innerHTML = `<p class="text-red-500 text-sm font-medium tracking-wide">Failed to fetch data from the database.</p>`;
+                    html += `</div></div>`;
                 }
+
+                resultsContainer.innerHTML = html;
+                lucide.createIcons();
+
             }, 300); 
         }
 
