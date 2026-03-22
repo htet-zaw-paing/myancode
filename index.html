@@ -82,7 +82,7 @@
         }
         
         #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; }
-        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
+        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.06) !important; }
         .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
 
         .reveal { opacity: 0; transform: translateY(50px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -92,13 +92,17 @@
             0% { opacity: 0; transform: translateY(30px); }
             100% { opacity: 1; transform: translateY(0); }
         }
+        
+        .hero-wrapper-enter {
+            animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
 
         .hover-underline { position: relative; }
         .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
 
         .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-hover-effect:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2); }
+        .btn-hover-effect:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); }
 
         .card-hover { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .card-hover:hover { transform: translateY(-10px); box-shadow: 0 40px 80px -20px rgba(0,0,0,0.12); }
@@ -159,18 +163,6 @@
 
         .user-avatar-global { transition: all 0.3s ease; }
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
-
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-            display: inline-flex;
-            animation: marquee 35s linear infinite;
-        }
-        .animate-marquee:hover {
-            animation-play-state: paused;
-        }
         
         .solution-card {
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -190,9 +182,74 @@
         .reveal.active .img-mask-reveal {
             clip-path: inset(0 0 0 0);
         }
+
+        /* Ecosystem Scroll Container */
+        @media (min-width: 640px) {
+            .ecosystem-container {
+                padding-left: max(1.5rem, calc((100vw - 1200px) / 2 + 1.5rem));
+                padding-right: max(1.5rem, calc((100vw - 1200px) / 2 + 1.5rem));
+                scroll-padding-left: max(1.5rem, calc((100vw - 1200px) / 2 + 1.5rem));
+            }
+        }
+        @media (max-width: 639px) {
+            .ecosystem-container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+                scroll-padding-left: 1rem;
+            }
+        }
+
+        /* Essential Safari Hover Glitch Fix */
+        .safari-fix {
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+            -webkit-backface-visibility: hidden;
+            -moz-backface-visibility: hidden;
+        }
+
+        /* Custom Ecosystem Slider Cursor */
+        .custom-cursor-area {
+            cursor: none !important;
+        }
+        .custom-cursor-area * {
+            cursor: none !important;
+        }
+        .custom-cursor-btn, .custom-cursor-btn * {
+            cursor: pointer !important;
+        }
+        #dragCursor {
+            position: fixed;
+            width: 72px;
+            height: 72px;
+            background-color: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        #dragCursor.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        #dragCursor.hidden-cursor {
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-blue selection:text-white no-scroll">
+
+    <!-- CUSTOM DRAG CURSOR -->
+    <div id="dragCursor">
+        <i data-lucide="chevron-right" class="w-7 h-7 ml-1"></i>
+    </div>
 
     <!-- GLOBAL ENTERPRISE LOADER -->
     <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
@@ -306,9 +363,9 @@
                 <div class="w-full md:w-1/3">
                     <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Links</h4>
                     <ul class="space-y-4">
-                        <li><a href="./services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navServices">Web Development</span></a></li>
-                        <li><a href="./templates/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navWebsites">Featured Templates</span></a></li>
-                        <li><a href="./services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navStudio">SEO Optimization</span></a></li>
+                        <li><a href="./services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="tradeInTitle">Web Development</span></a></li>
+                        <li><a href="./templates/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="newArrivals">Featured Templates</span></a></li>
+                        <li><a href="./services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="bulkTitle">SEO Optimization</span></a></li>
                     </ul>
                 </div>
                 <div class="w-full md:w-2/3">
@@ -455,61 +512,14 @@
         </div>
     </section>
 
-    <!-- NEW MODERN SHOWCASE SECTION (Xtrasure style large visual) -->
-    <section class="relative py-32 sm:py-40 bg-[#050505] text-white overflow-hidden">
-        <!-- Abstract glowing background -->
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-            <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/20 blur-[120px] rounded-full mix-blend-screen"></div>
-            <div class="absolute top-[40%] -right-[10%] w-[40%] h-[60%] bg-purple-600/20 blur-[120px] rounded-full mix-blend-screen"></div>
-        </div>
-
-        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-                <div class="reveal order-2 lg:order-1">
-                    <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter mb-6 leading-tight" data-i18n="heroTitle2">Architecting<br>the Future.</h2>
-                    <p class="text-gray-400 text-lg sm:text-xl font-medium leading-relaxed mb-10 max-w-lg" data-i18n="heroDesc2">Crafting pixel-perfect aesthetics that resonate with your target audience on a global scale, blending high performance with breathtaking design.</p>
-                    
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="./templates/index.html" class="inline-flex items-center justify-center gap-2 bg-white text-black px-8 py-4 rounded-full font-bold text-sm tracking-wide hover:bg-gray-200 transition-colors btn-hover-effect">
-                            <span data-i18n="btnViewAllWeb">View All</span>
-                        </a>
-                        <a href="./services/index.html" class="inline-flex items-center justify-center gap-2 glass-card-dark text-white px-8 py-4 rounded-full font-bold text-sm tracking-wide hover:bg-white/10 transition-colors btn-hover-effect">
-                            <span data-i18n="tradeInLink">Start a Project</span> <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="reveal order-1 lg:order-2 relative">
-                    <div class="relative w-full aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] overflow-hidden img-mask-reveal shadow-[0_0_60px_rgba(41,151,255,0.2)]">
-                        <img src="./imgs/web-banners/banner1.svg" class="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000" alt="Showcase" onerror="this.src='https://placehold.co/800x1000/111/333?text=Vision'">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                        
-                        <!-- Floating Glass Element -->
-                        <div class="absolute bottom-8 left-8 right-8 glass-card-dark rounded-3xl p-6 backdrop-blur-md">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1" data-i18n="exp4Title">Data Security</p>
-                                    <h4 class="text-white font-semibold text-lg" data-i18n="heroTitle3">Zero Vulnerabilities.</h4>
-                                </div>
-                                <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
-                                    <i data-lucide="shield-check" class="text-white w-5 h-5"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Modernized Marquee Section -->
-    <section class="pt-24 pb-20 bg-[#f5f5f7] relative z-10 overflow-hidden">
+    <!-- Modernized Horizontal Interactive Scroll Section -->
+    <section class="pt-24 pb-20 bg-[#f5f5f7] relative z-10 overflow-hidden border-b border-gray-100">
         <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-16 text-center reveal">
             <h2 class="text-3xl sm:text-5xl font-bold tracking-tighter text-myancode-black gradient-text" data-i18n="catTitle">Explore Solutions.</h2>
         </div>
         
-        <div class="relative w-full flex overflow-hidden group py-4">
-            <div class="animate-marquee flex gap-6 px-4">
+        <div class="relative w-full overflow-x-auto no-scrollbar py-4 cursor-grab active:cursor-grabbing" id="solutionCarouselWrapper" style="-webkit-overflow-scrolling: touch;">
+            <div class="flex gap-6 px-4 w-max" id="solutionCarousel">
                 <!-- Group 1 -->
                 <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="layout-template" class="w-5 h-5 text-white"></i></div>
@@ -565,6 +575,9 @@
         </div>
     </section>
 
+
+    
+
     <!-- Modern Asymmetrical Bento Grid -->
     <section id="services" class="py-24 bg-white">
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
@@ -576,46 +589,51 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 auto-rows-[minmax(240px,auto)]">
                 
                 <!-- Large Featured Card (Spans 2 columns on lg) -->
-                <div class="lg:col-span-2 lg:row-span-2 bg-[#f5f5f7] rounded-[2.5rem] p-8 sm:p-14 flex flex-col justify-between relative overflow-hidden group cursor-pointer reveal shadow-[inset_0_0_0_1px_rgba(0,0,0,0.03)] hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-transparent hover:border-gray-200">
-                    <div class="absolute top-0 right-0 w-[80%] h-[80%] bg-gradient-to-bl from-blue-200/40 to-transparent rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                <div class="lg:col-span-2 lg:row-span-2 rounded-[2.5rem] p-8 sm:p-14 flex flex-col justify-between relative overflow-hidden group cursor-pointer reveal hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-transparent safari-fix" onclick="window.location.href='./services/index.html'">
+                    <img src="./imgs/web-banners/banner11.svg" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Next-Gen Apps">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 group-hover:bg-black/40 transition-colors duration-500"></div>
                     
                     <div class="relative z-10 max-w-md">
-                        <div class="inline-flex items-center justify-center w-14 h-14 bg-white rounded-2xl shadow-sm mb-8 group-hover:scale-110 transition-transform duration-500">
-                            <i data-lucide="layout-template" class="w-6 h-6 text-blue-500"></i>
+                        <div class="inline-flex items-center justify-center w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl shadow-sm mb-8 group-hover:scale-110 transition-transform duration-500 border border-white/20">
+                            <i data-lucide="layout-template" class="w-6 h-6 text-white"></i>
                         </div>
-                        <h3 class="text-4xl sm:text-5xl font-bold tracking-tighter text-myancode-black mb-4 leading-tight" data-i18n="promoA_Title">Next-Gen Web Apps</h3>
-                        <p class="text-gray-500 font-medium mb-10 text-base sm:text-lg leading-relaxed" data-i18n="tradeInDesc">Tailored web applications built from scratch to scale globally.</p>
+                        <h3 class="text-4xl sm:text-5xl font-bold tracking-tighter text-white mb-4 leading-tight" data-i18n="promoA_Title">Next-Gen Web Apps</h3>
+                        <p class="text-gray-300 font-medium mb-10 text-base sm:text-lg leading-relaxed" data-i18n="tradeInDesc">Tailored web applications built from scratch to scale globally.</p>
                         
-                        <a href="./services/index.html" class="inline-flex items-center gap-3 text-sm font-bold bg-myancode-black text-white px-8 py-4 rounded-full group-hover:bg-blue-600 transition-colors shadow-lg">
+                        <span class="inline-flex items-center gap-3 text-sm font-bold bg-white text-black px-8 py-4 rounded-full group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-lg">
                             <span data-i18n="btnExplore">Shop Now</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
+                        </span>
                     </div>
                 </div>
                 
                 <!-- Top Right Card -->
-                <div class="bg-myancode-black rounded-[2.5rem] p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden group cursor-pointer reveal shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2" style="transition-delay: 100ms;">
-                    <div class="absolute -right-10 -bottom-10 opacity-10 group-hover:opacity-20 group-hover:scale-125 transition-all duration-700 pointer-events-none">
+                <div class="rounded-[2.5rem] p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden group cursor-pointer reveal shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 safari-fix" style="transition-delay: 100ms;" onclick="window.location.href='./services/index.html'">
+                    <img src="./imgs/web-banners/banner3.svg" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Enterprise SEO">
+                    <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80 group-hover:bg-black/50 transition-colors duration-500"></div>
+                    <div class="absolute -right-10 -bottom-10 opacity-10 group-hover:opacity-20 group-hover:scale-125 transition-all duration-700 pointer-events-none z-10">
                         <i data-lucide="search-check" class="w-64 h-64 text-white"></i>
                     </div>
-                    <div class="relative z-10 h-full flex flex-col">
+                    <div class="relative z-20 h-full flex flex-col">
                         <div class="mt-auto">
                             <h3 class="text-3xl font-bold tracking-tighter text-white mb-3" data-i18n="promoB_Title">Enterprise SEO</h3>
-                            <p class="text-gray-400 font-medium mb-6 text-sm leading-relaxed" data-i18n="bulkDesc">Data-driven strategies to dominate search rankings.</p>
+                            <p class="text-gray-300 font-medium mb-6 text-sm leading-relaxed" data-i18n="bulkDesc">Data-driven strategies to dominate search rankings.</p>
                             <span class="inline-flex items-center text-sm font-bold text-white hover-underline"><span data-i18n="btnDetails">Learn More</span> <i data-lucide="chevron-right" class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform"></i></span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Bottom Right Card -->
-                <div class="bg-[#f0f5ff] rounded-[2.5rem] p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden group cursor-pointer reveal shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-transparent hover:border-blue-100" style="transition-delay: 200ms;">
-                    <div class="absolute top-8 right-8 bg-white p-3 rounded-2xl shadow-sm group-hover:scale-110 transition-transform duration-500">
-                        <i data-lucide="shield-check" class="w-6 h-6 text-blue-600"></i>
+                <div class="rounded-[2.5rem] p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden group cursor-pointer reveal shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-transparent safari-fix" style="transition-delay: 200ms;" onclick="window.location.href='./maintenance/index.html'">
+                    <img src="./imgs/web-banners/banner5.svg" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Maintenance">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent group-hover:bg-black/60 transition-colors duration-500"></div>
+                    <div class="absolute top-8 right-8 bg-white/10 backdrop-blur-md p-3 rounded-2xl shadow-sm group-hover:scale-110 transition-transform duration-500 border border-white/20 z-20">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
                     </div>
-                    <div class="relative z-10 h-full flex flex-col">
+                    <div class="relative z-20 h-full flex flex-col">
                         <div class="mt-auto">
-                            <h3 class="text-3xl font-bold tracking-tighter text-myancode-black mb-3" data-i18n="priceListTitle">Maintenance</h3>
-                            <p class="text-gray-600 font-medium mb-6 text-sm leading-relaxed" data-i18n="priceListDesc">24/7 security patching and proactive support.</p>
-                            <span class="inline-flex items-center text-sm font-bold text-blue-600 hover-underline"><span data-i18n="btnDetails">View all plans</span> <i data-lucide="chevron-right" class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform"></i></span>
+                            <h3 class="text-3xl font-bold tracking-tighter text-white mb-3" data-i18n="priceListTitle">Maintenance</h3>
+                            <p class="text-gray-300 font-medium mb-6 text-sm leading-relaxed" data-i18n="priceListDesc">24/7 security patching and proactive support.</p>
+                            <span class="inline-flex items-center text-sm font-bold text-blue-400 hover-underline"><span data-i18n="btnDetails">View all plans</span> <i data-lucide="chevron-right" class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform"></i></span>
                         </div>
                     </div>
                 </div>
@@ -652,59 +670,151 @@
         </div>
     </section>
 
-    <!-- Ultra Modern Enterprise Capabilities (Visual Grid) -->
-    <section class="py-24 sm:py-32 bg-myancode-black relative overflow-hidden">
-        <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0iI2ZmZmZmZiIvPjwvc3ZnPg==')]"></div>
+    <!-- New Dedicated Ecosystem Navigation Section -->
+    <section id="ecosystemSection" class="py-24 bg-white text-myancode-black relative overflow-hidden border-t border-gray-100 custom-cursor-area">
+        <div class="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iIzAwMDAwMCIvPjwvc3ZnPg==')] pointer-events-none"></div>
         
-        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
-            <div class="text-center mb-20 reveal">
-                <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-white mb-6" data-i18n="expertiseTitle">Enterprise Capabilities.</h2>
-                <p class="text-lg text-gray-400 max-w-2xl mx-auto font-medium" data-i18n="expertiseSub">Comprehensive digital solutions engineered for scale, security, and absolute performance.</p>
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 mb-12 reveal relative z-10">
+            <h2 class="text-4xl sm:text-5xl font-bold tracking-tighter mb-4 text-myancode-black">Explore Our Ecosystem.</h2>
+            <p class="text-lg text-gray-500 font-medium">Navigate through our dedicated portals and premium services.</p>
+        </div>
+        
+        <div class="flex overflow-x-auto gap-6 pb-12 no-scrollbar snap-x snap-mandatory relative z-10 w-full ecosystem-container" id="ecosystemContainer">
+            
+            <!-- Studio -->
+            <div class="snap-center shrink-0 w-[85vw] sm:w-[420px] h-[480px] relative rounded-[2.5rem] overflow-hidden group shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border border-gray-200 safari-fix cursor-none">
+                <img src="./imgs/web-banners/web-studio.jpeg" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Web Studio">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-colors duration-500"></div>
+                <div class="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start z-20">
+                    <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20 group-hover:bg-blue-500 transition-colors">
+                        <i data-lucide="code-2" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-white mb-2">Web Studio</h3>
+                    <p class="text-gray-300 font-medium mb-8 line-clamp-2 text-sm leading-relaxed">Custom enterprise solutions and tailored web development designed to your exact specifications.</p>
+                    <span onclick="window.location.href='./studio/index.html'; event.stopPropagation();" class="custom-cursor-btn bg-white text-black px-6 py-3 rounded-full font-bold text-sm inline-flex items-center gap-2 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-md relative z-30">Enter Studio <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
+            </div>
+
+            <!-- Templates -->
+            <div class="snap-center shrink-0 w-[85vw] sm:w-[420px] h-[480px] relative rounded-[2.5rem] overflow-hidden group shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border border-gray-200 safari-fix cursor-none">
+                <img src="./imgs/web-banners/ui-ux.jpeg" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="UI Templates">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-colors duration-500"></div>
+                <div class="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start z-20">
+                    <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20 group-hover:bg-blue-500 transition-colors">
+                        <i data-lucide="layout-template" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-white mb-2">UI Templates</h3>
+                    <p class="text-gray-300 font-medium mb-8 line-clamp-2 text-sm leading-relaxed">Browse our collection of highly optimized, production-ready website architectures.</p>
+                    <span onclick="window.location.href='./templates/index.html'; event.stopPropagation();" class="custom-cursor-btn bg-white text-black px-6 py-3 rounded-full font-bold text-sm inline-flex items-center gap-2 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-md relative z-30">Browse Catalog <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Capability 1 -->
-                <div class="glass-card-dark rounded-[2rem] p-10 reveal hover:-translate-y-2 transition-transform duration-500 group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[40px] group-hover:bg-blue-500/20 transition-colors duration-500"></div>
-                    <div class="w-14 h-14 glass-card-light rounded-2xl flex items-center justify-center mb-8 border border-white/10">
-                        <i data-lucide="server" class="w-6 h-6 text-white"></i>
+            <!-- Delivered Projects -->
+            <div class="snap-center shrink-0 w-[85vw] sm:w-[420px] h-[480px] relative rounded-[2.5rem] overflow-hidden group shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border border-gray-200 safari-fix cursor-none">
+                <img src="./imgs/web-banners/make-magic-happen.jpeg" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Portfolio">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-colors duration-500"></div>
+                <div class="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start z-20">
+                    <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20 group-hover:bg-blue-500 transition-colors">
+                        <i data-lucide="award" class="w-5 h-5 text-white"></i>
                     </div>
-                    <h4 class="text-2xl font-bold text-white mb-4 tracking-tight" data-i18n="exp1Title">Cloud Infrastructure</h4>
-                    <p class="text-gray-400 leading-relaxed font-medium" data-i18n="exp1Desc">Robust deployment architectures utilizing AWS and global edge networks to ensure 99.99% uptime and low-latency access worldwide.</p>
+                    <h3 class="text-3xl font-bold text-white mb-2">Portfolio</h3>
+                    <p class="text-gray-300 font-medium mb-8 line-clamp-2 text-sm leading-relaxed">See real-world examples of our delivered projects, platforms, and enterprise applications.</p>
+                    <span onclick="window.location.href='./project-delivered/index.html'; event.stopPropagation();" class="custom-cursor-btn bg-white text-black px-6 py-3 rounded-full font-bold text-sm inline-flex items-center gap-2 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-md relative z-30">View Projects <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
+            </div>
+
+            <!-- Services -->
+            <div class="snap-center shrink-0 w-[85vw] sm:w-[420px] h-[480px] relative rounded-[2.5rem] overflow-hidden group shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border border-gray-200 safari-fix cursor-none">
+                <img src="./imgs/web-banners/services.jpeg" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Services">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-colors duration-500"></div>
+                <div class="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start z-20">
+                    <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20 group-hover:bg-blue-500 transition-colors">
+                        <i data-lucide="briefcase" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-white mb-2">Services</h3>
+                    <p class="text-gray-300 font-medium mb-8 line-clamp-2 text-sm leading-relaxed">Advanced SEO, digital marketing, and dedicated support systems for your infrastructure.</p>
+                    <span onclick="window.location.href='./services/index.html'; event.stopPropagation();" class="custom-cursor-btn bg-white text-black px-6 py-3 rounded-full font-bold text-sm inline-flex items-center gap-2 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-md relative z-30">Explore Services <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
+            </div>
+            
+            <!-- Maintenance -->
+            <div class="snap-center shrink-0 w-[85vw] sm:w-[420px] h-[480px] relative rounded-[2.5rem] overflow-hidden group shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border border-gray-200 safari-fix cursor-none">
+                <img src="./imgs/web-banners/begin.jpeg" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Maintenance">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-colors duration-500"></div>
+                <div class="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start z-20">
+                    <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20 group-hover:bg-blue-500 transition-colors">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-white mb-2">Maintenance</h3>
+                    <p class="text-gray-300 font-medium mb-8 line-clamp-2 text-sm leading-relaxed">24/7 security updates, server monitoring, and continuous performance optimization.</p>
+                    <span onclick="window.location.href='./maintenance/index.html'; event.stopPropagation();" class="custom-cursor-btn bg-white text-black px-6 py-3 rounded-full font-bold text-sm inline-flex items-center gap-2 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-md relative z-30">Protect Now <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="snap-center shrink-0 w-[85vw] sm:w-[420px] h-[480px] relative rounded-[2.5rem] overflow-hidden group shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border border-gray-200 safari-fix cursor-none">
+                <img src="./imgs/web-banners/contact-us.jpeg" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Contact Us">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-colors duration-500"></div>
+                <div class="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start z-20">
+                    <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-6 border border-white/20 group-hover:bg-blue-500 transition-colors">
+                        <i data-lucide="phone" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-white mb-2">Contact Us</h3>
+                    <p class="text-gray-300 font-medium mb-8 line-clamp-2 text-sm leading-relaxed">Reach out to our experts for a tailored consultation on your next big idea.</p>
+                    <span onclick="window.location.href='./contact-us/index.html'; event.stopPropagation();" class="custom-cursor-btn bg-white text-black px-6 py-3 rounded-full font-bold text-sm inline-flex items-center gap-2 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-md relative z-30">Get in Touch <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+     <!-- NEW REAL WORLD USAGE SHOWCASE SECTION -->
+     <section class="relative py-32 sm:py-40 bg-[#050505] text-white overflow-hidden">
+        <!-- Abstract glowing background -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/20 blur-[120px] rounded-full mix-blend-screen"></div>
+            <div class="absolute top-[40%] -right-[10%] w-[40%] h-[60%] bg-purple-600/20 blur-[120px] rounded-full mix-blend-screen"></div>
+        </div>
+
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                <div class="reveal order-2 lg:order-1">
+                    <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter mb-6 leading-tight" data-i18n="rwTitle">Real-World Impact.<br>Proven Solutions.</h2>
+                    <p class="text-gray-400 text-lg sm:text-xl font-medium leading-relaxed mb-10 max-w-lg" data-i18n="rwDesc">We engineer digital utilities that solve actual business problems. From complex e-commerce platforms to streamlined corporate portals, explore the tangible results we have successfully delivered to our partners.</p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="./project-delivered/index.html" class="inline-flex items-center justify-center gap-2 bg-white text-black px-8 py-4 rounded-full font-bold text-sm tracking-wide hover:bg-gray-200 transition-colors btn-hover-effect">
+                            <span data-i18n="btnViewProjects">View Delivered Projects</span>
+                        </a>
+                        <a href="./services/index.html" class="inline-flex items-center justify-center gap-2 glass-card-dark text-white px-8 py-4 rounded-full font-bold text-sm tracking-wide hover:bg-white/10 transition-colors btn-hover-effect">
+                            <span data-i18n="navServices">Services</span> <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
                 </div>
                 
-                <!-- Capability 2 -->
-                <div class="glass-card-dark rounded-[2rem] p-10 reveal hover:-translate-y-2 transition-transform duration-500 group relative overflow-hidden" style="transition-delay: 100ms;">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-[40px] group-hover:bg-purple-500/20 transition-colors duration-500"></div>
-                    <div class="w-14 h-14 glass-card-light rounded-2xl flex items-center justify-center mb-8 border border-white/10">
-                        <i data-lucide="database" class="w-6 h-6 text-white"></i>
+                <div class="reveal order-1 lg:order-2 relative">
+                    <div class="relative w-full aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] overflow-hidden img-mask-reveal shadow-[0_0_60px_rgba(41,151,255,0.2)]">
+                        <img src="./imgs/web-banners/satisfied.jpeg" class="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-1000" alt="Showcase" onerror="this.src='https://placehold.co/800x1000/111/333?text=Vision'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                        
+                        <!-- Floating Glass Element -->
+                        <div class="absolute bottom-8 left-8 right-8 glass-card-dark rounded-3xl p-6 backdrop-blur-md">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-1" data-i18n="rwFloatTitle">Project Portfolio</p>
+                                    <h4 class="text-white font-semibold text-lg" data-i18n="rwFloatDesc">100% Delivered Success.</h4>
+                                </div>
+                                <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                                    <i data-lucide="award" class="text-white w-5 h-5"></i>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h4 class="text-2xl font-bold text-white mb-4 tracking-tight" data-i18n="exp2Title">Headless Architecture</h4>
-                    <p class="text-gray-400 leading-relaxed font-medium" data-i18n="exp2Desc">Decoupled front-end interfaces and back-end logic, providing omni-channel content delivery and superior security protocols.</p>
-                </div>
-                
-                <!-- Capability 3 -->
-                <div class="glass-card-dark rounded-[2rem] p-10 reveal hover:-translate-y-2 transition-transform duration-500 group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-[40px] group-hover:bg-emerald-500/20 transition-colors duration-500"></div>
-                    <div class="w-14 h-14 glass-card-light rounded-2xl flex items-center justify-center mb-8 border border-white/10">
-                        <i data-lucide="code" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <h4 class="text-2xl font-bold text-white mb-4 tracking-tight" data-i18n="exp3Title">Custom Integrations</h4>
-                    <p class="text-gray-400 leading-relaxed font-medium" data-i18n="exp3Desc">Seamless connectivity with third-party APIs, ERP systems, and payment gateways tailored to your organizational workflow.</p>
-                </div>
-                
-                <!-- Capability 4 -->
-                <div class="glass-card-dark rounded-[2rem] p-10 reveal hover:-translate-y-2 transition-transform duration-500 group relative overflow-hidden" style="transition-delay: 100ms;">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-[40px] group-hover:bg-orange-500/20 transition-colors duration-500"></div>
-                    <div class="w-14 h-14 glass-card-light rounded-2xl flex items-center justify-center mb-8 border border-white/10">
-                        <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <h4 class="text-2xl font-bold text-white mb-4 tracking-tight" data-i18n="exp4Title">Data Security</h4>
-                    <p class="text-gray-400 leading-relaxed font-medium" data-i18n="exp4Desc">Enterprise-grade encryption, routine vulnerability assessments, and compliance-driven development to protect critical assets.</p>
                 </div>
             </div>
         </div>
     </section>
+
 
     <!-- Sleek Enterprise Stats Strip -->
     <section id="enterpriseStats" class="py-16 bg-[#f5f5f7] border-y border-gray-200 relative">
@@ -716,17 +826,17 @@
                 </div>
                 
                 <div class="flex flex-wrap justify-center lg:justify-end gap-10 sm:gap-20">
-                    <div class="text-center group">
+                    <div class="text-center group cursor-pointer hover:-translate-y-2 transition-transform duration-300" onclick="handleUsersClick()">
                         <h4 class="text-5xl sm:text-6xl font-black text-myancode-black tracking-tighter mb-2 group-hover:text-blue-600 transition-colors" id="statUsersCount" data-target="0">0</h4>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest" data-i18n="statUsers">Registered Users</p>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-myancode-blue transition-colors" data-i18n="statUsers">Registered Users</p>
                     </div>
-                    <div class="text-center group">
+                    <div class="text-center group cursor-pointer hover:-translate-y-2 transition-transform duration-300" onclick="window.location.href='./templates/index.html'">
                         <h4 class="text-5xl sm:text-6xl font-black text-myancode-black tracking-tighter mb-2 group-hover:text-blue-600 transition-colors" id="statTemplatesCount" data-target="0">0</h4>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest" data-i18n="statTemplates">UI Templates</p>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-myancode-blue transition-colors" data-i18n="statTemplates">UI Templates</p>
                     </div>
-                    <div class="text-center group">
-                        <h4 class="text-5xl sm:text-6xl font-black text-myancode-black tracking-tighter mb-2 group-hover:text-blue-600 transition-colors" id="statProjectsCount" data-target="0">N/A</h4>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest" data-i18n="statProjects">Projects Delivered</p>
+                    <div class="text-center group cursor-pointer hover:-translate-y-2 transition-transform duration-300" onclick="window.location.href='./project-delivered/index.html'">
+                        <h4 class="text-5xl sm:text-6xl font-black text-myancode-black tracking-tighter mb-2 group-hover:text-blue-600 transition-colors" id="statProjectsCount" data-target="0">0</h4>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-myancode-blue transition-colors" data-i18n="statProjects">Projects Delivered</p>
                     </div>
                 </div>
             </div>
@@ -828,7 +938,12 @@
     </div>
 
     <script>
-        lucide.createIcons();
+        function initIcons() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        initIcons();
 
         let currentSlide = 0;
         let isFirstLoad = true;
@@ -852,6 +967,12 @@
                 heroTitle4: "Lightning Fast.<br>Global Edge Delivery.", heroDesc4: "Sub-second load times across the planet, elevating your SEO and maximizing user retention.",
                 heroTitle5: "Future-Ready.<br>Built to Scale.", heroDesc5: "Enterprise-grade web infrastructure designed to grow with your business.",
                 btnExplore: "Shop Now", btnServices: "Learn More",
+                
+                rwTitle: "Real-World Impact.<br>Proven Solutions.",
+                rwDesc: "We engineer digital utilities that solve actual business problems. From complex e-commerce platforms to streamlined corporate portals, explore the tangible results we have successfully delivered to our partners.",
+                btnViewProjects: "View Delivered Projects",
+                rwFloatTitle: "Project Portfolio",
+                rwFloatDesc: "100% Delivered Success.",
                 
                 catTitle: "Explore Solutions.",
                 cat1: "Landing Page", cat2: "Personal Portfolio", cat3: "Information Website", cat4: "Blog Website", cat5: "Documentation", cat6: "Showcase Website", cat7: "Event Website", cat8: "Custom Website",
@@ -908,6 +1029,12 @@
                 heroTitle5: "အနာဂတ်အတွက် အသင့်။<br>တိုးတက်မှုအတွက် တည်ဆောက်ထားသည်။", heroDesc5: "သင့်လုပ်ငန်းနဲ့အတူ တိုးတက်နိုင်အောင် ဒီဇိုင်းလုပ်ထားသော enterprise-grade web infrastructure.",
                 btnExplore: "ဝယ်ယူရန်", btnServices: "လေ့လာရန်",
                 
+                rwTitle: "လက်တွေ့ကျသော ရလဒ်များ။<br>ခိုင်မာသော ဖြေရှင်းချက်များ။",
+                rwDesc: "ကျွန်ုပ်တို့သည် လုပ်ငန်းလိုအပ်ချက်များနှင့် ကိုက်ညီသော ဒစ်ဂျစ်တယ်စနစ်များကို တည်ဆောက်ပေးပါသည်။ E-commerce မှစ၍ လုပ်ငန်းသုံး ပေါ်တယ်များအထိ အောင်မြင်စွာ အပ်နှံခဲ့သော ပရောဂျက်များကို လေ့လာကြည့်ပါ။",
+                btnViewProjects: "အပ်နှံပြီးသော ပရောဂျက်များ",
+                rwFloatTitle: "မှတ်တမ်းကောင်းများ",
+                rwFloatDesc: "၁၀၀% ဖောက်သည်ကျေနပ်မှု။",
+
                 catTitle: "ဝန်ဆောင်မှုများ လေ့လာရန်။",
                 cat1: "Landing Page", cat2: "Personal Portfolio", cat3: "Information Website", cat4: "Blog Website", cat5: "Documentation", cat6: "Showcase Website", cat7: "Event Website", cat8: "Custom Website",
                 promoA_Title: "ခေတ်မီ Web Apps များ", promoA_Sub: "မြန်ဆန်မှုနှင့် တိုးချဲ့နိုင်မှုအတွက် တည်ဆောက်ထားသည်။",
@@ -968,10 +1095,20 @@
         }
 
         function hideLoader() {
-            globalLoader.classList.remove('opacity-100', 'visibility-visible');
-            globalLoader.classList.add('opacity-0', 'pointer-events-none');
+            const loader = document.getElementById('globalLoader');
+            if (!loader) return;
+            loader.classList.remove('opacity-100', 'visibility-visible');
+            loader.classList.add('opacity-0', 'pointer-events-none');
             document.body.classList.remove('no-scroll');
-            setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600);
+            
+            // Trigger entrance animations exactly as loader hides
+            setTimeout(() => {
+                const heroWrapper = document.getElementById('heroTextWrapper');
+                if (heroWrapper) heroWrapper.classList.add('hero-wrapper-enter');
+                reveal();
+            }, 100);
+
+            setTimeout(() => loader.classList.add('visibility-hidden'), 600);
         }
 
         /* --- REAL SUPABASE AUTHENTICATION --- */
@@ -1098,8 +1235,22 @@
             setActiveNavLinks();
         }
 
+        /* --- Active Nav Links Tracker --- */
+        function setActiveNavLinks() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link[data-nav-path]').forEach(link => {
+                const path = link.getAttribute('data-nav-path');
+                if (path !== '/' && currentPath.includes(path)) {
+                    link.classList.add('text-myancode-blue', 'font-bold', 'active-nav-item');
+                    link.classList.remove('hover:text-myancode-blue', 'text-white/80', 'text-white/90', 'text-myancode-black/80', 'text-myancode-black');
+                }
+            });
+        }
+
+        /* --- Wishlist System --- */
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
+            if (!countSpan) return;
             if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } 
             else { countSpan.classList.add('opacity-0'); }
         }
@@ -1348,7 +1499,11 @@
                 }
             }
         }
-        window.addEventListener("scroll", reveal); reveal();
+        window.addEventListener("scroll", reveal);
+
+        function handleUsersClick() {
+            showToast(currentLang === 'en' ? "🔒 User data is strictly protected for privacy." : "🔒 အသုံးပြုသူ အချက်အလက်များကို လုံခြုံရေးအရ ကာကွယ်ထားပါသည်။");
+        }
 
         /* --- DYNAMIC DATABASE INTEGRATION (WEBSITES & STATS) --- */
         async function fetchHomePageData() {
@@ -1389,15 +1544,22 @@
             document.getElementById('statTemplatesCount').setAttribute('data-target', templateCount);
             
             let userCount = 0; 
+            let projectsCount = 0;
+            
             try {
                 const { data, error } = await supabaseInstance.rpc('get_user_count'); 
                 if (data !== null && !error) userCount = data;
             } catch(e) { } 
             
+            try {
+                const { count, error } = await supabaseInstance.from('projects_delivered').select('*', { count: 'exact', head: true });
+                if (count !== null && !error) projectsCount = count;
+            } catch(e) { }
+            
             document.getElementById('statUsersCount').setAttribute('data-target', userCount);
             
-            document.getElementById('statProjectsCount').innerHTML = 'N/A';
-            document.getElementById('statProjectsCount').setAttribute('data-target', '0');
+            document.getElementById('statProjectsCount').innerHTML = '0';
+            document.getElementById('statProjectsCount').setAttribute('data-target', projectsCount);
             
             statsDataReady = true;
             
@@ -1416,15 +1578,17 @@
             
             const userTarget = parseInt(document.getElementById('statUsersCount').getAttribute('data-target')) || 0;
             const templateTarget = parseInt(document.getElementById('statTemplatesCount').getAttribute('data-target')) || 0;
+            const projectsTarget = parseInt(document.getElementById('statProjectsCount').getAttribute('data-target')) || 0;
             
             if (userTarget > 0) animateValue('statUsersCount', 0, userTarget, 2000);
             if (templateTarget > 0) animateValue('statTemplatesCount', 0, templateTarget, 1500);
+            if (projectsTarget > 0) animateValue('statProjectsCount', 0, projectsTarget, 1800);
         }
 
         function animateValue(id, start, end, duration) {
             if (start === end) {
                 let obj = document.getElementById(id);
-                if (obj && id !== 'statProjectsCount') obj.innerHTML = end;
+                if (obj) obj.innerHTML = end;
                 return;
             }
             let range = end - start;
@@ -1554,23 +1718,19 @@
 
         let searchDebounceTimer;
 
-        // Comprehensive Map of every page on the site (Corrected to root './' level links for Home Page)
+        // Comprehensive Map of every page on the site
         const SUPER_STATIC_PAGES = [
-            // Core Pages & Navigation
             { title_en: 'Studio', title_mm: 'စတူဒီယို', url: './studio/index.html', icon: 'code-2', type: 'Pages & Navigation', desc_en: 'Custom development & enterprise solutions', desc_mm: 'စိတ်ကြိုက်ရေးဆွဲခြင်း' },
             { title_en: 'Templates', title_mm: 'ဝက်ဘ်ဆိုက်များ', url: './templates/index.html', icon: 'layout-template', type: 'Pages & Navigation', desc_en: 'Pre-built high-quality website templates', desc_mm: 'အသင့်သုံး ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ' },
             { title_en: 'Services', title_mm: 'ဝန်ဆောင်မှုများ', url: './services/index.html', icon: 'briefcase', type: 'Pages & Navigation', desc_en: 'Explore all our digital services', desc_mm: 'ဒီဂျစ်တယ် ဝန်ဆောင်မှုများ' },
             { title_en: 'Maintenance', title_mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', url: './maintenance/index.html', icon: 'shield-check', type: 'Pages & Navigation', desc_en: 'Long-term maintenance plans', desc_mm: 'ပြုပြင်ထိန်းသိမ်းရေး အစီအစဉ်များ' },
-            // Support & Help
             { title_en: 'Help Center', title_mm: 'အကူအညီဌာန', url: './help/index.html', icon: 'help-circle', type: 'Support & Help', desc_en: 'Get help with our products', desc_mm: 'အကူအညီရယူရန်' },
             { title_en: 'FAQs', title_mm: 'အမေးများသောမေးခွန်းများ', url: './faq/index.html', icon: 'message-circle-question', type: 'Support & Help', desc_en: 'Frequently asked questions', desc_mm: 'အမေးများသော မေးခွန်းများ' },
             { title_en: 'Guides', title_mm: 'လမ်းညွှန်များ', url: './guides/index.html', icon: 'book-open', type: 'Support & Help', desc_en: 'Step-by-step documentation', desc_mm: 'အသုံးပြုနည်း လမ်းညွှန်များ' },
-            // Company
             { title_en: 'About Us', title_mm: 'ကျွန်ုပ်တို့အကြောင်း', url: './about-us/index.html', icon: 'info', type: 'Company', desc_en: 'Learn more about MyanCode', desc_mm: 'MyanCode အကြောင်း' },
             { title_en: 'Contact Us', title_mm: 'ဆက်သွယ်ရန်', url: './contact-us/index.html', icon: 'phone', type: 'Company', desc_en: 'Get in touch with our team', desc_mm: 'ဆက်သွယ်ရန်' },
             { title_en: 'Updates & News', title_mm: 'သတင်းနှင့် အသစ်များ', url: './updates-news/index.html', icon: 'newspaper', type: 'Company', desc_en: 'Latest announcements', desc_mm: 'နောက်ဆုံးရသတင်းများ' },
             { title_en: 'Careers', title_mm: 'အလုပ်အကိုင်များ', url: './careers/index.html', icon: 'users', type: 'Company', desc_en: 'Join the MyanCode team', desc_mm: 'အလုပ်အကိုင် အခွင့်အလမ်းများ' },
-            // Policies & Legal
             { title_en: 'Customer Policy', title_mm: 'ဖောက်သည် မူဝါဒ', url: './legal/index.html#client-policy', icon: 'shield', type: 'Policies & Legal', desc_en: 'Rules for our customers', desc_mm: 'ဖောက်သည်များအတွက် စည်းမျဉ်းများ' },
             { title_en: 'Privacy Policy', title_mm: 'ကိုယ်ရေးအချက်အလက် မူဝါဒ', url: './legal/index.html#privacy-policy', icon: 'lock', type: 'Policies & Legal', desc_en: 'How we protect your data', desc_mm: 'အချက်အလက် လုံခြုံရေး' },
             { title_en: 'Terms of Service', title_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ', url: './legal/index.html#terms-of-service', icon: 'file-text', type: 'Policies & Legal', desc_en: 'Usage terms and conditions', desc_mm: 'အသုံးပြုမှု စည်းမျဉ်းများ' },
@@ -1579,7 +1739,6 @@
             { title_en: 'Studio Policy', title_mm: 'စတူဒီယို မူဝါဒ', url: './legal/index.html#studio-policy', icon: 'briefcase', type: 'Policies & Legal', desc_en: 'Guidelines for studio services', desc_mm: 'စတူဒီယို စည်းမျဉ်းများ' },
             { title_en: 'Template Policy', title_mm: 'ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ', url: './legal/index.html#template-policy', icon: 'layout-template', type: 'Policies & Legal', desc_en: 'Rules for template usage', desc_mm: 'ပုံစံများအတွက် စည်းမျဉ်းများ' },
             { title_en: 'Service Policy', title_mm: 'ဝန်ဆောင်မှု မူဝါဒ', url: './legal/index.html#service-policy', icon: 'settings', type: 'Policies & Legal', desc_en: 'General service terms', desc_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ' },
-            // Dashboards
             { title_en: 'User Hub', title_mm: 'ဗဟိုဌာန', url: './hub/index.html', icon: 'layout-dashboard', type: 'User Dashboard', desc_en: 'Manage your projects and orders', desc_mm: 'ပရောဂျက်များ စီမံရန်' }
         ];
 
@@ -1814,6 +1973,108 @@
                 lucide.createIcons();
 
             }, 300); 
+        }
+
+        /* --- Explore Solutions Marquee JS Logic --- */
+        const solutionCarousel = document.getElementById('solutionCarousel');
+        const solutionWrapper = document.getElementById('solutionCarouselWrapper');
+        let solutionScrollInterval;
+        let solutionInteractionTimeout;
+
+        if (solutionCarousel && solutionWrapper) {
+            // Duplicate content for infinite scroll illusion
+            solutionCarousel.innerHTML += solutionCarousel.innerHTML;
+
+            function scrollMarquee() {
+                if (solutionWrapper.scrollLeft >= solutionCarousel.scrollWidth / 2) {
+                    solutionWrapper.scrollLeft = 0;
+                } else {
+                    solutionWrapper.scrollLeft += 1;
+                }
+            }
+
+            function playMarquee() {
+                clearInterval(solutionScrollInterval);
+                solutionScrollInterval = setInterval(scrollMarquee, 15);
+            }
+
+            function pauseMarquee() {
+                clearInterval(solutionScrollInterval);
+                clearTimeout(solutionInteractionTimeout);
+                solutionInteractionTimeout = setTimeout(playMarquee, 2000);
+            }
+
+            playMarquee();
+
+            // Pause on interaction
+            solutionWrapper.addEventListener('mousedown', pauseMarquee);
+            solutionWrapper.addEventListener('touchstart', pauseMarquee, {passive: true});
+            solutionWrapper.addEventListener('wheel', pauseMarquee, {passive: true});
+            solutionWrapper.addEventListener('scroll', pauseMarquee, {passive: true});
+            
+            // Basic drag to scroll
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            solutionWrapper.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - solutionWrapper.offsetLeft;
+                scrollLeft = solutionWrapper.scrollLeft;
+            });
+            solutionWrapper.addEventListener('mouseleave', () => { isDown = false; });
+            solutionWrapper.addEventListener('mouseup', () => { isDown = false; });
+            solutionWrapper.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - solutionWrapper.offsetLeft;
+                const walk = (x - startX) * 2;
+                solutionWrapper.scrollLeft = scrollLeft - walk;
+            });
+        }
+
+        /* --- Custom Cursor Drag Logic --- */
+        const ecoSection = document.getElementById('ecosystemSection');
+        const dragCursor = document.getElementById('dragCursor');
+        const ecoContainer = document.getElementById('ecosystemContainer');
+
+        if (ecoSection && dragCursor && ecoContainer) {
+            ecoSection.addEventListener('mousemove', (e) => {
+                dragCursor.style.left = e.clientX + 'px';
+                dragCursor.style.top = e.clientY + 'px';
+            });
+
+            ecoSection.addEventListener('mouseenter', () => {
+                dragCursor.classList.add('active');
+            });
+
+            ecoSection.addEventListener('mouseleave', () => {
+                dragCursor.classList.remove('active');
+                dragCursor.classList.remove('hidden-cursor');
+            });
+
+            // Hide cursor when hovering over buttons to allow natural pointer
+            const btns = ecoSection.querySelectorAll('.custom-cursor-btn');
+            btns.forEach(btn => {
+                btn.addEventListener('mouseenter', () => dragCursor.classList.add('hidden-cursor'));
+                btn.addEventListener('mouseleave', () => dragCursor.classList.remove('hidden-cursor'));
+            });
+
+            // Click to advance slider
+            ecoSection.addEventListener('click', (e) => {
+                if (!e.target.closest('.custom-cursor-btn')) {
+                    // Scroll by card width + gap approx
+                    ecoContainer.scrollBy({ left: 444, behavior: 'smooth' });
+                    
+                    // Click animation
+                    dragCursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+                    setTimeout(() => {
+                        if (dragCursor.classList.contains('active')) {
+                            dragCursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                        }
+                    }, 150);
+                }
+            });
         }
 
         /* --- NEWSLETTER SUBSCRIPTION LOGIC --- */

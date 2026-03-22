@@ -209,6 +209,12 @@
                 <button onclick="switchTab('overall')" id="tabBtnOverall" class="px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap">
                     <i data-lucide="layout-dashboard" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="tabOverall">Overview</span>
                 </button>
+                <button onclick="switchTab('services')" id="tabBtnServices" class="px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+                    <i data-lucide="briefcase" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="tabServices">Services</span>
+                </button>
+                <button onclick="switchTab('projects')" id="tabBtnProjects" class="px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+                    <i data-lucide="award" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="tabProjects">Projects</span>
+                </button>
                 <button onclick="switchTab('products')" id="tabBtnProducts" class="px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap">
                     <i data-lucide="package" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="tabProducts">Products</span>
                 </button>
@@ -303,6 +309,85 @@
                         <h4 class="text-xl xxs:text-2xl sm:text-3xl font-bold text-myancode-black tracking-tight mb-0.5 sm:mb-1" id="dashActiveProd">0</h4>
                         <p class="text-[10px] sm:text-sm font-medium text-gray-500 leading-snug" data-i18n="statActive">Active Templates deployed to production</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SERVICES SECTION ================= -->
+        <div id="servicesSection" class="hidden">
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-4 sm:mb-6 gap-3 sm:gap-6 card-enter px-1 sm:px-0" style="animation-delay: 100ms;">
+                <div class="mb-1 sm:mb-0">
+                    <h1 class="text-lg xxs:text-xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-0.5 sm:mb-1" data-i18n="dashTitleServices">Service Management</h1>
+                    <p class="text-[10px] sm:text-sm text-gray-500 font-medium leading-snug" data-i18n="dashSubServices">Manage your provided services, details, and availability.</p>
+                </div>
+                
+                <div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 sm:gap-3 w-full xl:w-auto">
+                    <div class="relative w-full xs:w-auto flex-1">
+                        <i data-lucide="search" class="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 h-3 w-3 sm:h-4 sm:w-4 text-gray-400"></i>
+                        <input type="text" id="searchServices" class="w-full pl-8 sm:pl-11 pr-3 sm:pr-4 py-2 sm:py-3 bg-gray-50 hover:bg-gray-100/50 border border-gray-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium text-myancode-black focus:bg-white focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all duration-200" placeholder="Search services..." data-i18n-placeholder="searchServ">
+                    </div>
+                    <button onclick="openServiceModal()" class="w-full xs:w-auto bg-myancode-black text-white px-4 py-2 xxs:px-5 xxs:py-2.5 sm:px-7 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 shadow-premium btn-hover-effect whitespace-nowrap">
+                        <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnAddService">Add Service</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
+                <div class="overflow-x-auto p-1 sm:p-2 no-scrollbar">
+                    <table class="w-full text-left whitespace-nowrap">
+                        <thead class="text-gray-500 font-bold tracking-widest uppercase text-[8px] xxs:text-[9px] sm:text-[10px] bg-gray-50/80 border-b border-gray-100">
+                            <tr>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 rounded-tl-xl sm:rounded-tl-2xl font-semibold">Image</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Service Name</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Price</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Status</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 text-right rounded-tr-xl sm:rounded-tr-2xl font-semibold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="servicesTableBody" class="text-gray-700 text-[10px] sm:text-sm">
+                            <tr><td colspan="5" class="px-4 py-8 sm:px-6 sm:py-12 text-center text-gray-400 italic font-medium">Loading database...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PROJECTS DELIVERED SECTION ================= -->
+        <div id="projectsSection" class="hidden">
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-4 sm:mb-6 gap-3 sm:gap-6 card-enter px-1 sm:px-0" style="animation-delay: 100ms;">
+                <div class="mb-1 sm:mb-0">
+                    <h1 class="text-lg xxs:text-xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-0.5 sm:mb-1" data-i18n="dashTitleProjects">Projects Delivered</h1>
+                    <p class="text-[10px] sm:text-sm text-gray-500 font-medium leading-snug" data-i18n="dashSubProjects">Record and showcase your successfully delivered projects.</p>
+                </div>
+                
+                <div class="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 sm:gap-3 w-full xl:w-auto">
+                    <div class="relative w-full xs:w-auto flex-1">
+                        <i data-lucide="search" class="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 h-3 w-3 sm:h-4 sm:w-4 text-gray-400"></i>
+                        <input type="text" id="searchProjects" class="w-full pl-8 sm:pl-11 pr-3 sm:pr-4 py-2 sm:py-3 bg-gray-50 hover:bg-gray-100/50 border border-gray-100 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium text-myancode-black focus:bg-white focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black shadow-sm transition-all duration-200" placeholder="Search projects..." data-i18n-placeholder="searchProj">
+                    </div>
+                    <button onclick="openProjectModal()" class="w-full xs:w-auto bg-myancode-black text-white px-4 py-2 xxs:px-5 xxs:py-2.5 sm:px-7 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 shadow-premium btn-hover-effect whitespace-nowrap">
+                        <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnAddProject">Add Project</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-premium overflow-hidden card-enter" style="animation-delay: 200ms;">
+                <div class="overflow-x-auto p-1 sm:p-2 no-scrollbar">
+                    <table class="w-full text-left whitespace-nowrap">
+                        <thead class="text-gray-500 font-bold tracking-widest uppercase text-[8px] xxs:text-[9px] sm:text-[10px] bg-gray-50/80 border-b border-gray-100">
+                            <tr>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 rounded-tl-xl sm:rounded-tl-2xl font-semibold">Image</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Project Name</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Project Type</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Duration (From)</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 font-semibold">Duration (To)</th>
+                                <th class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 text-right rounded-tr-xl sm:rounded-tr-2xl font-semibold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsTableBody" class="text-gray-700 text-[10px] sm:text-sm">
+                            <tr><td colspan="6" class="px-4 py-8 sm:px-6 sm:py-12 text-center text-gray-400 italic font-medium">Loading database...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -922,6 +1007,115 @@
         </div>
     </div>
 
+    
+    
+    <!-- SERVICE MODAL -->
+    <div id="serviceModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeServiceModal()"></div>
+        <div class="bg-[#fbfbfd] w-[98%] max-w-2xl rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl relative flex flex-col modal-content border border-gray-100 max-h-[90vh]">
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 rounded-t-[1.5rem] sm:rounded-t-[2rem]">
+                <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black" id="serviceModalTitle">Service Setup</h3>
+                <button onclick="closeServiceModal()" class="p-1.5 text-gray-400 hover:text-black bg-gray-50 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-4 sm:p-8 overflow-y-auto no-scrollbar">
+                <form id="serviceForm" class="space-y-4">
+                    <input type="hidden" id="sId">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Service Name *</label>
+                            <input type="text" id="sName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">URL Slug *</label>
+                            <input type="text" id="sSlug" required placeholder="e.g. advanced-web-seo" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Short Description</label>
+                            <input type="text" id="sShortDesc" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Detailed Description</label>
+                            <textarea id="sDetailDesc" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium"></textarea>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Image URL</label>
+                            <input type="text" id="sImage" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Price (MMK)</label>
+                            <input type="number" id="sPrice" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Status</label>
+                            <select id="sStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                                <option value="available">Available</option>
+                                <option value="unavailable">Unavailable</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-3 bg-white rounded-b-[1.5rem] sm:rounded-b-[2rem]">
+                <button type="button" onclick="closeServiceModal()" class="px-4 py-2 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
+                <button type="button" onclick="saveService()" class="px-6 py-2 rounded-full text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 transition-all btn-hover-effect">Save Service</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROJECT MODAL -->
+    <div id="projectModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeProjectModal()"></div>
+        <div class="bg-[#fbfbfd] w-[98%] max-w-2xl rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl relative flex flex-col modal-content border border-gray-100 max-h-[90vh]">
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 rounded-t-[1.5rem] sm:rounded-t-[2rem]">
+                <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black" id="projectModalTitle">Project Setup</h3>
+                <button onclick="closeProjectModal()" class="p-1.5 text-gray-400 hover:text-black bg-gray-50 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-4 sm:p-8 overflow-y-auto no-scrollbar">
+                <form id="projectForm" class="space-y-4">
+                    <input type="hidden" id="prId">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Project Name *</label>
+                            <input type="text" id="prName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">URL Slug *</label>
+                            <input type="text" id="prSlug" required placeholder="e.g. e-commerce-platform" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Proprietor</label>
+                            <input type="text" id="prProprietor" placeholder="e.g. U Ba, XYZ Co." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Image URL</label>
+                            <input type="text" id="prImage" placeholder="https://..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Project Type</label>
+                            <input type="text" id="prType" placeholder="e.g. E-commerce, Corporate Website" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Project Link (URL)</label>
+                            <input type="url" id="prLink" placeholder="https://..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Duration (From)</label>
+                            <input type="date" id="prDurationFrom" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Duration (To)</label>
+                            <input type="date" id="prDurationTo" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-3 bg-white rounded-b-[1.5rem] sm:rounded-b-[2rem]">
+                <button type="button" onclick="closeProjectModal()" class="px-4 py-2 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
+                <button type="button" onclick="saveProject()" class="px-6 py-2 rounded-full text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 transition-all btn-hover-effect">Save Project</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CUSTOM ACTION CONFIRMATION MODAL -->
     <div id="actionConfirmModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-2 sm:px-0">
         <div class="bg-white p-5 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 text-center relative overflow-hidden border border-gray-100" id="actionConfirmModalContent">
@@ -957,6 +1151,8 @@
         let allCategories = [];
         let allFeatures = [];
         let allPkgOrders = [];
+        let allServices = [];
+        let allProjects = [];
         let currentProductFilter = 'all';
         let currentUserFilter = 'all';
 
@@ -964,6 +1160,7 @@
             en: {
                 langSelect: "Language", hdrLogout: "Sign Out", loadingAuth: "Authenticating Identity...", loadingData: "Syncing Cloud Data...",
                 tabOverall: "Overview", tabProducts: "Products", tabUsers: "Users", tabNewsletter: "Newsletter", tabEstimator: "Package Orders", tabPackages: "Builder Setup",
+                tabServices: "Services", tabProjects: "Projects Delivered",
                 ovwTitle: "Dashboard Overview", ovwSub: "High-level metrics and system performance.",
                 sysHealth: "System Status: Online", sysHealthDesc: "All services, databases, and APIs are running smoothly.",
                 statSuperAdmins: "Super Admins", statAdmins: "Active Admins", statUsers: "Standard Users",
@@ -971,7 +1168,10 @@
                 dashTitle: "Product Management", dashSub: "Manage your templates, pricing, and inventory.",
                 dashTitlePackages: "Builder Setup", dashSubPackages: "Configure base architectures, features, and pricing logic.",
                 dashTitleEstimator: "Package Estimates & Orders", dashSubEstimator: "Manage requests submitted via the new Package Builder engine.",
-                btnAddProduct: "Add Template", adminBadge: "Admin Workspace", btnGoToSite: "View Site", btnRefresh: "Refresh",
+                dashTitleServices: "Service Management", dashSubServices: "Manage your provided services, details, and availability.",
+                dashTitleProjects: "Projects Delivered", dashSubProjects: "Record and showcase your successfully delivered projects.",
+                btnAddProduct: "Add Template", btnAddService: "Add Service", btnAddProject: "Add Project",
+                adminBadge: "Admin Workspace", btnGoToSite: "View Site", btnRefresh: "Refresh",
                 dashTitleUsers: "User Management", dashSubUsers: "Manage user accounts, roles, and access permissions.",
                 dashTitleNews: "Newsletter Campaigns", dashSubNews: "Broadcast HTML emails to your subscriber base.", btnComposeNews: "Compose Email",
                 thImage: "Product", thName: "Name & Slug", thPrice: "Pricing", thStatus: "Status", thActions: "Actions", thSku: "SKU & Category",
@@ -992,7 +1192,7 @@
                 lblEmail: "Email Address *", inviteHelpText: "Supabase will send an official email with a secure link allowing the user to set their own password and join your workspace.",
                 inviteSuccessTitle: "Invitation Sent", inviteSuccessDesc: "An official invitation link has been securely dispatched via Supabase. The user will be prompted to set their own password upon clicking the link.", inviteSentTo: "Sent To",
                 msgSaveSuccess: "Database entry saved successfully.", msgDeleteSuccess: "Entry securely deleted.", msgRoleUpdated: "Security role updated.", msgNewsSent: "Newsletter dispatched successfully to all subscribers!", msgSubDeleteSuccess: "Subscriber removed successfully.",
-                searchProd: "Search templates...", searchUsers: "Search by email...", searchOrders: "Search by Order ID or Name...",
+                searchProd: "Search templates...", searchUsers: "Search by email...", searchOrders: "Search by Order ID or Name...", searchServ: "Search services...", searchProj: "Search projects...",
                 msgPassReset: "Password reset to default successfully.",
                 lblProtected: "Protected", lblRestricted: "Restricted",
                 confirmDeleteTitle: "Delete Entry", confirmDeleteMsg: "Are you sure you want to permanently delete this from the database?",
@@ -1010,6 +1210,7 @@
             mm: {
                 langSelect: "ဘာသာစကား", hdrLogout: "အကောင့်ထွက်ရန်", loadingAuth: "အခွင့်အာဏာ စစ်ဆေးနေပါသည်...", loadingData: "ဒေတာရယူနေပါသည်...",
                 tabOverall: "အကျဉ်းချုပ်", tabProducts: "ကုန်ပစ္စည်းများ", tabUsers: "အသုံးပြုသူများ", tabNewsletter: "သတင်းလွှာ", tabEstimator: "ဝက်ဘ်ဆိုက် အော်ဒါများ", tabPackages: "Builder တည်ဆောက်မှု",
+                tabServices: "ဝန်ဆောင်မှုများ", tabProjects: "ပရောဂျက်များ",
                 ovwTitle: "အကျဉ်းချုပ် အချက်အလက်များ", ovwSub: "စနစ်ပိုင်းဆိုင်ရာ အချက်အလက်များနှင့် လုပ်ဆောင်မှုများ",
                 sysHealth: "စနစ် အခြေအနေ - ပုံမှန်", sysHealthDesc: "ဆာဗာနှင့် ဒေတာဘေ့စ် ချိတ်ဆက်မှုအားလုံး ပုံမှန်အလုပ်လုပ်နေပါသည်။",
                 statSuperAdmins: "အက်ဒမင်ချုပ်များ", statAdmins: "အက်ဒမင်များ", statUsers: "အသုံးပြုသူများ",
@@ -1017,7 +1218,10 @@
                 dashTitle: "ကုန်ပစ္စည်း စီမံခန့်ခွဲမှု", dashSub: "ဝက်ဘ်ဆိုက်များ၊ ဈေးနှုန်းနှင့် လက်ကျန်များကို စီမံပါ။",
                 dashTitlePackages: "Builder တည်ဆောက်မှု", dashSubPackages: "အခြေခံပုံစံများနှင့် လုပ်ဆောင်ချက်များအား စီမံပါ။",
                 dashTitleEstimator: "ဝက်ဘ်ဆိုက် အော်ဒါများ စီမံခန့်ခွဲမှု", dashSubEstimator: "Package Builder မှတဆင့် လက်ခံရရှိသော အော်ဒါများကို စီမံပါ။",
-                btnAddProduct: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", adminBadge: "စီမံခန့်ခွဲသူ ဧရိယာ", btnGoToSite: "ဝက်ဘ်ဆိုက်သို့", btnRefresh: "Refresh",
+                dashTitleServices: "ဝန်ဆောင်မှုများ စီမံခန့်ခွဲမှု", dashSubServices: "ဝန်ဆောင်မှု အသေးစိတ်နှင့် အခြေအနေများကို စီမံပါ။",
+                dashTitleProjects: "ပြီးစီးခဲ့သော ပရောဂျက်များ", dashSubProjects: "ပြီးစီးခဲ့သော ပရောဂျက်များကို မှတ်တမ်းတင် ပြသပါ။",
+                btnAddProduct: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", btnAddService: "ဝန်ဆောင်မှု ထည့်မည်", btnAddProject: "ပရောဂျက် ထည့်မည်", 
+                adminBadge: "စီမံခန့်ခွဲသူ ဧရိယာ", btnGoToSite: "ဝက်ဘ်ဆိုက်သို့", btnRefresh: "Refresh",
                 dashTitleUsers: "အသုံးပြုသူများ စီမံခန့်ခွဲမှု", dashSubUsers: "အကောင့်များနှင့် အခွင့်အာဏာ အဆင့်များကို စီမံပါ။",
                 dashTitleNews: "သတင်းလွှာနှင့် ကြော်ငြာများ", dashSubNews: "စာရင်းသွင်းထားသူများထံ အီးမေးလ်များ ပေးပို့ပါ။", btnComposeNews: "အီးမေးလ် ရေးရန်",
                 thImage: "ပုံ", thName: "အမည် နှင့် Slug", thPrice: "ဈေးနှုန်း", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ချက်များ", thSku: "SKU နှင့် အမျိုးအစား",
@@ -1038,7 +1242,7 @@
                 lblEmail: "အီးမေးလ် *", inviteHelpText: "Supabase မှ အသုံးပြုသူထံသို့ တရားဝင်ဖိတ်စာ လင့်ခ်ပေးပို့သွားမည်ဖြစ်သည်။ အသုံးပြုသူမှ မိမိစကားဝှက်ကို ကိုယ်တိုင်သတ်မှတ်နိုင်မည်ဖြစ်သည်။",
                 inviteSuccessTitle: "ဖိတ်ကြားမှု အောင်မြင်ပါသည်", inviteSuccessDesc: "Supabase မှတဆင့် ဖိတ်စာပေးပို့ပြီးပါပြီ။ လင့်ခ်ကိုနှိပ်၍ အသုံးပြုသူမှ စကားဝှက်သတ်မှတ်နိုင်ပါသည်။", inviteSentTo: "ပေးပို့ထားသော အီးမေးလ်",
                 msgSaveSuccess: "ဒေတာဘေ့စ် သိမ်းဆည်းမှု အောင်မြင်ပါသည်!", msgDeleteSuccess: "အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။", msgRoleUpdated: "အခွင့်အာဏာ ပြောင်းလဲမှု အောင်မြင်ပါသည်!", msgNewsSent: "စာရင်းသွင်းထားသူများအားလုံးထံ အီးမေးလ်ပေးပို့ပြီးပါပြီ!", msgSubDeleteSuccess: "စာရင်းသွင်းသူအား ဖယ်ရှားပြီးပါပြီ။",
-                searchProd: "ရှာဖွေပါ...", searchUsers: "အီးမေးလ်ဖြင့် ရှာဖွေပါ...", searchOrders: "Order ID သို့မဟုတ် အမည်ဖြင့် ရှာပါ...",
+                searchProd: "ရှာဖွေပါ...", searchUsers: "အီးမေးလ်ဖြင့် ရှာဖွေပါ...", searchOrders: "Order ID သို့မဟုတ် အမည်ဖြင့် ရှာပါ...", searchServ: "ဝန်ဆောင်မှုများ ရှာပါ...", searchProj: "ပရောဂျက်များ ရှာပါ...",
                 msgPassReset: "စကားဝှက်ကို မူလစကားဝှက်သို့ ပြောင်းလဲပြီးပါပြီ။",
                 lblProtected: "ကာကွယ်ထားသည်", lblRestricted: "ကန့်သတ်ထားသည်",
                 confirmDeleteTitle: "ဒေတာ ဖျက်မည်", confirmDeleteMsg: "ဤအချက်အလက်ကို ဒေတာဘေ့စ်မှ အပြီးအပိုင် ဖျက်ပစ်ရန် သေချာပါသလား?",
@@ -1069,6 +1273,8 @@
             renderUsersTable(document.getElementById('searchUsers').value);
             renderPackagesTables();
             renderPkgOrdersTable(document.getElementById('searchPkgOrders')?.value || '');
+            renderServicesTable(document.getElementById('searchServices')?.value || '');
+            renderProjectsTable(document.getElementById('searchProjects')?.value || '');
         }
 
         function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
@@ -1150,6 +1356,8 @@
         document.getElementById('searchProducts').addEventListener('input', (e) => renderTable(e.target.value));
         document.getElementById('searchUsers').addEventListener('input', (e) => renderUsersTable(e.target.value));
         document.getElementById('searchPkgOrders')?.addEventListener('input', (e) => renderPkgOrdersTable(e.target.value));
+        document.getElementById('searchServices')?.addEventListener('input', (e) => renderServicesTable(e.target.value));
+        document.getElementById('searchProjects')?.addEventListener('input', (e) => renderProjectsTable(e.target.value));
 
         function setProductFilter(val) { currentProductFilter = val; renderTable(document.getElementById('searchProducts').value); }
         function setUserFilter(val) { currentUserFilter = val; renderUsersTable(document.getElementById('searchUsers').value); }
@@ -1221,6 +1429,8 @@
             const uSec = document.getElementById('usersSection');
             const nSec = document.getElementById('newsletterSection');
             const eSec = document.getElementById('estimatorSection');
+            const sSec = document.getElementById('servicesSection');
+            const prSec = document.getElementById('projectsSection');
             
             const oBtn = document.getElementById('tabBtnOverall');
             const pBtn = document.getElementById('tabBtnProducts'); 
@@ -1228,12 +1438,14 @@
             const uBtn = document.getElementById('tabBtnUsers');
             const nBtn = document.getElementById('tabBtnNewsletter');
             const eBtn = document.getElementById('tabBtnEstimator');
+            const sBtn = document.getElementById('tabBtnServices');
+            const prBtn = document.getElementById('tabBtnProjects');
 
             const inactiveClass = "px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold text-gray-600 hover:text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap";
             const activeClass = "px-2 py-1.5 xxs:px-3 xxs:py-2 xs:px-4 xs:py-2.5 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] xxs:text-[10px] xs:text-xs sm:text-sm font-bold shadow-sm bg-white text-myancode-black transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap";
 
-            oBtn.className = inactiveClass; pBtn.className = inactiveClass; pkgBtn.className = inactiveClass; uBtn.className = inactiveClass; nBtn.className = inactiveClass; eBtn.className = inactiveClass;
-            oSec.classList.add('hidden'); pSec.classList.add('hidden'); pkgSec.classList.add('hidden'); uSec.classList.add('hidden'); nSec.classList.add('hidden'); eSec.classList.add('hidden');
+            oBtn.className = inactiveClass; pBtn.className = inactiveClass; pkgBtn.className = inactiveClass; uBtn.className = inactiveClass; nBtn.className = inactiveClass; eBtn.className = inactiveClass; sBtn.className = inactiveClass; prBtn.className = inactiveClass;
+            oSec.classList.add('hidden'); pSec.classList.add('hidden'); pkgSec.classList.add('hidden'); uSec.classList.add('hidden'); nSec.classList.add('hidden'); eSec.classList.add('hidden'); sSec.classList.add('hidden'); prSec.classList.add('hidden');
 
             if (tab === 'overall') {
                 oSec.classList.remove('hidden'); oBtn.className = activeClass; updateOverallDashboard();
@@ -1247,6 +1459,10 @@
                 nSec.classList.remove('hidden'); nBtn.className = activeClass;
             } else if (tab === 'estimator') {
                 eSec.classList.remove('hidden'); eBtn.className = activeClass; fetchPkgOrders(true);
+            } else if (tab === 'services') {
+                sSec.classList.remove('hidden'); sBtn.className = activeClass; fetchServices(true);
+            } else if (tab === 'projects') {
+                prSec.classList.remove('hidden'); prBtn.className = activeClass; fetchProjects(true);
             }
             lucide.createIcons();
         }
@@ -1342,7 +1558,9 @@
                     fetchUsers(true), 
                     fetchSubscribers(true), 
                     fetchPkgOrders(true),
-                    fetchPackagesSetup(true)
+                    fetchPackagesSetup(true),
+                    fetchServices(true),
+                    fetchProjects(true)
                 ]);
                 
                 updateOverallDashboard();
@@ -1371,8 +1589,267 @@
             
             document.addEventListener("visibilitychange", () => {
                 if (document.visibilityState === "visible") {
-                    fetchProducts(true); fetchUsers(true); fetchSubscribers(true); fetchPkgOrders(true); fetchPackagesSetup(true);
+                    fetchProducts(true); fetchUsers(true); fetchSubscribers(true); fetchPkgOrders(true); fetchPackagesSetup(true); fetchServices(true); fetchProjects(true);
                 }
+            });
+        }
+
+        /* --- SERVICES TAB LOGIC --- */
+        async function fetchServices(silent = false) {
+            if (!supabaseInstance) return;
+            if (!silent) showLoader('loadingData');
+            try {
+                const { data, error } = await supabaseInstance.from('services').select('*').order('created_at', { ascending: false });
+                if (error && error.code !== '42P01') throw error; // Ignore table missing error during init
+                allServices = data || [];
+                renderServicesTable(document.getElementById('searchServices')?.value || '');
+            } catch (err) {
+                console.error("Services fetch error:", err);
+                if (!silent) showErrorToast("Failed to load services data.");
+            } finally {
+                if (!silent) hideLoader();
+            }
+        }
+
+        function renderServicesTable(searchQuery = '') {
+            const tbody = document.getElementById('servicesTableBody');
+            let filtered = allServices;
+
+            if (searchQuery) {
+                filtered = filtered.filter(s => 
+                    superFuzzySearch(searchQuery, s.name) || superFuzzySearch(searchQuery, s.short_desc)
+                );
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-sm text-gray-400 font-bold">No services found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => {
+                const img = s.image_url || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                const price = s.price ? `${parseFloat(s.price).toLocaleString()} MMK` : 'Custom Pricing';
+                
+                return `
+                <tr class="hover:bg-gray-50/80 transition-colors border-b border-gray-50">
+                    <td class="px-2 py-2 xxs:px-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="h-10 w-14 sm:h-12 sm:w-16 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center relative">
+                            <img src="${img}" class="${s.image_url ? 'h-full w-full object-cover' : 'h-5 w-5 opacity-50'}" alt="${s.name}">
+                        </div>
+                    </td>
+                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="font-bold text-myancode-black text-xs sm:text-sm truncate max-w-[150px] sm:max-w-[250px]">${s.name}</div>
+                        <div class="text-[8px] sm:text-[10px] text-gray-400 font-mono mt-0.5 truncate max-w-[150px] sm:max-w-[250px]">${s.slug || 'no-slug'}</div>
+                        <div class="text-[9px] sm:text-[10px] text-gray-500 mt-0.5 truncate max-w-[150px] sm:max-w-[250px]">${s.short_desc || 'No description'}</div>
+                    </td>
+                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap font-bold text-myancode-black text-xs sm:text-sm">${price}</td>
+                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
+                        ${s.status === 'available' || !s.status 
+                            ? `<span class="px-2 py-1 text-[8px] rounded-full bg-green-50 text-green-600 border border-green-100 uppercase font-bold tracking-widest">Available</span>`
+                            : `<span class="px-2 py-1 text-[8px] rounded-full bg-red-50 text-red-600 border border-red-100 uppercase font-bold tracking-widest">Unavailable</span>`
+                        }
+                    </td>
+                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right">
+                        <button onclick="openServiceModal('${s.id}')" class="p-1.5 bg-blue-50 text-myancode-blue rounded-lg hover:bg-blue-100 mx-0.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="confirmDeleteService('${s.id}')" class="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 mx-0.5 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function openServiceModal(id = null) {
+            document.getElementById('sId').value = id || '';
+            document.getElementById('serviceModalTitle').innerText = id ? 'Edit Service' : 'Add Service';
+            
+            if (id) {
+                const s = allServices.find(x => x.id === id);
+                if (s) {
+                    document.getElementById('sName').value = s.name || '';
+                    document.getElementById('sSlug').value = s.slug || '';
+                    document.getElementById('sShortDesc').value = s.short_desc || '';
+                    document.getElementById('sDetailDesc').value = s.detail_desc || '';
+                    document.getElementById('sImage').value = s.image_url || '';
+                    document.getElementById('sPrice').value = s.price || '';
+                    document.getElementById('sStatus').value = s.status || 'available';
+                }
+            } else {
+                document.getElementById('serviceForm').reset();
+                document.getElementById('sStatus').value = 'available';
+            }
+            document.getElementById('serviceModal').classList.remove('modal-hidden');
+        }
+
+        function closeServiceModal() { document.getElementById('serviceModal').classList.add('modal-hidden'); }
+
+        async function saveService() {
+            const id = document.getElementById('sId').value;
+            const slugVal = document.getElementById('sSlug').value.trim().toLowerCase().replace(/\s+/g, '-');
+            const data = {
+                name: document.getElementById('sName').value.trim(),
+                slug: slugVal || null,
+                short_desc: document.getElementById('sShortDesc').value.trim() || null,
+                detail_desc: document.getElementById('sDetailDesc').value.trim() || null,
+                image_url: document.getElementById('sImage').value.trim() || null,
+                price: parseFloat(document.getElementById('sPrice').value) || null,
+                status: document.getElementById('sStatus').value
+            };
+            
+            if (!data.name || !data.slug) return showErrorToast("Service Name and Slug are required.");
+            
+            showLoader('loadingData');
+            try {
+                if (id) {
+                    const { error } = await supabaseInstance.from('services').update(data).eq('id', id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseInstance.from('services').insert([data]);
+                    if (error) throw error;
+                }
+                showToast("Service saved successfully!");
+                closeServiceModal();
+                fetchServices(true);
+            } catch (err) { showErrorToast(err.message); } finally { hideLoader(); }
+        }
+
+        function confirmDeleteService(id) {
+            openConfirmModal("Delete Service", "Are you sure you want to permanently delete this service?", true, async () => {
+                showLoader('loadingData');
+                try {
+                    const { error } = await supabaseInstance.from('services').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast("Service deleted.");
+                    fetchServices(true);
+                } catch(err) { showErrorToast(err.message); } finally { hideLoader(); }
+            });
+        }
+
+        /* --- PROJECTS DELIVERED TAB LOGIC --- */
+        async function fetchProjects(silent = false) {
+            if (!supabaseInstance) return;
+            if (!silent) showLoader('loadingData');
+            try {
+                const { data, error } = await supabaseInstance.from('projects_delivered').select('*').order('created_at', { ascending: false });
+                if (error && error.code !== '42P01') throw error; // Ignore table missing error during init
+                allProjects = data || [];
+                renderProjectsTable(document.getElementById('searchProjects')?.value || '');
+            } catch (err) {
+                console.error("Projects fetch error:", err);
+                if (!silent) showErrorToast("Failed to load projects data.");
+            } finally {
+                if (!silent) hideLoader();
+            }
+        }
+
+        function renderProjectsTable(searchQuery = '') {
+            const tbody = document.getElementById('projectsTableBody');
+            let filtered = allProjects;
+
+            if (searchQuery) {
+                filtered = filtered.filter(p => 
+                    superFuzzySearch(searchQuery, p.project_name) || superFuzzySearch(searchQuery, p.project_type) || superFuzzySearch(searchQuery, p.proprietor)
+                );
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-sm text-gray-400 font-bold">No projects found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => {
+                const img = p.image_url || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+
+                return `
+                <tr class="hover:bg-gray-50/80 transition-colors border-b border-gray-50">
+                    <td class="px-2 py-2 xxs:px-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="h-10 w-14 sm:h-12 sm:w-16 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center relative">
+                            <img src="${img}" class="${p.image_url ? 'h-full w-full object-cover' : 'h-5 w-5 opacity-50'}" alt="${p.project_name}">
+                        </div>
+                    </td>
+                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-2 font-bold text-myancode-black text-xs sm:text-sm">
+                            ${p.project_name}
+                            ${p.project_link ? `<a href="${p.project_link}" target="_blank" class="text-gray-400 hover:text-myancode-blue transition-colors" title="View Project"><i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>` : ''}
+                        </div>
+                        <div class="text-[8px] sm:text-[10px] text-gray-400 font-mono mt-0.5 truncate">${p.slug || 'no-slug'}</div>
+                        ${p.proprietor ? `<div class="text-[9px] sm:text-[10px] text-gray-500 mt-0.5 truncate"><i data-lucide="user" class="w-3 h-3 inline-block align-middle mr-1"></i> ${p.proprietor}</div>` : ''}
+                    </td>
+                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-600">${p.project_type || 'N/A'}</td>
+                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-[10px] sm:text-xs text-gray-500 font-mono">${p.duration_from ? new Date(p.duration_from).toLocaleDateString() : 'N/A'}</td>
+                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-[10px] sm:text-xs text-gray-500 font-mono">${p.duration_to ? new Date(p.duration_to).toLocaleDateString() : 'N/A'}</td>
+                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right">
+                        <button onclick="openProjectModal('${p.id}')" class="p-1.5 bg-blue-50 text-myancode-blue rounded-lg hover:bg-blue-100 mx-0.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="confirmDeleteProject('${p.id}')" class="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 mx-0.5 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function openProjectModal(id = null) {
+            document.getElementById('prId').value = id || '';
+            document.getElementById('projectModalTitle').innerText = id ? 'Edit Project' : 'Add Project';
+            
+            if (id) {
+                const p = allProjects.find(x => x.id === id);
+                if (p) {
+                    document.getElementById('prName').value = p.project_name || '';
+                    document.getElementById('prSlug').value = p.slug || '';
+                    document.getElementById('prProprietor').value = p.proprietor || '';
+                    document.getElementById('prImage').value = p.image_url || '';
+                    document.getElementById('prType').value = p.project_type || '';
+                    document.getElementById('prLink').value = p.project_link || '';
+                    document.getElementById('prDurationFrom').value = p.duration_from || '';
+                    document.getElementById('prDurationTo').value = p.duration_to || '';
+                }
+            } else {
+                document.getElementById('projectForm').reset();
+            }
+            document.getElementById('projectModal').classList.remove('modal-hidden');
+        }
+
+        function closeProjectModal() { document.getElementById('projectModal').classList.add('modal-hidden'); }
+
+        async function saveProject() {
+            const id = document.getElementById('prId').value;
+            const slugVal = document.getElementById('prSlug').value.trim().toLowerCase().replace(/\s+/g, '-');
+            const data = {
+                project_name: document.getElementById('prName').value.trim(),
+                slug: slugVal || null,
+                proprietor: document.getElementById('prProprietor').value.trim() || null,
+                image_url: document.getElementById('prImage').value.trim() || null,
+                project_type: document.getElementById('prType').value.trim() || null,
+                project_link: document.getElementById('prLink').value.trim() || null,
+                duration_from: document.getElementById('prDurationFrom').value || null,
+                duration_to: document.getElementById('prDurationTo').value || null
+            };
+            
+            if (!data.project_name || !data.slug) return showErrorToast("Project Name and Slug are required.");
+            
+            showLoader('loadingData');
+            try {
+                if (id) {
+                    const { error } = await supabaseInstance.from('projects_delivered').update(data).eq('id', id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseInstance.from('projects_delivered').insert([data]);
+                    if (error) throw error;
+                }
+                showToast("Project saved successfully!");
+                closeProjectModal();
+                fetchProjects(true);
+            } catch (err) { showErrorToast(err.message); } finally { hideLoader(); }
+        }
+
+        function confirmDeleteProject(id) {
+            openConfirmModal("Delete Project", "Are you sure you want to permanently delete this project record?", true, async () => {
+                showLoader('loadingData');
+                try {
+                    const { error } = await supabaseInstance.from('projects_delivered').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast("Project deleted.");
+                    fetchProjects(true);
+                } catch(err) { showErrorToast(err.message); } finally { hideLoader(); }
             });
         }
 
