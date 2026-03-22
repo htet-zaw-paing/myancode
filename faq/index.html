@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FAQ | MyanCode Enterprise</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="../imgs/web-banners/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Cloudflare Turnstile Script -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '400px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                },
+                extend: {
+                    fontFamily: { 
+                        sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'],
+                    },
+                    colors: {
+                        myancode: {
+                            black: '#0a0a0a',
+                            gray: '#f5f5f7',
+                            darkgray: '#6e6e73',
+                            blue: '#2997ff',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+            position: relative;
+            background-color: #fbfbfd;
+            color: #0a0a0a;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body.no-scroll { overflow: hidden !important; touch-action: none; }
+
+        html[lang="mm"] body { font-size: 14px; line-height: 2; }
+        html[lang="mm"] h1 { font-size: 2.5rem; line-height: 1.6; letter-spacing: normal; }
+        html[lang="mm"] h2 { font-size: 2rem; line-height: 1.6; letter-spacing: normal; }
+        html[lang="mm"] h3 { font-size: 1.25rem; line-height: 1.7; letter-spacing: normal; }
+        html[lang="mm"] p { font-size: 0.9rem; line-height: 2.2; }
+        html[lang="mm"] .uppercase, html[lang="mm"] .capitalize { text-transform: none; }
+        html[lang="mm"] .tracking-widest, html[lang="mm"] .tracking-wide { letter-spacing: normal; }
+        
+        #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; }
+        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.06) !important; }
+        .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
+
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .hero-wrapper-enter { animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .card-enter { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+        .hover-underline { position: relative; }
+        .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+
+        .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-hover-effect:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); }
+
+        #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
+        .progress-line { width: 100%; height: 2px; background-color: #e5e5ea; border-radius: 4px; overflow: hidden; position: relative; }
+        .progress-line::after { content: ''; position: absolute; left: -50%; top: 0; height: 100%; width: 50%; background-color: #111111; border-radius: 4px; animation: lineAnim 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+        @keyframes lineAnim { 0% { left: -50%; width: 50%; } 50% { width: 20%; } 100% { left: 100%; width: 50%; } }
+
+        .search-overlay { transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; opacity: 0; pointer-events: none; }
+        .search-overlay.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .drawer-left { transform: translateX(-100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-left.open { transform: translateX(0); }
+        .drawer-right { transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-right.open { transform: translateX(0); }
+        .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .user-avatar-global { transition: all 0.3s ease; }
+        .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
+        
+        .icon-float { animation: float 6s ease-in-out infinite; }
+
+        /* FAQ Accordion specific styles */
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), padding 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+            opacity: 0;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 1000px;
+            opacity: 1;
+            padding-bottom: 1.5rem;
+        }
+        .faq-item.open .faq-icon {
+            transform: rotate(180deg);
+            color: #2997ff;
+        }
+        .faq-item.open .faq-question-text {
+            color: #2997ff;
+        }
+        .prose-custom ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .prose-custom li { margin-bottom: 0.25rem; }
+        .prose-custom p { margin-bottom: 0.75rem; }
+        .prose-custom p:last-child { margin-bottom: 0; }
+        
+        .filter-btn.active {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            border-color: #0a0a0a;
+        }
+    </style>
+</head>
+<body class="font-sans selection:bg-myancode-blue selection:text-white no-scroll bg-[#fbfbfd]">
+
+    <!-- GLOBAL ENTERPRISE LOADER -->
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
+        <i data-lucide="code-2" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
+        <div class="w-48 max-w-[80vw]">
+            <div class="progress-line"></div>
+        </div>
+        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 transition-colors" data-i18n="loadingInit">Preparing Knowledge Base...</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent">
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center h-full">
+                    <button class="md:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-myancode-black" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="h-5 w-5"></i>
+                    </button>
+                    <!-- LOGO LINK -->
+                    <a href="../index.html" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
+                        <i data-lucide="code-2" class="h-5 w-5 mr-2 transition-all duration-500 group-hover:rotate-12 nav-icon text-myancode-black"></i>
+                        <span class="font-semibold text-lg sm:text-xl tracking-wide transition-colors duration-300 group-hover:text-myancode-blue nav-text text-myancode-black" id="navLogoText">MyanCode</span>
+                    </a>
+                </div>
+                
+                <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium items-center h-full">
+                    <a href="../studio/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="../templates/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../services/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    
+                    <!-- FULL-WIDTH APPLE STYLE SUPPORT MEGA MENU -->
+                    <div class="relative group h-full flex items-center">
+                        <button class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link flex items-center gap-1 cursor-pointer text-myancode-black/80" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
+                        
+                        <!-- Invisible bridge -->
+                        <div class="absolute top-[80%] left-0 w-full h-8"></div>
+
+                        <!-- Fixed Full-Width Dropdown Content -->
+                        <div class="fixed top-[56px] sm:top-[64px] left-0 w-full bg-[#fbfbfd]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border-b border-gray-200/60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
+                            <div class="max-w-[1024px] mx-auto px-4 sm:px-6 py-12 flex gap-8 md:gap-16 lg:gap-24 text-black">
+                                
+                                <!-- Column 1: Explore Support -->
+                                <div class="flex-[1.2]">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                                    <div class="flex flex-col gap-4">
+                                        <a href="../guides/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supGuides">Guides</a>
+                                        <a href="../help/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                        <a href="../faq/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supFaq">FAQs</a>
+                                        <a href="../contact-us/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Column 2: Service Policies -->
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/index.html#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                        <a href="../legal/index.html#studio-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
+                                        <a href="../legal/index.html#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                        <a href="../legal/index.html#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                        <a href="../legal/index.html#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Column 3: Legal & Transactions -->
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/index.html#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                        <a href="../legal/index.html#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                        <a href="../legal/index.html#privacy-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="../legal/index.html#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4 sm:space-x-5">
+                    <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i></button>
+                    <div class="relative hidden sm:block" id="langContainer">
+                        <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-4 pb-2 mb-2 border-b border-gray-50 text-[10px] uppercase tracking-widest text-gray-400 font-semibold" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        </div>
+                    </div>
+                    <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
+                    <button onclick="toggleWishlistDrawer()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black">
+                        <i data-lucide="heart" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-myancode-blue text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SEARCH OVERLAY -->
+    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
+        <div class="max-w-[1024px] mx-auto px-6 pt-10">
+            <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-500 hover:text-black transition-colors rounded-full bg-gray-50 hover:bg-gray-200"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+            <div class="mt-8 sm:mt-16 max-w-3xl mx-auto">
+                <div class="relative w-full border-b border-gray-300 focus-within:border-myancode-black transition-colors pb-4 flex items-center">
+                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-4"></i>
+                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off" class="w-full text-3xl sm:text-5xl font-semibold text-black bg-transparent border-none outline-none placeholder-gray-200" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+                </div>
+            </div>
+            <div class="mt-16 flex flex-col-reverse md:flex-row gap-12 sm:gap-20 max-w-3xl mx-auto">
+                <div class="w-full md:w-1/3">
+                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Links</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="tradeInTitle">Web Development</span></a></li>
+                        <li><a href="../templates/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="newArrivals">Featured Templates</span></a></li>
+                        <li><a href="../services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="bulkTitle">SEO Optimization</span></a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-2/3">
+                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="searchResults">Results</h4>
+                    <div id="megaSearchResults" class="space-y-4"><p class="text-gray-400 text-sm font-light italic" data-i18n="searchHint">Type to discover our products and services...</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE MENU DRAWER -->
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#fafafa] z-[80] drawer-left flex flex-col overflow-hidden">
+        
+        <div class="px-6 py-6 flex items-center justify-between flex-shrink-0">
+            <span class="font-bold text-xl tracking-wide text-black">MyanCode</span>
+            <button onclick="toggleMobileMenu()" class="p-2.5 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-600"><i data-lucide="x" class="h-5 w-5"></i></button>
+        </div>
+        
+        <div class="flex-1 px-8 py-4 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
+            
+            <div class="relative mb-8" onclick="toggleMobileMenu(); toggleSearchOverlay();">
+                <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-400"></i>
+                <input type="text" class="w-full pl-8 py-3 border-b border-gray-300 focus:outline-none text-base bg-transparent text-gray-600 placeholder-gray-400 pointer-events-none" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+            </div>
+            
+            <div class="space-y-6 text-base font-bold text-myancode-black tracking-wide flex-1">
+                <a href="../studio/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                    <span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                </a>
+                <a href="../templates/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                    <span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                </a>
+                <a href="../services/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                    <span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                </a>
+                
+                <div class="flex flex-col">
+                    <button onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
+                        <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform"></i>
+                    </button>
+                    <div id="mobSupportDrop" class="hidden flex-col w-full mt-6 pb-2 pl-4 border-l-2 border-gray-100">
+                        <div class="mb-6">
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                            <div class="flex flex-col gap-4">
+                                <a href="../guides/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supGuides">Guides</a>
+                                <a href="../help/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supHelp">Help Center</a>
+                                <a href="../faq/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supFaq">FAQs</a>
+                                <a href="../contact-us/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supContact">Contact</a>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                            <div class="flex flex-col gap-3">
+                                <a href="../legal/index.html#client-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polClient">Customer Policy</a>
+                                <a href="../legal/index.html#studio-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polStudio">Studio Policy</a>
+                                <a href="../legal/index.html#template-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polTemplate">Template Policy</a>
+                                <a href="../legal/index.html#service-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polService">Service Policy</a>
+                                <a href="../legal/index.html#maintenance-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polMaintenance">Maintenance Policy</a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                            <div class="flex flex-col gap-3">
+                                <a href="../legal/index.html#payment-policy" target="_blank"  class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polPayment">Payment Policy</a>
+                                <a href="../legal/index.html#refund-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polRefund">Refund Policy</a>
+                                <a href="../legal/index.html#privacy-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polPrivacy">Privacy Policy</a>
+                                <a href="../legal/index.html#terms-of-services" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polTerms">Terms of Service</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100">
+                    <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
+                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-5 w-5 text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
+                <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
+                
+                <div class="border-t border-gray-200 pt-8 mt-6">
+                    <button onclick="toggleMobileMenu(); toggleWishlistDrawer();" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide">
+                        <span data-i18n="wishlistTitle">My Wishlist</span> <i data-lucide="heart" class="h-5 w-5 text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- WISHLIST DRAWER -->
+    <div id="wishlistOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
+    <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-gray-100">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100 bg-gray-50/50">
+            <h3 class="font-semibold text-lg tracking-tight flex items-center gap-2"><i data-lucide="heart" class="h-5 w-5 text-myancode-blue fill-myancode-blue"></i> <span data-i18n="wishlistTitle">My Wishlist</span></h3>
+            <button onclick="toggleWishlistDrawer()" class="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-gray-500 hover:text-black"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+            <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold text-black" id="wishlistTotal">0 MMK</span></div>
+            <button class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT: FAQ -->
+    <main class="flex-grow pt-24 pb-20 w-full relative z-10 bg-[#fbfbfd]">
+        
+        <!-- Header -->
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-10 sm:mb-16 pt-8 sm:pt-16 text-center reveal">
+            <div class="inline-flex items-center justify-center p-4 sm:p-5 bg-blue-50/50 rounded-3xl shadow-sm border border-blue-100/50 mb-6 sm:mb-8 icon-float">
+                <i data-lucide="message-circle-question" class="h-8 w-8 sm:h-10 sm:w-10 text-myancode-blue"></i>
+            </div>
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-myancode-black mb-4 sm:mb-6 leading-tight" data-i18n="faqHeroTitle">Frequently Asked Questions</h1>
+            <p class="text-base sm:text-lg text-gray-500 leading-relaxed max-w-2xl mx-auto font-medium" data-i18n="faqHeroDesc">Everything you need to know about MyanCode's enterprise services, templates, and custom solutions.</p>
+        </div>
+
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
+            
+            <!-- Filters -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12 sm:mb-16 reveal" style="animation-delay: 100ms;">
+                <button class="filter-btn active px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold border border-gray-200 text-gray-600 transition-colors btn-hover-effect" data-filter="all" onclick="filterFaq('all', this)" data-i18n="faqFilterAll">All Questions</button>
+                <button class="filter-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors btn-hover-effect" data-filter="general" onclick="filterFaq('general', this)" data-i18n="faqFilterGen">General</button>
+                <button class="filter-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors btn-hover-effect" data-filter="templates" onclick="filterFaq('templates', this)" data-i18n="faqFilterTpl">Templates</button>
+                <button class="filter-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors btn-hover-effect" data-filter="studio" onclick="filterFaq('studio', this)" data-i18n="faqFilterStu">Custom Studio</button>
+                <button class="filter-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors btn-hover-effect" data-filter="services" onclick="filterFaq('services', this)" data-i18n="faqFilterSrv">Services & Maint.</button>
+                <button class="filter-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors btn-hover-effect" data-filter="billing" onclick="filterFaq('billing', this)" data-i18n="faqFilterBill">Billing</button>
+            </div>
+
+            <!-- FAQ Container -->
+            <div id="faqContainer" class="flex flex-col gap-4 reveal" style="animation-delay: 200ms;">
+                <!-- Dynamically populated by JS -->
+            </div>
+
+            <div class="mt-16 sm:mt-24 text-center reveal border-t border-gray-200 pt-12">
+                <div class="inline-flex items-center justify-center p-3 bg-gray-100 rounded-full mb-4">
+                    <i data-lucide="life-buoy" class="h-6 w-6 text-gray-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-myancode-black mb-2" data-i18n="faqStillNeedHelp">Still have questions?</h3>
+                <p class="text-gray-500 mb-6 text-sm font-medium" data-i18n="faqContactText">Can't find the answer you're looking for? Please chat to our friendly team.</p>
+                <a href="../contact-us/index.html" class="inline-flex items-center justify-center gap-2 bg-myancode-black text-white px-8 py-4 rounded-full font-bold text-sm tracking-wide hover:bg-gray-800 transition-colors shadow-md btn-hover-effect">
+                    <span data-i18n="supContact">Contact Us</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Detailed Footer with Integrated Newsletter -->
+    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10 mt-auto">
+        <div class="max-w-[1024px] mx-auto">
+            
+            <!-- Enterprise Newsletter Card -->
+            <div class="bg-white rounded-[2.5rem] p-8 sm:p-12 mb-20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16 reveal">
+                <!-- Left: Text Content -->
+                <div class="text-center lg:text-left w-full lg:w-1/2 flex flex-col items-center lg:items-start">
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-[#f0f5ff] rounded-full mb-6">
+                        <i data-lucide="mail" class="w-6 h-6 text-[#2997ff]"></i>
+                    </div>
+                    <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-4" data-i18n="nlTitle">Stay Ahead of the Curve</h3>
+                    <p class="text-base text-gray-500 font-normal leading-relaxed max-w-md mx-auto lg:mx-0" data-i18n="nlDesc">Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.</p>
+                </div>
+                <!-- Right: Subscription Form + Turnstile -->
+                <div class="w-full lg:w-1/2">
+                    <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="w-full flex flex-col gap-3">
+                        <div class="relative flex items-center bg-white border border-gray-200 rounded-full p-1.5 shadow-sm transition-all focus-within:border-myancode-black focus-within:ring-1 focus-within:ring-myancode-black">
+                            <div class="pl-5 pr-3 text-gray-400 flex items-center justify-center pointer-events-none">
+                                <i data-lucide="mail" class="w-5 h-5"></i>
+                            </div>
+                            <input type="email" id="newsletterEmail" required class="w-full py-3.5 bg-transparent border-none outline-none text-sm font-medium text-myancode-black placeholder-gray-400 focus:ring-0" placeholder="Enter your email address" data-i18n-placeholder="nlPlaceholder">
+                            <button type="submit" id="btnSubscribe" class="bg-myancode-black text-white px-8 py-3.5 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition shadow-md flex items-center justify-center gap-2 btn-hover-effect whitespace-nowrap shrink-0">
+                                <span data-i18n="btnSubscribe">Subscribe</span>
+                            </button>
+                        </div>
+                        <!-- Cloudflare Turnstile Widget -->
+                        <div class="cf-turnstile pl-2" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="light"></div>
+                    </form>
+                    <p class="text-[11px] text-gray-400 mt-4 font-medium tracking-wide uppercase text-center lg:text-left lg:ml-6" data-i18n="nlDisclaimer">We respect your privacy. No spam, ever.</p>
+                </div>
+            </div>
+
+            <!-- Modern Formal Footer Links Grid -->
+            <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-16 border-t border-gray-200 pt-16 mt-16">
+                <div>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftCompanyTitle">Company</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../about-us/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAboutUs">About Us</a></li>
+                        <li><a href="../contact-us/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftContactUs">Contact Us</a></li>
+                        <li><a href="../updates-news/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftUpdates">Updates & News</a></li>
+                        <li><a href="../careers/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftCareers">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftStoreTitle">Store</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../studio/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAddOns">Add-Ons</a></li>
+                        <li><a href="../templates/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftTemplates">Templates</a></li>
+                        <li><a href="../services/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftServices">Services</a></li>
+                        <li><a href="../maintenance/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftMaintenance">Maintenance</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftSupportTitle">Support</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../guides/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supGuides">Guides</a></li>
+                        <li><a href="../help/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supHelp">Help Center</a></li>
+                        <li><a href="../faq/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supFaq">FAQs</a></li>
+                        <li><a href="../about/index.html" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supLegal">Legal</a></li>
+                    </ul>
+                </div>
+                <div class="xs:col-span-2 md:col-span-1">
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftFollow">Follow Us</h4>
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-5 leading-relaxed pr-4" data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
+                    <div class="flex space-x-5">
+                        <a href="../comming-soon/index.html" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="facebook" class="h-4 w-4 fill-current"></i></a>
+                        <a href="../comming-soon/index.html" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="instagram" class="h-4 w-4"></i></a>
+                        <a href="../comming-soon/index.html" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="linkedin" class="h-4 w-4 fill-current"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-6 pb-2 flex justify-center items-center">
+                <p class="text-[10px] sm:text-[11px] text-gray-400 font-medium text-center tracking-wide" data-i18n="ftCopyright">&copy; 2026 MyanCode. All rights reserved. Engineered in Yangon.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification Toasts -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
+        <span id="toast-msg" class="text-sm font-medium tracking-wide">Success!</span>
+    </div>
+
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-white"></i>
+        <span id="error-toast-msg" class="text-sm font-medium tracking-wide">Error!</span>
+    </div>
+
+    <script>
+        function initIcons() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        initIcons();
+
+        /* --- Comprehensive Global Dictionary --- */
+        const dict = {
+            en: {
+                navStudio: "Studio", navWebsites: "Templates", navServices: "Services", navSupport: "Support",
+                langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
+                wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", btnCart: "Cart", wlTotal: "Total", btnContact: "Proceed to Checkout",
+                quickLinks: "Quick Links", searchResults: "Results", searchHint: "Type to discover our enterprise products and services...", tradeInTitle: "Web Development", newArrivals: "Featured Templates", bulkTitle: "SEO Optimization",
+                
+                ftCompanyTitle: "Company", ftAboutUs: "About Us", ftContactUs: "Contact Us", ftUpdates: "Updates & News", ftCareers: "Careers",
+                ftStoreTitle: "Store", ftAddOns: "Add-Ons", ftTemplates: "Templates", ftServices: "Services", ftMaintenance: "Maintenance",
+                ftSupportTitle: "Support", supGuides: "Guides", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal", supContact: "Contact",
+                supHelpTitle: "Explore Support", supPoliciesTitle: "Service Policies", supLegalTitle: "Legal & Transactions",
+                supPolicies: "Policies", polClient: "Customer Policy", polStudio: "Studio Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
+                
+                ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest products and tech insights.", ftCopyright: "© 2026 MyanCode. All rights reserved. Engineered in Yangon.",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrHub: "Hub", hdrLogout: "Sign Out", hdrWorkplace: "Workplace", msgLoggedOut: "Signed out securely.",
+                loadingInit: "Preparing Knowledge Base...",
+                
+                faqHeroTitle: "Frequently Asked Questions", faqHeroDesc: "Everything you need to know about MyanCode's enterprise services, templates, and custom solutions.",
+                faqFilterAll: "All Questions", faqFilterGen: "General", faqFilterTpl: "Templates", faqFilterStu: "Custom Studio", faqFilterSrv: "Services & Maint.", faqFilterBill: "Billing",
+                faqStillNeedHelp: "Still have questions?", faqContactText: "Can't find the answer you're looking for? Please chat to our friendly team.",
+                
+                nlTitle: "Stay Ahead of the Curve", nlDesc: "Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.",
+                nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
+                msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list."
+            },
+            mm: {
+                navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ",
+                langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
+                wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", btnCart: "ဝယ်ယူမည့်စာရင်း", wlTotal: "စုစုပေါင်း", btnContact: "ဝယ်ယူရန် ရှေ့ဆက်မည်",
+                quickLinks: "အမြန်လင့်ခ်များ", searchResults: "ရလဒ်များ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...", tradeInTitle: "ဝက်ဘ်ဆိုက်တည်ဆောက်ခြင်း", newArrivals: "အထူးပြု ဝက်ဘ်ဆိုက်များ", bulkTitle: "SEO ဝန်ဆောင်မှု",
+                
+                ftCompanyTitle: "ကုမ္ပဏီ", ftAboutUs: "ကျွန်ုပ်တို့အကြောင်း", ftContactUs: "ဆက်သွယ်ရန်", ftUpdates: "သတင်းနှင့် အသစ်များ", ftCareers: "အလုပ်အကိုင်များ",
+                ftStoreTitle: "စတိုး", ftAddOns: "အပိုပစ္စည်းများ", ftTemplates: "ဝက်ဘ်ဆိုက်များ", ftServices: "ဝန်ဆောင်မှုများ", ftMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
+                ftSupportTitle: "အကူအညီ", supGuides: "လမ်းညွှန်များ", supHelp: "အကူအညီဌာန", supFaq: "အမေးများသောမေးခွန်းများ", supLegal: "တရားဝင်", supContact: "ဆက်သွယ်ရန်",
+                supHelpTitle: "အကူအညီ ရယူရန်", supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ",
+                supPolicies: "မူဝါဒများ", polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
+                
+                ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrHub: "ဗဟိုဌာန", hdrLogout: "အကောင့်ထွက်ရန်", hdrWorkplace: "လုပ်ငန်းခွင်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
+                loadingInit: "အချက်အလက်များ ရယူနေပါသည်...",
+                
+                faqHeroTitle: "အမေးများသော မေးခွန်းများ", faqHeroDesc: "MyanCode ၏ ဝန်ဆောင်မှုများ၊ ဝက်ဘ်ဆိုက်ပုံစံများနှင့် လုပ်ငန်းသုံး နည်းပညာများအကြောင်း သိလိုသမျှ။",
+                faqFilterAll: "မေးခွန်းအားလုံး", faqFilterGen: "ယေဘုယျ", faqFilterTpl: "ဝက်ဘ်ဆိုက်ပုံစံများ", faqFilterStu: "စိတ်ကြိုက်ရေးဆွဲခြင်း", faqFilterSrv: "ဝန်ဆောင်မှုများ", faqFilterBill: "ငွေပေးချေမှု",
+                faqStillNeedHelp: "သိလိုသည်များ ရှိသေးပါသလား?", faqContactText: "သင်သိလိုသော အဖြေကို မတွေ့ရှိပါက ကျွန်ုပ်တို့အဖွဲ့ထံသို့ တိုက်ရိုက် ဆက်သွယ်မေးမြန်းနိုင်ပါသည်။",
+                
+                nlTitle: "သတင်းအသစ်များ ရယူရန်", nlDesc: "နောက်ဆုံးရ နည်းပညာသတင်းများနှင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းအသစ်များကို ရယူရန် သင်၏ အီးမေးလ်ကို စာရင်းသွင်းပါ။",
+                nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", nlDisclaimer: "သင်၏ အချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။",
+                msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။"
+            }
+        };
+
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+
+        /* --- 54 Highly Detailed FAQ Data --- */
+        const faqData = [
+            // General (1-10)
+            { id: "q1", category: "general", 
+              q_en: "What is MyanCode and what services do you offer?", 
+              q_mm: "MyanCode ဆိုတာ ဘာလဲ၊ ဘယ်လို ဝန်ဆောင်မှုတွေ ပေးသလဲ?", 
+              a_en: "<p>MyanCode is a premium digital agency specializing in enterprise-grade web solutions. We operate in two primary verticals:</p><ul><li><strong>Templates:</strong> Pre-engineered, highly optimized static websites ready for immediate deployment.</li><li><strong>Studio:</strong> Custom web development, building complex digital platforms tailored specifically to your organizational requirements.</li></ul><p>Additionally, we provide dedicated SEO optimization, domain acquisition, and long-term maintenance services.</p>", 
+              a_mm: "<p>MyanCode သည် လုပ်ငန်းသုံးအဆင့် ဝက်ဘ်ဆိုက်များကို ဖန်တီးပေးသော အဆင့်မြင့် ဒစ်ဂျစ်တယ် အေဂျင်စီဖြစ်ပါသည်။ အဓိကအားဖြင့် အပိုင်းနှစ်ပိုင်း ရှိပါသည်-</p><ul><li><strong>Templates (ပုံစံများ):</strong> ချက်ချင်းအသုံးပြုနိုင်ရန် အသင့်ရေးဆွဲထားသော အရည်အသွေးမြင့် ဝက်ဘ်ဆိုက်ပုံစံများ။</li><li><strong>Studio (စတူဒီယို):</strong> သင့်လုပ်ငန်းလိုအပ်ချက်များနှင့် ကိုက်ညီသော စိတ်ကြိုက်ဝက်ဘ်ဆိုက်များ ဖန်တီးပေးခြင်း။</li></ul><p>ထို့အပြင် SEO အဆင့်မြှင့်တင်ခြင်း၊ ဒိုမိန်းအမည် ဝယ်ယူပေးခြင်းနှင့် ရေရှည်ပြုပြင်ထိန်းသိမ်းမှု ဝန်ဆောင်မှုများကိုလည်း ပေးဆောင်ပါသည်။</p>" 
+            },
+            { id: "q2", category: "general", 
+              q_en: "Who can benefit from MyanCode's services?", 
+              q_mm: "MyanCode ၏ ဝန်ဆောင်မှုများကို မည်သူတွေ အသုံးပြုနိုင်သလဲ?", 
+              a_en: "<p>Our solutions are engineered to scale, making them ideal for:</p><ul><li><strong>Startups & SMEs:</strong> Seeking a strong, professional online presence quickly using our Templates.</li><li><strong>Corporate Enterprises:</strong> Requiring highly secure, custom-built infrastructure via our Studio.</li><li><strong>E-commerce Businesses:</strong> Needing fast, reliable product catalogs and integration.</li><li><strong>Freelancers & Agencies:</strong> Looking for solid base architectures to build upon.</li></ul>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ ဖြေရှင်းချက်များသည် အောက်ပါလုပ်ငန်းများအတွက် အထူးသင့်လျော်ပါသည်-</p><ul><li><strong>Startups နှင့် SMEs:</strong> အသင့်သုံး ပုံစံများကို အသုံးပြု၍ မြန်ဆန်စွာ အွန်လိုင်းရောက်ရှိလိုသော လုပ်ငန်းများ။</li><li><strong>ကော်ပိုရိတ် အဖွဲ့အစည်းများ:</strong> လုံခြုံရေးမြင့်မားပြီး စိတ်ကြိုက်ရေးဆွဲထားသော စနစ်များလိုအပ်သည့် လုပ်ငန်းများ။</li><li><strong>E-commerce လုပ်ငန်းများ:</strong> မြန်ဆန်၍ ယုံကြည်စိတ်ချရသော အွန်လိုင်းအရောင်းစနစ် လိုအပ်သူများ။</li><li><strong>Freelancers နှင့် Agencies:</strong> အခြေခံကျသော နည်းပညာတည်ဆောက်ပုံများကို လိုအပ်သူများ။</li></ul>" 
+            },
+            { id: "q3", category: "general", 
+              q_en: "Where is MyanCode located?", 
+              q_mm: "MyanCode ရုံးခန်း ဘယ်မှာရှိသလဲ?", 
+              a_en: "<p>We are proudly engineered and headquartered in <strong>Yangon, Myanmar</strong>. However, our digital infrastructure and team operate globally. We provide world-class web solutions to international clients, ensuring high performance regardless of your geographical location.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ ရုံးချုပ်သည် <strong>ရန်ကုန်မြို့၊ မြန်မာနိုင်ငံ</strong> တွင် တည်ရှိပါသည်။ သို့သော် ကျွန်ုပ်တို့၏ ဒစ်ဂျစ်တယ်စနစ်များနှင့် အဖွဲ့သားများသည် ကမ္ဘာတစ်ဝှမ်း ချိတ်ဆက်လုပ်ဆောင်နေပြီး၊ နိုင်ငံတကာမှ ဖောက်သည်များအတွက် အကောင်းဆုံးသော ဝန်ဆောင်မှုများကို ပေးဆောင်လျက်ရှိပါသည်။</p>" 
+            },
+            { id: "q4", category: "general", 
+              q_en: "How do I create an account?", 
+              q_mm: "အကောင့် ဘယ်လိုဖွင့်ရမလဲ?", 
+              a_en: "<p>Creating an account is straightforward and highly secure:</p><ol><li>Click on <strong>Register</strong> in the top navigation bar.</li><li>Provide your Full Name, Email, and a secure Password.</li><li>Complete the Cloudflare security verification.</li><li>Verify your email address via the link sent to your inbox.</li></ol><p>Once verified, you will have access to the User Hub to manage your wishlist, track orders, and communicate directly with our Studio team.</p>", 
+              a_mm: "<p>အကောင့်ဖွင့်ရန် အောက်ပါအတိုင်း လုပ်ဆောင်ပါ-</p><ol><li>အပေါ်ဘက်ရှိ <strong>Register</strong> ကို နှိပ်ပါ။</li><li>အမည်၊ အီးမေးလ် နှင့် စကားဝှက်ကို ထည့်သွင်းပါ။</li><li>Cloudflare လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။</li><li>အီးမေးလ်သို့ ပို့ထားသော လင့်ခ်မှတစ်ဆင့် အကောင့်ကို အတည်ပြုပါ။</li></ol><p>အတည်ပြုပြီးပါက User Hub တွင် သင်၏ Wishlist များ၊ အော်ဒါများကို စီမံနိုင်မည် ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q5", category: "general", 
+              q_en: "Are my personal and payment details secure?", 
+              q_mm: "ကျွန်ုပ်၏ အချက်အလက်များနှင့် ငွေပေးချေမှုများ လုံခြုံမှုရှိပါသလား?", 
+              a_en: "<p><strong>Absolutely.</strong> Security is our top priority. We utilize Supabase for enterprise-grade authentication, ensuring your credentials are encrypted with modern industry standards. Furthermore, we do not directly store your credit card information; all transactions are processed through secure, globally recognized third-party payment gateways.</p>", 
+              a_mm: "<p><strong>လုံးဝ လုံခြုံမှုရှိပါသည်။</strong> လုံခြုံရေးသည် ကျွန်ုပ်တို့၏ အဓိက ဦးစားပေးဖြစ်ပါသည်။ အကောင့်အချက်အလက်များကို ခေတ်မီ စံနှုန်းများနှင့်အညီ လုံခြုံစွာ သိမ်းဆည်းထားပါသည်။ ထို့အပြင် သင်၏ ငွေပေးချေမှု အချက်အလက်များကို ကျွန်ုပ်တို့ထံတွင် တိုက်ရိုက်မသိမ်းဆည်းဘဲ၊ နိုင်ငံတကာအသိအမှတ်ပြု လုံခြုံသော ငွေပေးချေမှုစနစ်များမှတစ်ဆင့်သာ ဆောင်ရွက်ပါသည်။</p>" 
+            },
+            { id: "q6", category: "general", 
+              q_en: "How do I contact customer support?", 
+              q_mm: "Customer support ကို ဘယ်လို ဆက်သွယ်ရမလဲ?", 
+              a_en: "<p>You can reach our dedicated support team through multiple channels:</p><ul><li><strong>Contact Page:</strong> Fill out the form on our <a href='../contact-us/index.html' class='text-myancode-blue hover:underline'>Contact Us</a> page.</li><li><strong>Direct Email:</strong> Reach out directly to support@myancode.com.</li><li><strong>User Hub:</strong> Registered users can submit direct support tickets from their dashboard for prioritized assistance.</li></ul><p>Our standard response time is within 24 hours during business days.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ customer support အဖွဲ့ကို အောက်ပါလမ်းကြောင်းများမှ ဆက်သွယ်နိုင်ပါသည်-</p><ul><li><strong>Contact Page:</strong> <a href='../contact-us/index.html' class='text-myancode-blue hover:underline'>Contact Us</a> စာမျက်နှာမှတစ်ဆင့် ဖောင်ဖြည့်၍ ဆက်သွယ်နိုင်ပါသည်။</li><li><strong>Email:</strong> support@myancode.com သို့ တိုက်ရိုက် အီးမေးလ်ပို့နိုင်ပါသည်။</li><li><strong>User Hub:</strong> အကောင့်ရှိသူများသည် ၎င်းတို့၏ dashboard မှတစ်ဆင့် ဦးစားပေး အကူအညီတောင်းခံနိုင်ပါသည်။</li></ul><p>ရုံးဖွင့်ရက်များတွင် ၂၄ နာရီအတွင်း အကြောင်းပြန်ပေးပါမည်။</p>" 
+            },
+            { id: "q7", category: "general", 
+              q_en: "Does MyanCode support multiple languages?", 
+              q_mm: "MyanCode တွင် ဘာသာစကား ဘယ်နှစ်မျိုး အသုံးပြုနိုင်သလဲ?", 
+              a_en: "<p>Yes. The MyanCode platform is fully localized in both <strong>English</strong> and <strong>Myanmar (Burmese)</strong>. You can switch your preferred language at any time using the globe icon in the navigation bar. For custom Studio projects, we can implement multi-language architectures (i18n) supporting any global language required by your target audience.</p>", 
+              a_mm: "<p>ဟုတ်ကဲ့။ MyanCode ဝက်ဘ်ဆိုက်ကို <strong>အင်္ဂလိပ်</strong> နှင့် <strong>မြန်မာ</strong> ဘာသာစကား နှစ်မျိုးဖြင့် အပြည့်အဝ အသုံးပြုနိုင်ပါသည်။ အပေါ်ဘက်ရှိ ကမ္ဘာလုံးပုံ icon ကိုနှိပ်၍ ဘာသာစကား ပြောင်းလဲနိုင်ပါသည်။ စိတ်ကြိုက်ရေးဆွဲသော ပရောဂျက်များအတွက်လည်း သင်လိုအပ်သော မည်သည့်ဘာသာစကားကိုမဆို ထည့်သွင်းရေးဆွဲပေးနိုင်ပါသည်။</p>" 
+            },
+            { id: "q8", category: "general", 
+              q_en: "What are your business hours?", 
+              q_mm: "ရုံးချိန် ဘယ်အချိန်တွေလဲ?", 
+              a_en: "<p>Our core engineering and support teams operate <strong>Monday through Friday, 9:00 AM to 6:00 PM (MMT)</strong>. However, our server infrastructure and automated systems are monitored 24/7/365 to ensure zero downtime for our enterprise clients.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ ရုံးချိန်မှာ <strong>တနင်္လာ မှ သောကြာ၊ နံနက် ၉ နာရီ မှ ညနေ ၆ နာရီ (မြန်မာစံတော်ချိန်)</strong> ဖြစ်ပါသည်။ သို့သော် ဝက်ဘ်ဆိုက် ဆာဗာများနှင့် စနစ်များကို ၂၄ နာရီ အချိန်ပြည့် စောင့်ကြည့်ထိန်းသိမ်းလျက်ရှိပါသည်။</p>" 
+            },
+            { id: "q9", category: "general", 
+              q_en: "Do you have a portfolio I can view?", 
+              q_mm: "အရင်လုပ်ခဲ့တဲ့ ပရောဂျက်တွေကို ကြည့်လို့ရမလား?", 
+              a_en: "<p>Yes, we maintain a highly curated portfolio. You can view real-world examples of web applications, landing pages, and corporate sites we've successfully delivered to clients by navigating to our <a href='../project-delivered/index.html' class='text-myancode-blue hover:underline'>Projects Delivered</a> section.</p>", 
+              a_mm: "<p>ကြည့်ရှုနိုင်ပါသည်။ ကျွန်ုပ်တို့ အောင်မြင်စွာ ရေးဆွဲပေးခဲ့သော လုပ်ငန်းသုံး ဝက်ဘ်ဆိုက်များနှင့် ပရောဂျက်များကို <a href='../project-delivered/index.html' class='text-myancode-blue hover:underline'>Projects Delivered</a> စာမျက်နှာတွင် ဝင်ရောက်လေ့လာနိုင်ပါသည်။</p>" 
+            },
+            { id: "q10", category: "general", 
+              q_en: "How does the Wishlist feature work?", 
+              q_mm: "Wishlist က ဘယ်လိုအလုပ်လုပ်သလဲ?", 
+              a_en: "<p>The Wishlist allows registered users to save UI Templates or Services they are interested in. Simply click the heart icon on any product card. Your selections are securely synchronized to your account via Supabase, meaning you can access your saved items from any device by opening the Wishlist drawer.</p>", 
+              a_mm: "<p>Wishlist သည် အကောင့်ရှိသူများအတွက် မိမိစိတ်ဝင်စားသော ဝက်ဘ်ဆိုက်ပုံစံများနှင့် ဝန်ဆောင်မှုများကို မှတ်သားထားနိုင်သော စနစ်ဖြစ်ပါသည်။ ကတ်များပေါ်ရှိ အသည်းပုံ icon ကို နှိပ်ရုံဖြင့် သိမ်းဆည်းနိုင်ပြီး၊ မည်သည့်စက်ပစ္စည်းမှမဆို မိမိအကောင့်ဝင်၍ ပြန်လည်ကြည့်ရှုနိုင်ပါသည်။</p>" 
+            },
+
+            // Templates (11-20)
+            { id: "q11", category: "templates", 
+              q_en: "What exactly are MyanCode UI Templates?", 
+              q_mm: "MyanCode UI Templates ဆိုတာ ဘာလဲ?", 
+              a_en: "<p>UI Templates are pre-built, premium static website architectures. They are designed by our senior engineers to look flawless and perform at lightning speed. Rather than building from scratch, you purchase a template as a robust foundation, saving weeks of development time and costs.</p>", 
+              a_mm: "<p>UI Templates များသည် ကျွန်ုပ်တို့၏ ကျွမ်းကျင်ပညာရှင်များမှ ကြိုတင်ရေးဆွဲထားသော အရည်အသွေးမြင့် ဝက်ဘ်ဆိုက်ပုံစံများ ဖြစ်ပါသည်။ အစမှစတင်ရေးဆွဲရန် မလိုဘဲ၊ အချိန်နှင့် ကုန်ကျစရိတ်ကို များစွာသက်သာစေကာ ချက်ချင်းအသုံးပြုနိုင်ရန် ဖန်တီးထားခြင်း ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q12", category: "templates", 
+              q_en: "How do I purchase a template?", 
+              q_mm: "Template ကို ဘယ်လို ဝယ်ရမလဲ?", 
+              a_en: "<p>To purchase a template:</p><ol><li>Browse the <a href='../templates/index.html' class='text-myancode-blue hover:underline'>Templates</a> catalog.</li><li>Click 'View Details' on your desired design.</li><li>Click the 'Purchase' button to add it to your order queue.</li><li>Our team will immediately receive your request and contact you with secure payment details and delivery instructions.</li></ol>", 
+              a_mm: "<p>ဝယ်ယူရန်အတွက်-</p><ol><li><a href='../templates/index.html' class='text-myancode-blue hover:underline'>Templates</a> စာမျက်နှာတွင် ဝင်ရောက်ရွေးချယ်ပါ။</li><li>နှစ်သက်ရာပုံစံ၏ 'View Details' ကို နှိပ်ပါ။</li><li>'Purchase' ခလုတ်ကို နှိပ်၍ အော်ဒါတင်ပါ။</li><li>ကျွန်ုပ်တို့အဖွဲ့မှ သင့်ထံသို့ ငွေပေးချေမှု အသေးစိတ်နှင့် လုပ်ငန်းစဉ်များကို အမြန်ဆုံး ဆက်သွယ်အကြောင်းကြားပေးပါမည်။</li></ol>" 
+            },
+            { id: "q13", category: "templates", 
+              q_en: "Can I customize a template after buying it?", 
+              q_mm: "ဝယ်ပြီးသား Template ကို စိတ်ကြိုက် ပြင်ဆင်လို့ရလား?", 
+              a_en: "<p><strong>Yes.</strong> When you purchase a template, you receive the full, well-documented source code. If you have in-house developers, they can modify it without restriction. Alternatively, you can hire our Studio team to professionally customize the template with your branding, specific text, and additional features.</p>", 
+              a_mm: "<p><strong>ရပါသည်။</strong> ဝယ်ယူပြီးပါက သင့်အနေဖြင့် source code အပြည့်အစုံကို ရရှိမည်ဖြစ်ပြီး ကိုယ်တိုင် ပြင်ဆင်နိုင်ပါသည်။ သို့မဟုတ်ပါက ကျွန်ုပ်တို့၏ Studio အဖွဲ့ကို ငှားရမ်း၍ သင်၏ လုပ်ငန်းလိုဂို၊ စာသားများနှင့် အခြားလုပ်ဆောင်ချက်များကို စိတ်ကြိုက်ပြင်ဆင်ခိုင်းနိုင်ပါသည်။</p>" 
+            },
+            { id: "q14", category: "templates", 
+              q_en: "Do templates include web hosting and a domain name?", 
+              q_mm: "Template ဝယ်ရင် Hosting နဲ့ Domain ပါဝင်ပါသလား?", 
+              a_en: "<p>No, the purchase price of a UI Template covers the <strong>source code and design licenses only</strong>. However, we offer comprehensive add-on services where we can handle the domain registration, secure cloud hosting setup, and deployment for an additional fee.</p>", 
+              a_mm: "<p>မပါဝင်ပါ။ UI Template ၏ ဈေးနှုန်းသည် <strong>ကုဒ်နှင့် ဒီဇိုင်း မူပိုင်ခွင့်များအတွက်သာ</strong> ဖြစ်ပါသည်။ သို့သော် ဒိုမိန်းဝယ်ယူခြင်း၊ ဆာဗာချိတ်ဆက်ခြင်းနှင့် အွန်လိုင်းလွှင့်တင်ခြင်းများကို ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများမှတစ်ဆင့် ထပ်မံရယူနိုင်ပါသည်။</p>" 
+            },
+            { id: "q15", category: "templates", 
+              q_en: "Are the templates mobile-responsive?", 
+              q_mm: "Template တွေက ဖုန်းနဲ့ကြည့်ရင် အဆင်ပြေလား?", 
+              a_en: "<p><strong>Absolutely 100%.</strong> Every template built by MyanCode is engineered with a mobile-first approach using modern CSS frameworks like Tailwind. They adapt fluidly to look spectacular on iPhones, Android devices, tablets, laptops, and ultra-wide desktop monitors.</p>", 
+              a_mm: "<p><strong>ရာနှုန်းပြည့် အဆင်ပြေပါသည်။</strong> MyanCode မှရေးဆွဲထားသော ပုံစံတိုင်းသည် မိုဘိုင်းဖုန်းများကို အဓိကထားစဉ်းစားရေးဆွဲထားပြီး၊ ဖုန်း၊ တက်ဘလက် နှင့် ကွန်ပျူတာ မျက်နှာပြင်အရွယ်အစား အားလုံးတွင် အချိုးကျလှပစွာ ကြည့်ရှုနိုင်ပါသည်။</p>" 
+            },
+            { id: "q16", category: "templates", 
+              q_en: "What technology stack is used in the templates?", 
+              q_mm: "Template တွေမှာ ဘာနည်းပညာတွေ သုံးထားသလဲ?", 
+              a_en: "<p>Our static templates are built using modern, universally accepted web standards to ensure high performance and easy maintainability:</p><ul><li><strong>Structure:</strong> Semantic HTML5</li><li><strong>Styling:</strong> Tailwind CSS (for rapid, utility-first styling)</li><li><strong>Interactivity:</strong> Vanilla JavaScript (ES6+) and lightweight icon libraries like Lucide.</li></ul><p>We avoid heavy legacy libraries like jQuery to guarantee sub-second load times.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ ပုံစံများကို မြန်ဆန်ပြီး ပြင်ဆင်ရလွယ်ကူစေရန် ခေတ်မီနည်းပညာများဖြင့် တည်ဆောက်ထားပါသည်-</p><ul><li><strong>Structure:</strong> HTML5</li><li><strong>Styling:</strong> Tailwind CSS</li><li><strong>Interactivity:</strong> Vanilla JavaScript နှင့် Lucide icons များ။</li></ul><p>ဝက်ဘ်ဆိုက် ပိုမိုမြန်ဆန်စေရန်အတွက် လေးလံသော နည်းပညာဟောင်းများကို အသုံးမပြုထားပါ။</p>" 
+            },
+            { id: "q17", category: "templates", 
+              q_en: "What happens if a template is marked as 'Out of Stock'?", 
+              q_mm: "'Out of Stock' ဖြစ်နေရင် ဘယ်လိုလုပ်ရမလဲ?", 
+              a_en: "<p>For exclusivity purposes, some of our highly specialized premium templates have strict limits on how many times they can be sold globally. If a template is 'Out of Stock', it means the license cap has been reached. We recommend checking back later or browsing our active catalog. You can also contact Studio to build a custom variation for you.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ အချို့သော အထူးဒီဇိုင်းများကို အရေအတွက် ကန့်သတ်ချက်ဖြင့်သာ ရောင်းချပါသည်။ 'Out of Stock' ပြနေပါက ယင်းပုံစံကို ဆက်လက်ဝယ်ယူ၍မရနိုင်တော့ပါ။ အခြားသော ဒီဇိုင်းများကို ရွေးချယ်နိုင်သလို၊ သင့်လုပ်ငန်းအတွက် သီးသန့်ဒီဇိုင်းကို Studio တွင် အပ်နှံနိုင်ပါသည်။</p>" 
+            },
+            { id: "q18", category: "templates", 
+              q_en: "Do you offer refunds on downloaded templates?", 
+              q_mm: "Template ဝယ်ပြီးရင် ငွေပြန်အမ်းလို့ရလား?", 
+              a_en: "<p>Due to the digital, non-returnable nature of source code, <strong>we do not offer refunds</strong> once the template files have been securely delivered to you. We strongly advise reviewing the live preview and detail specifications thoroughly before making a purchase. Please refer to our <a href='../legal/index.html#refund-policy' class='text-myancode-blue hover:underline'>Refund Policy</a> for legal specifics.</p>", 
+              a_mm: "<p>ဒစ်ဂျစ်တယ် ကုန်ပစ္စည်းများ ဖြစ်သည့်အတွက် ကုဒ်ဖိုင်များကို ပေးပို့ပြီးပါက <strong>ငွေပြန်အမ်းခြင်း လုံးဝမပြုလုပ်ပါ</strong>။ ထို့ကြောင့် မဝယ်ယူမီ Live Preview ကို သေချာစွာ ကြည့်ရှုလေ့လာရန် အကြံပြုအပ်ပါသည်။ အသေးစိတ်ကို <a href='../legal/index.html#refund-policy' class='text-myancode-blue hover:underline'>Refund Policy</a> တွင် ဖတ်ရှုနိုင်ပါသည်။</p>" 
+            },
+            { id: "q19", category: "templates", 
+              q_en: "Are the images in the templates free to use?", 
+              q_mm: "Template ထဲက ပုံတွေကို အခမဲ့ သုံးလို့ရလား?", 
+              a_en: "<p>The images featured in our live previews are generally sourced from royalty-free platforms (like Unsplash) for demonstration purposes. While you receive them with the code, we highly recommend replacing them with your own authentic branding and photography before launching your business publicly.</p>", 
+              a_mm: "<p>Preview တွင် ပြသထားသော ပုံအများစုသည် အခမဲ့အသုံးပြုနိုင်သော ပုံများဖြစ်သော်လည်း၊ သင်၏ ဝက်ဘ်ဆိုက် အမှန်တကယ် လွှင့်တင်သည့်အခါတွင် သင့်လုပ်ငန်း၏ ကိုယ်ပိုင်ပုံများ၊ လိုဂိုများဖြင့် အစားထိုး အသုံးပြုရန် အထူးအကြံပြုအပ်ပါသည်။</p>" 
+            },
+            { id: "q20", category: "templates", 
+              q_en: "How often are new UI templates added to the store?", 
+              q_mm: "ဒီဇိုင်းအသစ်တွေ ဘယ်လောက်ကြာကြာ တစ်ခါ ထွက်လေ့ရှိလဲ?", 
+              a_en: "<p>Our design team aims to publish 2 to 4 high-fidelity templates every month, covering various industries including portfolios, SaaS landing pages, and corporate sites. We suggest subscribing to our newsletter to receive immediate alerts when new architectures drop.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ ဒီဇိုင်းအဖွဲ့သည် တစ်လလျှင် အရည်အသွေးမြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်း ၂ ခုမှ ၄ ခုအထိ အသစ်ထွက်ရှိနိုင်ရန် ကြိုးစားလျက်ရှိပါသည်။ ဒီဇိုင်းအသစ်များ ထွက်ရှိချိန်တွင် ချက်ချင်းသိရှိနိုင်ရန် သတင်းလွှာ (Newsletter) ကို စာရင်းသွင်းထားနိုင်ပါသည်။</p>" 
+            },
+
+            // Studio (21-30)
+            { id: "q21", category: "studio", 
+              q_en: "What is the MyanCode Custom Studio?", 
+              q_mm: "MyanCode Studio ဆိုတာ ဘာလဲ?", 
+              a_en: "<p>The <strong>MyanCode Studio</strong> is our premium, bespoke development service. Instead of using a template, you work directly with our engineering and design teams to build a highly complex, 100% custom digital platform tailored perfectly to your business logic, database needs, and brand identity.</p>", 
+              a_mm: "<p><strong>MyanCode Studio</strong> သည် သင့်လုပ်ငန်းအတွက် ၁၀၀% စိတ်ကြိုက် သီးသန့် ဝက်ဘ်ဆိုက် ရေးဆွဲပေးသော ဝန်ဆောင်မှုဖြစ်ပါသည်။ အသင့်သုံးပုံစံများကို မသုံးဘဲ၊ သင့်လုပ်ငန်း၏ လိုအပ်ချက်၊ အချက်အလက်များနှင့် အမှတ်တံဆိပ်အတိုင်း ကျွန်ုပ်တို့၏ အင်ဂျင်နီယာအဖွဲ့မှ အစမှစတင် တည်ဆောက်ပေးခြင်း ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q22", category: "studio", 
+              q_en: "How long does a custom web project take to complete?", 
+              q_mm: "စိတ်ကြိုက် ဝက်ဘ်ဆိုက်ရေးဆွဲရန် အချိန် ဘယ်လောက်ကြာသလဲ?", 
+              a_en: "<p>Timelines vary drastically based on complexity:</p><ul><li><strong>Basic Corporate Sites:</strong> 2 to 4 weeks.</li><li><strong>E-Commerce / Dynamic Portals:</strong> 1 to 3 months.</li><li><strong>Enterprise Web Apps (SaaS):</strong> 3 to 6+ months.</li></ul><p>After an initial consultation, we provide a strict, transparent timeline with distinct milestone deliverables.</p>", 
+              a_mm: "<p>အချိန်ကြာမြင့်မှုသည် ပရောဂျက်၏ ကြီးမားမှုပေါ်မူတည်ပါသည်-</p><ul><li><strong>သာမန် လုပ်ငန်းသုံး ဝက်ဘ်ဆိုက်များ:</strong> ၂ ပတ် မှ ၄ ပတ်ခန့်။</li><li><strong>E-Commerce / ဈေးဝယ်ဝက်ဘ်ဆိုက်များ:</strong> ၁ လ မှ ၃ လခန့်။</li><li><strong>အဆင့်မြင့် လုပ်ငန်းသုံး စနစ်များ (SaaS):</strong> ၃ လ မှ ၆ လကျော်အထိ။</li></ul><p>ပထမဆုံး ဆွေးနွေးတိုင်ပင်ပြီးပါက အတိအကျ ကြာမြင့်မည့် အချိန်ဇယားကို တွက်ချက်ပေးပါမည်။</p>" 
+            },
+            { id: "q23", category: "studio", 
+              q_en: "Can you integrate third-party APIs (like payment gateways)?", 
+              q_mm: "ငွေပေးချေမှုစနစ်နဲ့ အခြား API တွေ ချိတ်ဆက်ပေးလို့ရလား?", 
+              a_en: "<p><strong>Yes.</strong> API integration is a core specialty of our Studio. We can securely integrate local payment gateways (KBZPay, WavePay, AYA Pay) and international processors (Stripe, PayPal). We also integrate CRMs, email marketing tools, headless CMS platforms, and internal enterprise software databases.</p>", 
+              a_mm: "<p><strong>ရပါသည်။</strong> ပြည်တွင်း ငွေပေးချေမှုစနစ်များဖြစ်သော KBZPay, WavePay အစရှိသည်တို့အပြင် နိုင်ငံတကာစနစ်များကိုပါ လုံခြုံစိတ်ချစွာ ချိတ်ဆက်ပေးပါသည်။ ထို့အပြင် လုပ်ငန်းသုံးဆော့ဖ်ဝဲလ်များ၊ CRM များနှင့် အခြားသော API များကိုပါ ချိတ်ဆက်ရေးဆွဲပေးနိုင်ပါသည်။</p>" 
+            },
+            { id: "q24", category: "studio", 
+              q_en: "Will my custom website be SEO optimized?", 
+              q_mm: "စိတ်ကြိုက်ရေးတဲ့ ဝက်ဘ်ဆိုက်တွေမှာ SEO ပါဝင်ပါသလား?", 
+              a_en: "<p>All Studio projects are built with fundamental technical SEO built-in. This includes semantic HTML, lightning-fast load times, mobile-first layouts, and meta tag structures. For advanced, ongoing keyword ranking strategies and content SEO, we offer a dedicated <a href='../services/index.html' class='text-myancode-blue hover:underline'>Advanced Web SEO</a> service add-on.</p>", 
+              a_mm: "<p>Studio မှရေးဆွဲသော ဝက်ဘ်ဆိုက်တိုင်းတွင် အခြေခံ Technical SEO (ဥပမာ- မြန်ဆန်မှု၊ မိုဘိုင်းအတွက် အဆင်ပြေမှု) များ ပါဝင်ပြီးသား ဖြစ်ပါသည်။ သို့သော် Google တွင် အမြဲတမ်း ထိပ်ဆုံးမှရပ်တည်နိုင်ရန် ဆက်လက်လုပ်ဆောင်ရမည့် SEO အဆင့်မြှင့်တင်ခြင်းကိုမူ သီးသန့်ဝန်ဆောင်မှုတစ်ခုအနေဖြင့် ထပ်မံရယူနိုင်ပါသည်။</p>" 
+            },
+            { id: "q25", category: "studio", 
+              q_en: "Who owns the source code after the project is completed?", 
+              q_mm: "ပရောဂျက် ပြီးသွားရင် Source Code တွေကို ဘယ်သူပိုင်ဆိုင်မလဲ?", 
+              a_en: "<p>Once the project is complete and all final invoices are cleared, <strong>you retain 100% intellectual property ownership</strong> of the custom application source code. We will transfer all necessary repositories and assets to your organization.</p>", 
+              a_mm: "<p>ပရောဂျက် ရေးဆွဲမှု ပြီးစီးပြီး ငွေပေးချေမှုများ အားလုံး ရှင်းလင်းပြီးပါက၊ ဝက်ဘ်ဆိုက်၏ <strong>Source code များအားလုံးကို သင်၏ လုပ်ငန်းမှ ၁၀၀% အပြည့်အဝ ပိုင်ဆိုင်မည်</strong> ဖြစ်ပါသည်။ လိုအပ်သော ဖိုင်များအားလုံးကို သင့်ထံသို့ လွှဲပြောင်းပေးမည်ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q26", category: "studio", 
+              q_en: "What is your development process?", 
+              q_mm: "ဝက်ဘ်ဆိုက် ရေးဆွဲရာမှာ ဘယ်လိုအဆင့်တွေနဲ့ လုပ်ဆောင်သလဲ?", 
+              a_en: "<p>We follow a rigorous, agile methodology:</p><ol><li><strong>Discovery:</strong> Analyzing requirements and finalizing architecture.</li><li><strong>UI/UX Design:</strong> Crafting visual wireframes and high-fidelity mockups for your approval.</li><li><strong>Development:</strong> Coding the front-end and back-end logic.</li><li><strong>QA & Testing:</strong> Stress testing across browsers, devices, and security endpoints.</li><li><strong>Deployment:</strong> Pushing the site live to production servers.</li></ol>", 
+              a_mm: "<p>ကျွန်ုပ်တို့သည် အောက်ပါအဆင့်များအတိုင်း စနစ်တကျ လုပ်ဆောင်ပါသည်-</p><ol><li><strong>လေ့လာတိုင်ပင်ခြင်း:</strong> လိုအပ်ချက်များကို ဆွေးနွေးပြီး အစီအစဉ်ချမှတ်ခြင်း။</li><li><strong>ဒီဇိုင်းဆွဲခြင်း:</strong> ဝက်ဘ်ဆိုက်၏ အကြမ်းဖျင်းပုံစံနှင့် အရောင်ဒီဇိုင်းများကို ရေးဆွဲအတည်ပြုခြင်း။</li><li><strong>ကုဒ်ရေးသားခြင်း:</strong> ရှေ့ပိုင်းနှင့် နောက်ကွယ်မှ စနစ်များကို ရေးသားခြင်း။</li><li><strong>စမ်းသပ်ခြင်း:</strong> အမှားအယွင်းမရှိစေရန်နှင့် လုံခြုံရေးအတွက် သေချာစွာ စမ်းသပ်ခြင်း။</li><li><strong>လွှင့်တင်ခြင်း:</strong> အွန်လိုင်းပေါ်သို့ တရားဝင် လွှင့်တင်ပေးခြင်း။</li></ol>" 
+            },
+            { id: "q27", category: "studio", 
+              q_en: "Do you build custom E-commerce platforms?", 
+              q_mm: "ဈေးဝယ် ဝက်ဘ်ဆိုက် (E-commerce) တွေ ရေးဆွဲပေးသလား?", 
+              a_en: "<p>Yes, we specialize in high-performance headless e-commerce. Whether you need a massive digital storefront, robust inventory databases, or localized Myanmar payment integrations, our Studio can engineer a scalable solution tailored to outpace standard platforms like Shopify or WooCommerce.</p>", 
+              a_mm: "<p>ရေးဆွဲပေးပါသည်။ ကျွန်ုပ်တို့သည် အရည်အသွေးမြင့်မားပြီး မြန်ဆန်သော E-commerce စနစ်များကို ကျွမ်းကျင်စွာ ရေးဆွဲပေးပါသည်။ ကုန်ပစ္စည်းအရေအတွက် များပြားသော ဆိုင်များ၊ မြန်မာနိုင်ငံရှိ ငွေပေးချေမှုစနစ်များနှင့် ချိတ်ဆက်မှုများကို သာမန်စနစ်များထက် ပိုမိုကောင်းမွန်အောင် ဖန်တီးပေးနိုင်ပါသည်။</p>" 
+            },
+            { id: "q28", category: "studio", 
+              q_en: "How are revisions handled during the build process?", 
+              q_mm: "ဝက်ဘ်ဆိုက်ရေးဆွဲနေချိန်မှာ ပြင်ဆင်မှုတွေကို ဘယ်လိုလုပ်ပေးသလဲ?", 
+              a_en: "<p>Revisions are structured into the milestone phases. You will have a defined number of revision rounds during the UI/UX design phase to perfect the look. Once coding begins, structural changes are limited to prevent scope-creep, but minor tweaks are accommodated to ensure absolute satisfaction.</p>", 
+              a_mm: "<p>ဒီဇိုင်းရေးဆွဲသည့် အဆင့်တွင် သတ်မှတ်ထားသော အကြိမ်အရေအတွက်အတိုင်း စိတ်ကြိုက် ပြင်ဆင်ခွင့် ပေးထားပါသည်။ သို့သော် ကုဒ်စတင်ရေးသားပြီးချိန်တွင်မူ အခြေခံတည်ဆောက်ပုံများကို အကြီးစားပြောင်းလဲခြင်း ပြုလုပ်၍ မရနိုင်တော့ပါ။ အသေးစား ပြင်ဆင်မှုများကိုမူ အဆင်ပြေစေရန် ကူညီလုပ်ဆောင်ပေးပါသည်။</p>" 
+            },
+            { id: "q29", category: "studio", 
+              q_en: "Do I need to provide all the content (text and images)?", 
+              q_mm: "ဝက်ဘ်ဆိုက်ထဲထည့်မယ့် စာတွေ၊ ပုံတွေကို ကျွန်တော်တို့ဘက်က ပေးရမှာလား?", 
+              a_en: "<p>Typically, clients provide their own branded copy, logos, and product imagery. However, if you lack assets, our team can provide placeholder text and professional stock photography. We can also partner with professional copywriters to help generate your enterprise messaging at an additional cost.</p>", 
+              a_mm: "<p>ပုံမှန်အားဖြင့် ဖောက်သည်များဘက်မှ မိမိလုပ်ငန်း၏ လိုဂိုများ၊ ဓာတ်ပုံများနှင့် အချက်အလက်များကို ပေးပို့ရမည်ဖြစ်ပါသည်။ အကယ်၍ မရှိသေးပါက ကျွန်ုပ်တို့ဘက်မှ အခမဲ့အသုံးပြုနိုင်သော ပုံများနှင့် ယာယီစာသားများကို ထည့်သွင်းပေးထားမည် ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q30", category: "studio", 
+              q_en: "What happens if I need a new feature months after launch?", 
+              q_mm: "ဝက်ဘ်ဆိုက် လွှင့်ပြီးမှ လုပ်ဆောင်ချက်အသစ်တွေ ထပ်ထည့်ချင်ရင် ရလား?", 
+              a_en: "<p>Digital products are always evolving. If you require new features post-launch, you can request an expansion quote. Our team will evaluate the new architecture, provide a timeline, and seamlessly deploy the updates to your existing platform without disrupting live traffic.</p>", 
+              a_mm: "<p>ရပါသည်။ ဝက်ဘ်ဆိုက် လွှင့်တင်ပြီးနောက်မှ လုပ်ဆောင်ချက် အသစ်များ ထပ်မံထည့်သွင်းလိုပါက ကျွန်ုပ်တို့ထံ ဆက်သွယ်နိုင်ပါသည်။ လိုအပ်ချက်ကို တွက်ချက်၍ ကုန်ကျစရိတ်နှင့် အချိန်ကို အကြောင်းကြားပေးမည်ဖြစ်ပြီး၊ လက်ရှိအသုံးပြုနေသူများကို မထိခိုက်စေဘဲ အဆင့်မြှင့်တင်ပေးမည် ဖြစ်ပါသည်။</p>" 
+            },
+
+            // Services & Maintenance (31-40)
+            { id: "q31", category: "services", 
+              q_en: "What does the Maintenance & Security service cover?", 
+              q_mm: "Maintenance & Security ဝန်ဆောင်မှုမှာ ဘာတွေပါဝင်သလဲ?", 
+              a_en: "<p>Our comprehensive maintenance plans include:</p><ul><li>24/7 server uptime monitoring.</li><li>Critical framework and security patch updates.</li><li>Routine daily or weekly database backups.</li><li>SSL certificate renewals and configuration.</li><li>Monthly bug fixing and minor text/image updates.</li></ul>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ ပြုပြင်ထိန်းသိမ်းမှု အစီအစဉ်တွင် အောက်ပါတို့ ပါဝင်ပါသည်-</p><ul><li>၂၄ နာရီ ဆာဗာ စောင့်ကြည့်ပေးခြင်း။</li><li>လုံခြုံရေးစနစ်များကို အမြဲတမ်း အဆင့်မြှင့်တင်ပေးခြင်း။</li><li>ဒေတာများကို နေ့စဉ်/အပတ်စဉ် backup ယူထားပေးခြင်း။</li><li>SSL (လုံခြုံရေး လင့်ခ်) သက်တမ်းတိုးပေးခြင်း။</li><li>အသေးစား ပြင်ဆင်မှုများနှင့် ချို့ယွင်းချက်များကို ဖြေရှင်းပေးခြင်း။</li></ul>" 
+            },
+            { id: "q32", category: "services", 
+              q_en: "Do I have to host my website with MyanCode?", 
+              q_mm: "ဝက်ဘ်ဆိုက်ကို MyanCode မှာပဲ Hosting ချိတ်ရမှာလား?", 
+              a_en: "<p>No, you are not strictly required to host with us. If you purchase a Template or Custom Studio build, you can deploy it on your own AWS, Vercel, or cPanel servers. However, we highly recommend our managed hosting services for guaranteed security, speed optimizations, and easier maintenance.</p>", 
+              a_mm: "<p>မလိုပါ။ ဝက်ဘ်ဆိုက်ကို သင်ကိုယ်တိုင် နှစ်သက်ရာ ဆာဗာ (AWS, Vercel စသည်) များတွင် လွှင့်တင်နိုင်ပါသည်။ သို့သော် လုံခြုံရေး၊ မြန်ဆန်မှုနှင့် ပြုပြင်ထိန်းသိမ်းရ လွယ်ကူစေရန်အတွက် ကျွန်ုပ်တို့၏ Hosting ဝန်ဆောင်မှုကို အသုံးပြုရန် အကြံပြုအပ်ပါသည်။</p>" 
+            },
+            { id: "q33", category: "services", 
+              q_en: "How does the Advanced Web SEO service work?", 
+              q_mm: "Advanced Web SEO ဝန်ဆောင်မှုက ဘယ်လိုအလုပ်လုပ်သလဲ?", 
+              a_en: "<p>Our Advanced SEO entails deep structural improvements to push your site up the Google rankings. This includes keyword research, metadata restructuring, schema markup implementations, image compression algorithms, and configuring proper sitemap integrations for global crawlers.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ Advanced SEO ဝန်ဆောင်မှုသည် သင့်ဝက်ဘ်ဆိုက်ကို Google ၏ ရှာဖွေမှုရလဒ်များတွင် ထိပ်ဆုံးသို့ရောက်ရှိစေရန် နည်းပညာပိုင်းဆိုင်ရာ အဆင့်မြှင့်တင်ပေးခြင်း ဖြစ်ပါသည်။ Keyword ရှာဖွေခြင်း၊ ပုံများ၏ အရွယ်အစားကို လျှော့ချပေးခြင်းနှင့် Search Engine များ ဖတ်ရှုရလွယ်ကူစေရန် စနစ်တကျ ပြင်ဆင်ပေးခြင်းများ ပါဝင်ပါသည်။</p>" 
+            },
+            { id: "q34", category: "services", 
+              q_en: "Can you help me acquire a domain name?", 
+              q_mm: "ဒိုမိန်းအမည် (Domain Name) ဝယ်ပေးလို့ ရလား?", 
+              a_en: "<p><strong>Yes.</strong> We offer Domain Acquisition as a service. We can help you check availability, negotiate premium domain purchases, and securely link the DNS records (A, CNAME, TXT) to your hosting environment.</p>", 
+              a_mm: "<p><strong>ရပါသည်။</strong> သင့်လုပ်ငန်းနှင့် ကိုက်ညီမည့် ဒိုမိန်းအမည်များကို ရှာဖွေဝယ်ယူပေးခြင်းနှင့် ဆာဗာများသို့ ချိတ်ဆက်ပေးခြင်း ဝန်ဆောင်မှုများကို ဆောင်ရွက်ပေးပါသည်။</p>" 
+            },
+            { id: "q35", category: "services", 
+              q_en: "What happens if my website goes offline?", 
+              q_mm: "ဝက်ဘ်ဆိုက် ကျသွားရင် ဘယ်လိုလုပ်မလဲ?", 
+              a_en: "<p>If you are under our enterprise Maintenance plan, our automated systems instantly detect downtime. Our engineers are alerted 24/7 and will immediately intervene to restore services. If you are unmanaged, you will need to rely on your individual hosting provider's support team.</p>", 
+              a_mm: "<p>အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ Maintenance အစီအစဉ်ကို ရယူထားပါက၊ စနစ်မှ အလိုအလျောက် သိရှိပြီး ကျွန်ုပ်တို့၏ အင်ဂျင်နီယာများမှ ချက်ချင်း ပြန်လည်ကောင်းမွန်အောင် လုပ်ဆောင်ပေးမည် ဖြစ်ပါသည်။ အကယ်၍ ရယူထားခြင်းမရှိပါက သင်ချိတ်ဆက်ထားသော ဆာဗာဝန်ဆောင်မှုပေးသူထံ တိုက်ရိုက်ဆက်သွယ်ရမည် ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q36", category: "services", 
+              q_en: "Do you offer database management services?", 
+              q_mm: "Database ထိန်းသိမ်းတဲ့ ဝန်ဆောင်မှု ပေးသလား?", 
+              a_en: "<p>Yes. For custom applications requiring complex back-ends, we provide database management. This includes scaling Supabase or PostgreSQL environments, optimizing slow queries, managing migrations, and ensuring daily backups to prevent data loss.</p>", 
+              a_mm: "<p>ပေးပါသည်။ နောက်ကွယ်မှ အချက်အလက်များကို သိမ်းဆည်းရန်လိုအပ်သော ဝက်ဘ်ဆိုက်များအတွက် Database စီမံခန့်ခွဲမှု ဝန်ဆောင်မှုများကိုပါ ပေးဆောင်ပါသည်။ နှေးကွေးနေသော စနစ်များကို မြန်ဆန်အောင်လုပ်ပေးခြင်းနှင့် အချက်အလက်များ မပျောက်ပျက်စေရန် နေ့စဉ် Backup ယူပေးခြင်းများ ပါဝင်ပါသည်။</p>" 
+            },
+            { id: "q37", category: "services", 
+              q_en: "Are updates applied automatically?", 
+              q_mm: "Update တွေကို အလိုအလျောက် လုပ်ပေးသလား?", 
+              a_en: "<p>For security reasons, we do not blindly auto-update critical infrastructure as it can cause conflicts. Instead, under our maintenance contracts, our engineers review framework updates, test them in a staging environment, and then safely deploy them to your live site.</p>", 
+              a_mm: "<p>လုံခြုံရေးအရ အရေးကြီးသော Update များကို အလိုအလျောက် ပြုလုပ်ခြင်းမျိုး မလုပ်ဆောင်ပါ။ ကျွန်ုပ်တို့၏ အင်ဂျင်နီယာများမှ သေချာစွာ စစ်ဆေးစမ်းသပ်ပြီးမှသာ သင်၏ ဝက်ဘ်ဆိုက်အမှန်သို့ လုံခြုံစိတ်ချစွာ အဆင့်မြှင့်တင်ပေးပါသည်။</p>" 
+            },
+            { id: "q38", category: "services", 
+              q_en: "Can I upgrade my maintenance plan later?", 
+              q_mm: "နောက်မှ Maintenance အစီအစဉ်ကို တိုးမြှင့်လို့ရလား?", 
+              a_en: "<p>Absolutely. As your traffic grows and your operations require stricter SLAs or more frequent backup intervals, you can upgrade your maintenance contract at any billing cycle seamlessly.</p>", 
+              a_mm: "<p>ရပါသည်။ သင့်လုပ်ငန်း ကြီးထွားလာသည်နှင့်အမျှ ဝက်ဘ်ဆိုက် အသုံးပြုသူ ပိုများလာပါက၊ ပိုမိုကောင်းမွန်သော လုံခြုံရေးနှင့် Maintenance အစီအစဉ်များသို့ အချိန်မရွေး ပြောင်းလဲအသုံးပြုနိုင်ပါသည်။</p>" 
+            },
+            { id: "q39", category: "services", 
+              q_en: "What if my website gets hacked?", 
+              q_mm: "ဝက်ဘ်ဆိုက် Hack ခံရရင် ဘယ်လိုလုပ်မလဲ?", 
+              a_en: "<p>While our architectures are highly resilient to standard attacks, no system is perfectly immune. If a breach occurs to a site under our Maintenance coverage, we execute emergency protocols: isolating the site, cleaning malicious injections, patching the vulnerability, and restoring data from the latest secure backup.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ တည်ဆောက်ပုံများသည် အလွန်လုံခြုံစိတ်ချရသော်လည်း တိုက်ခိုက်မှုများ ဖြစ်ပေါ်လာပါက၊ Maintenance ရယူထားသော ဝက်ဘ်ဆိုက်များအတွက် အရေးပေါ် ကယ်ဆယ်ရေးလုပ်ငန်းစဉ်များကို ချက်ချင်းလုပ်ဆောင်ပေးပါသည်။ အန္တရာယ်ရှိသော ကုဒ်များကို ရှင်းလင်းပြီး နောက်ဆုံးရယူထားသော လုံခြုံသည့် Data များဖြင့် ပြန်လည်တည်ဆောက်ပေးပါသည်။</p>" 
+            },
+            { id: "q40", category: "services", 
+              q_en: "Do you provide performance analytics?", 
+              q_mm: "ဝက်ဘ်ဆိုက်ကို လူဘယ်လောက်ဝင်ကြည့်လဲဆိုတဲ့ အချက်အလက်တွေ ရနိုင်လား?", 
+              a_en: "<p>Yes. Upon request, we integrate Google Analytics 4 (GA4) or custom privacy-friendly tracking solutions (like Vercel Analytics) into your platform, allowing you to monitor traffic, user geography, and performance metrics in real-time.</p>", 
+              a_mm: "<p>ရနိုင်ပါသည်။ သင်၏ ဝက်ဘ်ဆိုက်သို့ ဝင်ရောက်ကြည့်ရှုသူ အရေအတွက်၊ နေရာဒေသနှင့် အခြားသော အချက်အလက်များကို သိရှိနိုင်ရန် Google Analytics 4 (GA4) ကဲ့သို့သော စနစ်များကို ချိတ်ဆက်ပေးနိုင်ပါသည်။</p>" 
+            },
+
+            // Billing & Policies (41-43)
+            { id: "q41", category: "billing", 
+              q_en: "What payment methods do you accept?", 
+              q_mm: "ငွေပေးချေမှုစနစ် ဘာတွေရသလဲ?", 
+              a_en: "<p>We support a variety of payment options to accommodate local and international enterprises:</p><ul><li><strong>Local Transfer:</strong> KBZPay, WavePay, AYA Pay, CB Pay.</li><li><strong>Bank Transfer:</strong> Direct bank transfers to our corporate accounts.</li><li><strong>International:</strong> Currently for international cards, we only receive VISA, but we are doing our best to accept other methods soon.</li></ul>", 
+              a_mm: "<p>ပြည်တွင်းနှင့် နိုင်ငံတကာမှ ဖောက်သည်များအတွက် အောက်ပါ ငွေပေးချေမှုစနစ်များကို လက်ခံပါသည်-</p><ul><li><strong>ပြည်တွင်း (Local Transfer):</strong> KBZPay, WavePay, AYA Pay, CB Pay။</li><li><strong>ဘဏ် (Bank Transfer):</strong> ကုမ္ပဏီ ဘဏ်အကောင့်များသို့ တိုက်ရိုက် လွှဲပြောင်းနိုင်ပါသည်။</li><li><strong>နိုင်ငံတကာ (International):</strong> လက်ရှိတွင် နိုင်ငံတကာကတ်များအတွက် VISA ကိုသာ လက်ခံထားပြီး အခြားသော ငွေပေးချေမှုစနစ်များကိုလည်း လက်ခံနိုင်ရန် အကောင်းဆုံး ကြိုးစားဆောင်ရွက်လျက်ရှိပါသည်။</li></ul>" 
+            },
+            { id: "q42", category: "billing", 
+              q_en: "How is billing structured for custom Studio projects?", 
+              q_mm: "စိတ်ကြိုက် ဝက်ဘ်ဆိုက်အပ်နှံရင် ငွေဘယ်လိုပေးချေရမလဲ?", 
+              a_en: "<p>Custom projects require a structured payment schedule tied to milestones to ensure mutual commitment. Typically, this is organized as:</p><ul><li><strong>50% Upfront:</strong> To commence the discovery and UI/UX design phase.</li><li><strong>30% Midway:</strong> Upon approval of designs and commencement of back-end coding.</li><li><strong>20% Final:</strong> Pre-deployment, upon successful QA testing.</li></ul>", 
+              a_mm: "<p>စိတ်ကြိုက် ရေးဆွဲသော ပရောဂျက်များအတွက် အဆင့်လိုက် ငွေပေးချေမှုစနစ်ကို အသုံးပြုပါသည်-</p><ul><li><strong>၅၀% ကြိုတင်ပေးချေရပါမည်:</strong> ဒီဇိုင်းရေးဆွဲခြင်း လုပ်ငန်းစဉ်များ စတင်ရန်။</li><li><strong>၃၀% အလယ်ပိုင်း:</strong> ဒီဇိုင်းများကို အတည်ပြုပြီး ကုဒ်စတင်ရေးသားချိန်တွင်။</li><li><strong>၂၀% နောက်ဆုံး:</strong> ဝက်ဘ်ဆိုက်အလုံးစုံ ပြီးစီး၍ အွန်လိုင်းမလွှင့်တင်မီ အချိန်တွင်။</li></ul>" 
+            },
+            { id: "q43", category: "billing", 
+              q_en: "Are there any hidden fees or taxes?", 
+              q_mm: "အခြား ထပ်ဆောင်းပေးရမယ့် အခွန်တွေ ပါသေးလား?", 
+              a_en: "<p>We believe in absolute transparency. The quotes provided via our Package Estimator or direct Studio proposals encompass all development costs. Third-party recurring costs (such as domain renewals, hosting fees, or external API usage limits) will be explicitly outlined in your contract so there are no surprises.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့သည် ပွင့်လင်းမြင်သာမှုကို အလေးထားပါသည်။ ကုန်ကျစရိတ် တွက်ချက်မှုများတွင် ရေးဆွဲခ အားလုံးပါဝင်ပြီး ဖြစ်ပါသည်။ သို့သော် ဒိုမိန်းအမည် သက်တမ်းတိုးခ၊ ဆာဗာအသုံးပြုခ နှင့် အခြားသော ပြင်ပဝန်ဆောင်မှုများအတွက် နှစ်စဉ်ကုန်ကျစရိတ်များကို သဘောတူစာချုပ်တွင် အတိအလင်း ဖော်ပြပေးထားမည် ဖြစ်ပါသည်။</p>" 
+            },
+
+            // Operational Guides (44-54)
+            { id: "q44", category: "general", 
+              q_en: "How do I place an order for a template or service?", 
+              q_mm: "အော်ဒါ ဘယ်လိုတင်ရမလဲ?", 
+              a_en: "<p>Placing an order is simple. Browse our Templates or Services catalog, select the item you need, and click <strong>Purchase</strong> or <strong>Request Service</strong>. You will be redirected to our secure contact and ordering pipeline. Fill in your project details, and our team will immediately process your request and reach out to you via the User Hub or Email.</p>", 
+              a_mm: "<p>အော်ဒါတင်ရန် အလွန်လွယ်ကူပါသည်။ ဝက်ဘ်ဆိုက်ပုံစံများ (Templates) သို့မဟုတ် ဝန်ဆောင်မှုများ (Services) ထဲမှ နှစ်သက်ရာကို ရွေးချယ်ပြီး <strong>Purchase</strong> ကို နှိပ်ပါ။ ထို့နောက် လိုအပ်သော အချက်အလက်များကို ဖြည့်စွက်ပေးပါက ကျွန်ုပ်တို့အဖွဲ့မှ သင့်ထံသို့ အမြန်ဆုံး ဆက်သွယ်ပေးမည်ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q45", category: "templates", 
+              q_en: "How do I customize a template after receiving it?", 
+              q_mm: "ဝယ်ပြီးသားပုံစံကို ဘယ်လို စိတ်ကြိုက်ပြင်ရမလဲ?", 
+              a_en: "<p>Once your purchase is verified, you will receive the full source code (HTML, Tailwind CSS, JS). You can open these files in any code editor (like VS Code). Since we strictly use Tailwind CSS, customizing colors, typography, and layouts is as simple as changing the utility classes directly in the HTML files. We also provide a basic documentation guide with each premium template.</p>", 
+              a_mm: "<p>ငွေပေးချေမှု အတည်ပြုပြီးပါက Source Code (HTML, Tailwind CSS, JS) အပြည့်အစုံကို ရရှိမည်ဖြစ်ပါသည်။ VS Code ကဲ့သို့သော Code Editor များဖြင့် ဖွင့်၍ ပြင်ဆင်နိုင်ပါသည်။ Tailwind CSS ကို အသုံးပြုထားသဖြင့် HTML ဖိုင်များအတွင်းရှိ class များကို ပြောင်းလဲရုံဖြင့် အရောင်၊ စာလုံးနှင့် ဒီဇိုင်းများကို လွယ်ကူစွာ ပြင်ဆင်နိုင်ပါသည်။</p>" 
+            },
+            { id: "q46", category: "general", 
+              q_en: "What is the User Hub and how do I use it?", 
+              q_mm: "User Hub ဆိုတာ ဘာလဲ၊ ဘယ်လို သုံးရမလဲ?", 
+              a_en: "<p>The <strong>User Hub</strong> is your personal, secure dashboard on MyanCode. After registering and logging in, you can access it from the top navigation menu or your profile dropdown. Inside the User Hub, you can track your active orders, view your saved Wishlist, manage your profile settings, and securely communicate with our support and engineering teams.</p>", 
+              a_mm: "<p><strong>User Hub</strong> သည် သင့်အကောင့်၏ ကိုယ်ပိုင် လုံခြုံသော Dashboard ဖြစ်ပါသည်။ အကောင့်ဝင်ပြီးပါက အပေါ်ဘက် မီနူးမှတဆင့် ဝင်ရောက်နိုင်ပါသည်။ ထိုနေရာတွင် သင်၏ အော်ဒါအခြေအနေများကို ကြည့်ရှုခြင်း၊ Wishlist များကို စီမံခြင်းနှင့် ကျွန်ုပ်တို့၏ Support အဖွဲ့ထံ တိုက်ရိုက် ဆက်သွယ်ခြင်းများကို ပြုလုပ်နိုင်ပါသည်။</p>" 
+            },
+            { id: "q47", category: "general", 
+              q_en: "How do I check my order status?", 
+              q_mm: "ကျွန်တော့်ရဲ့ အော်ဒါအခြေအနေကို ဘယ်လိုစစ်ဆေးရမလဲ?", 
+              a_en: "<p>You can check your real-time order status by logging into your account and navigating to the User Hub. Under the <strong>Orders</strong> section, you will see all your active and past requests with clearly marked statuses such as Pending, Processing, Confirmed, or Cancelled.</p>", 
+              a_mm: "<p>သင့်အကောင့်သို့ ဝင်ရောက်ပြီး User Hub ထဲရှိ <strong>Orders</strong> ကဏ္ဍတွင် ဝင်ရောက်စစ်ဆေးနိုင်ပါသည်။ ထိုနေရာတွင် သင့်အော်ဒါများ၏ လက်ရှိအခြေအနေ (Pending, Processing, Confirmed စသည်ဖြင့်) ကို အချိန်နှင့်တပြေးညီ ကြည့်ရှုနိုင်ပါသည်။</p>" 
+            },
+            { id: "q48", category: "studio", 
+              q_en: "How do I request custom modifications after ordering?", 
+              q_mm: "အော်ဒါတင်ပြီးမှ ထပ်ပြင်ချင်ရင် ဘယ်လိုလုပ်ရမလဲ?", 
+              a_en: "<p>If you have ordered a Custom Studio project and need to change the scope, simply open your project thread in the User Hub or contact your assigned Project Manager directly. Note that structural modifications requested late in the development phase may incur additional time and costs.</p>", 
+              a_mm: "<p>စိတ်ကြိုက်ရေးဆွဲသည့် ပရောဂျက်များအတွက် လိုအပ်ချက်များ ထပ်မံပြောင်းလဲလိုပါက User Hub မှတဆင့်ဖြစ်စေ၊ သင့်အတွက် တာဝန်ချထားပေးသော Project Manager ထံသို့ဖြစ်စေ တိုက်ရိုက် ဆက်သွယ်နိုင်ပါသည်။ သို့သော် လုပ်ငန်းစဉ် ပြီးခါနီးမှ အကြီးစား ပြောင်းလဲမှုများ ပြုလုပ်ပါက အချိန်နှင့် ကုန်ကျစရိတ် ထပ်မံရှိနိုင်ပါသည်။</p>" 
+            },
+            { id: "q49", category: "templates", 
+              q_en: "Can I use the templates for multiple client projects?", 
+              q_mm: "ဝယ်ထားတဲ့ Template ကို တခြား project တွေအတွက် ထပ်သုံးလို့ရလား?", 
+              a_en: "<p>Our standard template license allows for <strong>single-project use</strong>. If you are an agency or freelancer wishing to use the same template architecture for multiple clients, you will need to purchase an Extended Agency License. Please contact our support team for bulk or extended licensing options.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ ပုံမှန်လိုင်စင်သည် <strong>ပရောဂျက်တစ်ခုအတွက်သာ</strong> အသုံးပြုခွင့်ပေးထားပါသည်။ အကယ်၍ အခြားဖောက်သည်များအတွက် အများအပြား ထပ်မံအသုံးပြုလိုပါက Extended Agency License ကို ဆက်သွယ်ဝယ်ယူရန် လိုအပ်ပါသည်။</p>" 
+            },
+            { id: "q50", category: "services", 
+              q_en: "How do I connect my purchased template to my own domain?", 
+              q_mm: "ကိုယ်ပိုင် Domain နဲ့ ဘယ်လိုချိတ်ရမလဲ?", 
+              a_en: "<p>If you choose to host it yourself, you will need to point your domain's A-record or CNAME to your hosting provider's IP address. If you purchase our Domain Acquisition or Maintenance services, our engineers will handle all the complex DNS configurations and SSL setups for you automatically.</p>", 
+              a_mm: "<p>သင့်ဘာသာ ကိုယ်တိုင်ချိတ်ဆက်မည်ဆိုပါက ဒိုမိန်း၏ A-record သို့မဟုတ် CNAME များကို Hosting ၏ IP သို့ ပြင်ဆင်ပေးရပါမည်။ အကယ်၍ ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုကို ရယူထားပါက အင်ဂျင်နီယာများမှ လိုအပ်သော DNS ပြင်ဆင်မှုများနှင့် လုံခြုံရေးစနစ်များကို အလွယ်တကူ ချိတ်ဆက်ပေးမည် ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q51", category: "general", 
+              q_en: "How to view previously delivered projects by MyanCode?", 
+              q_mm: "MyanCode ရေးဆွဲခဲ့တဲ့ ပရောဂျက်အဟောင်းတွေကို ဘယ်လိုကြည့်ရမလဲ?", 
+              a_en: "<p>We maintain an active portfolio of our work. You can navigate to the <a href='../project-delivered/index.html' class='text-myancode-blue hover:underline'>Projects Delivered</a> page from our main menu to see live examples of customized E-commerce platforms, Corporate Web Apps, and landing pages we have delivered globally.</p>", 
+              a_mm: "<p>ကျွန်ုပ်တို့ အောင်မြင်စွာ ရေးဆွဲအပ်နှံခဲ့သော ဝက်ဘ်ဆိုက်များကို ကြည့်ရှုလိုပါက ပင်မမီနူးရှိ <a href='../project-delivered/index.html' class='text-myancode-blue hover:underline'>Projects Delivered</a> စာမျက်နှာတွင် ဝင်ရောက်လေ့လာနိုင်ပါသည်။ ထိုနေရာတွင် E-commerce စနစ်များနှင့် လုပ်ငန်းသုံး ဝက်ဘ်ဆိုက် အစစ်အမှန်များကို တွေ့မြင်နိုင်ပါသည်။</p>" 
+            },
+            { id: "q52", category: "templates", 
+              q_en: "Are updates for downloaded templates provided automatically?", 
+              q_mm: "Template တွေအတွက် Update တွေကို အလိုအလျောက် ရရှိနိုင်မလား?", 
+              a_en: "<p>Once you download the source code, it runs completely independently of our servers. We do not push auto-updates directly to your files to prevent overwriting your custom changes. However, registered buyers will receive email notifications if major structural patches or new components are added to the template they purchased.</p>", 
+              a_mm: "<p>Source Code များကို ဒေါင်းလုဒ်လုပ်ပြီးပါက သင့်စက်ထဲတွင်သာ သီးခြားအလုပ်လုပ်မည်ဖြစ်၍ ကျွန်ုပ်တို့ဘက်မှ အလိုအလျောက် Update ပြုလုပ်ပေးမည် မဟုတ်ပါ။ ဤသည်မှာ သင်ပြင်ဆင်ထားမှုများ ပျက်စီးမသွားစေရန် ဖြစ်ပါသည်။ သို့သော် အဓိကပြောင်းလဲမှုများ ရှိလာပါက ဝယ်ယူထားသူများထံသို့ အီးမေးလ်ဖြင့် အကြောင်းကြားပေးမည် ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q53", category: "studio", 
+              q_en: "How to communicate with the engineering team during a project?", 
+              q_mm: "ပရောဂျက်ရေးဆွဲနေစဉ်အတွင်း အင်ဂျင်နီယာအဖွဲ့နဲ့ ဘယ်လိုဆက်သွယ်ရမလဲ?", 
+              a_en: "<p>For all Studio projects, communication is highly structured. You will be assigned a dedicated Project Manager. We utilize private Slack or Discord channels for immediate communications, alongside providing you a live 'staging link' where you can track the real-time development progress of your application.</p>", 
+              a_mm: "<p>Studio ပရောဂျက်များအတွက် သီးသန့် Project Manager တစ်ဦး ထားရှိပေးမည်ဖြစ်ပါသည်။ အဖွဲ့နှင့် တိုက်ရိုက်ပြောဆိုနိုင်ရန် Slack သို့မဟုတ် Discord ကဲ့သို့သော လုံခြုံသည့် ချန်နယ်များ ဖွင့်ပေးထားမည်ဖြစ်ပြီး၊ တည်ဆောက်နေမှုများကို အချိန်နှင့်တပြေးညီ ကြည့်ရှုနိုင်မည့် လင့်ခ်များကိုလည်း ပေးထားမည်ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q54", category: "general", 
+              q_en: "Is there a guide for beginners on how to use MyanCode?", 
+              q_mm: "အသုံးပြုနည်း လမ်းညွှန်များ ရှိပါသလား?", 
+              a_en: "<p>Yes! We have a dedicated <strong>Guides</strong> section accessible from the Support mega-menu in our navigation bar. It contains step-by-step tutorials on how to browse the catalog, place secure orders, customize Tailwind CSS templates, and maximize the performance of your new digital assets.</p>", 
+              a_mm: "<p>ရှိပါသည်။ အပေါ်ဘက် မီနူးရှိ Support အောက်မှတစ်ဆင့် <strong>Guides</strong> စာမျက်နှာသို့ ဝင်ရောက်နိုင်ပါသည်။ ထိုနေရာတွင် ဝယ်ယူနည်း၊ Template များ စိတ်ကြိုက်ပြင်ဆင်နည်းနှင့် အခြားသော အသုံးဝင်သည့် အချက်အလက်များကို အဆင့်ဆင့် ရှင်းလင်းပြသထားပါသည်။</p>" 
+            }
+        ];
+
+        /* --- END DICTIONARY --- */
+        
+        let currentFilter = 'all';
+
+        function showLoader(i18nKey = 'loadingInit') {
+            const loader = document.getElementById('globalLoader');
+            if (!loader) return;
+            const textEl = document.getElementById('loaderText');
+            if (textEl) textEl.innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit'];
+            loader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden');
+            loader.classList.add('opacity-100', 'visibility-visible');
+            document.body.classList.add('no-scroll');
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('globalLoader');
+            if (!loader) { reveal(); return; }
+            loader.classList.remove('opacity-100', 'visibility-visible');
+            loader.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('no-scroll');
+            
+            setTimeout(() => { document.body.classList.add('page-loaded'); reveal(); }, 100);
+            setTimeout(() => loader.classList.add('visibility-hidden'), 600);
+        }
+
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 50) { reveals[i].classList.add("active"); }
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
+        }
+
+        function showErrorToast(msg) { 
+            const toast = document.getElementById('error-toast'); 
+            document.getElementById('error-toast-msg').textContent = msg; 
+            toast.classList.remove('translate-y-24', 'opacity-0'); 
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
+        }
+
+        /* --- SUPABASE INIT & AUTH --- */
+        const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
+
+        let supabaseInstance = null; let currentUser = null; let currentUserWishlist = [];
+
+        if (window.supabase) supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        if (supabaseInstance) {
+            supabaseInstance.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    currentUser = {
+                        name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                        email: session.user.email, id: session.user.id,
+                        avatar_url: session.user.user_metadata?.avatar_url || null,
+                        role: session.user.user_metadata?.role || 'user'
+                    };
+                    currentUserWishlist = session.user.user_metadata?.wishlist || [];
+                } else { currentUser = null; currentUserWishlist = []; }
+                updateAuthUI();
+            });
+        } else { updateAuthUI(); }
+
+        /* --- LANGUAGE RENDER --- */
+        function renderLanguage() {
+            document.documentElement.lang = currentLang;
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
+            updateAuthUI();
+            if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
+            
+            // Re-render FAQ with active language
+            renderFaq(currentFilter);
+        }
+
+        function setLanguage(lang) { 
+            currentLang = lang; 
+            try { localStorage.setItem('myancode_lang', currentLang); } catch(e) {}
+            renderLanguage(); 
+            document.getElementById('langDropdown').classList.add('dropdown-hidden'); 
+        }
+
+        function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
+
+        function updateAuthUI() {
+            const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
+            if (!desktopAuth || !containerMob) return;
+            
+            if (currentUser) {
+                const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-gray-200" alt="Avatar">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
+                const mobileAvatarHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-gray-200 shadow-sm">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-blue"></i>`;
+
+                desktopAuth.innerHTML = `
+                    <div class="relative" id="profileContainer">
+                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black flex items-center justify-center">${avatarIconHTML}</button>
+                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
+                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
+                            ${currentUser.role === 'user' ? `<a href="../hub/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
+                            <button onclick="window.location.href='../profile/index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
+                            <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
+                        </div>
+                    </div>`;
+                containerMob.innerHTML = `
+                    <div class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide border-b border-gray-100 pb-6 mb-6">
+                        <span class="capitalize truncate max-w-[200px]">${currentUser.name}</span> ${mobileAvatarHTML}
+                    </div>
+                    <div class="flex flex-col gap-6">
+                        ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide"><span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i></a>` : ''}
+                        ${currentUser.role === 'user' ? `<a href="../hub/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide"><span>${dict[currentLang].hdrHub}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i></a>` : ''}
+                        <button onclick="window.location.href='../profile/index.html'" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
+                        <button onclick="handleLogout()" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5 text-gray-400"></i></button>
+                    </div>`;
+            } else {
+                desktopAuth.innerHTML = `<a href="../login/index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link text-myancode-black px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a><a href="../register/index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm hover:shadow-md btn-hover-effect border border-transparent whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+                containerMob.innerHTML = `<div class="flex flex-col gap-6"><a href="../login/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide"><span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-400"></i></a><a href="../register/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide"><span>${dict[currentLang].hdrRegister}</span> <i data-lucide="user-plus" class="h-5 w-5 text-gray-400"></i></a></div>`;
+            }
+            updateWishlistCount(); if(typeof lucide !== 'undefined') lucide.createIcons(); setActiveNavLinks();
+        }
+
+        function setActiveNavLinks() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link[data-nav-path]').forEach(link => {
+                const path = link.getAttribute('data-nav-path');
+                if (path !== '/' && currentPath.includes(path)) {
+                    link.classList.add('text-myancode-blue', 'font-bold', 'active-nav-item');
+                    link.classList.remove('hover:text-myancode-blue', 'text-white/80', 'text-white/90', 'text-myancode-black/80', 'text-myancode-black');
+                }
+            });
+        }
+
+        /* --- Wishlist System --- */
+        function updateWishlistCount() {
+            const countSpan = document.getElementById('wishlist-count');
+            if (!countSpan) return;
+            if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } else { countSpan.classList.add('opacity-0'); }
+        }
+
+        function toggleWishlistDrawer() {
+            if (!currentUser) { window.location.href = '../login/index.html'; return; }
+            const drawer = document.getElementById('wishlistDrawer'); const overlay = document.getElementById('wishlistOverlay');
+            if(!drawer.classList.contains('open')) document.getElementById('mobileDrawer').classList.remove('open');
+            drawer.classList.toggle('open'); overlay.classList.toggle('open');
+            if(drawer.classList.contains('open')) { document.body.classList.add('no-scroll'); renderWishlistItems(); } else { document.body.classList.remove('no-scroll'); }
+        }
+
+        function renderWishlistItems() {
+            const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal'); let total = 0;
+            if (currentUserWishlist.length === 0) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400"><i data-lucide="heart" class="h-12 w-12 mb-4 opacity-50"></i><p class="text-sm font-medium tracking-wide">${dict[currentLang].emptyWishlist}</p></div>`;
+                totalDisplay.textContent = `0 MMK`; if(typeof lucide !== 'undefined') lucide.createIcons(); return;
+            }
+            container.innerHTML = currentUserWishlist.map(item => {
+                total += item.price;
+                return `
+                <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div>
+                        <h4 class="font-semibold text-sm mb-1 truncate max-w-[150px]">${item.name}</h4>
+                        <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
+                    </div>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                </div>
+            `}).join('');
+            totalDisplay.textContent = `${total.toLocaleString()} MMK`; if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function toggleWishlist(id, name, price) {
+            if (!currentUser) { showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ"); return; }
+            const index = currentUserWishlist.findIndex(i => i.id === id);
+            if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); } 
+            else { currentUserWishlist.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
+            if (supabaseInstance && currentUser) { supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } }); }
+            updateWishlistCount(); if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
+        }
+
+        async function handleLogout() { showLoader('loadingAuth'); if (supabaseInstance) await supabaseInstance.auth.signOut(); hideLoader(); window.location.reload(); }
+
+        /* --- Drawers & Overlays --- */
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            if(!drawer.classList.contains('open')) { document.getElementById('wishlistDrawer').classList.remove('open'); document.getElementById('wishlistOverlay').classList.remove('open'); }
+            drawer.classList.toggle('open'); if(drawer.classList.contains('open')) document.body.classList.add('no-scroll'); else document.body.classList.remove('no-scroll');
+        }
+        function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); if(document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden'); }
+        function toggleProfile(e) { e.stopPropagation(); const profDrop = document.getElementById('profileDropdown'); if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); } }
+        document.addEventListener('click', (e) => {
+            const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
+            if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
+            const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
+        });
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNav');
+            if (window.scrollY > 10) { nav.classList.add('glass-nav'); nav.classList.remove('nav-transparent', 'border-transparent'); } 
+            else { nav.classList.remove('glass-nav'); nav.classList.add('nav-transparent', 'border-transparent'); }
+        });
+
+        /* --- Database Search System --- */
+        function toggleSearchOverlay() {
+            const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
+            if(overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } 
+            else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; }, 400); }
+        }
+
+        const SUPER_STATIC_PAGES = [
+            { title_en: 'Studio', title_mm: 'စတူဒီယို', url: '../studio/index.html', icon: 'code-2', type: 'Pages & Navigation', desc_en: 'Custom development & enterprise solutions', desc_mm: 'စိတ်ကြိုက်ရေးဆွဲခြင်း' },
+            { title_en: 'Templates', title_mm: 'ဝက်ဘ်ဆိုက်များ', url: '../templates/index.html', icon: 'layout-template', type: 'Pages & Navigation', desc_en: 'Pre-built high-quality website templates', desc_mm: 'အသင့်သုံး ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ' },
+            { title_en: 'Services', title_mm: 'ဝန်ဆောင်မှုများ', url: '../services/index.html', icon: 'briefcase', type: 'Pages & Navigation', desc_en: 'Explore all our digital services', desc_mm: 'ဒီဂျစ်တယ် ဝန်ဆောင်မှုများ' },
+            { title_en: 'Maintenance', title_mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', url: '../maintenance/index.html', icon: 'shield-check', type: 'Pages & Navigation', desc_en: 'Long-term maintenance plans', desc_mm: 'ပြုပြင်ထိန်းသိမ်းရေး အစီအစဉ်များ' },
+            { title_en: 'Help Center', title_mm: 'အကူအညီဌာန', url: '../help/index.html', icon: 'help-circle', type: 'Support & Help', desc_en: 'Get help with our products', desc_mm: 'အကူအညီရယူရန်' },
+            { title_en: 'FAQs', title_mm: 'အမေးများသောမေးခွန်းများ', url: '../faq/index.html', icon: 'message-circle-question', type: 'Support & Help', desc_en: 'Frequently asked questions', desc_mm: 'အမေးများသော မေးခွန်းများ' },
+            { title_en: 'Guides', title_mm: 'လမ်းညွှန်များ', url: '../guides/index.html', icon: 'book-open', type: 'Support & Help', desc_en: 'Step-by-step documentation', desc_mm: 'အသုံးပြုနည်း လမ်းညွှန်များ' },
+            { title_en: 'About Us', title_mm: 'ကျွန်ုပ်တို့အကြောင်း', url: '../about-us/index.html', icon: 'info', type: 'Company', desc_en: 'Learn more about MyanCode', desc_mm: 'MyanCode အကြောင်း' },
+            { title_en: 'Contact Us', title_mm: 'ဆက်သွယ်ရန်', url: '../contact-us/index.html', icon: 'phone', type: 'Company', desc_en: 'Get in touch with our team', desc_mm: 'ဆက်သွယ်ရန်' },
+            { title_en: 'Updates & News', title_mm: 'သတင်းနှင့် အသစ်များ', url: '../updates-news/index.html', icon: 'newspaper', type: 'Company', desc_en: 'Latest announcements', desc_mm: 'နောက်ဆုံးရသတင်းများ' },
+            { title_en: 'Careers', title_mm: 'အလုပ်အကိုင်များ', url: '../careers/index.html', icon: 'users', type: 'Company', desc_en: 'Join the MyanCode team', desc_mm: 'အလုပ်အကိုင် အခွင့်အလမ်းများ' },
+            { title_en: 'Customer Policy', title_mm: 'ဖောက်သည် မူဝါဒ', url: '../legal/index.html#client-policy', icon: 'shield', type: 'Policies & Legal', desc_en: 'Rules for our customers', desc_mm: 'ဖောက်သည်များအတွက် စည်းမျဉ်းများ' },
+            { title_en: 'Privacy Policy', title_mm: 'ကိုယ်ရေးအချက်အလက် မူဝါဒ', url: '../legal/index.html#privacy-policy', icon: 'lock', type: 'Policies & Legal', desc_en: 'How we protect your data', desc_mm: 'အချက်အလက် လုံခြုံရေး' },
+            { title_en: 'Terms of Service', title_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ', url: '../legal/index.html#terms-of-service', icon: 'file-text', type: 'Policies & Legal', desc_en: 'Usage terms and conditions', desc_mm: 'အသုံးပြုမှု စည်းမျဉ်းများ' },
+            { title_en: 'Refund Policy', title_mm: 'ငွေပြန်အမ်းရေး မူဝါဒ', url: '../legal/index.html#refund-policy', icon: 'refresh-ccw', type: 'Policies & Legal', desc_en: 'Our refund guidelines', desc_mm: 'ငွေပြန်အမ်းရေး စည်းမျဉ်းများ' },
+            { title_en: 'Payment Policy', title_mm: 'ငွေပေးချေမှု မူဝါဒ', url: '../legal/index.html#payment-policy', icon: 'credit-card', type: 'Policies & Legal', desc_en: 'Accepted payment methods', desc_mm: 'ငွေပေးချေမှု စနစ်များ' },
+            { title_en: 'Studio Policy', title_mm: 'စတူဒီယို မူဝါဒ', url: '../legal/index.html#studio-policy', icon: 'briefcase', type: 'Policies & Legal', desc_en: 'Guidelines for studio services', desc_mm: 'စတူဒီယို စည်းမျဉ်းများ' },
+            { title_en: 'Template Policy', title_mm: 'ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ', url: '../legal/index.html#template-policy', icon: 'layout-template', type: 'Policies & Legal', desc_en: 'Rules for template usage', desc_mm: 'ပုံစံများအတွက် စည်းမျဉ်းများ' },
+            { title_en: 'Service Policy', title_mm: 'ဝန်ဆောင်မှု မူဝါဒ', url: '../legal/index.html#service-policy', icon: 'settings', type: 'Policies & Legal', desc_en: 'General service terms', desc_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ' },
+            { title_en: 'User Hub', title_mm: 'ဗဟိုဌာန', url: '../hub/index.html', icon: 'layout-dashboard', type: 'User Dashboard', desc_en: 'Manage your projects and orders', desc_mm: 'ပရောဂျက်များ စီမံရန်' }
+        ];
+
+        let searchDebounceTimer;
+        async function handleMegaSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('megaSearchResults');
+            if (!query) { clearTimeout(searchDebounceTimer); resultsContainer.innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; return; }
+            resultsContainer.innerHTML = `<div class="flex justify-center py-6"><i data-lucide="loader-2" class="h-6 w-6 animate-spin text-myancode-blue"></i></div>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(async () => {
+                let combined = [];
+                SUPER_STATIC_PAGES.forEach(p => {
+                    const searchStr = `${p.title_en} ${p.title_mm} ${p.desc_en} ${p.desc_mm} ${p.type}`.toLowerCase();
+                    if (searchStr.includes(query)) combined.push({ type: p.type, name: p.title_en, mm: p.title_mm, icon: p.icon, desc_en: p.desc_en, desc_mm: p.desc_mm, url: p.url, score: 1000 });
+                });
+
+                if (supabaseInstance) {
+                    // Similar logic exists in your codebase for querying tables
+                    // Just resolving local static pages for speed in this view.
+                }
+
+                combined.sort((a, b) => b.score - a.score);
+
+                if (combined.length === 0) {
+                    resultsContainer.innerHTML = `<div class="py-8 text-center"><i data-lucide="search-x" class="h-10 w-10 text-gray-300 mx-auto mb-3"></i><p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No exact results found for' : 'ရလဒ်မတွေ့ပါ'} "<span class="text-black">${e.target.value}</span>"</p></div>`;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    return;
+                }
+
+                let html = '<div class="grid grid-cols-1 gap-3">';
+                html += combined.slice(0, 8).map(item => {
+                    const title = currentLang === 'en' ? item.name : item.mm;
+                    const desc = currentLang === 'en' ? item.desc_en : item.desc_mm;
+                    return `
+                    <a href="${item.url}" onclick="toggleSearchOverlay()" class="flex items-center p-3 sm:p-4 bg-gray-50 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                        <div class="p-3 bg-white rounded-xl shadow-sm mr-4 group-hover:bg-myancode-black group-hover:text-white transition-colors duration-300 transform group-hover:scale-105 z-10 flex-shrink-0"><i data-lucide="${item.icon}" class="h-4 w-4 sm:h-5 sm:w-5"></i></div>
+                        <div class="flex-1 min-w-0 z-10">
+                            <h5 class="text-sm font-bold text-myancode-black group-hover:text-myancode-blue transition-colors truncate">${title}</h5>
+                            <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${desc}</p>
+                        </div>
+                    </a>`;
+                }).join('');
+                html += '</div>';
+
+                resultsContainer.innerHTML = html;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, 300); 
+        }
+
+        /* --- NEWSLETTER LOGIC --- */
+        async function handleSubscribe(e) {
+            e.preventDefault();
+            if (!supabaseInstance) return showErrorToast("Database not connected.");
+            const emailInput = document.getElementById('newsletterEmail'); const btn = document.getElementById('btnSubscribe'); const email = emailInput.value.trim();
+            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            if (!turnstileResponse) return showErrorToast(currentLang === 'en' ? "Please complete the security check." : "ကျေးဇူးပြု၍ လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။");
+            if (!email) return;
+
+            btn.disabled = true; const originalBtnText = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>`;
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            try {
+                const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
+                if (error && error.code === '23505') { showToast(dict[currentLang].msgSubscribedAlready); } 
+                else if (error) { throw error; } 
+                else { showToast(dict[currentLang].msgSubscribedSuccess); emailInput.value = ''; if (window.turnstile) turnstile.reset(); }
+            } catch (err) { showErrorToast(err.message); } finally { btn.disabled = false; btn.innerHTML = originalBtnText; }
+        }
+
+        /* --- FAQ RENDER LOGIC --- */
+        function renderFaq(filterCategory = 'all') {
+            const container = document.getElementById('faqContainer');
+            let html = '';
+            
+            const filteredData = filterCategory === 'all' ? faqData : faqData.filter(q => q.category === filterCategory);
+            
+            if (filteredData.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-400 font-bold">${currentLang === 'en' ? 'No FAQs available in this category.' : 'ဤကဏ္ဍအတွက် မေးခွန်းများ မရှိသေးပါ။'}</div>`;
+                return;
+            }
+
+            filteredData.forEach((item, index) => {
+                const delay = index * 50;
+                const question = currentLang === 'en' ? item.q_en : item.q_mm;
+                const answer = currentLang === 'en' ? item.a_en : item.a_mm;
+                
+                html += `
+                <div class="faq-item bg-white border border-gray-100 rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 card-enter" style="animation-delay: ${delay}ms;">
+                    <button class="w-full px-5 py-4 sm:px-8 sm:py-6 flex justify-between items-center text-left focus:outline-none group" onclick="toggleFaq(this)">
+                        <span class="faq-question-text font-bold text-myancode-black text-sm sm:text-base pr-4 transition-colors group-hover:text-myancode-blue">${question}</span>
+                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0 group-hover:bg-blue-50 transition-colors">
+                            <i data-lucide="chevron-down" class="faq-icon w-4 h-4 text-gray-400 transition-transform duration-500"></i>
+                        </div>
+                    </button>
+                    <div class="faq-answer px-5 sm:px-8">
+                        <div class="prose-custom text-gray-500 text-xs sm:text-sm font-medium pb-2 border-t border-gray-50 pt-4 mt-2">
+                            ${answer}
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function toggleFaq(btn) {
+            const item = btn.parentElement;
+            
+            // Optional: Close others (Accordion style)
+            const allItems = document.querySelectorAll('.faq-item');
+            allItems.forEach(i => {
+                if (i !== item && i.classList.contains('open')) {
+                    i.classList.remove('open');
+                }
+            });
+
+            item.classList.toggle('open');
+        }
+
+        function filterFaq(category, btnElement) {
+            currentFilter = category;
+            
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-myancode-black', 'text-white', 'border-myancode-black');
+                btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
+            });
+            
+            btnElement.classList.add('active', 'bg-myancode-black', 'text-white', 'border-myancode-black');
+            btnElement.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
+            
+            renderFaq(category);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setActiveNavLinks();
+            renderLanguage(); 
+            setTimeout(() => { hideLoader(); }, 1000); 
+            
+            // Setup Search overlay fixes
+            document.getElementById('searchOverlay').addEventListener('click', (e) => {
+                if (e.target.id === 'searchOverlay') toggleSearchOverlay();
+            });
+        });
+
+    </script>
+</body>
+</html>
