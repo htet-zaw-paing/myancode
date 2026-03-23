@@ -3,21 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Profile Settings | MyanCode</title>
+    <title>Maintenance | MyanCode</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="../imgs/web-banners/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     <script>
@@ -108,17 +103,17 @@
 
         .user-avatar-global { transition: all 0.3s ease; }
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
+
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>"); background-repeat: no-repeat; background-position-x: 98%; background-position-y: 50%; }
         
-        .avatar-upload-overlay { opacity: 0; transition: opacity 0.3s ease; background: rgba(0,0,0,0.5); }
-        .avatar-upload-container:hover .avatar-upload-overlay { opacity: 1; cursor: pointer; }
+        .glass-card { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.8); }
         
-        .cropper-view-box,
-        .cropper-face {
-          border-radius: 50%;
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
         }
-        .cropper-modal {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
+        .animate-pop-in { animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
@@ -151,12 +146,9 @@
                     
                     <div class="relative group h-full flex items-center">
                         <button class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link flex items-center gap-1 cursor-pointer text-myancode-black/80" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
-                        
                         <div class="absolute top-[80%] left-0 w-full h-8"></div>
-
                         <div class="fixed top-[56px] sm:top-[64px] left-0 w-full bg-[#fbfbfd]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border-b border-gray-200/60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
                             <div class="max-w-[1024px] mx-auto px-4 sm:px-6 py-12 flex gap-8 md:gap-16 lg:gap-24 text-black">
-                                
                                 <div class="flex-[1.2]">
                                     <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
                                     <div class="flex flex-col gap-4">
@@ -166,7 +158,6 @@
                                         <a href="../contact-us/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
                                     </div>
                                 </div>
-                                
                                 <div class="flex-1">
                                     <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
                                     <div class="flex flex-col gap-3">
@@ -177,7 +168,6 @@
                                         <a href="../legal/index.html#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
                                     </div>
                                 </div>
-                                
                                 <div class="flex-1">
                                     <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
                                     <div class="flex flex-col gap-3">
@@ -187,7 +177,6 @@
                                         <a href="../legal/index.html#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
                     </div>
@@ -218,7 +207,7 @@
             <div class="mt-8 sm:mt-16 max-w-3xl mx-auto">
                 <div class="relative w-full border-b border-gray-300 focus-within:border-myancode-black transition-colors pb-4 flex items-center">
                     <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-4"></i>
-                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off" class="w-full text-3xl sm:text-5xl font-semibold text-black bg-transparent border-none outline-none placeholder-gray-200" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearchGlobal(event)" autocomplete="off" class="w-full text-3xl sm:text-5xl font-semibold text-black bg-transparent border-none outline-none placeholder-gray-200" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
                 </div>
             </div>
             <div class="mt-16 flex flex-col-reverse md:flex-row gap-12 sm:gap-20 max-w-3xl mx-auto">
@@ -239,19 +228,15 @@
     </div>
 
     <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#fafafa] z-[80] drawer-left flex flex-col overflow-hidden">
-        
         <div class="px-6 py-6 flex items-center justify-between flex-shrink-0">
             <span class="font-bold text-xl tracking-wide text-black">MyanCode</span>
             <button onclick="toggleMobileMenu()" class="p-2.5 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-600"><i data-lucide="x" class="h-5 w-5"></i></button>
         </div>
-        
         <div class="flex-1 px-8 py-4 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar overscroll-contain">
-            
             <div class="relative mb-8" onclick="toggleMobileMenu(); toggleSearchOverlay();">
                 <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-400"></i>
                 <input type="text" class="w-full pl-8 py-3 border-b border-gray-300 focus:outline-none text-base bg-transparent text-gray-600 placeholder-gray-400 pointer-events-none" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
             </div>
-            
             <div class="space-y-6 text-base font-bold text-myancode-black tracking-wide flex-1">
                 <a href="../studio/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
                     <span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
@@ -262,7 +247,6 @@
                 <a href="../services/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
                     <span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                 </a>
-                
                 <div class="flex flex-col">
                     <button onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
                         <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform"></i>
@@ -298,24 +282,20 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="pt-4 border-t border-gray-100">
                     <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
                         <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-5 w-5 text-gray-400"></i>
                     </button>
                 </div>
             </div>
-            
             <div class="border-t border-gray-200 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
                 <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
-                
                 <div class="border-t border-gray-200 pt-8 mt-6">
                     <button onclick="toggleMobileMenu(); toggleWishlistDrawer();" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-bold tracking-wide">
                         <span data-i18n="wishlistTitle">My Wishlist</span> <i data-lucide="heart" class="h-5 w-5 text-gray-400"></i>
                     </button>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -332,131 +312,131 @@
         </div>
     </div>
 
-    <section class="flex-grow pt-32 sm:pt-40 pb-24 sm:pb-36 px-4 sm:px-6 relative z-10 w-full">
-        <div class="max-w-3xl mx-auto">
-            <div class="mb-10 text-center sm:text-left reveal">
-                <h1 class="text-3xl sm:text-5xl font-semibold tracking-tight text-myancode-black mb-3" data-i18n="profSettings">Account Settings</h1>
-                <p class="text-sm sm:text-base text-myancode-darkgray" data-i18n="profSub">Manage your personal details and security preferences.</p>
+    <section class="pt-32 sm:pt-40 pb-20 px-4 sm:px-6 relative z-10 w-full">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#f0f5ff]/40 to-transparent pointer-events-none -z-10"></div>
+        <div class="max-w-[1024px] mx-auto reveal">
+            
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <div class="inline-flex items-center justify-center p-3 bg-blue-50 rounded-2xl mb-6 shadow-sm border border-blue-100">
+                    <i data-lucide="wrench" class="h-8 w-8 text-myancode-blue"></i>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-myancode-black mb-4" data-i18n="mtTitle">Request Maintenance</h1>
+                <p class="text-sm sm:text-base text-myancode-darkgray leading-relaxed" data-i18n="mtSub">Submit a detailed request for templates, custom websites, or services. Our engineering team will review and respond securely.</p>
             </div>
 
-            <div class="space-y-8">
-                <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 reveal">
-                    <h3 class="text-lg font-semibold tracking-tight mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="user-circle" class="h-5 w-5 text-myancode-blue"></i> <span data-i18n="profPublic">Public Profile</span></h3>
-                    
-                    <div class="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
-                        <div class="flex flex-col items-center gap-3">
-                            <div class="relative avatar-upload-container rounded-full h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 border-2 border-gray-100 shadow-sm overflow-hidden group">
-                                <img id="profileAvatarPreview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>" class="h-full w-full object-cover bg-gray-50" alt="Avatar">
-                                <div class="absolute inset-0 avatar-upload-overlay flex flex-col items-center justify-center text-white backdrop-blur-sm" onclick="document.getElementById('avatarInput').click()">
-                                    <i data-lucide="camera" class="h-6 w-6 mb-1"></i>
-                                    <span class="text-[10px] font-bold tracking-widest uppercase" data-i18n="profUpload">Upload</span>
-                                </div>
-                                <input type="file" id="avatarInput" accept="image/*" class="hidden" onchange="openCropper(event)">
-                            </div>
-                            <button onclick="removeAvatar()" class="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase tracking-widest transition-colors" data-i18n="profRemoveAv">Remove Icon</button>
-                        </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+                
+                <div class="lg:col-span-2">
+                    <div class="glass-card rounded-[2rem] p-6 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
                         
-                        <div class="flex-1 w-full space-y-4">
+                        <form id="mtForm" onsubmit="handleMtSubmit(event)" class="space-y-6">
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="mtEmail">Your Email</label>
+                                    <input type="email" id="mtEmail" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-blue focus:bg-white transition-all shadow-sm" placeholder="your@email.com">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="mtType">Request Type</label>
+                                    <select id="mtType" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-blue focus:bg-white transition-all shadow-sm text-myancode-black cursor-pointer pr-10">
+                                        <option value="" disabled selected data-i18n="mtTypeOpt0">Select a category...</option>
+                                        <option value="Templates" data-i18n="mtTypeOpt1">Templates</option>
+                                        <option value="Custom Website" data-i18n="mtTypeOpt2">Custom Website</option>
+                                        <option value="Services" data-i18n="mtTypeOpt3">Services</option>
+                                        <option value="Custom" data-i18n="mtTypeOpt4">Custom Integration</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profName">Full Name</label>
-                                <input type="text" id="profileNameInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="Enter your full name">
+                                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="mtSubject">Subject</label>
+                                <input type="text" id="mtSubject" required class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-blue focus:bg-white transition-all shadow-sm" placeholder="Brief summary of your request">
                             </div>
+
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address (Read-only)</label>
-                                <input type="email" id="profileEmailInput" disabled class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-gray-500 cursor-not-allowed" placeholder="your@email.com">
+                                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="mtDesc">Detailed Description</label>
+                                <textarea id="mtDesc" required rows="5" class="w-full px-5 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-blue focus:bg-white transition-all shadow-sm resize-none" placeholder="Please provide as much detail as possible to help our engineers..."></textarea>
                             </div>
-                            <div class="pt-2 text-right sm:text-left">
-                                <button onclick="updateProfileName()" class="btn-hover-effect bg-myancode-black text-white text-xs px-8 py-3.5 rounded-full font-medium tracking-wide shadow-md w-full sm:w-auto" data-i18n="profUpdateBtn">Save Changes</button>
+
+                            <div>
+                                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="mtAttach">Attachments (Optional)</label>
+                                <div id="mtDropzone" class="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:bg-blue-50/50 hover:border-myancode-blue transition-colors cursor-pointer relative bg-white">
+                                    <input type="file" id="mtFile" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*,video/*,.pdf,.doc,.docx,.zip,.rar">
+                                    <div class="pointer-events-none flex flex-col items-center justify-center">
+                                        <div class="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                                            <i data-lucide="upload-cloud" class="h-6 w-6 text-gray-500"></i>
+                                        </div>
+                                        <p class="text-sm font-semibold text-myancode-black mb-1" data-i18n="mtDrop1">Drag and drop files here</p>
+                                        <p class="text-xs text-gray-500" data-i18n="mtDrop2">or click to browse (Photos, Videos, PDF, ZIP)</p>
+                                    </div>
+                                </div>
+                                <div id="mtFileList" class="mt-3 space-y-2 empty:hidden"></div>
                             </div>
-                        </div>
+
+                            <div class="cf-turnstile" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="light"></div>
+
+                            <div class="pt-4 flex items-center justify-between border-t border-gray-100">
+                                <p class="text-[10px] sm:text-xs text-gray-400 font-medium hidden sm:block" data-i18n="mtSecureMsg"><i data-lucide="lock" class="inline w-3 h-3 mr-1 -mt-0.5"></i> Sent securely to maintenance@myancode.com</p>
+                                <button type="submit" id="mtSubmitBtn" class="w-full sm:w-auto btn-hover-effect bg-myancode-black text-white px-8 py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg flex items-center justify-center gap-2">
+                                    <span data-i18n="mtSubmit">Submit Request</span>
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 reveal" style="transition-delay: 100ms;">
-                    <h3 class="text-lg font-semibold tracking-tight mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="shield" class="h-5 w-5 text-green-500"></i> <span data-i18n="profSecurity">Security</span></h3>
-                    
-                    <div class="space-y-4 max-w-md">
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profOldPass">Current Password</label>
-                            <input type="password" id="profileOldPassInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="••••••••">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3 mb-4 border-b border-gray-50 pb-4">
+                            <div class="p-2 bg-blue-50 text-myancode-blue rounded-lg"><i data-lucide="clock" class="h-5 w-5"></i></div>
+                            <h4 class="font-bold text-myancode-black text-sm uppercase tracking-widest" data-i18n="mtUtil1">Response Time</h4>
                         </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profPass">New Password</label>
-                            <input type="password" id="profilePassInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="••••••••">
+                        <p class="text-sm text-gray-600 leading-relaxed" data-i18n="mtUtil1Desc">Our engineering team typically reviews and responds to maintenance requests within <strong class="text-black">2 to 24 hours</strong> depending on the severity level.</p>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3 mb-4 border-b border-gray-50 pb-4">
+                            <div class="p-2 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="mail" class="h-5 w-5"></i></div>
+                            <h4 class="font-bold text-myancode-black text-sm uppercase tracking-widest" data-i18n="mtUtil2">Direct Contact</h4>
                         </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profPassConfirm">Confirm Password</label>
-                            <input type="password" id="profilePassConfirmInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="••••••••">
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4" data-i18n="mtUtil2Desc">For massive architectural changes, you can bypass this form and email us directly.</p>
+                        <a href="mailto:maintenance@myancode.com" class="inline-flex items-center text-sm font-bold text-myancode-blue hover:text-blue-700 transition-colors group">
+                            maintenance@myancode.com
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 ml-1 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3 mb-4 border-b border-gray-50 pb-4">
+                            <div class="p-2 bg-red-50 text-red-600 rounded-lg"><i data-lucide="alert-triangle" class="h-5 w-5"></i></div>
+                            <h4 class="font-bold text-myancode-black text-sm uppercase tracking-widest" data-i18n="mtUtil3">Emergency Issues</h4>
                         </div>
-                        <div class="pt-2">
-                            <button onclick="updatePassword()" class="btn-hover-effect bg-gray-100 text-myancode-black hover:bg-gray-200 border border-gray-200 text-xs px-8 py-3.5 rounded-full font-semibold tracking-wide shadow-sm w-full sm:w-auto transition-colors" data-i18n="profUpdatePassBtn">Update Password</button>
-                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4" data-i18n="mtUtil3Desc">If your live production environment is completely down, please use the admin emergency contact portal.</p>
+                        <a href="../contact-us/index.html" class="block w-full text-center px-4 py-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-myancode-black text-xs font-bold rounded-xl transition-colors" data-i18n="mtUtil3Btn">Contact Administrators</a>
                     </div>
                 </div>
 
-                <div class="bg-[#fff5f5] rounded-3xl p-6 sm:p-10 shadow-sm border border-red-100 reveal" style="transition-delay: 200ms;">
-                    <h3 class="text-lg font-semibold tracking-tight text-red-600 mb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="h-5 w-5"></i> <span data-i18n="profDanger">Danger Zone</span></h3>
-                    <p class="text-sm text-red-400 mb-6" data-i18n="profDeleteText">Once you delete your account, there is no going back. Please be certain.</p>
-                    <button onclick="deleteAccount()" class="btn-hover-effect bg-red-600 text-white hover:bg-red-700 text-xs px-8 py-3.5 rounded-full font-semibold tracking-wide shadow-sm w-full sm:w-auto transition-colors" data-i18n="profDeleteBtn">Delete Account</button>
-                </div>
             </div>
         </div>
     </section>
 
-    <div id="cropperModal" class="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-4 sm:p-6 rounded-3xl w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="cropperModalContent">
-            <h3 class="text-lg font-semibold mb-4 text-myancode-black flex justify-between items-center">
-                <span data-i18n="cropTitle">Crop Photo</span>
-                <button onclick="cancelCrop()" class="text-gray-400 hover:text-black transition-colors"><i data-lucide="x" class="h-5 w-5"></i></button>
-            </h3>
-            <div class="w-full h-[50vh] sm:h-[400px] bg-gray-100 rounded-xl overflow-hidden relative">
-                <img id="imageToCrop" src="" class="max-w-full block" alt="Picture to crop">
+    <!-- SUCCESS MODAL OVERLAY -->
+    <div id="successAnimModal" class="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500">
+        <div class="bg-white rounded-[2.5rem] p-10 sm:p-12 w-[90%] max-w-md shadow-2xl transform scale-95 transition-transform duration-500 text-center flex flex-col items-center" id="successAnimContent">
+            <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-8 shadow-inner border-4 border-white outline outline-2 outline-green-100">
+                <i data-lucide="check-circle" class="w-12 h-12 text-green-500 animate-pop-in"></i>
             </div>
-            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
-                <div class="flex space-x-2">
-                    <button onclick="if(cropperInstance) cropperInstance.zoom(0.1)" class="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 transition-colors shadow-sm"><i data-lucide="zoom-in" class="h-5 w-5"></i></button>
-                    <button onclick="if(cropperInstance) cropperInstance.zoom(-0.1)" class="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 transition-colors shadow-sm"><i data-lucide="zoom-out" class="h-5 w-5"></i></button>
-                </div>
-                <div class="flex space-x-3 w-full sm:w-auto">
-                    <button onclick="cancelCrop()" class="flex-1 sm:flex-none px-6 py-3 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="cropCancel">Cancel</button>
-                    <button onclick="saveCrop()" class="flex-1 sm:flex-none px-8 py-3 rounded-full text-sm font-semibold bg-myancode-black text-white hover:bg-gray-800 shadow-md transition-colors" data-i18n="cropSave">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="confirmModal" class="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent">
-            <div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
-                <i data-lucide="alert-triangle" class="h-8 w-8 text-red-600"></i>
-            </div>
-            <h3 id="confirmModalTitle" class="text-2xl font-semibold tracking-tight text-myancode-black mb-3">Title</h3>
-            <p id="confirmModalMessage" class="text-sm text-gray-500 mb-6">Message</p>
-
-            <div id="confirmModalCheckboxContainer" class="hidden mb-6 text-left bg-red-50 p-4 rounded-xl border border-red-100">
-                <label class="flex items-start gap-3 cursor-pointer group">
-                    <input type="checkbox" id="confirmModalCheckbox" class="mt-1 w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                    <span class="text-xs text-red-800 font-medium leading-relaxed" id="confirmModalCheckboxText">I have read the <a href="../comming-soon/index.html" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">Terms and Conditions</a>. I understand that all my data will be permanently deleted and this action cannot be undone.</span>
-                </label>
-            </div>
-
-            <div id="confirmModalTextContainer" class="hidden mb-6 text-left">
-                <label class="block text-xs font-bold text-gray-500 tracking-widest mb-2" id="confirmModalTextLabel">Type "DeLeTe My AccOunT" to confirm</label>
-                <input type="text" id="confirmModalTextInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all" autocomplete="off">
-            </div>
-
-            <div class="flex space-x-3 w-full">
-                <button onclick="closeConfirmModal()" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" id="confirmModalCancelBtn">Cancel</button>
-                <button id="confirmModalBtn" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-red-600 hover:bg-red-700">Confirm</button>
-            </div>
+            <h3 class="text-3xl font-bold tracking-tight text-myancode-black mb-4" data-i18n="mtSuccessTitle">Report Received</h3>
+            <p class="text-sm text-gray-500 leading-relaxed font-medium mb-10" data-i18n="mtSuccessMsg">We have successfully received your report. Please wait patiently, we are doing our best to contact you ASAP.</p>
+            <button onclick="closeSuccessAnim()" class="w-full bg-myancode-black hover:bg-gray-800 text-white font-bold text-sm py-4 rounded-full shadow-lg transition-all transform hover:scale-[1.02]">OK, GOT IT</button>
         </div>
     </div>
 
     <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10 mt-auto">
         <div class="max-w-[1024px] mx-auto">
-            
             <div class="bg-white rounded-[2.5rem] p-8 sm:p-12 mb-20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
-                
                 <div class="text-center lg:text-left w-full lg:w-1/2 flex flex-col items-center lg:items-start">
                     <div class="inline-flex items-center justify-center w-14 h-14 bg-[#f0f5ff] rounded-full mb-6">
                         <i data-lucide="mail" class="w-6 h-6 text-[#2997ff]"></i>
@@ -464,7 +444,6 @@
                     <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-4" data-i18n="nlTitle">Stay Ahead of the Curve</h3>
                     <p class="text-base text-gray-500 font-normal leading-relaxed max-w-md mx-auto lg:mx-0" data-i18n="nlDesc">Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.</p>
                 </div>
-                
                 <div class="w-full lg:w-1/2">
                     <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="w-full flex flex-col gap-3">
                         <div class="relative flex items-center bg-white border border-gray-200 rounded-full p-1.5 shadow-sm transition-all focus-within:border-myancode-black focus-within:ring-1 focus-within:ring-myancode-black">
@@ -476,13 +455,10 @@
                                 <span data-i18n="btnSubscribe">Subscribe</span>
                             </button>
                         </div>
-                        
                         <div class="cf-turnstile pl-2" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="light"></div>
                     </form>
-                    
                     <p class="text-[11px] text-gray-400 mt-4 font-medium tracking-wide uppercase text-center lg:text-left lg:ml-6" data-i18n="nlDisclaimer">We respect your privacy. No spam, ever.</p>
                 </div>
-                
             </div>
 
             <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-16 border-t border-gray-200 pt-16 mt-16">
@@ -564,12 +540,14 @@
                 nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
                 msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
                 
-                profSettings: "Account Settings", profSub: "Manage your personal details and security preferences.",
-                profPublic: "Public Profile", profUpload: "Upload", profName: "Full Name", profUpdateBtn: "Save Changes", profRemoveAv: "Remove Icon",
-                profSecurity: "Security", profOldPass: "Current Password", profPass: "New Password", profPassConfirm: "Confirm Password", profUpdatePassBtn: "Update Password",
-                profDanger: "Danger Zone", profDeleteText: "Once you delete your account, there is no going back. Please be certain.", profDeleteBtn: "Delete Account",
-                prod1Title: "Business & Org", prod3Title: "Info & Education",
-                cropTitle: "Crop Photo", cropCancel: "Cancel", cropSave: "Save"
+                mtTitle: "Request Maintenance", mtSub: "Submit a detailed request for templates, custom websites, or services. Our engineering team will review and respond securely.",
+                mtEmail: "Your Email", mtType: "Request Type", mtTypeOpt0: "Select a category...", mtTypeOpt1: "Templates", mtTypeOpt2: "Custom Website", mtTypeOpt3: "Services", mtTypeOpt4: "Custom Integration",
+                mtSubject: "Subject", mtDesc: "Detailed Description", mtAttach: "Attachments (Optional)", mtDrop1: "Drag and drop files here", mtDrop2: "or click to browse (Photos, Videos, PDF, ZIP)",
+                mtSecureMsg: "Sent securely to maintenance@myancode.com", mtSubmit: "Submit Request",
+                mtUtil1: "Response Time", mtUtil1Desc: "Our engineering team typically reviews and responds to maintenance requests within <strong class=\"text-black\">2 to 24 hours</strong> depending on the severity level.",
+                mtUtil2: "Direct Contact", mtUtil2Desc: "For massive architectural changes, you can bypass this form and email us directly.",
+                mtUtil3: "Emergency Issues", mtUtil3Desc: "If your live production environment is completely down, please use the admin emergency contact portal.", mtUtil3Btn: "Contact Administrators",
+                mtSuccessTitle: "Report Received", mtSuccessMsg: "We have successfully received your report. Please wait patiently, we are doing our best to contact you ASAP."
             },
             mm: {
                 navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ",
@@ -591,13 +569,15 @@
                 nlTitle: "သတင်းအသစ်များ ရယူရန်", nlDesc: "နောက်ဆုံးရ နည်းပညာသတင်းများနှင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းအသစ်များကို ရယူရန် သင်၏ အီးမေးလ်ကို စာရင်းသွင်းပါ။",
                 nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", nlDisclaimer: "သင်၏ အချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။",
                 msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။",
-                
-                profSettings: "အကောင့်ဆက်တင်များ", profSub: "သင့်ကိုယ်ရေးအချက်အလက်များနှင့် လုံခြုံရေးများကို ပြင်ဆင်ပါ။",
-                profPublic: "ကိုယ်ရေးအကျဉ်း", profUpload: "ပြောင်းမည်", profName: "အမည်အပြည့်အစုံ", profUpdateBtn: "အချက်အလက်များ သိမ်းဆည်းရန်", profRemoveAv: "ပုံဖယ်ရှားမည်",
-                profSecurity: "လုံခြုံရေး", profOldPass: "လက်ရှိ စကားဝှက်", profPass: "စကားဝှက်အသစ်", profPassConfirm: "စကားဝှက်အသစ် အတည်ပြုရန်", profUpdatePassBtn: "စကားဝှက် ပြောင်းရန်",
-                profDanger: "အကောင့်ဖျက်သိမ်းရေး", profDeleteText: "အကောင့်ကို ဖျက်လိုက်ပါက ပြန်လည်ရယူ၍ မရနိုင်တော့ပါ။ ကျေးဇူးပြု၍ သေချာစွာ စဉ်းစားပါ။", profDeleteBtn: "အကောင့် ဖျက်မည်",
-                prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး",
-                cropTitle: "ဓာတ်ပုံဖြတ်မည်", cropCancel: "ပယ်ဖျက်မည်", cropSave: "သိမ်းဆည်းမည်"
+
+                mtTitle: "ပြုပြင်ထိန်းသိမ်းမှု တောင်းဆိုရန်", mtSub: "ဝက်ဘ်ဆိုက်ပုံစံများ သို့မဟုတ် ဝန်ဆောင်မှုများအတွက် အချက်အလက်များကို တောင်းဆိုပါ။ အင်ဂျင်နီယာအဖွဲ့မှ လုံခြုံစွာ ပြန်လည်ဆက်သွယ်ပါမည်။",
+                mtEmail: "အီးမေးလ်", mtType: "တောင်းဆိုမှု အမျိုးအစား", mtTypeOpt0: "အမျိုးအစား ရွေးချယ်ပါ...", mtTypeOpt1: "ဝက်ဘ်ဆိုက်ပုံစံ", mtTypeOpt2: "စိတ်ကြိုက် ဝက်ဘ်ဆိုက်", mtTypeOpt3: "ဝန်ဆောင်မှုများ", mtTypeOpt4: "အထူးပြုလုပ်ချက်",
+                mtSubject: "အကြောင်းအရာ", mtDesc: "အသေးစိတ် ဖော်ပြချက်", mtAttach: "ဖိုင်များ ပူးတွဲရန်", mtDrop1: "ဖိုင်များကို ဤနေရာသို့ ဆွဲယူချပါ", mtDrop2: "သို့မဟုတ် နှိပ်၍ ရွေးချယ်ပါ (ပုံ၊ ဗီဒီယို၊ PDF)",
+                mtSecureMsg: "maintenance@myancode.com သို့ လုံခြုံစွာ ပေးပို့မည်", mtSubmit: "ပို့မည်",
+                mtUtil1: "တုံ့ပြန်မှု အချိန်", mtUtil1Desc: "အင်ဂျင်နီယာအဖွဲ့သည် ပုံမှန်အားဖြင့် <strong class=\"text-black\">၂ နာရီမှ ၂၄ နာရီအတွင်း</strong> ပြန်လည်ဆက်သွယ်ပေးပါမည်။",
+                mtUtil2: "တိုက်ရိုက် ဆက်သွယ်ရန်", mtUtil2Desc: "ကြီးမားသော ပြောင်းလဲမှုများအတွက် ဤနေရာမှ တိုက်ရိုက် အီးမေးလ် ပို့နိုင်ပါသည်။",
+                mtUtil3: "အရေးပေါ် အခြေအနေ", mtUtil3Desc: "စနစ်တစ်ခုလုံး အလုပ်မလုပ်တော့ပါက အက်ဒမင်များထံ အမြန်ဆက်သွယ်ပါ။", mtUtil3Btn: "အက်ဒမင်ထံ ဆက်သွယ်ရန်",
+                mtSuccessTitle: "တောင်းဆိုမှု လက်ခံရရှိပါသည်", mtSuccessMsg: "သင်၏ အချက်အလက်များကို ရရှိပါပြီ။ ကျေးဇူးပြု၍ စောင့်ဆိုင်းပေးပါ၊ အမြန်ဆုံး ပြန်လည်ဆက်သွယ်ပေးပါမည်။"
             }
         };
 
@@ -627,9 +607,7 @@
         let supabaseInstance = null;
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                auth: {
-                    detectSessionInUrl: false
-                }
+                auth: { detectSessionInUrl: false }
             });
         }
         
@@ -647,24 +625,17 @@
                         role: session.user.user_metadata?.role || 'user'
                     };
                     currentUserWishlist = session.user.user_metadata?.wishlist || [];
-                    populateProfileData();
+                    const emailInput = document.getElementById('mtEmail');
+                    if(emailInput) {
+                        emailInput.value = currentUser.email;
+                        emailInput.disabled = true;
+                        emailInput.classList.add('cursor-not-allowed', 'bg-gray-100');
+                    }
                     updateAuthUI();
                 } else {
                     currentUser = null;
                     currentUserWishlist = [];
-                    try {
-                        window.location.href = '../login/index.html';
-                    } catch (e) {
-                        document.body.innerHTML = `
-                            <div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-                                <i data-lucide="lock" class="h-12 w-12 text-gray-400 mb-4"></i>
-                                <h2 class="text-2xl font-bold text-gray-800 mb-2">Authentication Required</h2>
-                                <p class="text-gray-500 mb-6">You must be signed in to view your profile.</p>
-                                <a href="../login/index.html" class="px-6 py-3 bg-blue-500 text-white rounded-full">Go to Login</a>
-                            </div>
-                        `;
-                        lucide.createIcons();
-                    }
+                    updateAuthUI();
                 }
             });
         } else {
@@ -771,339 +742,12 @@
             });
         }
 
-        let confirmActionCallback = null;
-
-        function showConfirmModal(title, message, type = 'warning', requireCheckbox = false, requireTextMatch = null, onConfirm) {
-            if (typeof requireTextMatch === 'function') {
-                onConfirm = requireTextMatch;
-                requireTextMatch = null;
-            }
-
-            const modal = document.getElementById('confirmModal');
-            const content = document.getElementById('confirmModalContent');
-            const titleEl = document.getElementById('confirmModalTitle');
-            const msgEl = document.getElementById('confirmModalMessage');
-            const iconContainer = document.getElementById('confirmModalIcon');
-            const btn = document.getElementById('confirmModalBtn');
-            const cancelBtn = document.getElementById('confirmModalCancelBtn');
-            
-            const checkboxContainer = document.getElementById('confirmModalCheckboxContainer');
-            const checkbox = document.getElementById('confirmModalCheckbox');
-            const checkboxText = document.getElementById('confirmModalCheckboxText');
-
-            const textContainer = document.getElementById('confirmModalTextContainer');
-            const textInput = document.getElementById('confirmModalTextInput');
-            const textLabel = document.getElementById('confirmModalTextLabel');
-
-            titleEl.innerText = title;
-            msgEl.innerText = message;
-            confirmActionCallback = onConfirm;
-            cancelBtn.innerText = currentLang === 'en' ? 'Cancel' : 'ပယ်ဖျက်မည်';
-            
-            checkboxText.innerHTML = currentLang === 'en' 
-                ? 'I have read the <a href="../comming-soon/index.html" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">Terms and Conditions</a>. I understand that all my data will be permanently deleted and this action cannot be undone.'
-                : '<a href="../comming-soon/index.html" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">စည်းမျဉ်းစည်းကမ်းများ</a>ကို ကျွန်ုပ်ဖတ်ပြီးပါပြီ။ ကျွန်ုပ်၏ အချက်အလက်များအားလုံးကို အပြီးအပိုင်ဖျက်ပစ်မည်ဖြစ်ပြီး ပြန်လည်ရယူ၍မရနိုင်ကြောင်း နားလည်သဘောပေါက်ပါသည်။';
-
-            checkbox.checked = false;
-            textInput.value = '';
-
-            const validateBtn = () => {
-                let isValid = true;
-                if (requireCheckbox && !checkbox.checked) isValid = false;
-                if (requireTextMatch && textInput.value !== requireTextMatch) isValid = false;
-                
-                if (isValid) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
-                }
-            };
-
-            if (requireCheckbox) {
-                checkboxContainer.classList.remove('hidden');
-                checkbox.onchange = validateBtn;
-            } else {
-                checkboxContainer.classList.add('hidden');
-            }
-
-            if (requireTextMatch) {
-                textContainer.classList.remove('hidden');
-                textLabel.innerText = currentLang === 'en'
-                    ? `Please type "${requireTextMatch}" to confirm`
-                    : `အတည်ပြုရန် "${requireTextMatch}" ဟု ရိုက်ထည့်ပါ`;
-                textInput.placeholder = requireTextMatch;
-                textInput.oninput = validateBtn;
-            } else {
-                textContainer.classList.add('hidden');
-            }
-
-            validateBtn();
-
-            if (type === 'danger') {
-                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6';
-                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-8 w-8 text-red-600"></i>';
-                btn.className = 'flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-red-600 hover:bg-red-700';
-                btn.innerText = currentLang === 'en' ? 'Delete Permanently' : 'အပြီးအပိုင်ဖျက်မည်';
-            } else {
-                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-6';
-                iconContainer.innerHTML = '<i data-lucide="info" class="h-8 w-8 text-myancode-blue"></i>';
-                btn.className = 'flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-myancode-black hover:bg-gray-800';
-                btn.innerText = currentLang === 'en' ? 'Confirm' : 'အတည်ပြုမည်';
-            }
-            
-            lucide.createIcons();
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth; 
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-
-            btn.onclick = () => {
-                if (btn.disabled) return;
-                closeConfirmModal();
-                if (confirmActionCallback) confirmActionCallback();
-            };
-        }
-
-        function closeConfirmModal() {
-            const modal = document.getElementById('confirmModal');
-            const content = document.getElementById('confirmModalContent');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
-
-        let cropperInstance = null;
-
-        function populateProfileData() {
-            if(!currentUser) return;
-            document.getElementById('profileNameInput').value = currentUser.name;
-            document.getElementById('profileEmailInput').value = currentUser.email;
-            if (currentUser.avatar_url) {
-                document.getElementById('profileAvatarPreview').src = currentUser.avatar_url;
-            }
-        }
-
-        function openCropper(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (file.size > 5 * 1024 * 1024) {
-                showErrorToast(currentLang === 'en' ? "Image must be under 5MB" : "ဖိုင်အရွယ်အစား ၅MB အောက်ရှိရမည်");
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imageToCrop = document.getElementById('imageToCrop');
-                imageToCrop.src = e.target.result;
-                
-                const modal = document.getElementById('cropperModal');
-                const modalContent = document.getElementById('cropperModalContent');
-                
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                void modal.offsetWidth;
-                modal.classList.remove('opacity-0');
-                modalContent.classList.remove('scale-95');
-
-                if (cropperInstance) {
-                    cropperInstance.destroy();
-                }
-
-                cropperInstance = new Cropper(imageToCrop, {
-                    aspectRatio: 1, 
-                    viewMode: 1,
-                    dragMode: 'move', 
-                    autoCropArea: 1,
-                    restore: false,
-                    guides: true,
-                    center: true,
-                    highlight: false,
-                    cropBoxMovable: false,
-                    cropBoxResizable: false,
-                    toggleDragModeOnDblclick: false,
-                });
-            };
-            reader.readAsDataURL(file);
-            event.target.value = ''; 
-        }
-
-        function cancelCrop() {
-            const modal = document.getElementById('cropperModal');
-            const modalContent = document.getElementById('cropperModalContent');
-            
-            modal.classList.add('opacity-0');
-            modalContent.classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                if (cropperInstance) {
-                    cropperInstance.destroy();
-                    cropperInstance = null;
-                }
-            }, 300);
-        }
-
-        async function saveCrop() {
-            if (!cropperInstance || !supabaseInstance) return;
-            
-            showLoader('loadingSec');
-            
-            const canvas = cropperInstance.getCroppedCanvas({
-                width: 256,
-                height: 256,
-                fillColor: '#fff' 
-            });
-            
-            const base64Avatar = canvas.toDataURL('image/jpeg', 0.8);
-            cancelCrop(); 
-            
-            try {
-                const { error: updateError } = await supabaseInstance.auth.updateUser({
-                    data: { avatar_url: base64Avatar }
-                });
-                
-                if (updateError) throw updateError;
-                
-                currentUser.avatar_url = base64Avatar;
-                document.getElementById('profileAvatarPreview').src = base64Avatar;
-                updateAuthUI();
-                showToast(currentLang === 'en' ? 'Avatar updated successfully' : 'ဓာတ်ပုံပြင်ဆင်မှု အောင်မြင်ပါသည်');
-            } catch(err) {
-                showErrorToast(err.message);
-            } finally {
-                hideLoader();
-            }
-        }
-
-        function removeAvatar() {
-            if (!currentUser || !supabaseInstance) return;
-            
-            const title = currentLang === 'en' ? "Remove Icon" : "ပုံဖယ်ရှားမည်";
-            const msg = currentLang === 'en' ? "Are you sure you want to remove your custom profile icon?" : "သင့်ကိုယ်ရေးအကျဉ်းပုံကို ဖယ်ရှားရန် သေချာပါသလား?";
-            
-            showConfirmModal(title, msg, 'warning', false, async () => {
-                showLoader('loadingSec');
-                try {
-                    const { error } = await supabaseInstance.auth.updateUser({
-                        data: { avatar_url: null }
-                    });
-                    if (error) throw error;
-                    currentUser.avatar_url = null;
-                    document.getElementById('profileAvatarPreview').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>";
-                    updateAuthUI();
-                    showToast(currentLang === 'en' ? 'Icon removed successfully' : 'ဓာတ်ပုံဖယ်ရှားမှု အောင်မြင်ပါသည်');
-                } catch(err) {
-                    showErrorToast(err.message);
-                } finally {
-                    hideLoader();
-                }
-            });
-        }
-
-        async function updateProfileName() {
-            const newName = document.getElementById('profileNameInput').value.trim();
-            if(!newName || !supabaseInstance || newName === currentUser.name) return;
-            
-            showLoader('loadingSec');
-            try {
-                const { error } = await supabaseInstance.auth.updateUser({
-                    data: { full_name: newName }
-                });
-                
-                if (error) throw error;
-                
-                currentUser.name = newName;
-                updateAuthUI();
-                showToast(currentLang === 'en' ? 'Profile updated successfully' : 'ကိုယ်ရေးအချက်အလက် ပြင်ဆင်မှု အောင်မြင်ပါသည်');
-            } catch(err) {
-                showErrorToast(err.message);
-            } finally {
-                hideLoader();
-            }
-        }
-
-        async function updatePassword() {
-            const oldPass = document.getElementById('profileOldPassInput').value;
-            const pass1 = document.getElementById('profilePassInput').value;
-            const pass2 = document.getElementById('profilePassConfirmInput').value;
-            
-            if (!oldPass) {
-                showErrorToast(currentLang === 'en' ? 'Please enter your current password' : 'စကားဝှက်အဟောင်းကို ရိုက်ထည့်ပါ');
-                return;
-            }
-            if (!pass1 || pass1.length < 6) {
-                showErrorToast(currentLang === 'en' ? 'Password must be at least 6 characters' : 'စကားဝှက်အနည်းဆုံး ၆ လုံးရှိရမည်');
-                return;
-            }
-            if (pass1 !== pass2) {
-                showErrorToast(currentLang === 'en' ? 'Passwords do not match' : 'စကားဝှက်များ မတူညီပါ');
-                return;
-            }
-            
-            showLoader('loadingSec');
-            try {
-                const { error } = await supabaseInstance.auth.updateUser({ password: pass1 });
-                if (error) throw error;
-                
-                document.getElementById('profileOldPassInput').value = '';
-                document.getElementById('profilePassInput').value = '';
-                document.getElementById('profilePassConfirmInput').value = '';
-                showToast(currentLang === 'en' ? 'Password updated successfully' : 'စကားဝှက် ပြင်ဆင်မှု အောင်မြင်ပါသည်');
-            } catch(err) {
-                showErrorToast(err.message);
-            } finally {
-                hideLoader();
-            }
-        }
-
-        function deleteAccount() {
-            const title = currentLang === 'en' ? "Delete Account" : "အကောင့် ဖျက်မည်";
-            const confirmMsg = currentLang === 'en' 
-                ? "Are you absolutely sure you want to delete your account? This action is irreversible." 
-                : "အကောင့်ကို ဖျက်ပစ်ရန် သေချာပါသလား? ဤလုပ်ငန်းစဉ်ကို နောက်ပြန်ဆုတ်၍ မရနိုင်ပါ။";
-            
-            showConfirmModal(title, confirmMsg, 'danger', true, 'DeLeTe My AccOunT', async () => {
-                showLoader('loadingSec');
-                try {
-                    const { error } = await supabaseInstance.rpc('delete_user');
-                    
-                    if (error) {
-                        throw new Error(error.message); 
-                    }
-                    
-                    await supabaseInstance.auth.signOut();
-                    
-                    showToast(currentLang === 'en' ? "Account deleted permanently." : "အကောင့်ကို အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။");
-                    
-                    setTimeout(() => {
-                        try { window.location.href = '../index.html'; } catch(e) { window.location.reload(); }
-                    }, 1500);
-                    
-                } catch(err) {
-                    hideLoader();
-                    console.error("Account Deletion Error:", err.message);
-                    console.warn("DEVELOPER: Deletion failed! Did you add the 'delete_user' RPC function in your Supabase SQL Editor?");
-                    
-                    showErrorToast(currentLang === 'en' ? "Deletion failed! Backend function missing. Check console." : "အကောင့်ဖျက်ခြင်း မအောင်မြင်ပါ။ (Backend Function လိုအပ်ပါသည်)");
-                }
-            });
-        } 
-
         async function syncWishlistToSupabase() {
             if (supabaseInstance && currentUser) {
                 const { error } = await supabaseInstance.auth.updateUser({
                     data: { wishlist: currentUserWishlist }
                 });
-                if (error) console.error("Error syncing wishlist:", error);
+                if (error) console.error(error);
             }
         }
 
@@ -1136,7 +780,7 @@
                 return `
                 <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                     <div>
-                        <h4 class="font-semibold text-sm mb-1">${dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name}</h4>
+                        <h4 class="font-semibold text-sm mb-1">${item.name}</h4>
                         <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
                     </div>
                     <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
@@ -1249,45 +893,6 @@
 
         let searchDebounceTimer;
 
-        const SUPER_STATIC_PAGES = [
-            { title_en: 'Studio', title_mm: 'စတူဒီယို', url: '../studio/index.html', icon: 'code-2', type: 'Pages & Navigation', desc_en: 'Custom development & enterprise solutions', desc_mm: 'စိတ်ကြိုက်ရေးဆွဲခြင်း' },
-            { title_en: 'Templates', title_mm: 'ဝက်ဘ်ဆိုက်များ', url: '../templates/index.html', icon: 'layout-template', type: 'Pages & Navigation', desc_en: 'Pre-built high-quality website templates', desc_mm: 'အသင့်သုံး ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ' },
-            { title_en: 'Services', title_mm: 'ဝန်ဆောင်မှုများ', url: '../services/index.html', icon: 'briefcase', type: 'Pages & Navigation', desc_en: 'Explore all our digital services', desc_mm: 'ဒီဂျစ်တယ် ဝန်ဆောင်မှုများ' },
-            { title_en: 'Maintenance', title_mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', url: '../maintenance/index.html', icon: 'shield-check', type: 'Pages & Navigation', desc_en: 'Long-term maintenance plans', desc_mm: 'ပြုပြင်ထိန်းသိမ်းရေး အစီအစဉ်များ' },
-            { title_en: 'Help Center', title_mm: 'အကူအညီဌာန', url: '../help/index.html', icon: 'help-circle', type: 'Support & Help', desc_en: 'Get help with our products', desc_mm: 'အကူအညီရယူရန်' },
-            { title_en: 'FAQs', title_mm: 'အမေးများသောမေးခွန်းများ', url: '../faq/index.html', icon: 'message-circle-question', type: 'Support & Help', desc_en: 'Frequently asked questions', desc_mm: 'အမေးများသော မေးခွန်းများ' },
-            { title_en: 'Guides', title_mm: 'လမ်းညွှန်များ', url: '../guides/index.html', icon: 'book-open', type: 'Support & Help', desc_en: 'Step-by-step documentation', desc_mm: 'အသုံးပြုနည်း လမ်းညွှန်များ' },
-            { title_en: 'About Us', title_mm: 'ကျွန်ုပ်တို့အကြောင်း', url: '../about-us/index.html', icon: 'info', type: 'Company', desc_en: 'Learn more about MyanCode', desc_mm: 'MyanCode အကြောင်း' },
-            { title_en: 'Contact Us', title_mm: 'ဆက်သွယ်ရန်', url: '../contact-us/index.html', icon: 'phone', type: 'Company', desc_en: 'Get in touch with our team', desc_mm: 'ဆက်သွယ်ရန်' },
-            { title_en: 'Updates & News', title_mm: 'သတင်းနှင့် အသစ်များ', url: '../updates-news/index.html', icon: 'newspaper', type: 'Company', desc_en: 'Latest announcements', desc_mm: 'နောက်ဆုံးရသတင်းများ' },
-            { title_en: 'Careers', title_mm: 'အလုပ်အကိုင်များ', url: '../careers/index.html', icon: 'users', type: 'Company', desc_en: 'Join the MyanCode team', desc_mm: 'အလုပ်အကိုင် အခွင့်အလမ်းများ' },
-            { title_en: 'Customer Policy', title_mm: 'ဖောက်သည် မူဝါဒ', url: '../legal/index.html#client-policy', icon: 'shield', type: 'Policies & Legal', desc_en: 'Rules for our customers', desc_mm: 'ဖောက်သည်များအတွက် စည်းမျဉ်းများ' },
-            { title_en: 'Privacy Policy', title_mm: 'ကိုယ်ရေးအချက်အလက် မူဝါဒ', url: '../legal/index.html#privacy-policy', icon: 'lock', type: 'Policies & Legal', desc_en: 'How we protect your data', desc_mm: 'အချက်အလက် လုံခြုံရေး' },
-            { title_en: 'Terms of Service', title_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ', url: '../legal/index.html#terms-of-service', icon: 'file-text', type: 'Policies & Legal', desc_en: 'Usage terms and conditions', desc_mm: 'အသုံးပြုမှု စည်းမျဉ်းများ' },
-            { title_en: 'Refund Policy', title_mm: 'ငွေပြန်အမ်းရေး မူဝါဒ', url: '../legal/index.html#refund-policy', icon: 'refresh-ccw', type: 'Policies & Legal', desc_en: 'Our refund guidelines', desc_mm: 'ငွေပြန်အမ်းရေး စည်းမျဉ်းများ' },
-            { title_en: 'Payment Policy', title_mm: 'ငွေပေးချေမှု မူဝါဒ', url: '../legal/index.html#payment-policy', icon: 'credit-card', type: 'Policies & Legal', desc_en: 'Accepted payment methods', desc_mm: 'ငွေပေးချေမှု စနစ်များ' },
-            { title_en: 'Studio Policy', title_mm: 'စတူဒီယို မူဝါဒ', url: '../legal/index.html#studio-policy', icon: 'briefcase', type: 'Policies & Legal', desc_en: 'Guidelines for studio services', desc_mm: 'စတူဒီယို စည်းမျဉ်းများ' },
-            { title_en: 'Template Policy', title_mm: 'ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ', url: '../legal/index.html#template-policy', icon: 'layout-template', type: 'Policies & Legal', desc_en: 'Rules for template usage', desc_mm: 'ပုံစံများအတွက် စည်းမျဉ်းများ' },
-            { title_en: 'Service Policy', title_mm: 'ဝန်ဆောင်မှု မူဝါဒ', url: '../legal/index.html#service-policy', icon: 'settings', type: 'Policies & Legal', desc_en: 'General service terms', desc_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ' },
-            { title_en: 'User Hub', title_mm: 'ဗဟိုဌာန', url: '../hub/index.html', icon: 'layout-dashboard', type: 'User Dashboard', desc_en: 'Manage your projects and orders', desc_mm: 'ပရောဂျက်များ စီမံရန်' }
-        ];
-
-        function getCategoryIcon(c) {
-            let icon = c.icon ? c.icon.trim().toLowerCase() : '';
-            const name = (c.name_en || '').toLowerCase();
-            if (icon.includes('service') || name.includes('service')) return 'briefcase';
-            if (icon.includes('portfolio') || name.includes('personal') || icon.includes('personal')) return 'user';
-            if (icon.includes('business') || name.includes('business') || name.includes('corporate')) return 'building-2';
-            if (icon.includes('ecommerce') || name.includes('commerce') || name.includes('shop') || icon.includes('shop')) return 'shopping-bag';
-            if (icon.includes('education') || name.includes('education') || icon.includes('edu')) return 'book-open';
-            if (icon.includes('event') || name.includes('event')) return 'calendar';
-            if (icon.includes('blog') || name.includes('blog')) return 'file-text';
-            if (icon.includes('health') || name.includes('health') || name.includes('medical') || icon.includes('medical')) return 'activity';
-            if (icon.includes('food') || name.includes('food') || name.includes('hospitality')) return 'coffee';
-            if (icon.includes('creative') || name.includes('creative') || name.includes('media')) return 'palette';
-            return icon ? icon : 'layout';
-        }
-
         async function handleMegaSearch(e) {
             const query = e.target.value.toLowerCase().trim();
             const resultsContainer = document.getElementById('megaSearchResults');
@@ -1306,196 +911,232 @@
 
             clearTimeout(searchDebounceTimer);
             searchDebounceTimer = setTimeout(async () => {
-                let combined = [];
-
-                SUPER_STATIC_PAGES.forEach(p => {
-                    const searchStr = `${p.title_en} ${p.title_mm} ${p.desc_en} ${p.desc_mm} ${p.type}`.toLowerCase();
-                    if (searchStr.includes(query)) {
-                        combined.push({
-                            type: p.type, name: p.title_en, mm: p.title_mm, icon: p.icon,
-                            desc_en: p.desc_en, desc_mm: p.desc_mm, url: p.url, action: null, score: 1000
-                        });
-                    }
-                });
-
-                if (supabaseInstance) {
-                    const promises = [];
-
-                    promises.push(
-                        supabaseInstance.from('pkg_categories')
-                            .select('id, name_en, name_mm, icon')
-                            .or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`)
-                            .limit(4)
-                            .then(({data}) => {
-                                if(data) data.forEach(c => combined.push({ 
-                                    id: c.id, type: 'Website Foundations', name: c.name_en, mm: c.name_mm || c.name_en, 
-                                    icon: getCategoryIcon(c), desc_en: 'Explore this package in our Studio', desc_mm: 'ဝယ်ယူရန် ဤနေရာကို နှိပ်ပါ',
-                                    url: '../studio/index.html', action: null, score: 900 
-                                }));
-                            })
-                    );
-
-                    promises.push(
-                        supabaseInstance.from('pkg_features')
-                            .select('id, name_en, name_mm, feature_type')
-                            .or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`)
-                            .limit(4)
-                            .then(({data}) => {
-                                if(data) data.forEach(f => combined.push({ 
-                                    id: f.id, type: 'Features & Systems', name: f.name_en, mm: f.name_mm || f.name_en, 
-                                    icon: 'cpu', desc_en: 'Enterprise system feature available in builder', desc_mm: 'ထည့်သွင်းအသုံးပြုနိုင်သော စနစ်',
-                                    url: '../studio/index.html', action: null, score: 800 
-                                }));
-                            })
-                    );
-
-                    promises.push(
-                        supabaseInstance.from('services')
-                            .select('id, title_en, title_mm, icon')
-                            .or(`title_en.ilike.%${query}%,title_mm.ilike.%${query}%`)
-                            .limit(4)
-                            .then(({data}) => {
-                                if(data) data.forEach(s => combined.push({ 
-                                    id: s.id, type: 'Services', name: s.title_en, mm: s.title_mm || s.title_en, 
-                                    icon: s.icon || 'briefcase', desc_en: 'Professional digital service offering', desc_mm: 'ကျွမ်းကျင်သော ဒီဂျစ်တယ် ဝန်ဆောင်မှု',
-                                    url: `../services/index.html?id=${s.id}`, action: null, score: 850 
-                                }));
-                            })
-                    );
-
-                    promises.push(
-                        supabaseInstance.from('products')
-                            .select('*')
-                            .eq('product_status', 'active')
-                            .then(({data}) => {
-                                const products = data || [];
-                                products.forEach(item => {
-                                    const searchStr = [
-                                        item.product_name_en || '', item.product_name_mm || '', 
-                                        item.product_description_en || '', item.product_description_mm || '', 
-                                        item.category_id || '', item.product_slug || ''
-                                    ].join(' ').toLowerCase();
-                                    
-                                    let score = 0;
-                                    
-                                    if (searchStr.includes(query)) {
-                                        score = -100;
-                                    } else {
-                                        const queryWords = query.split(/\s+/).filter(w => w);
-                                        const targetWords = searchStr.split(/[\s,.\-_]+/);
-                                        let matchedWords = 0;
-                                        
-                                        for (const qWord of queryWords) {
-                                            let minWordDist = qWord.length;
-                                            for (const tWord of targetWords) {
-                                                if (!tWord) continue;
-                                                if (tWord.includes(qWord) || qWord.includes(tWord)) { minWordDist = -10; break; }
-                                                const dist = getSimilarityScore(qWord, tWord);
-                                                if (dist < minWordDist) minWordDist = dist;
-                                            }
-                                            const maxAllowedTypos = Math.max(1, Math.floor(qWord.length / 2) + 1);
-                                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) matchedWords++;
-                                            score += minWordDist;
-                                        }
-                                        if (matchedWords < queryWords.length) score += 1000;
-                                    }
-                                    
-                                    if (score < 1000) {
-                                        const productSlug = item.product_slug || item.slug || item.product_id;
-                                        combined.push({
-                                            id: item.product_id, type: 'Templates', 
-                                            name: item.product_name_en || item.product_name_mm || 'Unnamed Product', 
-                                            mm: item.product_name_mm || item.product_name_en || 'အမည်မရှိ', 
-                                            icon: 'layout', image: item.product_image,
-                                            desc_en: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_en || 'Premium Website Template'}`, 
-                                            desc_mm: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_mm || 'အဆင့်မြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းပုံစံ'}`,
-                                            url: `../template-detail/index.html?product=${productSlug}`, action: null,
-                                            score: 1000 - score 
-                                        });
-                                    }
-                                });
-                            })
-                    );
-
-                    try {
-                        await Promise.allSettled(promises);
-                    } catch (err) {
-                        console.error("Parallel DB fetch error:", err);
-                    }
-                }
-
-                combined.sort((a, b) => b.score - a.score);
-
-                if (combined.length === 0) {
-                    resultsContainer.innerHTML = `
-                        <div class="py-8 text-center">
-                            <i data-lucide="search-x" class="h-10 w-10 text-gray-300 mx-auto mb-3"></i>
-                            <p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No exact results found for' : 'ရလဒ်မတွေ့ပါ'} "<span class="text-black">${e.target.value}</span>"</p>
-                            <p class="text-xs text-gray-400 mt-2">Try searching for keywords like "Business", "Studio", "Policy" or "SEO"</p>
-                        </div>`;
-                    lucide.createIcons();
+                if (!supabaseInstance) {
+                    resultsContainer.innerHTML = `<p class="text-red-500 text-sm font-medium tracking-wide">Database connection error. Check Supabase connection.</p>`;
                     return;
                 }
 
-                const groupOrder = [
-                    'Website Foundations', 'Templates', 'Services', 'Features & Systems', 
-                    'Pages & Navigation', 'User Dashboard', 'Company', 'Policies & Legal', 'Support & Help'
-                ];
+                try {
+                    const { data: dbProducts, error } = await supabaseInstance
+                        .from('products')
+                        .select('*')
+                        .eq('product_status', 'active');
 
-                const grouped = combined.reduce((acc, item) => {
-                    if (!acc[item.type]) acc[item.type] = [];
-                    if (acc[item.type].length < 4) acc[item.type].push(item);
-                    return acc;
-                }, {});
-
-                const sortedKeys = Object.keys(grouped).sort((a, b) => {
-                    let idxA = groupOrder.indexOf(a); let idxB = groupOrder.indexOf(b);
-                    if (idxA === -1) idxA = 999; if (idxB === -1) idxB = 999;
-                    return idxA - idxB;
-                });
-
-                let html = '';
-                for (const type of sortedKeys) {
-                    const items = grouped[type];
-                    html += `
-                    <div class="mb-8 last:mb-0 reveal active">
-                        <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            ${type} <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[9px]">${items.length}</span>
-                        </h4>
-                        <div class="grid grid-cols-1 gap-3">`;
+                    if (error) throw error;
                     
-                    html += items.map(item => {
-                        const title = currentLang === 'en' ? item.name : item.mm;
-                        const desc = currentLang === 'en' ? (item.desc_en || '') : (item.desc_mm || item.desc_en || '');
-                        const fallbackImg = 'https://placehold.co/150x150/ffffff/6e6e73?text=Image';
+                    const products = dbProducts || [];
+
+                    let scoredItems = products.map(item => {
+                        const searchStr = [
+                            item.product_name_en || '', item.product_name_mm || '', 
+                            item.product_description_en || '', item.product_description_mm || '', 
+                            item.category_id || '', item.product_slug || ''
+                        ].join(' ').toLowerCase();
                         
-                        let finalImgUrl = item.image || fallbackImg;
+                        if (searchStr.includes(query)) return { ...item, score: -100 };
+                        
+                        const queryWords = query.split(/\s+/).filter(w => w);
+                        const targetWords = searchStr.split(/[\s,.\-_]+/);
+                        
+                        let score = 0; let matchedWords = 0;
+                        
+                        for (const qWord of queryWords) {
+                            let minWordDist = qWord.length;
+                            for (const tWord of targetWords) {
+                                if (!tWord) continue;
+                                if (tWord.includes(qWord) || qWord.includes(tWord)) { minWordDist = -10; break; }
+                                const dist = getSimilarityScore(qWord, tWord);
+                                if (dist < minWordDist) minWordDist = dist;
+                            }
+                            const maxAllowedTypos = Math.max(1, Math.floor(qWord.length / 2) + 1);
+                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) matchedWords++;
+                            score += minWordDist;
+                        }
+                        if (matchedWords < queryWords.length) score += 1000;
+                        return { ...item, score };
+                    });
+
+                    const results = scoredItems.filter(item => item.score < 1000).sort((a, b) => a.score - b.score).slice(0, 8);
+
+                    if (results.length === 0) { 
+                        resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p>`; 
+                        return; 
+                    }
+
+                    resultsContainer.innerHTML = results.map(item => {
+                        const itemName = currentLang === 'en' ? (item.product_name_en || item.product_name_mm || 'Unnamed Product') : (item.product_name_mm || item.product_name_en || 'အမည်မရှိ');
+                        const itemDesc = currentLang === 'en' ? (item.product_description_en || '') : (item.product_description_mm || item.product_description_en || '');
+                        const fallbackImg = 'https://placehold.co/150x150/ffffff/6e6e73?text=Image';
+                        const itemType = item.category_id || 'Product';
+                        const productSlug = item.product_slug || item.slug || item.product_id;
+                        const itemUrl = `../template-detail/index.html?product=${productSlug}`;
+
+                        let finalImgUrl = item.product_image || fallbackImg;
                         if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', '../');
 
-                        const imgBlock = item.image 
-                            ? `<div class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg mr-4 overflow-hidden shadow-sm flex-shrink-0 group-hover:shadow-md transition-all group-hover:scale-105 z-10 border border-gray-100"><img src="${finalImgUrl}" class="w-full h-full object-cover" onerror="this.src='${fallbackImg}'"></div>`
-                            : `<div class="p-3 bg-white rounded-xl shadow-sm mr-4 group-hover:bg-myancode-black group-hover:text-white transition-colors duration-300 transform group-hover:scale-105 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-4 w-4 sm:h-5 sm:w-5"></i></div>`;
-
                         return `
-                        <a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 sm:p-4 bg-gray-50 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">
-                            ${imgBlock}
-                            <div class="flex-1 min-w-0 z-10">
-                                <h5 class="text-sm font-bold text-myancode-black group-hover:text-myancode-blue transition-colors truncate">${title}</h5>
-                                ${desc ? `<p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${desc}</p>` : ''}
+                        <a href="${itemUrl}" onclick="toggleSearchOverlay()" class="mega-nav-link flex items-start p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors group mb-3 border border-transparent hover:border-gray-200">
+                            <div class="flex-shrink-0 mr-4 mt-0.5 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+                                <img src="${finalImgUrl}" alt="${itemName}" class="h-12 w-12 sm:h-14 sm:w-14 object-contain mix-blend-multiply group-hover:scale-105 transition-transform" onerror="this.src='${fallbackImg}'">
                             </div>
-                            <div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-myancode-blue transition-colors z-10 opacity-0 sm:opacity-100">
-                                <i data-lucide="chevron-right" class="h-4 w-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0"></i>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <h5 class="text-sm font-semibold tracking-wide text-black truncate pr-2 group-hover:text-myancode-blue transition-colors">${itemName}</h5>
+                                    <span class="text-[9px] font-bold tracking-widest uppercase text-gray-500 bg-gray-200/80 px-2 py-0.5 rounded-full whitespace-nowrap">${itemType}</span>
+                                </div>
+                                <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${itemDesc}</p>
                             </div>
                         </a>`;
                     }).join('');
                     
-                    html += `</div></div>`;
+                    lucide.createIcons();
+                } catch (err) {
+                    console.error(err);
+                    resultsContainer.innerHTML = `<p class="text-red-500 text-sm font-medium tracking-wide">Failed to fetch data from the database.</p>`;
                 }
+            }, 300); 
+        }
 
-                resultsContainer.innerHTML = html;
-                lucide.createIcons();
+        const dropzone = document.getElementById('mtDropzone');
+        const fileInput = document.getElementById('mtFile');
+        const fileList = document.getElementById('mtFileList');
 
-            }, 300);
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('border-myancode-blue', 'bg-blue-50/50');
+        });
+
+        dropzone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-myancode-blue', 'bg-blue-50/50');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-myancode-blue', 'bg-blue-50/50');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileList();
+            }
+        });
+
+        fileInput.addEventListener('change', updateFileList);
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            const files = Array.from(fileInput.files);
+            
+            if(files.length > 0) fileList.classList.remove('hidden');
+            else fileList.classList.add('hidden');
+            
+            files.forEach((file, index) => {
+                const div = document.createElement('div');
+                div.className = 'text-[11px] text-gray-600 bg-gray-50 px-3 py-2.5 rounded-xl flex justify-between items-center border border-gray-100';
+                
+                const getIcon = (type) => {
+                    if(type.includes('image')) return 'image';
+                    if(type.includes('video')) return 'video';
+                    if(type.includes('pdf')) return 'file-text';
+                    if(type.includes('zip') || type.includes('rar')) return 'archive';
+                    return 'file';
+                };
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 truncate">
+                        <i data-lucide="${getIcon(file.type)}" class="h-4 w-4 text-myancode-blue flex-shrink-0"></i>
+                        <span class="truncate font-medium">${file.name}</span>
+                    </div>
+                    <div class="flex items-center gap-3 ml-2 flex-shrink-0">
+                        <span class="font-bold text-gray-400">${(file.size/1024/1024).toFixed(2)} MB</span>
+                        <button type="button" onclick="removeFile(${index})" class="text-red-400 hover:text-red-600"><i data-lucide="x" class="h-3 w-3"></i></button>
+                    </div>
+                `;
+                fileList.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+        
+        window.removeFile = function(index) {
+            const dt = new DataTransfer();
+            const files = Array.from(fileInput.files);
+            for(let i = 0; i < files.length; i++) {
+                if(i !== index) dt.items.add(files[i]);
+            }
+            fileInput.files = dt.files;
+            updateFileList();
+        }
+
+        async function handleMtSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('mtSubmitBtn');
+            const turnstileResponse = document.querySelector('#mtForm [name="cf-turnstile-response"]')?.value;
+            
+            if (!turnstileResponse) { 
+                showErrorToast(currentLang === 'en' ? "Please complete the security check." : "ကျေးဇူးပြု၍ လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); 
+                return; 
+            }
+
+            const email = document.getElementById('mtEmail').value;
+            const type = document.getElementById('mtType').value;
+            const subject = document.getElementById('mtSubject').value;
+            const desc = document.getElementById('mtDesc').value;
+            
+            if(!email || !type || !subject || !desc) {
+                showErrorToast("Please fill all required fields.");
+                return;
+            }
+
+            btn.disabled = true;
+            const originalBtnHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`;
+            lucide.createIcons();
+
+            try {
+                if(supabaseInstance) {
+                    await supabaseInstance.from('maintenance_requests').insert([{
+                        user_email: email,
+                        type: type,
+                        subject: subject,
+                        description: desc,
+                        has_attachments: fileInput.files.length > 0,
+                        status: 'pending'
+                    }]);
+                } else {
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+                
+                document.getElementById('mtForm').reset();
+                if(window.turnstile) turnstile.reset();
+                updateFileList();
+                openSuccessAnim();
+                
+            } catch (err) {
+                showErrorToast(err.message || "Failed to submit request.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHTML;
+            }
+        }
+
+        function openSuccessAnim() {
+            const modal = document.getElementById('successAnimModal');
+            const content = document.getElementById('successAnimContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth; 
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeSuccessAnim() {
+            const modal = document.getElementById('successAnimModal');
+            const content = document.getElementById('successAnimContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 500);
         }
 
         async function handleSubscribe(e) {
@@ -1506,7 +1147,7 @@
             const btn = document.getElementById('btnSubscribe');
             const email = emailInput.value.trim();
 
-            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            const turnstileResponse = document.querySelector('#newsletterForm [name="cf-turnstile-response"]')?.value;
             if (!turnstileResponse) { showErrorToast(currentLang === 'en' ? "Please complete the security check." : "ကျေးဇူးပြု၍ လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); return; }
             if (!email) return;
 

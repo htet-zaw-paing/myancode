@@ -38,53 +38,11 @@
         }
     </script>
     <style>
-        /* SECURITY CSS: Disable text selection entirely */
-        html, body { 
-            width: 100%; overflow-x: hidden; position: relative; background-color: #fbfbfd; color: #111111; -webkit-font-smoothing: antialiased; 
-            -webkit-user-select: none; /* Safari */
-            -ms-user-select: none; /* IE 10 and IE 11 */
-            user-select: none; /* Standard syntax */
-            -webkit-touch-callout: none; /* Disable iOS touch callout */
-        }
-        
+        html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #fbfbfd; color: #111111; -webkit-font-smoothing: antialiased; }
         body.no-scroll {
             overflow: hidden !important;
             touch-action: none;
         }
-
-        /* SECURITY CSS: Blur effect class */
-        .security-blur-active > *:not(#securityOverlay) {
-            filter: blur(25px) grayscale(100%) !important;
-            opacity: 0.1 !important;
-            pointer-events: none !important;
-            user-select: none !important;
-            transition: all 0.1s ease-in-out;
-        }
-
-        /* SECURITY OVERLAY */
-        #securityOverlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(17, 17, 17, 0.98);
-            color: #ff3b30;
-            z-index: 2147483647; /* Max z-index */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 2rem;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-            backdrop-filter: blur(10px);
-        }
-        #securityOverlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        #securityOverlay h1 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 2px; }
-        #securityOverlay p { font-size: 1.1rem; color: #f5f5f7; max-width: 28rem; line-height: 1.6; }
 
         html[lang="mm"] body { font-size: 14px; line-height: 2; }
         html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3 { letter-spacing: normal; }
@@ -126,13 +84,6 @@
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
-
-    <!-- STRICT SECURITY OVERLAY -->
-    <div id="securityOverlay">
-        <i data-lucide="shield-alert" class="w-20 h-20 mb-6 text-[#ff3b30]"></i>
-        <h1 id="secOverlayTitle">Security Violation</h1>
-        <p id="secOverlayMsg">This action is strictly prohibited on this high-security page.</p>
-    </div>
 
     <!-- GLOBAL ENTERPRISE LOADER -->
     <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
@@ -431,6 +382,20 @@
             <input type="password" id="recoveryPass" autocomplete="off" class="w-full px-5 py-3.5 mb-6 bg-[#f5f5f7] border border-gray-200 rounded-xl focus:outline-none focus:border-myancode-black focus:bg-white transition-all text-sm font-medium" placeholder="••••••••">
             <div class="flex space-x-3 w-full">
                 <button type="button" id="updatePassBtn" onclick="handleUpdatePassword()" class="w-full px-6 py-3.5 rounded-full text-sm font-bold text-white shadow-md transition-colors bg-myancode-black hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="btnUpdatePass">Update Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECURITY LOCKOUT MODAL -->
+    <div id="lockoutModal" class="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-white p-6 sm:p-8 rounded-[2rem] w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center border border-gray-100" id="lockoutModalContent">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 mb-6 border border-red-100 shadow-inner-soft">
+                <i data-lucide="shield-alert" class="h-8 w-8 text-red-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold tracking-tight text-myancode-black mb-3" id="lockoutTitle"></h3>
+            <p class="text-sm text-gray-500 mb-6 leading-relaxed font-medium" id="lockoutDesc"></p>
+            <div class="flex space-x-3 w-full">
+                <button type="button" onclick="closeLockoutModal()" class="w-full px-6 py-3.5 rounded-full text-sm font-bold text-white shadow-md transition-colors bg-red-600 hover:bg-red-700">OK</button>
             </div>
         </div>
     </div>
@@ -1094,6 +1059,29 @@
             }, 1500);
         }
 
+        function openLockoutModal(mins) {
+            const title = currentLang === 'en' ? 'Account Locked' : 'အကောင့် ပိတ်ထားပါသည်';
+            const desc = currentLang === 'en' 
+                ? `Too many failed login attempts. For your security, this account has been temporarily locked for ${mins} minutes.` 
+                : `စမ်းသပ်မှုများလွန်းပါသည်။ လုံခြုံရေးအရ အကောင့်ကို ${mins} မိနစ် ခေတ္တပိတ်ထားပါသည်။`;
+                
+            document.getElementById('lockoutTitle').textContent = title;
+            document.getElementById('lockoutDesc').textContent = desc;
+
+            const modal = document.getElementById('lockoutModal');
+            const content = document.getElementById('lockoutModalContent');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth; 
+            modal.classList.remove('opacity-0'); content.classList.remove('scale-95');
+            lucide.createIcons();
+        }
+
+        function closeLockoutModal() {
+            const modal = document.getElementById('lockoutModal');
+            const content = document.getElementById('lockoutModalContent');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
         /* --- Custom Notification Toasts --- */
         function showToast(msg) { 
             const toast = document.getElementById('toast'); 
@@ -1106,7 +1094,7 @@
             const toast = document.getElementById('error-toast'); 
             document.getElementById('error-toast-msg').textContent = msg; 
             toast.classList.remove('translate-y-24', 'opacity-0'); 
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 5500); // Increased duration for longer warning messages
         }
 
         /* --- Loader --- */
@@ -1116,14 +1104,52 @@
         function showLoader(textKey) { loaderText.innerText = dict[currentLang][textKey] || textKey; globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); globalLoader.classList.add('opacity-100', 'visibility-visible'); document.body.classList.add('no-scroll'); }
         function hideLoader() { globalLoader.classList.remove('opacity-100', 'visibility-visible'); globalLoader.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600); }
 
+        /* --- TAMPER RESISTANT AUTH RATE LIMITER --- */
+        const AuthLimit = {
+            getKey: () => '_mca_st',
+            getState: () => {
+                try {
+                    const val = localStorage.getItem(AuthLimit.getKey());
+                    if (!val) return { c: 0 };
+                    const decoded = JSON.parse(atob(val));
+                    if (typeof decoded.c !== 'number') throw new Error();
+                    return decoded;
+                } catch (e) {
+                    // Tamper detected (e.g., user changed it to "0" manually in console without base64 json format)
+                    // Penalize by jumping to 9 attempts (next one triggers lockout)
+                    return { c: 9 }; 
+                }
+            },
+            increment: () => {
+                const state = AuthLimit.getState();
+                state.c += 1;
+                localStorage.setItem(AuthLimit.getKey(), btoa(JSON.stringify(state)));
+                return state.c;
+            },
+            reset: () => {
+                localStorage.removeItem(AuthLimit.getKey());
+                localStorage.removeItem('mc_lockout_until');
+            }
+        };
+
         /* --- ROBUST SUPABASE LOGIN LOGIC --- */
         async function handleLogin(e) {
             e.preventDefault();
+
+            const now = Date.now();
+            let lockoutUntil = parseInt(localStorage.getItem('mc_lockout_until')) || 0;
+            if (now < lockoutUntil) {
+                const remainingMins = Math.ceil((lockoutUntil - now) / 60000);
+                openLockoutModal(remainingMins);
+                return;
+            } else if (lockoutUntil > 0 && now >= lockoutUntil) {
+                AuthLimit.reset();
+            }
+
             const email = document.getElementById('logEmail').value.trim();
             const pass = document.getElementById('logPass').value;
             const loginBtn = document.getElementById('loginBtn');
 
-            // --- CAPTCHA VALIDATION ---
             const turnstileResponse = document.getElementById('loginFormContainer').querySelector('[name="cf-turnstile-response"]')?.value;
             if (!turnstileResponse) {
                 showErrorToast(currentLang === 'en' ? "Please complete the security check." : "ကျေးဇူးပြု၍ လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။");
@@ -1142,7 +1168,7 @@
                 email: email, 
                 password: pass,
                 options: {
-                    captchaToken: turnstileResponse // <--- CLOUDFLARE TURNSTILE TOKEN ADDED HERE
+                    captchaToken: turnstileResponse
                 }
             });
             
@@ -1150,28 +1176,44 @@
                 hideLoader();
                 loginBtn.disabled = false;
                 
-                // Reset Turnstile so user can try again if there was an error
+                // Track attempts using tamper-resistant method
+                const attempts = AuthLimit.increment();
+
                 if (window.turnstile) turnstile.reset();
+
+                if (attempts % 10 === 0) {
+                    const penaltyMins = (attempts / 10) * 10;
+                    const lockoutTime = Date.now() + (penaltyMins * 60 * 1000);
+                    localStorage.setItem('mc_lockout_until', lockoutTime);
+                    openLockoutModal(penaltyMins);
+                    return;
+                }
                 
                 let customErrorMsg = error.message;
                 if (error.message.includes('Invalid login credentials')) {
-                    customErrorMsg = dict[currentLang].errInvalidCreds;
+                    // DYNAMIC REMAINING ATTEMPTS WARNING
+                    if (currentLang === 'en') {
+                        customErrorMsg = `Invalid credentials. Attempt ${attempts} of 10. Account will lock for 10 mins after 10 failed attempts.`;
+                    } else {
+                        customErrorMsg = `အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။ (ယခု ${attempts} ကြိမ်မြောက်) ၁၀ ကြိမ်မြောက်လျှင် အကောင့် ၁၀ မိနစ် ပိတ်ခံရပါမည်။`;
+                    }
                 } else if (error.message.includes('Email not confirmed')) {
-                    // Update the error message so the user understands WHY they can't log in manually
                     customErrorMsg = dict[currentLang].errUnverified;
                 } else if (error.message.toLowerCase().includes('rate limit') || error.message.toLowerCase().includes('too many requests')) {
                     customErrorMsg = dict[currentLang].errEmailLimit;
                 } else if (error.message.toLowerCase().includes('captcha')) {
                     customErrorMsg = currentLang === 'en' ? "Security check failed. Please refresh and try again." : "လုံခြုံရေးစစ်ဆေးမှု မအောင်မြင်ပါ။";
                 }
+                
                 showErrorToast(customErrorMsg); 
                 return; 
             }
             
             hideLoader();
+            AuthLimit.reset();
+
             showToast(dict[currentLang].msgSuccess);
 
-            // SMART REDIRECT BASED ON ROLE
             const userRole = data.user?.user_metadata?.role;
             setTimeout(() => { 
                 if (userRole === 'admin' || userRole === 'super-admin') {
@@ -1192,110 +1234,6 @@
             renderLanguage();
             setActiveNavLinks();
         });
-
-
-        /* ========================================================================= */
-        /* ===================== STRICT HIGH SECURITY ENGINE ======================= */
-        /* ========================================================================= */
-        
-        // 1. BLUR PAGE WHEN INACTIVE / OUT OF FOCUS / SWITCHING TABS
-        function applySecurityBlur() { document.body.classList.add('security-blur-active'); }
-        function removeSecurityBlur() { document.body.classList.remove('security-blur-active'); }
-        
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) applySecurityBlur(); else removeSecurityBlur();
-        });
-        window.addEventListener('blur', applySecurityBlur);
-        window.addEventListener('focus', removeSecurityBlur);
-
-        function showSecurityViolation(msg) {
-            const overlay = document.getElementById('securityOverlay');
-            document.getElementById('secOverlayMsg').innerText = msg;
-            overlay.classList.add('active');
-            setTimeout(() => overlay.classList.remove('active'), 3500);
-        }
-
-        // 2. DISABLE RIGHT CLICK
-        document.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showSecurityViolation("Right-clicking and inspecting elements is disabled.");
-        });
-
-        // NOTE: Copy, Cut, and Paste event blockers intentionally omitted per user request.
-
-        // 3. AGGRESSIVE KEYBOARD SHORTCUT BLOCKER (DEV TOOLS, SOURCE, SCREENSHOTS)
-        document.addEventListener('keydown', (e) => {
-            // Block F12
-            if (e.key === 'F12') {
-                e.preventDefault();
-                showSecurityViolation("Developer tools are locked.");
-            }
-            // Block Ctrl+Shift+I / J / C (Windows Developer Tools)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
-                e.preventDefault();
-                showSecurityViolation("Developer tools are locked.");
-            }
-            // Block Cmd+Option+I / J / U (Mac Developer Tools)
-            if (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'U' || e.key === 'u')) {
-                e.preventDefault();
-                showSecurityViolation("Developer tools are locked.");
-            }
-            // Block Cmd+Shift+C (Mac Inspect Element)
-            if (e.metaKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
-                e.preventDefault();
-                showSecurityViolation("Developer tools are locked.");
-            }
-            // Block Ctrl+U / Cmd+U (View Source)
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) {
-                e.preventDefault();
-                showSecurityViolation("Viewing page source is disabled.");
-            }
-            
-            // PREVENT SCREENSHOT HOTKEYS (PrintScreen & MacOS Cmd+Shift+3/4/5)
-            if (e.key === 'PrintScreen' || (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5' || e.key === 's' || e.key === 'S'))) {
-                e.preventDefault();
-                navigator.clipboard.writeText(''); // Try to wipe clipboard
-                applySecurityBlur();
-                showSecurityViolation("SCREENSHOT DETECTED.\nScreenshots are not allowed on this device.");
-                setTimeout(() => removeSecurityBlur(), 6000); // Lock screen for 6 seconds
-            }
-        });
-
-        // Intercept native Print prompt
-        window.addEventListener('beforeprint', (e) => {
-            applySecurityBlur();
-            showSecurityViolation("Printing to PDF or Paper is strictly prohibited.");
-            e.preventDefault();
-        });
-        window.addEventListener('afterprint', () => {
-            removeSecurityBlur();
-        });
-
-        // 4. HIJACK BROWSER CONSOLE TO DETER MANUAL SCRIPT EXECUTION
-        const consoleStyles = "color: #ff3b30; font-size: 50px; font-weight: 900; text-shadow: 2px 2px 0px black;";
-        const consoleSubStyles = "color: white; background: black; font-size: 16px; padding: 10px; border-radius: 5px;";
-        
-        // Execute this immediately to pollute the console
-        setTimeout(() => {
-            console.clear();
-            console.log("%cSTOP!", consoleStyles);
-            console.log("%cThis is a restricted environment. Running unauthorized JavaScript in this console will be logged and may result in an immediate IP ban and account termination.", consoleSubStyles);
-        }, 100);
-
-        // Define read-only dummy console methods
-        Object.defineProperty(window, 'console', {
-            value: Object.freeze({
-                log: function() {},
-                warn: function() {},
-                error: function() {},
-                info: function() {},
-                table: function() {},
-                clear: function() {}
-            }),
-            writable: false,
-            configurable: false
-        });
-
     </script>
 </body>
 </html>
