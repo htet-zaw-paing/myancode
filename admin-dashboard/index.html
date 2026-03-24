@@ -665,6 +665,9 @@
 
     </main>
 
+
+    <!-- MODALS -->
+
     <!-- NOT AUTHORIZED SCREEN -->
     <div id="unauthorizedScreen" class="hidden flex-grow flex-col items-center justify-center pt-20 sm:pt-32 px-4 text-center">
         <div class="h-16 w-16 sm:h-24 sm:w-24 bg-red-50 rounded-full flex items-center justify-center mb-4 sm:mb-6 shadow-inner-soft">
@@ -677,7 +680,7 @@
         </button>
     </div>
 
-    <!-- FORCE PASSWORD CHANGE MODAL -->
+    <!-- FORCE PASSWORD CHANGE MODAL (FIXED HTML STRUCTURE & CLASSES) -->
     <div id="forcePasswordModal" class="fixed inset-0 z-[300] flex items-center justify-center modal-hidden px-2 sm:px-0">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-xl modal-overlay"></div>
         <div class="bg-white p-5 xxs:p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-md shadow-2xl relative overflow-hidden flex flex-col modal-content border border-gray-100">
@@ -700,7 +703,7 @@
         </div>
     </div>
 
-    <!-- PACKAGE CATEGORY MODAL -->
+    <!-- NEW: PACKAGE CATEGORY MODAL -->
     <div id="categoryModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeCategoryModal()"></div>
         <div class="bg-[#fbfbfd] w-[98%] max-w-2xl rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl relative flex flex-col modal-content border border-gray-100">
@@ -741,6 +744,416 @@
             <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-3 bg-white rounded-b-[1.5rem] sm:rounded-b-[2rem]">
                 <button type="button" onclick="closeCategoryModal()" class="px-4 py-2 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
                 <button type="button" onclick="saveCategory()" class="px-6 py-2 rounded-full text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 transition-all btn-hover-effect">Save Category</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: PACKAGE FEATURE MODAL -->
+    <div id="featureModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeFeatureModal()"></div>
+        <div class="bg-[#fbfbfd] w-[98%] max-w-3xl rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl relative flex flex-col modal-content border border-gray-100">
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 rounded-t-[1.5rem] sm:rounded-t-[2rem]">
+                <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black" id="featModalTitle">Feature Setup</h3>
+                <button onclick="closeFeatureModal()" class="p-1.5 text-gray-400 hover:text-black bg-gray-50 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-4 sm:p-8 overflow-y-auto no-scrollbar max-h-[70vh]">
+                <form id="featureForm" class="space-y-4">
+                    <input type="hidden" id="fId">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Name (En) *</label>
+                            <input type="text" id="fNameEn" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Name (Mm)</label>
+                            <input type="text" id="fNameMm" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Feature Type *</label>
+                            <select id="fType" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                                <option value="tier">Design Tier (tier)</option>
+                                <option value="pages">Page Config (pages)</option>
+                                <option value="addon_flat">Basic Add-on (addon_flat)</option>
+                                <option value="addon_qty">Quantity Add-on (addon_qty)</option>
+                                <option value="addon_multipage">Multipage Logic Add-on (addon_multipage)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Calculation Logic *</label>
+                            <select id="fLogic" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                                <option value="flat">Flat Rate (+Base Price once)</option>
+                                <option value="per_unit">Per Unit Rate (Base + (Qty-Free)*Unit)</option>
+                                <option value="multiplier_by_pages">Multiply By Pages (Base + ((Qty-Free)*Unit)*TotalPages)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Base Price (MMK) *</label>
+                            <input type="number" id="fBasePrice" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium" value="0">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Unit Price (MMK)</label>
+                            <input type="number" id="fUnitPrice" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium" value="0">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Free Units</label>
+                            <input type="number" id="fFreeUnits" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium" value="0">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Status</label>
+                            <select id="fStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-3 bg-white rounded-b-[1.5rem] sm:rounded-b-[2rem]">
+                <button type="button" onclick="closeFeatureModal()" class="px-4 py-2 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
+                <button type="button" onclick="saveFeature()" class="px-6 py-2 rounded-full text-sm font-bold text-white bg-myancode-blue hover:bg-blue-600 transition-all btn-hover-effect">Save Logic</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENTERPRISE UI TEMPLATE MODAL (Create / Edit Products) -->
+    <div id="productModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeProductModal()"></div>
+        <div class="bg-[#fbfbfd] w-[98%] max-w-5xl h-[95vh] sm:h-auto sm:max-h-[90vh] rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl relative flex flex-col modal-content overflow-hidden m-1 sm:m-4 mt-auto sm:mt-auto border border-gray-100">
+            
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 shadow-sm shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="h-8 w-8 sm:h-10 sm:w-10 bg-gray-50 rounded-lg sm:rounded-xl flex items-center justify-center border border-gray-200 text-myancode-black"><i data-lucide="layout-template" class="w-4 h-4 sm:w-5 sm:h-5"></i></div>
+                    <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black tracking-tight" id="modalTitle" data-i18n="modalTitleAdd">Add UI Template</h3>
+                </div>
+                <button onclick="closeProductModal()" class="p-1.5 sm:p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+            </div>
+            
+            <div class="p-4 sm:p-8 overflow-y-auto no-scrollbar flex-1 relative">
+                <form id="productForm" class="space-y-4 sm:space-y-8 max-w-4xl mx-auto">
+                    <input type="hidden" id="formProductId">
+                    <!-- Section 1: Identification -->
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm">
+                        <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 sm:mb-6 flex items-center gap-1.5 sm:gap-2 border-b border-gray-50 pb-2 sm:pb-4"><i data-lucide="info" class="w-3 h-3 sm:w-4 sm:h-4"></i> Identification</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNameEn">Template Name (English) *</label>
+                                <input type="text" id="pNameEn" required class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="e.g. Corporate Pro">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNameMm">Template Name (Myanmar)</label>
+                                <input type="text" id="pNameMm" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="e.g. စီးပွားရေး Pro">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblSlug">URL Slug *</label>
+                                <input type="text" id="pSlug" required class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm premium-input font-mono text-gray-600 transition-all duration-200" placeholder="e.g. corporate-pro">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblSku">SKU (Stock Keeping Unit)</label>
+                                <input type="text" id="pSku" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm premium-input font-mono font-bold text-myancode-black transition-all duration-200" placeholder="e.g. MC-001">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Economics & Inventory -->
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm">
+                        <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 sm:mb-6 flex items-center gap-1.5 sm:gap-2 border-b border-gray-50 pb-2 sm:pb-4"><i data-lucide="credit-card" class="w-3 h-3 sm:w-4 sm:h-4"></i> Economics & Inventory</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-6">
+                            <div class="sm:col-span-2">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblPrice">Regular Price *</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 sm:left-4 top-2 sm:top-3.5 text-xs sm:text-sm font-bold text-gray-400">MMK</span>
+                                    <input type="number" id="pPrice" required class="w-full pl-10 sm:pl-14 pr-3 sm:pr-5 py-2 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-myancode-black premium-input transition-all duration-200" placeholder="0">
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblDiscount">Discount Price</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 sm:left-4 top-2 sm:top-3.5 text-xs sm:text-sm font-bold text-gray-400">MMK</span>
+                                    <input type="number" id="pDiscount" class="w-full pl-10 sm:pl-14 pr-3 sm:pr-5 py-2 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-red-500 premium-input transition-all duration-200" placeholder="0">
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblCategory">Category</label>
+                                <input type="text" id="pCategory" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="e.g. Business">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblStock">Stock Level</label>
+                                <input type="number" id="pStock" value="99" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-myancode-black premium-input transition-all duration-200">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Media & Integrations -->
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm">
+                        <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 sm:mb-6 flex items-center gap-1.5 sm:gap-2 border-b border-gray-50 pb-2 sm:pb-4"><i data-lucide="image" class="w-3 h-3 sm:w-4 sm:h-4"></i> Media & Integrations</h4>
+                        <div class="space-y-4 sm:space-y-6">
+                            
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblMainImg">Main Image URL</label>
+                                <div class="flex gap-2 sm:gap-3">
+                                    <div class="h-8 w-12 sm:h-12 sm:w-16 flex-shrink-0 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-200 overflow-hidden flex items-center justify-center shadow-inner-soft" id="previewMainImgContainer">
+                                        <i data-lucide="image" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
+                                    </div>
+                                    <input type="url" id="pMainImg" oninput="updateImagePreview(this.value)" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblGallery">Gallery URLs (Comma separated)</label>
+                                <textarea id="pGallery" rows="2" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input resize-none transition-all duration-200" placeholder="url1, url2, url3..."></textarea>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
+                                <div>
+                                    <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblDescEn">Description (English)</label>
+                                    <textarea id="pDescEn" rows="4" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input resize-none transition-all duration-200" placeholder="Detailed product description..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblDescMm">Description (Myanmar)</label>
+                                    <textarea id="pDescMm" rows="4" class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input resize-none transition-all duration-200" placeholder="အသေးစိတ် အချက်အလက်များ..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-2 sm:gap-4 bg-white z-10 shrink-0">
+                <button type="button" onclick="closeProductModal()" class="px-4 py-2 sm:px-8 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button type="button" id="btnSaveProduct" onclick="saveProduct()" class="px-5 py-2 sm:px-10 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-premium transition-all btn-hover-effect flex items-center gap-1.5 sm:gap-2">
+                    <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnSave">Save Database Entry</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPOSE NEWSLETTER MODAL -->
+    <div id="newsletterModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden px-1 sm:px-0">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeNewsletterModal()"></div>
+        <div class="bg-[#fbfbfd] w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl relative flex flex-col modal-content overflow-hidden mt-auto sm:m-4 border border-gray-100">
+            
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 shadow-sm shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="h-8 w-8 sm:h-10 sm:w-10 bg-gray-50 rounded-lg sm:rounded-xl flex items-center justify-center border border-gray-200 text-myancode-black"><i data-lucide="mail" class="w-4 h-4 sm:w-5 sm:h-5"></i></div>
+                    <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black tracking-tight" data-i18n="modalTitleNews">Compose Newsletter</h3>
+                </div>
+                <button onclick="closeNewsletterModal()" class="p-1.5 sm:p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+            </div>
+            
+            <div class="p-4 sm:p-8 overflow-y-auto no-scrollbar flex-1 relative">
+                <form id="newsletterComposeForm" class="space-y-4 sm:space-y-8 max-w-3xl mx-auto">
+                    <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm">
+                        <div class="space-y-4 sm:space-y-6">
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNewsSubject">Email Subject *</label>
+                                <input type="text" id="newsSubject" required class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="e.g. Exciting Updates from MyanCode!">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblNewsHtml">Rich HTML Content *</label>
+                                <textarea id="newsHtml" rows="8" sm:rows="12" required class="w-full px-3 py-2 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-mono premium-input resize-y transition-all duration-200" placeholder="<h2>Hello!</h2><p>Here are the latest updates...</p>"></textarea>
+                                <p class="text-[9px] sm:text-[11px] text-gray-400 mt-2 sm:mt-3 font-medium flex items-start gap-1 sm:gap-1.5"><i data-lucide="info" class="w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 shrink-0"></i> <span data-i18n="newsHtmlHelp">Use standard inline HTML and CSS. The unsubscribe link will be automatically appended to the bottom.</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-2 sm:gap-4 bg-white z-10 shrink-0">
+                <button type="button" onclick="closeNewsletterModal()" class="px-4 py-2 sm:px-8 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button type="button" id="btnSendNewsletter" onclick="sendNewsletter()" class="px-5 py-2 sm:px-10 sm:py-3.5 rounded-full text-xs sm:text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-premium transition-all btn-hover-effect flex items-center gap-1.5 sm:gap-2">
+                    <i data-lucide="send" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnSendNews">Send Campaign via Resend</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVITE ADMIN MODAL (SUPABASE NATIVE FLOW) -->
+    <div id="inviteAdminModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden px-2 sm:px-0">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeInviteAdminModal()"></div>
+        <div class="bg-white w-[98%] max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl relative flex flex-col modal-content mt-auto sm:m-4 border border-gray-100">
+            
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-100 flex justify-between items-center z-10 shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="h-8 w-8 sm:h-10 sm:w-10 bg-blue-50 rounded-lg sm:rounded-xl flex items-center justify-center border border-blue-100 text-myancode-blue"><i data-lucide="user-plus" class="w-4 h-4 sm:w-5 sm:h-5"></i></div>
+                    <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black tracking-tight" data-i18n="modalTitleInvite">Invite Administrator</h3>
+                </div>
+                <button onclick="closeInviteAdminModal()" class="p-1.5 sm:p-2.5 text-gray-400 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+            </div>
+            
+            <div class="p-5 sm:p-8">
+                <div class="space-y-4 sm:space-y-6">
+                    <div>
+                        <label class="block text-[9px] sm:text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-1.5 sm:mb-2" data-i18n="lblEmail">Email Address *</label>
+                        <input type="email" id="inviteEmail" required class="w-full px-4 py-2.5 sm:px-5 sm:py-3.5 bg-gray-50 hover:bg-gray-100/50 border border-gray-200 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium premium-input transition-all duration-200" placeholder="admin@example.com">
+                        <p class="text-[9px] sm:text-[11px] text-gray-400 mt-2 sm:mt-3 font-medium flex items-start gap-1 sm:gap-1.5"><i data-lucide="info" class="w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 shrink-0"></i> <span data-i18n="inviteHelpText">Supabase will send an official email with a secure link allowing the user to set their own password and join your workspace.</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-4 pb-4 pt-1 sm:px-8 sm:pb-8 sm:pt-2 flex justify-end gap-2 sm:gap-3 z-10 shrink-0">
+                <button type="button" onclick="closeInviteAdminModal()" class="flex-1 py-2 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors" data-i18n="btnCancel">Cancel</button>
+                <button type="button" id="btnSubmitInvite" onclick="submitInviteAdmin()" class="flex-[1.5] py-2 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-white bg-myancode-blue hover:bg-blue-600 shadow-md transition-all btn-hover-effect flex items-center justify-center gap-1.5 sm:gap-2">
+                    <i data-lucide="send" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span data-i18n="btnSendInvite">Send Invite Link</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI TEMPLATE: INVITE SUCCESS MODAL -->
+    <div id="inviteSuccessModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-2 sm:px-0">
+        <div class="bg-white p-5 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-sm shadow-2xl relative overflow-hidden text-center modal-content transition-transform duration-300 scale-95 border border-gray-100">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 sm:h-20 sm:w-20 rounded-xl sm:rounded-[1.5rem] bg-blue-50 mb-4 sm:mb-6 border border-blue-100 shadow-inner-soft">
+                <i data-lucide="mail-check" class="h-8 w-8 sm:h-10 sm:w-10 text-myancode-blue"></i>
+            </div>
+            <h3 class="text-lg sm:text-2xl font-bold tracking-tight text-myancode-black mb-1 sm:mb-2" data-i18n="inviteSuccessTitle">Invitation Sent</h3>
+            <p class="text-[10px] sm:text-sm text-gray-500 mb-5 sm:mb-8 leading-relaxed font-medium" data-i18n="inviteSuccessDesc">An official invitation link has been securely dispatched via Supabase. The user will be prompted to set their own password upon clicking the link.</p>
+
+            <div class="bg-gray-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 text-center mb-5 sm:mb-8 shadow-inner-soft">
+                <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1 sm:mb-1.5" data-i18n="inviteSentTo">Sent To</p>
+                <code class="text-[11px] sm:text-[13px] font-bold text-myancode-blue truncate block" id="displayInviteEmail">email@domain.com</code>
+            </div>
+
+            <button onclick="closeInviteSuccessModal()" class="w-full px-4 py-3 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all active:scale-95">Done</button>
+        </div>
+    </div>
+
+    <!-- UI TEMPLATE: PASSWORD RESET SUCCESS MODAL (SEND NOW FLOW) -->
+    <div id="pwdResetSuccessModal" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-2 sm:px-0">
+        <div class="bg-white p-5 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] w-[98%] max-w-xl shadow-2xl relative overflow-hidden text-center modal-content transition-transform duration-300 scale-95 border border-gray-100">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-xl sm:rounded-[1.5rem] bg-green-50 mb-4 sm:mb-6 border border-green-100 shadow-inner-soft">
+                <i data-lucide="check-circle" class="h-6 w-6 sm:h-8 sm:w-8 text-green-500"></i>
+            </div>
+            <h3 class="text-lg sm:text-2xl font-bold tracking-tight text-myancode-black mb-1 sm:mb-2" data-i18n="pwdResetTitle">Password Reset Successful</h3>
+            <p class="text-[10px] sm:text-sm text-gray-500 mb-4 sm:mb-6" data-i18n="pwdResetDesc">The password is now set to default. Click Send Now to open your email app and paste the UI template.</p>
+
+            <div class="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-5 mb-5 sm:mb-8 border border-gray-100 text-left relative shadow-inner-soft">
+                <p class="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2"><i data-lucide="layout-template" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i> Rich HTML Email Preview</p>
+                <div class="bg-white p-3 sm:p-5 rounded-lg sm:rounded-xl border border-gray-200 shadow-sm pointer-events-none select-none">
+                    <h4 class="font-bold text-xs sm:text-sm text-black mb-1.5 sm:mb-2 tracking-tight">Account Recovery Initiated</h4>
+                    <p class="text-[9px] sm:text-[11px] text-gray-500 leading-relaxed mb-3 sm:mb-4 font-medium">Hello,<br>You are verified as an owner by our organization. Your account password has been successfully recovered and reset.</p>
+                    <div class="bg-gray-50 p-2.5 sm:p-3 rounded-md sm:rounded-lg text-center mb-3 sm:mb-4 border border-gray-100 shadow-inner-soft">
+                        <span class="text-[7px] sm:text-[9px] text-gray-400 uppercase font-bold tracking-widest block mb-1 sm:mb-1.5">Temporary Password</span>
+                        <code class="text-[10px] sm:text-[12px] font-bold text-black break-all">My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03</code>
+                    </div>
+                    <div class="inline-block bg-black text-white text-[8px] sm:text-[10px] font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">Proceed to Login</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col xs:flex-row gap-2 sm:gap-3 w-full">
+                <button onclick="closePwdResetModal()" class="flex-1 px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors">Done</button>
+                <button onclick="copyHtmlEmailTemplate()" class="flex-[1.5] px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-myancode-black bg-gray-50 border border-gray-200 hover:bg-gray-100 shadow-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 btn-hover-effect">
+                    <i data-lucide="copy" class="w-3 h-3 sm:w-4 sm:h-4"></i> Copy Template
+                </button>
+                <button onclick="sendNowEmail()" class="flex-[1.5] px-3 py-2 sm:px-6 sm:py-4 rounded-xl text-xs sm:text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 shadow-md transition-all flex items-center justify-center gap-1.5 sm:gap-2 btn-hover-effect">
+                    <i data-lucide="send" class="w-3 h-3 sm:w-4 sm:h-4"></i> Send Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    <!-- SERVICE MODAL -->
+    <div id="serviceModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeServiceModal()"></div>
+        <div class="bg-[#fbfbfd] w-[98%] max-w-2xl rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl relative flex flex-col modal-content border border-gray-100 max-h-[90vh]">
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 rounded-t-[1.5rem] sm:rounded-t-[2rem]">
+                <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black" id="serviceModalTitle">Service Setup</h3>
+                <button onclick="closeServiceModal()" class="p-1.5 text-gray-400 hover:text-black bg-gray-50 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-4 sm:p-8 overflow-y-auto no-scrollbar">
+                <form id="serviceForm" class="space-y-4">
+                    <input type="hidden" id="sId">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Service Name *</label>
+                            <input type="text" id="sName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">URL Slug *</label>
+                            <input type="text" id="sSlug" required placeholder="e.g. advanced-web-seo" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Short Description</label>
+                            <input type="text" id="sShortDesc" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Detailed Description</label>
+                            <textarea id="sDetailDesc" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium"></textarea>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Image URL</label>
+                            <input type="text" id="sImage" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Price (MMK)</label>
+                            <input type="number" id="sPrice" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Status</label>
+                            <select id="sStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                                <option value="available">Available</option>
+                                <option value="unavailable">Unavailable</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-3 bg-white rounded-b-[1.5rem] sm:rounded-b-[2rem]">
+                <button type="button" onclick="closeServiceModal()" class="px-4 py-2 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
+                <button type="button" onclick="saveService()" class="px-6 py-2 rounded-full text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 transition-all btn-hover-effect">Save Service</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROJECT MODAL -->
+    <div id="projectModal" class="fixed inset-0 z-[100] flex items-center justify-center modal-hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xl modal-overlay" onclick="closeProjectModal()"></div>
+        <div class="bg-[#fbfbfd] w-[98%] max-w-2xl rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl relative flex flex-col modal-content border border-gray-100 max-h-[90vh]">
+            <div class="px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200/60 flex justify-between items-center bg-white z-10 rounded-t-[1.5rem] sm:rounded-t-[2rem]">
+                <h3 class="text-sm xs:text-base sm:text-xl font-bold text-myancode-black" id="projectModalTitle">Project Setup</h3>
+                <button onclick="closeProjectModal()" class="p-1.5 text-gray-400 hover:text-black bg-gray-50 rounded-full transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-4 sm:p-8 overflow-y-auto no-scrollbar">
+                <form id="projectForm" class="space-y-4">
+                    <input type="hidden" id="prId">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Project Name *</label>
+                            <input type="text" id="prName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">URL Slug *</label>
+                            <input type="text" id="prSlug" required placeholder="e.g. e-commerce-platform" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Proprietor</label>
+                            <input type="text" id="prProprietor" placeholder="e.g. U Ba, XYZ Co." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Image URL</label>
+                            <input type="text" id="prImage" placeholder="https://..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Project Type</label>
+                            <input type="text" id="prType" placeholder="e.g. E-commerce, Corporate Website" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Project Link (URL)</label>
+                            <input type="url" id="prLink" placeholder="https://..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Duration (From)</label>
+                            <input type="date" id="prDurationFrom" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-600 uppercase mb-2">Duration (To)</label>
+                            <input type="date" id="prDurationTo" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="px-4 py-3 sm:px-8 sm:py-6 border-t border-gray-200/60 flex justify-end gap-3 bg-white rounded-b-[1.5rem] sm:rounded-b-[2rem]">
+                <button type="button" onclick="closeProjectModal()" class="px-4 py-2 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
+                <button type="button" onclick="saveProject()" class="px-6 py-2 rounded-full text-sm font-bold text-white bg-myancode-black hover:bg-gray-800 transition-all btn-hover-effect">Save Project</button>
             </div>
         </div>
     </div>
