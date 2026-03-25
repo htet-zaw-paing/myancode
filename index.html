@@ -42,11 +42,18 @@
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'blob': 'blob 10s infinite alternate',
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-10px)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' }
                         }
                     }
                 }
@@ -165,13 +172,19 @@
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
         
         .solution-card {
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            background: linear-gradient(145deg, #ffffff, #fcfcfc);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border-radius: 9999px; /* Force pill shape exactly for shadow rendering */
+            position: relative;
+            z-index: 20;
         }
         .solution-card:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 30px 50px -12px rgba(41, 151, 255, 0.15);
-            border-color: rgba(41, 151, 255, 0.3); 
+            transform: translateY(-6px) scale(1.02);
+            /* Premium pill-shaped double shadow */
+            box-shadow: 0 15px 35px -5px rgba(41, 151, 255, 0.15), 0 0 20px rgba(41, 151, 255, 0.08);
+            border-color: rgba(41, 151, 255, 0.35); 
         }
         
         /* Image Reveal Mask */
@@ -241,6 +254,24 @@
         #dragCursor.hidden-cursor {
             transform: translate(-50%, -50%) scale(0);
             opacity: 0;
+        }
+
+        /* Premium Graphic Background Utility Classes */
+        .bg-grid-light { 
+            background-size: 30px 30px; 
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px); 
+        }
+        .bg-grid-dark { 
+            background-size: 30px 30px; 
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px); 
+        }
+        .bg-dots-light { 
+            background-size: 24px 24px; 
+            background-image: radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px); 
+        }
+        .bg-plus-light { 
+            background-size: 40px 40px; 
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0v40M0 20h40' stroke='rgba(0,0,0,0.08)' stroke-width='1' fill='none'/%3E%3C/svg%3E"); 
         }
     </style>
 </head>
@@ -514,60 +545,73 @@
 
     <!-- Modernized Horizontal Interactive Scroll Section -->
     <section class="pt-24 pb-20 bg-[#f5f5f7] relative z-10 overflow-hidden border-b border-gray-100">
-        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-16 text-center reveal">
+        
+        <!-- Precision Dot Pattern & Animations -->
+        <div class="absolute inset-0 bg-dots-light pointer-events-none z-0"></div>
+        <div class="absolute top-0 -left-4 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob pointer-events-none z-0"></div>
+        <div class="absolute top-0 -right-4 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob pointer-events-none z-0" style="animation-delay: 2s;"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob pointer-events-none z-0" style="animation-delay: 4s;"></div>
+        
+        <!-- Elegant SVG Geometric Ring -->
+        <svg class="absolute -right-20 top-0 w-[500px] h-[500px] text-blue-500/20 animate-[spin_60s_linear_infinite] pointer-events-none z-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.2">
+            <circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="20"/>
+            <path d="M 50 10 L 50 90 M 10 50 L 90 50"/>
+        </svg>
+
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-16 text-center reveal relative z-20">
             <h2 class="text-3xl sm:text-5xl font-bold tracking-tighter text-myancode-black gradient-text" data-i18n="catTitle">Explore Solutions.</h2>
         </div>
         
-        <div class="relative w-full overflow-x-auto no-scrollbar py-4 cursor-grab active:cursor-grabbing" id="solutionCarouselWrapper" style="-webkit-overflow-scrolling: touch;">
+        <div class="relative w-full overflow-x-auto no-scrollbar py-8 cursor-grab active:cursor-grabbing z-20" id="solutionCarouselWrapper" style="-webkit-overflow-scrolling: touch;">
             <div class="flex gap-6 px-4 w-max" id="solutionCarousel">
                 <!-- Group 1 -->
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="layout-template" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat1">Landing Page</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="briefcase" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat2">Personal Portfolio</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="info" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat3">Information Website</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="pen-tool" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat4">Blog Website</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="file-text" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat5">Documentation</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="monitor-play" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat6">Showcase Website</span>
                 </div>
 
                 <!-- Group 2 (Duplicated for infinite scroll) -->
-                 <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                 <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="layout-template" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat1">Landing Page</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="briefcase" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat2">Personal Portfolio</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="info" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat3">Information Website</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="pen-tool" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat4">Blog Website</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="file-text" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat5">Documentation</span>
                 </div>
-                <div class="solution-card flex items-center gap-5 rounded-full p-3 pr-8 min-w-[260px] cursor-pointer border border-white shadow-sm" onclick="window.location.href='./templates/index.html'">
+                <div class="solution-card flex items-center gap-5 p-3 pr-8 min-w-[260px] cursor-pointer" onclick="window.location.href='./templates/index.html'">
                     <div class="bg-myancode-black w-12 h-12 rounded-full flex items-center justify-center shadow-md"><i data-lucide="monitor-play" class="w-5 h-5 text-white"></i></div>
                     <span class="font-bold text-[15px] tracking-wide text-myancode-black" data-i18n="cat6">Showcase Website</span>
                 </div>
@@ -579,14 +623,25 @@
     
 
     <!-- Modern Asymmetrical Bento Grid -->
-    <section id="services" class="py-24 bg-white">
-        <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
+    <section id="services" class="py-24 bg-white relative overflow-hidden">
+        
+        <!-- Animated Structural Grid & Blobs -->
+        <div class="absolute inset-0 bg-grid-light pointer-events-none z-0 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]"></div>
+        <div class="absolute top-1/2 left-1/4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-[120px] opacity-60 animate-blob pointer-events-none z-0"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-[120px] opacity-60 animate-blob pointer-events-none z-0" style="animation-delay: 3s;"></div>
+        
+        <!-- Elegant Floating SVG Mesh -->
+        <svg class="absolute -left-20 top-20 w-[600px] h-[600px] text-purple-500/20 animate-float pointer-events-none z-0" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="0.5">
+            <path d="M 0 100 C 50 0, 150 200, 200 100 M 0 120 C 50 20, 150 220, 200 120 M 0 80 C 50 -20, 150 180, 200 80"/>
+        </svg>
+
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
             <div class="text-center mb-16 sm:mb-20 reveal">
                 <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-myancode-black mb-4">Powerful Infrastructure.</h2>
                 <p class="text-lg text-gray-500 font-medium max-w-2xl mx-auto">Build, scale, and optimize your enterprise with our ultra-modern toolset.</p>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 auto-rows-[minmax(240px,auto)]">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 auto-rows-[minmax(240px,auto)] relative z-20">
                 
                 <!-- Large Featured Card (Spans 2 columns on lg) -->
                 <div class="lg:col-span-2 lg:row-span-2 rounded-[2.5rem] p-8 sm:p-14 flex flex-col justify-between relative overflow-hidden group cursor-pointer reveal hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-transparent safari-fix" onclick="window.location.href='./services/index.html'">
@@ -643,15 +698,26 @@
     </section>
 
     <!-- UI Templates Section -->
-    <section id="newArrivals" class="py-24 sm:py-32 bg-[#fbfbfd] border-t border-gray-100">
-        <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
+    <section id="newArrivals" class="py-24 sm:py-32 bg-[#fbfbfd] border-t border-gray-100 relative overflow-hidden">
+        
+        <!-- Subtle Pattern & Topographic Elements -->
+        <div class="absolute inset-0 bg-plus-light pointer-events-none z-0 [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_100%)]"></div>
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-300 rounded-full mix-blend-multiply filter blur-[150px] opacity-60 animate-blob pointer-events-none z-0"></div>
+        <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-300 rounded-full mix-blend-multiply filter blur-[150px] opacity-50 animate-blob pointer-events-none z-0" style="animation-delay: 2s;"></div>
+        
+        <!-- Rotating Geometric Accent -->
+        <svg class="absolute top-1/4 right-10 w-[400px] h-[400px] text-blue-400/20 animate-[spin_40s_linear_infinite_reverse] pointer-events-none z-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.5">
+            <polygon points="50,5 90,25 90,75 50,95 10,75 10,25"/>
+        </svg>
+
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
             <div class="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-16 reveal text-center sm:text-left">
                 <div class="mb-6 sm:mb-0">
                     <h2 class="text-4xl sm:text-5xl font-bold tracking-tighter text-myancode-black mb-3" data-i18n="newArrivals">Latest UI Templates.</h2>
                     <p class="text-base sm:text-lg text-gray-500 font-medium" data-i18n="newArrivalsSub">Premium static architectures ready for production</p>
                 </div>
                 <a href="./templates/index.html" class="inline-flex items-center gap-2 text-myancode-black bg-white border border-gray-200 px-6 py-3 rounded-full text-sm font-bold tracking-wide hover:bg-gray-50 shadow-sm transition-all btn-hover-effect group">
-                    <span data-i18n="btnViewAllWeb">View all templates</span> <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    <span data-i18n="btnViewAllWeb">View all</span> <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </a>
             </div>
             
@@ -664,7 +730,7 @@
             
             <div id="viewMoreWebsitesBtn" class="text-center mt-16 sm:hidden reveal hidden">
                 <a href="./templates/index.html" class="inline-flex items-center justify-center gap-2 bg-myancode-black text-white text-sm px-8 py-4 rounded-full font-bold shadow-lg transition-all btn-hover-effect">
-                    <span data-i18n="btnViewAllWeb">View all templates</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <span data-i18n="btnViewAllWeb">View all</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </a>
             </div>
         </div>
@@ -672,8 +738,17 @@
 
     <!-- New Dedicated Ecosystem Navigation Section -->
     <section id="ecosystemSection" class="py-24 bg-white text-myancode-black relative overflow-hidden border-t border-gray-100 custom-cursor-area">
-        <div class="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iIzAwMDAwMCIvPjwvc3ZnPg==')] pointer-events-none"></div>
         
+        <!-- Elegant SVG Soft Wave & Orbs -->
+        <div class="absolute inset-0 bg-dots-light pointer-events-none z-0 [mask-image:linear-gradient(to_bottom,black_10%,transparent_90%)]"></div>
+        <div class="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-blue-300/60 rounded-full mix-blend-normal filter blur-[100px] animate-pulse-slow pointer-events-none z-0"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-indigo-300/60 rounded-full mix-blend-normal filter blur-[100px] animate-blob pointer-events-none z-0" style="animation-delay: 4s;"></div>
+        
+        <!-- Animated Abstract Line Art -->
+        <svg class="absolute bottom-0 left-0 w-full h-auto text-blue-500/20 animate-pulse-slow pointer-events-none z-0" viewBox="0 0 1440 320" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M0,160L48,170.7C96,181,192,203,288,213.3C384,224,480,224,576,197.3C672,171,768,117,864,112C960,107,1056,155,1152,165.3C1248,176,1344,149,1392,138.7L1440,128"/>
+        </svg>
+
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 mb-12 reveal relative z-10">
             <h2 class="text-4xl sm:text-5xl font-bold tracking-tighter mb-4 text-myancode-black">Explore Our Ecosystem.</h2>
             <p class="text-lg text-gray-500 font-medium">Navigate through our dedicated portals and premium services.</p>
@@ -770,11 +845,18 @@
 
      <!-- NEW REAL WORLD USAGE SHOWCASE SECTION -->
      <section class="relative py-32 sm:py-40 bg-[#050505] text-white overflow-hidden">
-        <!-- Abstract glowing background -->
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-            <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/20 blur-[120px] rounded-full mix-blend-screen"></div>
-            <div class="absolute top-[40%] -right-[10%] w-[40%] h-[60%] bg-purple-600/20 blur-[120px] rounded-full mix-blend-screen"></div>
-        </div>
+        
+        <!-- Premium Dark Tech Grid & Animated Orbs -->
+        <div class="absolute inset-0 bg-grid-dark pointer-events-none z-0 [mask-image:radial-gradient(ellipse_at_top,black_40%,transparent_70%)]"></div>
+        <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-500/40 blur-[120px] rounded-full mix-blend-screen pointer-events-none z-0"></div>
+        <div class="absolute top-[40%] -right-[10%] w-[40%] h-[60%] bg-purple-500/40 blur-[120px] rounded-full mix-blend-screen pointer-events-none z-0"></div>
+        
+        <!-- Slowly spinning abstract wireframe -->
+        <svg class="absolute right-0 bottom-0 w-[600px] h-[600px] text-blue-400/30 animate-[spin_80s_linear_infinite] pointer-events-none z-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.1">
+            <circle cx="50" cy="50" r="45"/><circle cx="50" cy="50" r="35" stroke-dasharray="2 2"/>
+            <line x1="5" y1="50" x2="95" y2="50"/><line x1="50" y1="5" x2="50" y2="95"/>
+            <line x1="18" y1="18" x2="82" y2="82"/><line x1="18" y1="82" x2="82" y2="18"/>
+        </svg>
 
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -817,7 +899,12 @@
 
 
     <!-- Sleek Enterprise Stats Strip -->
-    <section id="enterpriseStats" class="py-16 bg-[#f5f5f7] border-y border-gray-200 relative">
+    <section id="enterpriseStats" class="py-16 bg-[#fbfbfd] border-y border-gray-200 relative overflow-hidden">
+        
+        <!-- Subtle Glow & Dot Mesh -->
+        <div class="absolute inset-0 bg-dots-light pointer-events-none z-0 [mask-image:linear-gradient(to_right,transparent,black_50%,transparent)]"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-500/15 rounded-full filter blur-[80px] pointer-events-none z-0"></div>
+
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 relative z-10">
             <div class="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-0 reveal">
                 <div class="text-center lg:text-left">
@@ -844,8 +931,11 @@
     </section>
 
     <!-- Detailed Footer with Integrated Newsletter -->
-    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10 mt-auto">
-        <div class="max-w-[1024px] mx-auto">
+    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative overflow-hidden z-10 mt-auto">
+        <!-- Subtle Bottom Glow -->
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-blue-400/20 rounded-full filter blur-[100px] pointer-events-none z-0"></div>
+
+        <div class="max-w-[1024px] mx-auto relative z-10">
             <div class="bg-white rounded-[2.5rem] p-8 sm:p-12 mb-20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
                 <div class="text-center lg:text-left w-full lg:w-1/2 flex flex-col items-center lg:items-start">
                     <div class="inline-flex items-center justify-center w-14 h-14 bg-[#f0f5ff] rounded-full mb-6">
@@ -1623,7 +1713,6 @@
                 return;
             }
 
-            // Using 3 column grid to allow more horizontal space for the intricate product card design
             const displayProducts = products.slice(0, 3);
             
             const html = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">` + displayProducts.map((p, index) => {
@@ -1631,43 +1720,41 @@
                 const description = currentLang === 'en' ? (p.product_description_en || 'Professionally designed static website layout perfectly tuned for optimal performance.') : (p.product_description_mm || 'အရည်အသွေးမြင့် လုပ်ငန်းသုံး ဝက်ဘ်ဆိုက် ဒီဇိုင်း။');
                 const price = p.product_discount_price || p.product_price || 0;
                 const originalPrice = p.product_price || 0;
-                const img = p.product_image || 'https://placehold.co/600x400/ffffff/6e6e73?text=Preview';
+                const img = p.product_image || 'https://placehold.co/600x800/fbfbfd/6e6e73?text=Preview';
                 const delay = index * 100;
                 
                 return `
-                <div class="bg-white rounded-[2rem] border border-gray-100 p-4 sm:p-5 flex flex-col h-full hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 reveal group" style="animation: fadeUp 0.6s ease forwards; animation-delay: ${delay}ms; opacity: 0;">
+                <div class="relative h-[480px] rounded-[2.5rem] overflow-hidden group shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-200/50 safari-fix cursor-pointer reveal flex-shrink-0" style="animation: fadeUp 0.6s ease forwards; animation-delay: ${delay}ms; opacity: 0;" onclick="window.location.href='./template-detail/index.html?product=${p.product_slug || p.slug || p.product_id}'">
                     
-                    <div class="relative w-full h-[240px] sm:h-[280px] rounded-[1.5rem] overflow-hidden mb-6 bg-[#fbfbfd]">
-                        <div class="absolute top-4 left-4 z-10">
-                            <span class="bg-white text-myancode-black text-[10px] sm:text-[11px] font-bold px-4 py-2 rounded-full uppercase tracking-widest shadow-sm">MyanCode Exclusive</span>
-                        </div>
-                        <button onclick="event.stopPropagation(); toggleWishlist('${p.product_id}', '${name.replace(/'/g, "\\'")}', ${price})" class="absolute top-4 right-4 z-20 w-11 h-11 bg-white rounded-full shadow-sm flex items-center justify-center hover:scale-105 transition-transform text-gray-400 hover:text-myancode-blue" id="wl-btn-${p.product_id}">
-                            <i data-lucide="heart" class="w-5 h-5 pointer-events-none" id="wl-icon-${p.product_id}"></i>
-                        </button>
-                        <img src="${img.startsWith('../') ? img.replace('../', './') : img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${name}" onerror="this.src='https://placehold.co/600x400/fbfbfd/6e6e73?text=Preview'">
+                    <!-- Top Badges & Wishlist -->
+                    <div class="absolute top-6 left-6 z-30">
+                        <span class="bg-black/50 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-[11px] font-bold px-4 py-2 rounded-full uppercase tracking-widest shadow-sm">Exclusive</span>
                     </div>
+                    <button onclick="event.stopPropagation(); toggleWishlist('${p.product_id}', '${name.replace(/'/g, "\\'")}', ${price})" class="absolute top-6 right-6 z-30 w-11 h-11 bg-black/50 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-myancode-blue text-white transition-colors duration-300" id="wl-btn-${p.product_id}">
+                        <i data-lucide="heart" class="w-5 h-5 pointer-events-none" id="wl-icon-${p.product_id}"></i>
+                    </button>
+
+                    <!-- Image & Gradient -->
+                    <img src="${img.startsWith('../') ? img.replace('../', './') : img}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="${name}" onerror="this.src='https://placehold.co/600x800/fbfbfd/6e6e73?text=Preview'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-colors duration-500 z-10"></div>
                     
-                    <div class="px-2 flex-1 flex flex-col">
-                        <h3 class="text-xl sm:text-2xl font-bold text-[#2997ff] mb-3 line-clamp-1">${name}</h3>
-                        <p class="text-gray-500 text-sm sm:text-base leading-relaxed mb-6 line-clamp-2">
+                    <!-- Content -->
+                    <div class="absolute inset-x-0 bottom-0 p-8 flex flex-col items-start z-20 pointer-events-none">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-white mb-2 line-clamp-1">${name}</h3>
+                        <p class="text-gray-300 font-medium mb-6 line-clamp-2 text-sm leading-relaxed">
                             ${description}
                         </p>
                         
-                        <div class="mt-auto">
-                            <div class="w-full h-px bg-gray-100 mb-6"></div>
-                            <div class="flex items-end justify-between">
-                                <div class="flex flex-col">
-                                    ${p.product_discount_price ? `<span class="text-gray-400 line-through text-xs sm:text-sm font-bold tracking-wider mb-1">${originalPrice.toLocaleString()} MMK</span>` : '<span class="text-transparent text-xs sm:text-sm mb-1">.</span>'}
-                                    <span class="text-1xl sm:text-2xl font-black text-myancode-black tracking-tight mb-0.5">${price.toLocaleString()}</span>
-                                    <span class="text-gray-400 font-bold text-xs sm:text-sm tracking-widest">MMK</span>
+                        <div class="w-full flex items-end justify-between border-t border-white/20 pt-6 pointer-events-auto">
+                            <div class="flex flex-col">
+                                ${p.product_discount_price ? `<span class="text-gray-400 line-through text-xs font-bold tracking-wider mb-1">${originalPrice.toLocaleString()} MMK</span>` : '<span class="text-transparent text-xs mb-1">.</span>'}
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-2xl font-bold text-white tracking-tight">${price.toLocaleString()}</span>
+                                    <span class="text-gray-400 font-bold text-xs tracking-widest">MMK</span>
                                 </div>
-                                <a href="./template-detail/index.html?product=${p.product_slug || p.slug || p.product_id}" class="inline-flex items-center gap-4 bg-white border border-gray-200 text-myancode-black px-5 py-3 rounded-[2rem] hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm group/btn">
-                                    <div class="flex flex-col text-[10px] sm:text-[11px] font-bold leading-tight uppercase tracking-widest text-left">
-                                        <span>View</span>
-                                        <span>Details</span>
-                                    </div>
-                                    <i data-lucide="arrow-right" class="w-4 h-4 transform transition-transform group-hover/btn:translate-x-1"></i>
-                                </a>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center group-hover:bg-myancode-blue group-hover:text-white transition-all shadow-md transform group-hover:-translate-y-1">
+                                <i data-lucide="arrow-up-right" class="w-5 h-5 transform transition-transform duration-300"></i>
                             </div>
                         </div>
                     </div>
@@ -1975,39 +2062,46 @@
         /* --- Explore Solutions Marquee JS Logic --- */
         const solutionCarousel = document.getElementById('solutionCarousel');
         const solutionWrapper = document.getElementById('solutionCarouselWrapper');
-        let solutionScrollInterval;
         let solutionInteractionTimeout;
+        let isHoveringMarquee = false;
+        let isDraggingMarquee = false;
 
         if (solutionCarousel && solutionWrapper) {
             // Duplicate content for infinite scroll illusion
             solutionCarousel.innerHTML += solutionCarousel.innerHTML;
 
             function scrollMarquee() {
-                if (solutionWrapper.scrollLeft >= solutionCarousel.scrollWidth / 2) {
-                    solutionWrapper.scrollLeft = 0;
-                } else {
-                    solutionWrapper.scrollLeft += 1;
+                if (!isHoveringMarquee && !isDraggingMarquee) {
+                    if (solutionWrapper.scrollLeft >= solutionCarousel.scrollWidth / 2) {
+                        solutionWrapper.scrollLeft = 0;
+                    } else {
+                        solutionWrapper.scrollLeft += 1;
+                    }
                 }
+                requestAnimationFrame(scrollMarquee);
             }
 
-            function playMarquee() {
-                clearInterval(solutionScrollInterval);
-                solutionScrollInterval = setInterval(scrollMarquee, 15);
-            }
+            // Start animation loop
+            requestAnimationFrame(scrollMarquee);
 
-            function pauseMarquee() {
-                clearInterval(solutionScrollInterval);
+            function pauseMarqueeForInteraction() {
+                isDraggingMarquee = true;
                 clearTimeout(solutionInteractionTimeout);
-                solutionInteractionTimeout = setTimeout(playMarquee, 2000);
+                solutionInteractionTimeout = setTimeout(() => {
+                    isDraggingMarquee = false;
+                }, 2000);
             }
 
-            playMarquee();
+            // Hover interactions
+            solutionWrapper.addEventListener('mouseenter', () => isHoveringMarquee = true);
+            solutionWrapper.addEventListener('mouseleave', () => {
+                isHoveringMarquee = false;
+                isDown = false; // release drag if mouse leaves
+            });
 
-            // Pause on interaction
-            solutionWrapper.addEventListener('mousedown', pauseMarquee);
-            solutionWrapper.addEventListener('touchstart', pauseMarquee, {passive: true});
-            solutionWrapper.addEventListener('wheel', pauseMarquee, {passive: true});
-            solutionWrapper.addEventListener('scroll', pauseMarquee, {passive: true});
+            // Touch and wheel interactions
+            solutionWrapper.addEventListener('touchstart', pauseMarqueeForInteraction, {passive: true});
+            solutionWrapper.addEventListener('wheel', pauseMarqueeForInteraction, {passive: true});
             
             // Basic drag to scroll
             let isDown = false;
@@ -2016,14 +2110,18 @@
 
             solutionWrapper.addEventListener('mousedown', (e) => {
                 isDown = true;
+                pauseMarqueeForInteraction();
                 startX = e.pageX - solutionWrapper.offsetLeft;
                 scrollLeft = solutionWrapper.scrollLeft;
             });
-            solutionWrapper.addEventListener('mouseleave', () => { isDown = false; });
-            solutionWrapper.addEventListener('mouseup', () => { isDown = false; });
+            solutionWrapper.addEventListener('mouseup', () => { 
+                isDown = false; 
+                pauseMarqueeForInteraction();
+            });
             solutionWrapper.addEventListener('mousemove', (e) => {
                 if (!isDown) return;
                 e.preventDefault();
+                pauseMarqueeForInteraction();
                 const x = e.pageX - solutionWrapper.offsetLeft;
                 const walk = (x - startX) * 2;
                 solutionWrapper.scrollLeft = scrollLeft - walk;
@@ -2125,7 +2223,6 @@
             setActiveNavLinks();
             renderLanguage(); 
             showSlide(0); 
-            resetAutoPlay();
             fetchHomePageData(); 
             
             const hash = window.location.hash || window.location.search;
