@@ -94,10 +94,15 @@
         
         .icon-float { animation: float 6s ease-in-out infinite; }
         
+        .prose-desc { white-space: pre-wrap; word-break: break-word; } /* This ensures exact line breaks and spaces from admin dashboard are preserved */
         .prose-desc ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
         .prose-desc ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .prose-desc li { margin-bottom: 0.5rem; }
         .prose-desc h2, .prose-desc h3, .prose-desc h4 { font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #111111; }
         .prose-desc p { margin-bottom: 1rem; }
+        .prose-desc strong, .prose-desc b { font-weight: 700; color: #111111; }
+        .prose-desc em, .prose-desc i { font-style: italic; }
+        .prose-desc a { color: #2997ff; text-decoration: underline; }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
@@ -339,58 +344,61 @@
                 <span class="text-myancode-black font-bold truncate max-w-[200px]" id="bcServiceName">Details</span>
             </nav>
 
-            <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+            <div class="flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
                 
-                <!-- Left Column: Rich Content -->
-                <div class="w-full lg:w-2/3">
-                    
+                <!-- Left Column: Sticky Image (Single Image Mode) -->
+                <div class="w-full lg:w-1/2 lg:sticky lg:top-32">
                     <!-- Cover Image -->
-                    <div class="aspect-video w-full rounded-3xl overflow-hidden bg-gray-50 border border-gray-100 mb-8 relative flex items-center justify-center shadow-sm" id="sdImageContainer">
+                    <div class="aspect-[4/3] w-full rounded-3xl overflow-hidden bg-[#f5f3ef] border border-gray-100 relative flex items-center justify-center shadow-sm" id="sdImageContainer">
                         <!-- Filled by JS -->
                     </div>
-                    
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-myancode-black mb-4 tracking-tight leading-tight" id="sdName">Loading Service...</h1>
-                    
-                    <p class="text-base sm:text-lg text-gray-500 mb-8 leading-relaxed font-medium" id="sdShortDesc"></p>
-                    
-                    <!-- Detailed Rich Text Area -->
-                    <div class="prose-desc text-gray-600 text-sm sm:text-base leading-relaxed bg-white p-6 sm:p-8 rounded-[2rem] shadow-sm border border-gray-100" id="sdDetailDesc">
-                        <!-- Filled by JS -->
-                    </div>
-
                 </div>
                 
-                <!-- Right Column: Sticky Action Box -->
-                <div class="w-full lg:w-1/3">
-                    <div class="sticky top-24 bg-white rounded-[2rem] p-6 sm:p-8 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border border-gray-100 flex flex-col">
-                        
-                        <div class="mb-6 pb-6 border-b border-gray-50 flex justify-between items-start">
-                            <div>
-                                <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1.5" data-i18n="serviceFee">Service Fee</p>
-                                <h2 class="text-3xl font-bold text-myancode-blue" id="sdPrice">...</h2>
-                            </div>
-                            <div id="sdStatusBadge" class="mt-1">
-                                <!-- Status Badge -->
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-col gap-3">
-                            <button id="btnPurchaseAction" class="w-full bg-myancode-black text-white px-6 py-4 rounded-2xl font-bold text-sm tracking-wide shadow-md btn-hover-effect flex items-center justify-center gap-2">
-                                <i data-lucide="shopping-bag" class="w-4 h-4"></i> <span data-i18n="btnPurchaseReq">Request Service</span>
-                            </button>
-                            <button id="btnWishlistAction" class="w-full bg-gray-50 text-myancode-black border border-gray-200 px-6 py-4 rounded-2xl font-bold text-sm tracking-wide hover:bg-gray-100 transition-colors btn-hover-effect flex items-center justify-center gap-2">
-                                <i data-lucide="heart" class="w-4 h-4" id="sdWishlistIcon"></i> <span id="sdWishlistText" data-i18n="btnSaveWishlist">Save to Wishlist</span>
-                            </button>
-                        </div>
-
-                        <!-- Mini feature highlights -->
-                        <div class="mt-8 pt-6 border-t border-gray-50 flex flex-col gap-3 text-xs font-medium text-gray-500">
-                            <div class="flex items-center gap-3"><i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i> Premium Quality Support</div>
-                            <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-4 h-4 text-green-500"></i> Enterprise-grade Delivery</div>
-                            <div class="flex items-center gap-3"><i data-lucide="clock" class="w-4 h-4 text-green-500"></i> Reliable Timeline</div>
-                        </div>
-
+                <!-- Right Column: Scrolling Content Area -->
+                <div class="w-full lg:w-1/2 flex flex-col">
+                    
+                    <!-- Category Badge -->
+                    <div class="mb-4">
+                        <span class="bg-gray-100 text-myancode-black px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest" id="sdCategoryBadge">INFORMATION</span>
                     </div>
+
+                    <!-- Title -->
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-myancode-black mb-4 tracking-tight leading-tight" id="sdName">Loading Service...</h1>
+                    
+                    <!-- Pricing Area -->
+                    <div class="flex items-baseline gap-4 mb-6">
+                        <h2 class="text-3xl font-bold text-myancode-black" id="sdPrice">...</h2>
+                        <span class="text-xl text-gray-400 line-through font-medium" id="sdOriginalPrice" style="display:none;"></span>
+                    </div>
+
+                    <!-- Badges Row: Stock & SKU -->
+                    <div class="flex items-center gap-6 mb-8 py-5 border-y border-gray-100">
+                         <div id="sdStatusBadge">
+                            <!-- Filled by JS -->
+                         </div>
+                         <div class="flex items-center text-gray-500 text-[11px] font-bold tracking-widest uppercase gap-2">
+                             <i data-lucide="tag" class="w-4 h-4"></i> <span id="sdSku">SKU : IW-001</span>
+                         </div>
+                    </div>
+                    
+                    <!-- Descriptions -->
+                    <p class="text-base sm:text-lg text-gray-600 mb-8 leading-relaxed font-medium" id="sdShortDesc"></p>
+                    
+                    <!-- Detailed Rich Text Area (Prose-desc styles updated for lists & formatting) -->
+                    <div class="prose-desc text-gray-600 text-base leading-relaxed mb-12 whitespace-pre-wrap" id="sdDetailDesc">
+                        <!-- Filled by JS -->
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 mt-auto">
+                        <button id="btnPurchaseAction" class="w-full sm:w-auto flex-1 bg-myancode-black text-white px-8 py-4 rounded-full font-bold text-sm tracking-wide shadow-md btn-hover-effect flex items-center justify-center gap-2">
+                            <span data-i18n="btnPurchaseReq">Request Service</span>
+                        </button>
+                        <button id="btnWishlistAction" class="w-full sm:w-auto flex-1 bg-white text-myancode-blue border border-gray-200 px-8 py-4 rounded-full font-bold text-sm tracking-wide hover:bg-gray-50 transition-colors btn-hover-effect flex items-center justify-center gap-2">
+                            <i data-lucide="heart" class="w-4 h-4" id="sdWishlistIcon"></i> <span id="sdWishlistText" data-i18n="btnSaveWishlist">Add to Wishlist</span>
+                        </button>
+                    </div>
+
                 </div>
             </div>
             
@@ -532,12 +540,12 @@
                 missingIdDesc: "It appears you accessed this page directly or the product identifier is missing. To view a specific template's details, please browse our catalog.",
                 btnBrowse: "Browse Services",
                 btnHome: "Home",
-                lblAvailable: "Available",
-                lblUnavailable: "Unavailable",
+                lblAvailable: "IN STOCK",
+                lblUnavailable: "OUT OF STOCK",
                 
                 serviceFee: "Service Fee",
                 btnPurchaseReq: "Request Service",
-                btnSaveWishlist: "Save to Wishlist",
+                btnSaveWishlist: "Add to Wishlist",
                 youMayAlsoLike: "You May Also Like",
                 viewAllServices: "View All Services",
                 btnViewDetails: "View Details",
@@ -922,22 +930,36 @@
             document.getElementById('sdShortDesc').innerText = service.short_desc || '';
             document.getElementById('sdDetailDesc').innerHTML = service.detail_desc || '<p class="italic text-gray-400">No extensive details provided for this service.</p>';
             
-            // Image
+            // Set dynamic SKU
+            const defaultSku = service.slug ? service.slug.toUpperCase().substring(0, 6) : 'MC-001';
+            document.getElementById('sdSku').innerText = `SKU : ${defaultSku}`;
+
+            // Image Updates
             const imgContainer = document.getElementById('sdImageContainer');
+            // thumb1 reference removed as requested
             if (service.image_url) {
                 imgContainer.innerHTML = `<img src="${service.image_url}" alt="${service.name}" class="w-full h-full object-cover">`;
             } else {
                 imgContainer.innerHTML = `<i data-lucide="box" class="w-24 h-24 text-gray-300"></i>`;
             }
 
-            // Pricing & Status
-            const priceText = service.price ? `${parseFloat(service.price).toLocaleString()} MMK` : 'Custom Pricing';
-            document.getElementById('sdPrice').innerText = priceText;
+            // Pricing Area Logic (With original price mock rendering if needed)
+            const parsedPrice = parseFloat(service.price);
+            if (!isNaN(parsedPrice) && parsedPrice > 0) {
+                document.getElementById('sdPrice').innerText = `${parsedPrice.toLocaleString()} MMK`;
+                document.getElementById('sdOriginalPrice').innerText = `${(parsedPrice * 1.5).toLocaleString()} MMK`;
+                document.getElementById('sdOriginalPrice').style.display = 'inline';
+            } else {
+                const priceText = service.price ? `${parseFloat(service.price).toLocaleString()} MMK` : 'Custom Pricing';
+                document.getElementById('sdPrice').innerText = priceText;
+                document.getElementById('sdOriginalPrice').style.display = 'none';
+            }
             
+            // Status Badge
             const isAvailable = service.status === 'available' || !service.status;
             document.getElementById('sdStatusBadge').innerHTML = isAvailable 
-                ? `<span class="bg-green-50 text-green-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-green-100 shadow-sm">${dict[currentLang].lblAvailable}</span>`
-                : `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-red-100 shadow-sm">${dict[currentLang].lblUnavailable}</span>`;
+                ? `<span class="bg-green-50 text-green-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">${dict[currentLang].lblAvailable || 'IN STOCK'}</span>`
+                : `<span class="bg-red-50 text-red-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">${dict[currentLang].lblUnavailable || 'UNAVAILABLE'}</span>`;
 
             // Action Buttons Setup
             const btnPurchase = document.getElementById('btnPurchaseAction');
@@ -966,10 +988,10 @@
 
             const isWishlisted = currentUserWishlist.some(item => item.id === currentServiceDetails.id);
             if (isWishlisted) {
-                icon.classList.add('fill-red-500', 'text-red-500');
-                text.innerText = currentLang === 'en' ? "Saved to Wishlist" : "သိမ်းဆည်းပြီးပါပြီ";
+                icon.classList.add('fill-myancode-blue', 'text-myancode-blue');
+                text.innerText = currentLang === 'en' ? "Added to Wishlist" : "သိမ်းဆည်းပြီးပါပြီ";
             } else {
-                icon.classList.remove('fill-red-500', 'text-red-500');
+                icon.classList.remove('fill-myancode-blue', 'text-myancode-blue');
                 text.innerText = dict[currentLang].btnSaveWishlist;
             }
             
