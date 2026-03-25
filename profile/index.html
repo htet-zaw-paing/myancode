@@ -340,6 +340,7 @@
             </div>
 
             <div class="space-y-8">
+                <!-- Public Profile Section -->
                 <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 reveal">
                     <h3 class="text-lg font-semibold tracking-tight mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="user-circle" class="h-5 w-5 text-myancode-blue"></i> <span data-i18n="profPublic">Public Profile</span></h3>
                     
@@ -372,7 +373,8 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 reveal" style="transition-delay: 100ms;">
+                <!-- Security Section -->
+                <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 reveal" style="transition-delay: 50ms;">
                     <h3 class="text-lg font-semibold tracking-tight mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="shield" class="h-5 w-5 text-green-500"></i> <span data-i18n="profSecurity">Security</span></h3>
                     
                     <div class="space-y-4 max-w-md">
@@ -394,7 +396,8 @@
                     </div>
                 </div>
 
-                <div class="bg-[#fff5f5] rounded-3xl p-6 sm:p-10 shadow-sm border border-red-100 reveal" style="transition-delay: 200ms;">
+                <!-- Danger Zone Section -->
+                <div class="bg-[#fff5f5] rounded-3xl p-6 sm:p-10 shadow-sm border border-red-100 reveal" style="transition-delay: 100ms;">
                     <h3 class="text-lg font-semibold tracking-tight text-red-600 mb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="h-5 w-5"></i> <span data-i18n="profDanger">Danger Zone</span></h3>
                     <p class="text-sm text-red-400 mb-6" data-i18n="profDeleteText">Once you delete your account, there is no going back. Please be certain.</p>
                     <button onclick="deleteAccount()" class="btn-hover-effect bg-red-600 text-white hover:bg-red-700 text-xs px-8 py-3.5 rounded-full font-semibold tracking-wide shadow-sm w-full sm:w-auto transition-colors" data-i18n="profDeleteBtn">Delete Account</button>
@@ -403,6 +406,7 @@
         </div>
     </section>
 
+    <!-- Cropper Modal -->
     <div id="cropperModal" class="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
         <div class="bg-white p-4 sm:p-6 rounded-3xl w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="cropperModalContent">
             <h3 class="text-lg font-semibold mb-4 text-myancode-black flex justify-between items-center">
@@ -425,6 +429,7 @@
         </div>
     </div>
 
+    <!-- Confirm Modal -->
     <div id="confirmModal" class="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
         <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent">
             <div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
@@ -442,13 +447,25 @@
 
             <div id="confirmModalTextContainer" class="hidden mb-6 text-left">
                 <label class="block text-xs font-bold text-gray-500 tracking-widest mb-2" id="confirmModalTextLabel">Type "DeLeTe My AccOunT" to confirm</label>
-                <input type="text" id="confirmModalTextInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all" autocomplete="off">
+                <input type="text" id="confirmModalTextInput" oncopy="handleCopyAttempt(event)" onpaste="handleCopyAttempt(event)" oncut="handleCopyAttempt(event)" oncontextmenu="return false;" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all select-none" autocomplete="off">
             </div>
 
             <div class="flex space-x-3 w-full">
                 <button onclick="closeConfirmModal()" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" id="confirmModalCancelBtn">Cancel</button>
                 <button id="confirmModalBtn" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-red-600 hover:bg-red-700">Confirm</button>
             </div>
+        </div>
+    </div>
+    
+    <!-- Funny Anti-Copy/Paste Modal -->
+    <div id="funnyWarningModal" class="fixed inset-0 z-[20000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="funnyWarningModalContent">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4">
+                <span class="text-3xl">!</span>
+            </div>
+            <h3 class="text-xl font-semibold tracking-tight text-myancode-black mb-3">Wait a minute!</h3>
+            <p id="funnyWarningText" class="text-sm text-gray-600 mb-6 leading-relaxed"></p>
+            <button onclick="closeFunnyModal()" class="w-full px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-myancode-blue hover:bg-blue-600">Fine</button>
         </div>
     </div>
 
@@ -873,6 +890,36 @@
             const content = document.getElementById('confirmModalContent');
             modal.classList.add('opacity-0');
             content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+        
+        function handleCopyAttempt(e) {
+            e.preventDefault();
+            const msgEn = "Wait a moment! You’re about to delete part of a masterpiece. Surely it deserves at least a little effort from you. Come on — please type it! 😄";
+            const msgMm = "မာစတာပိစ်ကြီးကို ဖျက်ဆီးတော့မှာတောင် Copy/Paste လုပ်ဦးမလို့လား? အနည်းဆုံးတော့ ကိုယ်တိုင် ရိုက်ထည့်လိုက်ပါဗျာ C'mon! 😄";
+            
+            document.getElementById('funnyWarningText').innerText = currentLang === 'en' ? msgEn : msgMm;
+            
+            const modal = document.getElementById('funnyWarningModal');
+            const content = document.getElementById('funnyWarningModalContent');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth; 
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeFunnyModal() {
+            const modal = document.getElementById('funnyWarningModal');
+            const content = document.getElementById('funnyWarningModalContent');
+            
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
