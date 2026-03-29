@@ -32,22 +32,19 @@
                     colors: { myancode: { black: '#111111', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } },
                     animation: {
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
                     }
                 }
             }
         }
     </script>
     <style>
-        html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #fbfbfd; color: #111111; -webkit-font-smoothing: antialiased; }
+        html, body { width: 100%; overflow-x: hidden; position: relative; background-color: transparent; color: #111111; -webkit-font-smoothing: antialiased; }
         body.no-scroll { overflow: hidden; }
 
         html[lang="mm"] body { font-size: 14px; line-height: 2; }
         html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3 { letter-spacing: normal; }
         html[lang="mm"] .uppercase, html[lang="mm"] .capitalize, html[lang="mm"] .tracking-widest { text-transform: none; letter-spacing: normal; }
-        
-        #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; }
-        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
-        .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
         
         .hover-underline { position: relative; }
         .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -98,7 +95,11 @@
         .range-slider input[type="range"]::-moz-range-thumb:active { cursor: grabbing; transform: scale(1.05); }
     </style>
 </head>
-<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
+<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll bg-transparent">
+
+    <!-- FIXED BACKGROUND WITH BLUR (STAYS IN PLACE WHEN SCROLLING) -->
+    <div class="fixed inset-0 z-[-2] bg-[url('../imgs/web-banners/template-bg-2.jpg')] bg-cover bg-center bg-no-repeat transform scale-105"></div>
+    <div class="fixed inset-0 z-[-1] bg-white/40 backdrop-blur-1xl"></div>
 
     <!-- GLOBAL ENTERPRISE LOADER -->
     <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
@@ -109,8 +110,8 @@
         <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 transition-colors" data-i18n="loadingInit">Initializing Experience...</span>
     </div>
 
-    <!-- Navigation -->
-    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent">
+    <!-- Navigation (Always visible glass background) -->
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] bg-white/85 backdrop-blur-2xl border-b border-gray-200/50 transition-all duration-300">
         <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
             <div class="flex justify-between items-center h-14 sm:h-16">
                 <div class="flex items-center h-full">
@@ -324,50 +325,64 @@
         <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
         <div class="p-6 border-t border-gray-100 bg-gray-50">
             <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold text-black" id="wishlistTotal">0 MMK</span></div>
-            <button class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
+            <!-- CHECKOUT INTEGRATION -->
+            <button onclick="proceedToCheckoutFromWishlist()" class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
         </div>
     </div>
 
-    <!-- PRODUCT LISTING HEADER -->
-    <section class="pt-32 sm:pt-40 pb-12 sm:pb-16 px-4 sm:px-6 relative">
-        <div class="max-w-[1280px] mx-auto text-center reveal active">
-            <h2 class="text-[10px] tracking-[0.4em] text-myancode-blue uppercase mb-4 font-bold" data-i18n="shopEyebrow">Premium Templates</h2>
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-myancode-black mb-6" data-i18n="shopTitle">Engineered Websites.</h1>
-            <p class="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto" data-i18n="shopSub">Browse our exclusive collection of enterprise-ready digital assets, designed for supreme performance.</p>
+    <!-- PRODUCT LISTING HEADER - TRANSPARENT HERO -->
+    <section class="pt-40 sm:pt-52 pb-24 sm:pb-36 px-4 sm:px-6 relative z-10 flex flex-col justify-center min-h-[45vh]">
+        <div class="max-w-[1280px] mx-auto text-center reveal active relative z-10 flex flex-col items-center">
+            
+            <!-- Premium Badge (Light Theme over blurred background) -->
+            <div class="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-white/60 backdrop-blur-md border border-white/40 shadow-sm mb-8">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-myancode-blue opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-myancode-blue"></span>
+                </span>
+                <span class="text-[10px] tracking-[0.2em] text-myancode-black font-bold uppercase" data-i18n="shopEyebrow">Premium Templates</span>
+            </div>
+            
+            <h1 class="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-myancode-black mb-6 leading-[1.1] drop-shadow-sm" data-i18n="shopTitle">Engineered Websites.</h1>
+            <p class="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto font-medium" data-i18n="shopSub">Browse our exclusive collection of enterprise-ready digital assets, designed for supreme performance.</p>
         </div>
     </section>
 
-    <!-- PRODUCT GRID & FILTER SECTION -->
-    <section class="pb-24 sm:pb-36 px-4 sm:px-6 relative z-10">
+    <!-- PRODUCT GRID & FILTER SECTION - SOLID OVERLAY -->
+    <section class="pt-10 sm:pt-14 pb-24 sm:pb-36 px-4 sm:px-6 relative z-20 bg-[#f5f5f7] rounded-t-[2.5rem] sm:rounded-t-[4rem] shadow-[0_-20px_50px_rgba(0,0,0,0.05)] border-t border-white/50">
+        
+        <!-- Elegant drag handle indicating overlapping layer -->
+        <div class="w-16 h-1.5 bg-gray-300/50 rounded-full mx-auto mb-8 sm:mb-12"></div>
+
         <div class="max-w-[1280px] mx-auto">
             
-            <!-- Mobile Filter Toggle -->
-            <button id="mobileFilterBtn" class="lg:hidden w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl mb-6 shadow-sm font-semibold transition-all hover:border-myancode-blue" onclick="document.getElementById('filterSidebar').classList.toggle('hidden')">
+            <!-- Mobile Filter Toggle (Sticks to top level below header on mobile) -->
+            <button id="mobileFilterBtn" class="lg:hidden w-full flex items-center justify-between bg-white/90 backdrop-blur-md border border-gray-200 p-4 rounded-[1.25rem] mb-6 shadow-sm font-semibold transition-all hover:border-myancode-blue sticky top-[56px] sm:top-[64px] z-[45]" onclick="document.getElementById('filterSidebar').classList.toggle('hidden')">
                 <span class="flex items-center gap-2 text-myancode-black"><i data-lucide="sliders-horizontal" class="h-5 w-5"></i> <span data-i18n="filterTitle">Filters</span></span>
                 <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400"></i>
             </button>
 
             <!-- items-start IS REQUIRED for sticky children inside flex to work properly! -->
-            <div class="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
                 
-                <!-- FILTER SIDEBAR -->
-                <aside id="filterSidebar" class="hidden lg:block w-full lg:w-[280px] flex-shrink-0 z-[35] sticky top-[64px] pt-6 pb-4 h-fit bg-[#fbfbfd]">
-                    <div class="max-h-[calc(100vh-100px)] overflow-y-auto no-scrollbar space-y-8 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm pb-8">
+                <!-- SLEEK FILTER SIDEBAR -->
+                <aside id="filterSidebar" class="hidden lg:block w-full lg:w-[280px] flex-shrink-0 z-[35] sticky top-[90px] h-fit">
+                    <div class="max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar space-y-10 bg-white/60 backdrop-blur-2xl p-7 rounded-[2rem] border border-gray-200/60 shadow-sm pb-8">
                         
                         <div class="flex items-center justify-between mb-2">
                             <h3 class="text-lg font-bold text-myancode-black flex items-center gap-2"><i data-lucide="filter" class="h-5 w-5 text-myancode-black"></i> <span data-i18n="filterTitle">Filters</span></h3>
-                            <button onclick="resetFilters()" class="text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-red-500 transition-colors" data-i18n="btnReset">Reset</button>
+                            <button onclick="resetFilters()" class="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 hover:text-red-500 transition-colors" data-i18n="btnReset">Reset</button>
                         </div>
 
                         <!-- Categories -->
                         <div>
-                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4" data-i18n="categories">Categories</h4>
-                            <div id="categoryFilterContainer" class="flex flex-col gap-2">
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-5" data-i18n="categories">Categories</h4>
+                            <div id="categoryFilterContainer" class="flex flex-col gap-1.5">
                                 <!-- Populated by JS -->
                             </div>
                         </div>
 
-                        <hr class="border-gray-100/80">
+                        <hr class="border-gray-200/60">
 
                         <!-- Price Range Slider -->
                         <div>
@@ -385,29 +400,29 @@
                             </div>
 
                             <div class="flex items-center justify-between mt-8 gap-3">
-                                <div class="w-1/2 bg-gray-50 border border-gray-200 rounded-xl p-3 text-center transition-colors">
+                                <div class="w-1/2 bg-white/80 backdrop-blur-sm border border-gray-200/80 rounded-[1.25rem] p-3 text-center transition-colors shadow-sm">
                                     <span class="block text-[9px] text-gray-400 font-bold uppercase tracking-wider mb-1" data-i18n="minPrice">Min</span>
-                                    <span class="text-sm font-extrabold text-myancode-black block truncate" id="minPriceDisplay">4,500</span>
+                                    <span class="text-[13px] font-extrabold text-myancode-black block truncate" id="minPriceDisplay">4,500</span>
                                 </div>
                                 <span class="text-gray-300 font-bold">-</span>
-                                <div class="w-1/2 bg-gray-50 border border-gray-200 rounded-xl p-3 text-center transition-colors">
+                                <div class="w-1/2 bg-white/80 backdrop-blur-sm border border-gray-200/80 rounded-[1.25rem] p-3 text-center transition-colors shadow-sm">
                                     <span class="block text-[9px] text-gray-400 font-bold uppercase tracking-wider mb-1" data-i18n="maxPrice">Max</span>
-                                    <span class="text-sm font-extrabold text-myancode-black block truncate" id="maxPriceDisplay">1,500,000</span>
+                                    <span class="text-[13px] font-extrabold text-myancode-black block truncate" id="maxPriceDisplay">1,500,000</span>
                                 </div>
                             </div>
                         </div>
 
-                        <hr class="border-gray-100/80">
+                        <hr class="border-gray-200/60">
 
                         <!-- Sorting Options Section -->
                         <div>
-                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4" data-i18n="sortTitle">Sort By</h4>
-                            <div class="flex flex-col gap-2">
-                                <button onclick="setSort('default')" class="sort-btn w-full text-left text-xs px-4 py-2.5 rounded-xl transition-all border font-semibold bg-myancode-black text-white border-myancode-black shadow-md" data-sort="default" data-i18n="sortDefault">Latest / Default</button>
-                                <button onclick="setSort('price-asc')" class="sort-btn w-full text-left text-xs px-4 py-2.5 rounded-xl transition-all border font-semibold bg-white text-gray-600 border-gray-200 hover:border-myancode-black shadow-sm" data-sort="price-asc" data-i18n="sortPriceAsc">Price: Low to High</button>
-                                <button onclick="setSort('price-desc')" class="sort-btn w-full text-left text-xs px-4 py-2.5 rounded-xl transition-all border font-semibold bg-white text-gray-600 border-gray-200 hover:border-myancode-black shadow-sm" data-sort="price-desc" data-i18n="sortPriceDesc">Price: High to Low</button>
-                                <button onclick="setSort('name-asc')" class="sort-btn w-full text-left text-xs px-4 py-2.5 rounded-xl transition-all border font-semibold bg-white text-gray-600 border-gray-200 hover:border-myancode-black shadow-sm" data-sort="name-asc" data-i18n="sortNameAsc">Name: A to Z</button>
-                                <button onclick="setSort('name-desc')" class="sort-btn w-full text-left text-xs px-4 py-2.5 rounded-xl transition-all border font-semibold bg-white text-gray-600 border-gray-200 hover:border-myancode-black shadow-sm" data-sort="name-desc" data-i18n="sortNameDesc">Name: Z to A</button>
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-5" data-i18n="sortTitle">Sort By</h4>
+                            <div class="flex flex-col gap-1.5">
+                                <button onclick="setSort('default')" class="sort-btn w-full text-left text-xs px-4 py-3 rounded-xl transition-all font-bold bg-myancode-black text-white shadow-md" data-sort="default" data-i18n="sortDefault">Latest / Default</button>
+                                <button onclick="setSort('price-asc')" class="sort-btn w-full text-left text-xs px-4 py-3 rounded-xl transition-all font-medium bg-transparent text-gray-500 hover:text-myancode-black hover:bg-gray-100" data-sort="price-asc" data-i18n="sortPriceAsc">Price: Low to High</button>
+                                <button onclick="setSort('price-desc')" class="sort-btn w-full text-left text-xs px-4 py-3 rounded-xl transition-all font-medium bg-transparent text-gray-500 hover:text-myancode-black hover:bg-gray-100" data-sort="price-desc" data-i18n="sortPriceDesc">Price: High to Low</button>
+                                <button onclick="setSort('name-asc')" class="sort-btn w-full text-left text-xs px-4 py-3 rounded-xl transition-all font-medium bg-transparent text-gray-500 hover:text-myancode-black hover:bg-gray-100" data-sort="name-asc" data-i18n="sortNameAsc">Name: A to Z</button>
+                                <button onclick="setSort('name-desc')" class="sort-btn w-full text-left text-xs px-4 py-3 rounded-xl transition-all font-medium bg-transparent text-gray-500 hover:text-myancode-black hover:bg-gray-100" data-sort="name-desc" data-i18n="sortNameDesc">Name: Z to A</button>
                             </div>
                         </div>
 
@@ -417,13 +432,24 @@
                 <!-- MAIN PRODUCT AREA -->
                 <div class="flex-1 min-w-0">
                     
-                    <!-- Clean Result Count Bar -->
-                    <div class="sticky top-[56px] lg:top-[64px] z-[30] bg-[#fbfbfd] pt-4 lg:pt-6 pb-4 mb-6 border-b border-gray-200 flex items-center justify-between">
-                        <span id="resultsCountDisplay" class="text-sm font-bold text-myancode-black tracking-wide">0 Results</span>
+                    <!-- Clean Result Count Bar with Powerful Local Search - Floating Pill Style -->
+                    <div class="sticky top-[135px] sm:top-[144px] lg:top-[90px] z-[40] bg-white/80 backdrop-blur-2xl rounded-[1.5rem] p-2 mb-8 border border-gray-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 transition-all">
+                        
+                        <!-- Local Typo-Tolerant Search -->
+                        <div class="relative w-full sm:max-w-md flex-1">
+                            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+                            <input type="text" id="localProductSearch" oninput="handleLocalSearch(event)" placeholder="Search templates..." class="w-full bg-transparent border-none py-2.5 pl-11 pr-4 text-sm font-medium focus:outline-none focus:ring-0 text-myancode-black placeholder-gray-400" data-i18n-placeholder="searchPlaceholder">
+                        </div>
+
+                        <!-- Divider for Desktop -->
+                        <div class="h-6 w-[1px] bg-gray-200 hidden sm:block"></div>
+
+                        <!-- Result Count -->
+                        <span id="resultsCountDisplay" class="text-[10px] font-bold text-gray-500 tracking-widest uppercase px-4 whitespace-nowrap hidden sm:block">0 Results</span>
                     </div>
 
                     <!-- GRID -->
-                    <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
+                    <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
                         <!-- Products OR Empty State injected here by JS -->
                     </div>
 
@@ -434,7 +460,7 @@
     </section>
 
     <!-- Detailed Footer with Integrated Newsletter -->
-    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10 mt-auto">
+    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-20 mt-auto">
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-blue-400/20 rounded-full filter blur-[100px] pointer-events-none z-0"></div>
         <div class="max-w-[1024px] mx-auto">
             
@@ -540,6 +566,7 @@
         let maxPriceFilter = absoluteMaxPrice;
         let currentCategory = 'all';
         let currentSort = 'default';
+        let localSearchQuery = '';
 
         const dict = {
             en: {
@@ -804,7 +831,11 @@
         function resetFilters() {
             currentCategory = 'all'; 
             minPriceFilter = absoluteMinPrice; maxPriceFilter = absoluteMaxPrice;
+            localSearchQuery = '';
             
+            const searchInput = document.getElementById("localProductSearch");
+            if(searchInput) searchInput.value = '';
+
             const minInput = document.getElementById("priceMinInput"); 
             const maxInput = document.getElementById("priceMaxInput");
             if(minInput) minInput.value = absoluteMinPrice; 
@@ -825,6 +856,11 @@
                     btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200', 'shadow-sm');
                 }
             });
+            renderProducts();
+        }
+
+        function handleLocalSearch(e) {
+            localSearchQuery = e.target.value.toLowerCase().trim();
             renderProducts();
         }
 
@@ -899,18 +935,84 @@
             }
             if (mobileFilterBtn) mobileFilterBtn.style.display = '';
 
+            // Strict vs Fuzzy Local Search Pre-processing
+            let strictMatchesCount = 0;
+            if (localSearchQuery) {
+                activeProducts.forEach(p => {
+                    const nameStr = ((p.product_name_en || '') + ' ' + (p.product_name_mm || '')).toLowerCase();
+                    const catStr = ((p.category_id || '') + ' ' + (p.brand || '')).toLowerCase();
+                    const descStr = ((p.product_description_en || '') + ' ' + (p.product_description_mm || '')).toLowerCase();
+                    
+                    // Strict Search Pass
+                    p._isStrict = nameStr.includes(localSearchQuery) || catStr.includes(localSearchQuery);
+                    if (p._isStrict) strictMatchesCount++;
 
-            // Apply Filters
+                    // Fuzzy Search Pass
+                    const queryWords = localSearchQuery.split(/\s+/).filter(w => w);
+                    let matchedWords = 0;
+                    let totalWordScore = 0;
+                    
+                    for (const qWord of queryWords) {
+                        let bestMatch = 0;
+                        const checkTypos = (targetStr, weight) => {
+                            if (!targetStr) return;
+                            const tWords = targetStr.split(/[\s,.\-_]+/);
+                            for (const tWord of tWords) {
+                                if (!tWord || tWord.length < 2) continue;
+                                if (tWord === qWord) {
+                                    bestMatch = Math.max(bestMatch, weight);
+                                } else if (tWord.includes(qWord) || qWord.includes(tWord)) {
+                                    bestMatch = Math.max(bestMatch, weight * 0.8);
+                                } else {
+                                    const dist = getSimilarityScore(qWord, tWord);
+                                    const maxTypos = qWord.length > 4 ? 2 : (qWord.length > 3 ? 1 : 0);
+                                    if (dist <= maxTypos) {
+                                        bestMatch = Math.max(bestMatch, weight * 0.5);
+                                    }
+                                }
+                            }
+                        };
+                        
+                        checkTypos(nameStr, 100);
+                        checkTypos(catStr, 50);
+                        checkTypos(descStr, 10);
+                        
+                        if (bestMatch > 0) {
+                            matchedWords++;
+                            totalWordScore += bestMatch;
+                        }
+                    }
+                    
+                    p._isFuzzy = matchedWords === queryWords.length;
+                    p._searchScore = totalWordScore;
+                });
+            }
+
+            // Apply Filters & Advanced Two-Tier Local Search
             let filtered = activeProducts.filter(p => {
                 const price = p.product_discount_price || p.product_price;
                 const pCat = p.category_id || 'Uncategorized';
                 const catMatch = currentCategory === 'all' || pCat === currentCategory;
                 const priceMatch = price >= minPriceFilter && price <= maxPriceFilter;
-                return catMatch && priceMatch;
+                
+                let searchMatch = true;
+                if (localSearchQuery) {
+                    if (strictMatchesCount > 0) {
+                        searchMatch = p._isStrict; // Hide others if strict match exists
+                    } else {
+                        searchMatch = p._isFuzzy; // Fallback to fuzzy logic
+                    }
+                }
+
+                return catMatch && priceMatch && searchMatch;
             });
 
             // Apply Sort
             filtered.sort((a, b) => {
+                if (localSearchQuery && a._searchScore !== b._searchScore) {
+                    return b._searchScore - a._searchScore;
+                }
+
                 const priceA = a.product_discount_price || a.product_price;
                 const priceB = b.product_discount_price || b.product_price;
                 const nameA = currentLang === 'en' ? (a.product_name_en || a.product_name_mm || '') : (a.product_name_mm || a.product_name_en || '');
@@ -927,7 +1029,7 @@
 
             // No Results Found for Filter
             if (filtered.length === 0) {
-                 grid.className = "col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 flex flex-col items-center justify-center text-center py-24 px-4 bg-white rounded-2xl border border-gray-200 shadow-sm";
+                 grid.className = "col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 flex flex-col items-center justify-center text-center py-24 px-4 bg-white rounded-[2rem] border border-gray-100 shadow-sm";
                  grid.innerHTML = `
                     <div class="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-6 border border-gray-100 shadow-sm">
                         <i data-lucide="filter-x" class="h-8 w-8 text-gray-400"></i>
@@ -939,7 +1041,7 @@
                  return;
             }
 
-            grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8";
+            grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10";
 
             grid.innerHTML = filtered.map((p, index) => {
                 const name = currentLang === 'en' ? (p.product_name_en || p.product_name_mm) : (p.product_name_mm || p.product_name_en);
@@ -947,7 +1049,7 @@
                 const viewDetailsTxt = dict[currentLang].btnViewDetails;
                 
                 const price = p.product_discount_price || p.product_price;
-                const originalPriceHtml = p.product_discount_price ? `<span class="text-[11px] font-bold text-gray-400 line-through">${p.product_price.toLocaleString()} ${p.currency || 'MMK'}</span>` : '';
+                const originalPriceHtml = p.product_discount_price ? `<span class="text-[11px] sm:text-xs font-bold text-gray-400 line-through mb-1">${p.product_price.toLocaleString()} ${p.currency || 'MMK'}</span>` : '';
                 const brand = p.brand || p.category_id || 'MyanCode Exclusive';
                 
                 const fallbackImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'/><circle cx='8.5' cy='8.5' r='1.5'/><polyline points='21 15 16 10 5 21'/></svg>";
@@ -956,36 +1058,43 @@
 
                 const delay = index * 50; 
                 const inWishlist = currentUserWishlist.some(w => w.id === p.product_id);
-                const heartClass = inWishlist ? "text-myancode-blue fill-myancode-blue" : "text-gray-400";
 
                 const productSlug = p.product_slug || p.slug || p.product_id;
 
                 return `
-                <div class="card-hover bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 shadow-sm flex flex-col group relative reveal transition-all duration-500 overflow-hidden" style="transition-delay: ${delay}ms;">
-
+                <div class="card-hover bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 shadow-sm flex flex-col group relative reveal transition-all duration-500 overflow-hidden h-full" style="transition-delay: ${delay}ms;">
+                    
                     <button onclick="toggleWishlist('${p.product_id}', '${name.replace(/'/g, "\\'")}', ${price})" class="absolute top-8 right-8 z-20 p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-md hover:scale-110 transition-transform hover:bg-white group/btn">
-                        <i data-lucide="heart" class="h-4 w-4 ${heartClass} transition-colors duration-300 group-hover/btn:text-red-500" id="wl-icon-grid-${p.product_id}"></i>
+                        <i data-lucide="heart" class="h-4 w-4 ${inWishlist ? 'text-myancode-blue fill-myancode-blue' : 'text-gray-400 group-hover/btn:text-myancode-blue'} transition-colors duration-300" id="wl-icon-grid-${p.product_id}"></i>
                     </button>
-                    
-                    <div class="rounded-xl overflow-hidden mb-5 aspect-[4/3] relative bg-gray-50 flex items-center justify-center z-10 border border-gray-100/50">
-                        <img src="${imgSrc}" class="${p.product_image ? 'w-full h-full object-cover' : 'w-16 h-16 opacity-50'} transition-transform duration-700 group-hover:scale-105" alt="${name}" loading="lazy"/>
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500"></div>
-                        <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest text-myancode-black shadow-sm">${brand}</span>
-                    </div>
-                    
-                    <div class="flex-1 flex flex-col z-10 px-1">
-                        <h3 class="text-xl font-bold tracking-tight text-myancode-black mb-2 truncate group-hover:text-myancode-blue transition-colors duration-300">${name}</h3>
-                        <p class="text-sm text-gray-500 mb-6 line-clamp-2 leading-relaxed flex-1">${desc}</p>
+
+                    <div class="rounded-xl overflow-hidden mb-6 aspect-[16/10] relative bg-gray-50 flex items-center justify-center z-10 border border-gray-100/50 flex-shrink-0">
+                        <img src="${imgSrc}" class="${p.product_image ? 'w-full h-full object-cover' : 'w-12 h-12 opacity-50'} transition-transform duration-700 group-hover:scale-105" alt="${name}" loading="lazy"/>
                         
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500"></div>
+
+                        <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest text-myancode-black shadow-sm">${brand}</span>
+                    </div>
+
+                    <!-- Clean Content Section -->
+                    <div class="flex flex-col flex-1 px-1">
+                        
+                        <h3 class="text-base sm:text-lg font-bold tracking-tight text-myancode-black mb-1.5 truncate group-hover:text-myancode-blue transition-colors duration-300">${name}</h3>
+                        <p class="text-xs text-gray-500 mb-6 line-clamp-2 leading-relaxed flex-1">${desc}</p>
+
+                        <!-- Price & Modern Button (Bottom Aligned) -->
                         <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
                             <div class="flex flex-col">
                                 ${originalPriceHtml}
-                                <span class="text-lg font-extrabold text-myancode-black tracking-tight">${price.toLocaleString()} <span class="text-xs font-bold text-gray-400 uppercase tracking-widest ml-0.5">${p.currency || 'MMK'}</span></span>
+                                <span class="text-base sm:text-lg font-extrabold text-myancode-black tracking-tight">${price.toLocaleString()} <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-0.5">${p.currency || 'MMK'}</span></span>
                             </div>
-                            <a href="../template-detail/index.html?product=${productSlug}" class="bg-gray-50 text-myancode-black hover:bg-myancode-black hover:text-white text-[11px] uppercase tracking-widest px-5 py-3 rounded-full font-bold btn-hover-effect flex items-center gap-2 shadow-sm transition-all duration-300 border border-gray-200 hover:border-transparent">
-                                ${viewDetailsTxt} <i data-lucide="arrow-right" class="h-3 w-3 transition-transform group-hover:translate-x-1"></i>
+                            
+                            <a href="../template-detail/index.html?product=${productSlug}" class="h-10 w-10 sm:h-12 sm:w-12 bg-myancode-black rounded-full flex items-center justify-center hover:scale-105 hover:bg-myancode-blue transition-all duration-300 shadow-md group/link shrink-0 relative overflow-hidden">
+                                <i data-lucide="arrow-right" class="absolute h-4 w-4 sm:h-5 sm:w-5 text-white transition-opacity duration-300 opacity-100 group-hover/link:opacity-0"></i>
+                                <i data-lucide="arrow-up-right" class="absolute h-4 w-4 sm:h-5 sm:w-5 text-white transition-opacity duration-300 opacity-0 group-hover/link:opacity-100"></i>
                             </a>
                         </div>
+
                     </div>
                 </div>
                 `;
@@ -995,7 +1104,7 @@
             lucide.createIcons();
         }
 
-        /* --- Wishlist System (Cloud Synced) --- */
+        /* --- Wishlist System & Checkout Flow (Cloud Synced) --- */
         async function syncWishlistToSupabase() {
             if (supabaseInstance && currentUser) {
                 const { error } = await supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } });
@@ -1026,7 +1135,7 @@
                         <h4 class="font-semibold text-sm mb-1 truncate max-w-[150px]">${item.name}</h4>
                         <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
                     </div>
-                    <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-xs text-gray-500 hover:text-myancode-black font-medium tracking-wide p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
                 </div>`}).join('');
             totalDisplay.textContent = `${total.toLocaleString()} MMK`; lucide.createIcons();
         }
@@ -1037,6 +1146,20 @@
             else { currentUserWishlist.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
             syncWishlistToSupabase(); updateWishlistCount(); renderWishlistItems();
             renderProducts(); 
+        }
+
+        // >>> CHECKOUT INTEGRATION LOGIC <<<
+        window.proceedToCheckoutFromWishlist = function() {
+            if (!currentUser) {
+                showErrorToast(currentLang === 'en' ? "Please log in to proceed" : "အကောင့်အရင်ဝင်ပါ");
+                return;
+            }
+            if (currentUserWishlist.length === 0) {
+                showErrorToast(currentLang === 'en' ? "Your wishlist is empty" : "ဝယ်ယူရန်စာရင်း လွတ်နေပါသည်");
+                return;
+            }
+            // Seamlessly route to secure checkout utilizing the ID of the first requested item
+            window.location.href = `../checkout/index.html?product=${currentUserWishlist[0].id}`;
         }
 
         /* --- Drawers, Overlays & Utils --- */
@@ -1068,6 +1191,20 @@
             }
         }
         window.addEventListener("scroll", reveal);
+        
+        /* --- Header Scroll Effect --- */
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNav');
+            if (window.scrollY > 10) {
+                nav.classList.add('shadow-sm');
+                nav.classList.remove('border-gray-200/50');
+                nav.classList.add('border-gray-200');
+            } else {
+                nav.classList.remove('shadow-sm');
+                nav.classList.add('border-gray-200/50');
+                nav.classList.remove('border-gray-200');
+            }
+        });
         
         /* --- Database Search System --- */
         function toggleSearchOverlay() {
@@ -1331,8 +1468,7 @@
                         const fallbackImg = 'https://placehold.co/150x150/ffffff/6e6e73?text=Image';
                         
                         let finalImgUrl = item.image || fallbackImg;
-                        // Handle paths safely, if already ../ leave it, otherwise ensure path
-                        if (finalImgUrl.startsWith('./')) finalImgUrl = finalImgUrl.replace('./', '../');
+                        if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', '../');
 
                         const imgBlock = item.image 
                             ? `<div class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg mr-4 overflow-hidden shadow-sm flex-shrink-0 group-hover:shadow-md transition-all group-hover:scale-105 z-10 border border-gray-100"><img src="${finalImgUrl}" class="w-full h-full object-cover" onerror="this.src='${fallbackImg}'"></div>`

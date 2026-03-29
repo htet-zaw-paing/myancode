@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Checkout | MyanCode</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="../imgs/web-banners/favicon.png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Cloudflare Turnstile Script for Newsletter -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <!-- ANTI-HACKER SECURITY MODULE (PURE BLACK, NO ANIMATIONS) -->
+    <script>
+        (function() {
+            const noop = () => {};
+            window.console.log = noop; window.console.warn = noop; window.console.error = noop; window.console.info = noop; window.console.table = noop;
+
+            let devToolsOpen = false;
+            window.showSecurityWarning = function() {
+                if(!devToolsOpen) {
+                    devToolsOpen = true;
+                    const modal = document.getElementById('securityModal');
+                    if(modal) {
+                        modal.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+                        modal.classList.add('visible', 'opacity-100', 'pointer-events-auto');
+                        document.body.classList.add('no-scroll');
+                    }
+                }
+            };
+
+            window.dismissSecurityWarning = function() {
+                const modal = document.getElementById('securityModal');
+                if(modal) {
+                    modal.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
+                    modal.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+                    document.body.classList.remove('no-scroll');
+                    setTimeout(() => { devToolsOpen = false; }, 2000);
+                }
+            };
+
+            document.onkeydown = function(e) {
+                if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
+                    showSecurityWarning();
+                }
+            };
+
+            setInterval(function() {
+                const threshold = 160;
+                if(window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+                    showSecurityWarning();
+                }
+            }, 1000);
+        })();
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '400px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                },
+                extend: {
+                    fontFamily: { sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'] },
+                    colors: { myancode: { black: '#111111', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body { width: 100%; overflow-x: clip; position: relative; background-color: #fbfbfd; color: #111111; -webkit-font-smoothing: antialiased; }
+        body.no-scroll { overflow: hidden; }
+
+        html[lang="mm"] body { font-size: 14px; line-height: 2; }
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3 { letter-spacing: normal; }
+        html[lang="mm"] .uppercase, html[lang="mm"] .capitalize, html[lang="mm"] .tracking-widest { text-transform: none; letter-spacing: normal; }
+
+        #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; }
+        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important; }
+        .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
+
+        .hover-underline { position: relative; }
+        .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+
+        .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15); }
+        .btn-hover-effect:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
+        
+        /* Checkout specific transitions */
+        .step-transition { transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+        .step-hidden { opacity: 0; transform: translateX(30px) scale(0.98); pointer-events: none; position: absolute; visibility: hidden; z-index: -1; }
+        .step-active { opacity: 1; transform: translateX(0) scale(1); position: relative; visibility: visible; z-index: 10; }
+
+        /* Custom Radio Selection Styles */
+        .radio-card-input:checked + div { border-color: #111111; background-color: #fafafa; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); transform: translateY(-4px); }
+        .radio-card-input:checked + div .radio-icon { color: #111111; transform: scale(1.15) translateY(-2px); }
+        .radio-card-input:checked + div .radio-img { transform: scale(1.15) translateY(-2px); filter: grayscale(0%); opacity: 1; }
+        .radio-card-input:checked + div .radio-circle { border-color: #111111; border-width: 6px; background-color: white; }
+
+        /* Drawer styles */
+        .search-overlay { transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; opacity: 0; pointer-events: none; }
+        .search-overlay.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .drawer-left { transform: translateX(-100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-left.open { transform: translateX(0); }
+        .drawer-right { transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-right.open { transform: translateX(0); }
+        .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+
+<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
+
+    <!-- UPGRADED ENTERPRISE SECURITY MODAL (PURE BLACK & FORMAL) -->
+    <div id="securityModal" class="fixed inset-0 z-[99999] bg-[#050505]/95 backdrop-blur-3xl flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none invisible opacity-0 pointer-events-none transition-all duration-500">
+        <div class="bg-[#0a0a0a] rounded-[2.5rem] p-8 sm:p-14 max-w-2xl w-full shadow-[0_0_80px_rgba(255,255,255,0.03)] flex flex-col items-center border border-gray-800 relative overflow-hidden">
+            
+            <div class="h-20 w-20 bg-gray-900 rounded-full flex items-center justify-center mb-8 border border-gray-800 shadow-inner relative">
+                <i data-lucide="shield-check" class="h-10 w-10 text-white"></i>
+            </div>
+            
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight uppercase" data-i18n="secTitle">Security Protocol Active</h2>
+            
+            <p class="text-gray-400 mb-6 text-sm sm:text-base leading-relaxed font-medium" data-i18n="secDesc1">
+                Developer tools have been initiated. This checkout environment is heavily encrypted and continuously monitored <span class="text-white">24/7</span> to prevent unauthorized activities.
+            </p>
+
+            <div class="bg-[#111111] border border-gray-800 rounded-2xl p-5 mb-10 text-left w-full shadow-inner">
+                <h4 class="text-xs font-bold text-gray-300 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4 text-gray-400"></i> <span data-i18n="secPolicyTitle">Policy Reminder</span></h4>
+                <p class="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3" data-i18n="secPolicyDesc1">All transactions, process statuses, and verifications are set <strong class="text-white">manually by our administrators</strong>. Please wait patiently for confirmation even if you have already transferred your payment.</p>
+                <p class="text-gray-500 text-xs sm:text-sm leading-relaxed" data-i18n="secPolicyDesc2">By proceeding, you agree to our Terms & Conditions, Privacy Policy, and Payment Policy.</p>
+            </div>
+            
+            <button onclick="dismissSecurityWarning()" class="w-full sm:w-auto px-12 py-4 bg-white text-black rounded-full font-bold tracking-widest text-xs uppercase shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:bg-gray-200 transition-all duration-300" data-i18n="btnUnderstand">
+                I Understand & Agree
+            </button>
+        </div>
+    </div>
+
+    <!-- GLOBAL ENTERPRISE LOADER -->
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
+        <i data-lucide="shield-check" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
+        <div class="w-48 max-w-[80vw]">
+            <div class="progress-line"></div>
+        </div>
+        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 transition-colors" data-i18n="loadingInit">Securing Connection...</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent">
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center h-full">
+                    <button class="md:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-myancode-black" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="h-5 w-5"></i>
+                    </button>
+                    <!-- LOGO LINK -->
+                    <a href="../index.html" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
+                        <i data-lucide="code-2" class="h-5 w-5 mr-2 transition-all duration-500 group-hover:rotate-12 nav-icon text-myancode-black"></i>
+                        <span class="font-semibold text-lg sm:text-xl tracking-wide transition-colors duration-300 group-hover:text-myancode-blue nav-text text-myancode-black" id="navLogoText">MyanCode</span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium items-center h-full">
+                    <a href="../studio/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="../templates/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../services/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    
+                    <!-- FULL-WIDTH APPLE STYLE SUPPORT MEGA MENU -->
+                    <div class="relative group h-full flex items-center">
+                        <button class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link flex items-center gap-1 cursor-pointer text-myancode-black/80" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
+                        
+                        <!-- Invisible bridge -->
+                        <div class="absolute top-[80%] left-0 w-full h-8"></div>
+
+                        <!-- Fixed Full-Width Dropdown Content -->
+                        <div class="fixed top-[56px] sm:top-[64px] left-0 w-full bg-[#fbfbfd]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border-b border-gray-200/60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
+                            <div class="max-w-[1024px] mx-auto px-4 sm:px-6 py-12 flex gap-8 md:gap-16 lg:gap-24 text-black">
+                                <div class="flex-[1.2]">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                                    <div class="flex flex-col gap-4">
+                                        <a href="../guides/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supGuides">Guides</a>
+                                        <a href="../help/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                        <a href="../faq/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supFaq">FAQs</a>
+                                        <a href="../contact-us/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/index.html#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                        <a href="../legal/index.html#studio-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
+                                        <a href="../legal/index.html#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                        <a href="../legal/index.html#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                        <a href="../legal/index.html#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/index.html#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                        <a href="../legal/index.html#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                        <a href="../legal/index.html#privacy-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="../legal/index.html#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4 sm:space-x-5">
+                    <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i></button>
+                    <div class="relative hidden sm:block" id="langContainer">
+                        <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-4 pb-2 mb-2 border-b border-gray-50 text-[10px] uppercase tracking-widest text-gray-400 font-semibold" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        </div>
+                    </div>
+                    <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
+                    <button onclick="toggleWishlistDrawer()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black">
+                        <i data-lucide="heart" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-myancode-blue text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SEARCH OVERLAY & MOBILE MENU ... -->
+    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
+        <div class="max-w-[1024px] mx-auto px-6 pt-10">
+            <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-500 hover:text-black transition-colors rounded-full bg-gray-50 hover:bg-gray-200"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+            <div class="mt-8 sm:mt-16 max-w-3xl mx-auto">
+                <div class="relative w-full border-b border-gray-300 focus-within:border-myancode-black transition-colors pb-4 flex items-center">
+                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-4"></i>
+                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off" class="w-full text-3xl sm:text-5xl font-semibold text-black bg-transparent border-none outline-none placeholder-gray-200" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+                </div>
+            </div>
+            <div class="mt-16 flex flex-col-reverse md:flex-row gap-12 sm:gap-20 max-w-3xl mx-auto">
+                <div class="w-full md:w-1/3">
+                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Links</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navServices">Web Development</span></a></li>
+                        <li><a href="../templates/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navWebsites">Featured Templates</span></a></li>
+                        <li><a href="../services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navStudio">SEO Optimization</span></a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-2/3">
+                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="searchResults">Results</h4>
+                    <div id="megaSearchResults" class="space-y-4">
+                        <p class="text-gray-400 text-sm font-light italic" data-i18n="searchHint">Type to discover our products and services...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE MENU DRAWER -->
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#fafafa] z-[80] drawer-left flex flex-col overflow-hidden">
+        <div class="px-6 py-6 flex items-center justify-between flex-shrink-0">
+            <span class="font-bold text-xl tracking-wide text-black">MyanCode</span>
+            <button onclick="toggleMobileMenu()" class="p-2.5 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-600"><i data-lucide="x" class="h-5 w-5"></i></button>
+        </div>
+        <div class="flex-1 px-8 py-4 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar overscroll-contain">
+            <div class="relative mb-8" onclick="toggleMobileMenu(); toggleSearchOverlay();">
+                <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-400"></i>
+                <input type="text" class="w-full pl-8 py-3 border-b border-gray-300 focus:outline-none text-base bg-transparent text-gray-600 placeholder-gray-400 pointer-events-none" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+            </div>
+            <div class="space-y-6 text-base font-normal text-myancode-black tracking-wide flex-1">
+                <a href="../studio/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                    <span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                </a>
+                <a href="../templates/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                    <span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                </a>
+                <a href="../services/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                    <span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                </a>
+                <div class="flex flex-col">
+                    <button onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
+                        <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform"></i>
+                    </button>
+                    <div id="mobSupportDrop" class="hidden flex-col w-full mt-6 pb-2 pl-4 border-l-2 border-gray-100">
+                        <div class="mb-6">
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                            <div class="flex flex-col gap-4">
+                                <a href="../guides/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supGuides">Guides</a>
+                                <a href="../help/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supHelp">Help Center</a>
+                                <a href="../faq/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supFaq">FAQs</a>
+                                <a href="../contact-us/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supContact">Contact</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-gray-100">
+                    <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
+                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-5 w-5 text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
+                <div id="mobileAuthContainer" class="w-full flex flex-col space-y-6"></div>
+                <div class="border-t border-gray-200 pt-8 mt-6">
+                    <button onclick="toggleMobileMenu(); toggleWishlistDrawer();" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                        <span data-i18n="wishlistTitle">My Wishlist</span> <i data-lucide="heart" class="h-5 w-5 text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WISHLIST DRAWER -->
+    <div id="wishlistOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
+    <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-gray-100">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100 bg-gray-50/50">
+            <h3 class="font-semibold text-lg tracking-tight flex items-center gap-2"><i data-lucide="heart" class="h-5 w-5 text-myancode-blue fill-myancode-blue"></i> <span data-i18n="wishlistTitle">My Wishlist</span></h3>
+            <button onclick="toggleWishlistDrawer()" class="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-gray-500 hover:text-black"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+            <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold text-black" id="wishlistTotal">0 MMK</span></div>
+            <button class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- CHECKOUT WIZARD SECTION -->
+    <section class="pt-32 sm:pt-40 pb-20 px-4 sm:px-6 relative bg-[#fbfbfd] min-h-[85vh] flex flex-col items-center justify-center">
+        
+        <div class="max-w-[1024px] w-full mx-auto relative z-10" id="checkoutContainer">
+            
+            <!-- Empty Cart State -->
+            <div id="emptyCartState" class="step-hidden flex flex-col items-center justify-center text-center py-16 sm:py-24 px-4 w-full max-w-2xl mx-auto bg-white rounded-[2.5rem] border border-gray-200/60 shadow-xl absolute pointer-events-none">
+                <div class="h-20 w-20 sm:h-24 sm:w-24 bg-gray-50 rounded-full flex items-center justify-center mb-8 border border-gray-100 shadow-inner">
+                    <i data-lucide="shopping-cart" class="h-10 w-10 sm:h-12 sm:w-12 text-gray-400"></i>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-myancode-black mb-4" data-i18n="noProductTitle">No Product Selected</h2>
+                <p class="text-base text-gray-500 mb-10 max-w-md mx-auto leading-relaxed font-medium" data-i18n="noProductDesc">You accessed the checkout directly without selecting a template. Please browse our catalog and choose a product to continue securely.</p>
+                <a href="../templates/index.html" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center justify-center gap-2">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i> <span data-i18n="btnBrowseTemplates">Browse Templates</span>
+                </a>
+            </div>
+
+            <!-- Auth Gate State -->
+            <div id="authGateState" class="step-hidden flex flex-col items-center justify-center text-center py-16 sm:py-24 px-4 w-full max-w-2xl mx-auto bg-white rounded-[2.5rem] border border-gray-200/60 shadow-xl absolute pointer-events-none">
+                <div class="h-20 w-20 sm:h-24 sm:w-24 bg-gray-50 rounded-full flex items-center justify-center mb-8 border border-gray-100 shadow-inner">
+                    <i data-lucide="lock" class="h-10 w-10 sm:h-12 sm:w-12 text-gray-400"></i>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-myancode-black mb-4" data-i18n="authReqTitle">Authentication Required</h2>
+                <p class="text-base text-gray-500 mb-10 max-w-md mx-auto leading-relaxed font-medium" data-i18n="authReqDesc">You must be securely logged in to access our encrypted checkout process and proceed with your order.</p>
+                <a href="../login/index.html" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center justify-center gap-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> <span data-i18n="btnLoginContinue">Login to Continue</span>
+                </a>
+            </div>
+
+            <!-- Main Wizard -->
+            <div id="wizardState" class="step-hidden w-full flex flex-col lg:flex-row gap-8 lg:gap-12 items-start absolute pointer-events-none">
+                
+                <!-- Left Content: Wizard Steps -->
+                <div class="flex-1 w-full bg-white rounded-[2.5rem] p-8 sm:p-12 border border-gray-200/80 shadow-[0_8px_40px_rgba(0,0,0,0.04)] relative overflow-hidden min-h-[500px]">
+                    
+                    <!-- Progress Bar Header -->
+                    <div class="flex items-center gap-4 mb-6 sm:mb-8 pb-6 border-b border-gray-100" id="wizardHeader">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-myancode-black text-white font-bold text-sm shadow-md z-10 transition-colors" id="step1Indicator">1</div>
+                        <div class="h-1 flex-1 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full w-0 bg-myancode-black transition-all duration-700" id="progressBar"></div>
+                        </div>
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-400 font-bold text-sm z-10 transition-colors" id="step2Indicator">2</div>
+                    </div>
+
+                    <!-- Inner container for absolute positioning without top padding issues -->
+                    <div class="relative w-full h-full flex flex-col flex-1">
+
+                        <!-- Step 1: Choose Payment Type -->
+                        <div id="step1Content" class="step-active step-transition w-full flex flex-col h-full">
+                            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="payMethodTitle">Select Payment Method</h2>
+                            <p class="text-sm text-gray-500 mb-10 font-medium" data-i18n="payMethodDesc">Choose your preferred formal gateway to finalize the transaction securely.</p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-12">
+                                <!-- Option: Mobile Banking (No default check) -->
+                                <label class="cursor-pointer block relative">
+                                    <input type="radio" name="payment_type" value="mobile_banking" class="hidden radio-card-input peer">
+                                    <div class="border-2 border-gray-100 rounded-2xl p-6 transition-all duration-300 hover:border-gray-300 flex flex-col items-center text-center h-full gap-4 bg-white">
+                                        <div class="w-16 h-16 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center transition-all duration-300 radio-icon">
+                                            <i data-lucide="building-2" class="w-8 h-8"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-lg text-myancode-black mb-1 transition-colors" data-i18n="mobileBanking">Mobile Banking</h3>
+                                            <p class="text-xs text-gray-500 font-medium" data-i18n="mobileBankingDesc">KBZPay, UABPay, AYAPay via secure QR transfer.</p>
+                                        </div>
+                                        <div class="w-6 h-6 rounded-full border-2 border-gray-200 mt-auto transition-all duration-300 bg-white radio-circle"></div>
+                                    </div>
+                                </label>
+
+                                <!-- Option: Social Media (No default check) -->
+                                <label class="cursor-pointer block relative">
+                                    <input type="radio" name="payment_type" value="social_media" class="hidden radio-card-input peer">
+                                    <div class="border-2 border-gray-100 rounded-2xl p-6 transition-all duration-300 hover:border-gray-300 flex flex-col items-center text-center h-full gap-4 bg-white">
+                                        <div class="w-16 h-16 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center transition-all duration-300 radio-icon">
+                                            <i data-lucide="message-circle" class="w-8 h-8"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-lg text-myancode-black mb-1 transition-colors" data-i18n="socialChannel">Social Channel</h3>
+                                            <p class="text-xs text-gray-500 font-medium" data-i18n="socialChannelDesc">Pay via Messenger, Telegram, Discord agents.</p>
+                                        </div>
+                                        <div class="w-6 h-6 rounded-full border-2 border-gray-200 mt-auto transition-all duration-300 bg-white radio-circle"></div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="mt-auto flex justify-end">
+                                <button onclick="goToStep2()" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center gap-2">
+                                    <span data-i18n="btnContinue">Continue</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2A: Mobile Banking Setup -->
+                        <div id="step2aContent" class="step-hidden step-transition w-full flex flex-col h-full absolute top-0 left-0 pointer-events-none">
+                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep1()">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase tracking-widest" data-i18n="btnBack">Back</span>
+                            </div>
+                            
+                            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="scanTransferTitle">Scan & Transfer</h2>
+                            <p class="text-sm text-gray-500 mb-8 font-medium" data-i18n="scanTransferDesc">Select your bank, scan the QR code to transfer the exact amount, and confirm.</p>
+                            
+                            <div class="flex flex-col md:flex-row gap-6 mb-8">
+                                <!-- Bank Selection -->
+                                <div class="w-full md:w-1/2 flex flex-col gap-3">
+                                    <label class="cursor-pointer block relative">
+                                        <input type="radio" name="bank_choice" value="kbzpay" class="hidden radio-card-input peer" onchange="updateQR('kbz')">
+                                        <div class="border-2 border-gray-100 rounded-xl p-4 transition-all duration-300 hover:border-gray-300 flex items-center justify-between group bg-white shadow-sm">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100 radio-icon-box">
+                                                    <i data-lucide="building-2" class="w-4 h-4 text-blue-600 radio-icon-svg"></i>
+                                                </div>
+                                                <span class="font-bold text-myancode-black text-sm">KBZPay</span>
+                                            </div>
+                                            <div class="w-5 h-5 rounded-full border-2 border-gray-200 radio-circle transition-all bg-white"></div>
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer block relative">
+                                        <input type="radio" name="bank_choice" value="uabpay" class="hidden radio-card-input peer" onchange="updateQR('uab')">
+                                        <div class="border-2 border-gray-100 rounded-xl p-4 transition-all duration-300 hover:border-gray-300 flex items-center justify-between group bg-white shadow-sm">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center border border-green-100 radio-icon-box">
+                                                    <i data-lucide="building-2" class="w-4 h-4 text-green-600 radio-icon-svg"></i>
+                                                </div>
+                                                <span class="font-bold text-myancode-black text-sm">UABPay</span>
+                                            </div>
+                                            <div class="w-5 h-5 rounded-full border-2 border-gray-200 radio-circle transition-all bg-white"></div>
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer block relative">
+                                        <input type="radio" name="bank_choice" value="ayapay" class="hidden radio-card-input peer" onchange="updateQR('aya')">
+                                        <div class="border-2 border-gray-100 rounded-xl p-4 transition-all duration-300 hover:border-gray-300 flex items-center justify-between group bg-white shadow-sm">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center border border-red-100 radio-icon-box">
+                                                    <i data-lucide="building-2" class="w-4 h-4 text-red-600 radio-icon-svg"></i>
+                                                </div>
+                                                <span class="font-bold text-myancode-black text-sm">AYAPay</span>
+                                            </div>
+                                            <div class="w-5 h-5 rounded-full border-2 border-gray-200 radio-circle transition-all bg-white"></div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Pure Image QR Display -->
+                                <div class="w-full md:w-1/2 flex flex-col items-center justify-center bg-white rounded-2xl p-6 border-2 border-gray-100 shadow-sm relative overflow-hidden">
+                                    <div id="qrDisplayBox" class="w-40 h-40 sm:w-48 sm:h-48 bg-white rounded-2xl shadow-sm border border-gray-200 mb-4 p-2 flex items-center justify-center transition-all duration-500 hover:shadow-md">
+                                        <!-- Dynamic Real Image QR ONLY -->
+                                        <img id="qrCodeImg" src="https://placehold.co/400x400/ffffff/a1a1aa?text=Select+Bank" alt="Official QR Code" onerror="this.src='https://placehold.co/400x400/ffffff/a1a1aa?text=QR+Code'" class="w-full h-full object-contain rounded-xl transition-transform duration-500 hover:scale-105 bg-white">
+                                    </div>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500 bg-gray-50 border border-gray-200 px-4 py-1.5 rounded-full shadow-sm" id="qrLabel" data-i18n="awaitingSelection">Awaiting Selection</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-auto flex justify-end border-t border-gray-100 pt-6">
+                                <button onclick="submitOrder('mobile_banking')" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center gap-2">
+                                    <span data-i18n="btnCompleteOrder">Complete Order</span> <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2B: Social Media Setup -->
+                        <div id="step2bContent" class="step-hidden step-transition w-full flex flex-col h-full absolute top-0 left-0 pointer-events-none">
+                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep1()">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase tracking-widest" data-i18n="btnBack">Back</span>
+                            </div>
+                            
+                            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="socialTransferTitle">Social Agent Transfer</h2>
+                            <p class="text-sm text-gray-500 mb-8 font-medium" data-i18n="socialTransferDesc">Select a platform to connect with our official billing agents.</p>
+                            
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-10">
+                                <!-- EXACT FLATICON LOGOS VIA IMG w/ Tailwind Peers -->
+                                
+                                <!-- Messenger -->
+                                <label class="cursor-pointer block relative h-full">
+                                    <input type="radio" name="social_choice" value="messenger" class="hidden radio-card-input peer">
+                                    <div class="border-2 border-gray-100 rounded-2xl p-4 transition-all duration-300 hover:border-gray-300 flex flex-col items-center justify-center gap-3 text-center h-full bg-white relative overflow-hidden group shadow-sm hover:shadow-md">
+                                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-blue-50 group-hover:to-blue-100/50 peer-checked:bg-gradient-to-br peer-checked:from-blue-100 peer-checked:to-blue-200/50 radio-icon">
+                                            <img src="https://cdn-icons-png.flaticon.com/128/5968/5968771.png" alt="Messenger" class="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-110">
+                                        </div>
+                                        <span class="font-bold text-gray-700 text-[9px] sm:text-[10px] uppercase tracking-[0.1em]">Messenger</span>
+                                    </div>
+                                </label>
+                                
+                                <!-- Telegram -->
+                                <label class="cursor-pointer block relative h-full">
+                                    <input type="radio" name="social_choice" value="telegram" class="hidden radio-card-input peer">
+                                    <div class="border-2 border-gray-100 rounded-2xl p-4 transition-all duration-300 hover:border-gray-300 flex flex-col items-center justify-center gap-3 text-center h-full bg-white relative overflow-hidden group shadow-sm hover:shadow-md">
+                                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-sky-50 group-hover:to-sky-100/50 peer-checked:bg-gradient-to-br peer-checked:from-sky-100 peer-checked:to-sky-200/50 radio-icon">
+                                            <img src="https://cdn-icons-png.flaticon.com/128/2111/2111646.png" alt="Telegram" class="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-110">
+                                        </div>
+                                        <span class="font-bold text-gray-700 text-[9px] sm:text-[10px] uppercase tracking-[0.1em]">Telegram</span>
+                                    </div>
+                                </label>
+
+                                <!-- Instagram -->
+                                <label class="cursor-pointer block relative h-full">
+                                    <input type="radio" name="social_choice" value="instagram" class="hidden radio-card-input peer">
+                                    <div class="border-2 border-gray-100 rounded-2xl p-4 transition-all duration-300 hover:border-gray-300 flex flex-col items-center justify-center gap-3 text-center h-full bg-white relative overflow-hidden group shadow-sm hover:shadow-md">
+                                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-pink-50 group-hover:to-pink-100/50 peer-checked:bg-gradient-to-br peer-checked:from-pink-100 peer-checked:to-pink-200/50 radio-icon">
+                                            <img src="https://cdn-icons-png.flaticon.com/128/1384/1384063.png" alt="Instagram" class="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-110">
+                                        </div>
+                                        <span class="font-bold text-gray-700 text-[9px] sm:text-[10px] uppercase tracking-[0.1em]">Instagram</span>
+                                    </div>
+                                </label>
+
+                                <!-- Discord -->
+                                <label class="cursor-pointer block relative h-full">
+                                    <input type="radio" name="social_choice" value="discord" class="hidden radio-card-input peer">
+                                    <div class="border-2 border-gray-100 rounded-2xl p-4 transition-all duration-300 hover:border-gray-300 flex flex-col items-center justify-center gap-3 text-center h-full bg-white relative overflow-hidden group shadow-sm hover:shadow-md">
+                                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-indigo-50 group-hover:to-indigo-100/50 peer-checked:bg-gradient-to-br peer-checked:from-indigo-100 peer-checked:to-indigo-200/50 radio-icon">
+                                            <img src="https://cdn-icons-png.flaticon.com/128/5968/5968756.png" alt="Discord" class="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-110">
+                                        </div>
+                                        <span class="font-bold text-gray-700 text-[9px] sm:text-[10px] uppercase tracking-[0.1em]">Discord</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="mt-auto flex justify-end border-t border-gray-100 pt-6">
+                                <button onclick="submitOrder('social_media')" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center gap-2">
+                                    <span data-i18n="btnCompleteOrder">Complete Order</span> <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Success State -->
+                        <div id="step3Content" class="step-hidden step-transition w-full flex flex-col items-center justify-center text-center h-full absolute top-0 left-0 pointer-events-none">
+                            <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-6 shadow-inner animate-[scale-in_0.5s_ease-out]">
+                                <i data-lucide="check" class="w-12 h-12 text-green-500 stroke-[3px]"></i>
+                            </div>
+                            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-myancode-black mb-4" data-i18n="thankYouTitle">Thank You For Your Trust!</h2>
+                            <p class="text-base text-gray-500 mb-8 max-w-md mx-auto font-medium" data-i18n="thankYouDesc">Your order has been securely saved. Please ensure you transfer the payment and confirm via the User Hub to process delivery.</p>
+                            
+                            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                                <a href="../hub/index.html" class="bg-myancode-black text-white px-8 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex justify-center items-center gap-2">
+                                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="btnUserHub">Go to User Hub</span>
+                                </a>
+                                <a href="../index.html" class="bg-white border border-gray-200 text-myancode-black px-8 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-50 transition-colors btn-hover-effect flex justify-center items-center gap-2">
+                                    <i data-lucide="home" class="w-4 h-4"></i> <span data-i18n="btnReturnHome">Return Home</span>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Content: Order Summary Sticky -->
+                <div class="w-full lg:w-[380px] flex flex-col gap-6 lg:sticky lg:top-[120px] self-start flex-shrink-0">
+                    
+                    <div class="bg-white rounded-[2rem] p-8 border border-gray-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.04)] w-full">
+                        <h3 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-6 border-b border-gray-100 pb-4" data-i18n="orderSummary">Order Summary</h3>
+                        
+                        <div class="flex gap-4 items-center mb-6">
+                            <div class="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center p-1 relative shadow-sm">
+                                <img id="summaryImg" src="" class="w-full h-full object-cover rounded-lg opacity-0 transition-opacity duration-300 z-10" alt="Product">
+                                <i data-lucide="package" id="summaryFallback" class="w-6 h-6 text-gray-300 absolute z-0"></i>
+                            </div>
+                            <div class="flex flex-col flex-1 min-w-0">
+                                <span class="text-sm font-bold text-myancode-black truncate block mb-1" id="summaryName">Loading...</span>
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-myancode-blue bg-blue-50 w-fit px-2 py-0.5 rounded border border-blue-100" id="summaryCat">Category</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 border-t border-gray-100 pt-6">
+                            <div class="flex justify-between items-center text-sm font-medium text-gray-500">
+                                <span data-i18n="subtotal">Subtotal</span>
+                                <span id="summarySubtotal">0 MMK</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm font-medium text-gray-500">
+                                <span data-i18n="securityFee">Security Fee</span>
+                                <span class="text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded text-xs border border-green-100" data-i18n="waived">Waived</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                                <span class="text-sm font-extrabold text-myancode-black uppercase tracking-wider" data-i18n="totalDue">Total Due</span>
+                                <span class="text-xl font-extrabold text-myancode-black" id="summaryTotal">0 MMK</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 flex items-center justify-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 py-3 rounded-xl border border-gray-100">
+                            <i data-lucide="lock" class="w-3.5 h-3.5 text-gray-400"></i> <span data-i18n="encryptedCheckout">256-Bit Encrypted Checkout</span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Side Notices (Toggled via JS) -->
+                    
+                    <!-- UPGRADED FORMAL CORPORATE NOTICE (Mobile Banking) -->
+                    <div id="mobileBankingNotice" class="hidden bg-white border border-gray-200 shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-[1.5rem] p-6 flex flex-col gap-4 relative overflow-hidden group w-full">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-myancode-black transition-colors group-hover:bg-myancode-blue duration-500"></div>
+                        
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100">
+                                <i data-lucide="file-check-2" class="w-5 h-5 text-myancode-black"></i>
+                            </div>
+                            <h3 class="text-lg font-extrabold text-myancode-black tracking-tight uppercase" data-i18n="crucialStepTitle">CRUCIAL STEP</h3>
+                        </div>
+                        
+                        <p class="text-sm text-gray-700 leading-relaxed font-medium" data-i18n="crucialStep1">
+                            After transferring the exact amount, <span class="font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200">save your e-slip (or bank slip)</span> and email it directly to <a href="mailto:billing@myancode.com" class="text-myancode-blue hover:text-blue-700 hover:underline font-bold transition-colors">billing@myancode.com</a>.
+                        </p>
+                        
+                        <p class="text-sm text-gray-700 leading-relaxed font-medium" data-i18n="crucialStep2">
+                            You can click "Complete Order" now and confirm <span class="italic font-bold text-myancode-black">"I've transferred my payment"</span> through the <a href="../hub/index.html" class="text-myancode-blue hover:underline font-bold">User Hub</a> either immediately or later.
+                        </p>
+                        
+                        <div class="bg-gray-50/50 rounded-xl p-4 mt-2 border border-gray-100">
+                            <p class="text-xs text-gray-500 leading-relaxed font-medium flex items-start gap-2">
+                                <i data-lucide="shield-alert" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+                                <span><strong class="text-gray-700" data-i18n="processingPolicy">Processing Policy:</strong> <span data-i18n="processingPolicyDesc">All order processes and payment statuses are manually verified and strictly set by our administrative team. Please wait patiently after transferring; your order is completely secure.</span></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- General Social Rules Notice (Social Media) -->
+                    <div id="socialMediaNotice" class="hidden bg-white border border-gray-200 rounded-[1.5rem] p-6 shadow-sm flex flex-col gap-3 relative overflow-hidden w-full">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-myancode-blue"></div>
+                        <h4 class="text-sm font-bold text-myancode-black flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4 text-myancode-blue"></i> <span data-i18n="verifyProtocolTitle">Verification Protocol</span></h4>
+                        <p class="text-xs text-gray-500 leading-relaxed font-medium" data-i18n="verifyProtocolDesc">After clicking complete, you will be given an Order ID. Provide this ID directly to our support agents on your chosen platform. All transactions are securely logged.</p>
+                        <p class="text-[11px] text-gray-400 font-semibold mt-2 border-t border-gray-50 pt-3"><span data-i18n="processingPolicyDesc">All order processes and payment statuses are manually verified and strictly set by our administrative team. Please wait patiently after transferring; your order is completely secure.</span></p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Footer with Integrated Newsletter -->
+    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10 mt-auto">
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-blue-400/20 rounded-full filter blur-[100px] pointer-events-none z-0"></div>
+        <div class="max-w-[1024px] mx-auto relative z-10">
+
+            <!-- Enterprise Newsletter Card -->
+            <div
+                class="bg-white rounded-[2.5rem] p-8 sm:p-12 mb-20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
+
+                <!-- Left: Text Content -->
+                <div class="text-center lg:text-left w-full lg:w-1/2 flex flex-col items-center lg:items-start">
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-[#f0f5ff] rounded-full mb-6">
+                        <i data-lucide="mail" class="w-6 h-6 text-[#2997ff]"></i>
+                    </div>
+                    <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-4"
+                        data-i18n="nlTitle">Stay Ahead of the Curve</h3>
+                    <p class="text-base text-gray-500 font-normal leading-relaxed max-w-md mx-auto lg:mx-0"
+                        data-i18n="nlDesc">Subscribe to our enterprise newsletter for the latest tech insights, UI
+                        templates, and industry news.</p>
+                </div>
+
+                <!-- Right: Subscription Form + Turnstile -->
+                <div class="w-full lg:w-1/2">
+                    <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="w-full flex flex-col gap-3">
+                        <div
+                            class="relative flex items-center bg-white border border-gray-200 rounded-full p-1.5 shadow-sm transition-all focus-within:border-myancode-black focus-within:ring-1 focus-within:ring-myancode-black">
+                            <div class="pl-5 pr-3 text-gray-400 flex items-center justify-center pointer-events-none">
+                                <i data-lucide="mail" class="w-5 h-5"></i>
+                            </div>
+                            <input type="email" id="newsletterEmail" required
+                                class="w-full py-3.5 bg-transparent border-none outline-none text-sm font-medium text-myancode-black placeholder-gray-400 focus:ring-0"
+                                placeholder="Enter your email address" data-i18n-placeholder="nlPlaceholder">
+                            <button type="submit" id="btnSubscribe"
+                                class="bg-myancode-black text-white px-8 py-3.5 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition shadow-md flex items-center justify-center gap-2 btn-hover-effect whitespace-nowrap shrink-0">
+                                <span data-i18n="btnSubscribe">Subscribe</span>
+                            </button>
+                        </div>
+
+                        <!-- Cloudflare Turnstile Widget -->
+                        <div class="cf-turnstile pl-2" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="light"></div>
+                    </form>
+
+                    <p class="text-[11px] text-gray-400 mt-4 font-medium tracking-wide uppercase text-center lg:text-left lg:ml-6"
+                        data-i18n="nlDisclaimer">We respect your privacy. No spam, ever.</p>
+                </div>
+
+            </div>
+
+            <!-- Modern Formal Footer Links Grid -->
+            <div
+                class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-16 border-t border-gray-200 pt-16 mt-16">
+                <div>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4"
+                        data-i18n="ftCompanyTitle">Company</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../about-us/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="ftAboutUs">About Us</a></li>
+                        <li><a href="../contact-us/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="ftContactUs">Contact Us</a></li>
+                        <li><a href="../updates-news/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="ftUpdates">Updates & News</a></li>
+                        <li><a href="../careers/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="ftCareers">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4"
+                        data-i18n="ftStoreTitle">Store</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../studio/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="ftAddOns">Add-Ons</a></li>
+                        <li><a href="../templates/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="ftTemplates">Templates</a></li>
+                        <li><a href="../services/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="ftServices">Services</a></li>
+                        <li><a href="../maintenance/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="ftMaintenance">Maintenance</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4"
+                        data-i18n="ftSupportTitle">Support</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../guides/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="supGuides">Guides</a></li>
+                        <li><a href="../help/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="supHelp">Help Center</a></li>
+                        <li><a href="../faq/index.html" class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="supFaq">FAQs</a></li>
+                        <li><a href="../about/index.html"
+                                class="text-xs text-gray-500 hover:text-black transition-colors"
+                                data-i18n="supLegal">Legal</a></li>
+                    </ul>
+                </div>
+                <div class="xs:col-span-2 md:col-span-1">
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4"
+                        data-i18n="ftFollow">Follow Us</h4>
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-5 leading-relaxed pr-4"
+                        data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
+                    <div class="flex space-x-5">
+                        <a href="../comming-soon/index.html"
+                            class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i
+                                data-lucide="facebook" class="h-4 w-4 fill-current"></i></a>
+                        <a href="../comming-soon/index.html"
+                            class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i
+                                data-lucide="instagram" class="h-4 w-4"></i></a>
+                        <a href="../comming-soon/index.html"
+                            class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i
+                                data-lucide="linkedin" class="h-4 w-4 fill-current"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-6 pb-2 flex justify-center items-center">
+                <p class="text-[10px] sm:text-[11px] text-gray-400 font-medium text-center tracking-wide"
+                    data-i18n="ftCopyright">&copy; 2026 MyanCode. All rights reserved. Engineered in Yangon.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification Toasts -->
+    <div id="toast"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
+        <span id="toast-msg" class="text-sm font-medium tracking-wide">Success!</span>
+    </div>
+    <div id="error-toast"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-white"></i>
+        <span id="error-toast-msg" class="text-sm font-medium tracking-wide">Error!</span>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNav');
+            const scrollThreshold = 10;
+            if (window.scrollY > scrollThreshold) {
+                nav.classList.add('glass-nav');
+                nav.classList.remove('nav-transparent', 'border-transparent');
+            } else {
+                nav.classList.remove('glass-nav');
+                nav.classList.add('nav-transparent', 'border-transparent');
+            }
+        });
+        
+        lucide.createIcons();
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+
+        let activeProducts = [];
+        let currentProduct = null;
+        let urlHasProduct = !!(new URLSearchParams(window.location.search).get('product') || new URLSearchParams(window.location.search).get('slug') || new URLSearchParams(window.location.search).get('id'));
+
+        const dict = {
+            en: {
+                navHome: "Home", navWebsites: "Templates", navServices: "Services", navStandard: "Standard", navProcess: "Process",
+                navStudio: "Studio", navSupport: "Support", btnCart: "Cart",
+                langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
+                wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", wlTotal: "Total", btnContact: "Proceed to Checkout",
+                quickLinks: "Quick Links", searchResults: "Results", searchHint: "Type to discover our enterprise products and services...",
+                ftCompanyTitle: "Company", ftAboutUs: "About Us", ftContactUs: "Contact Us", ftUpdates: "Updates & News", ftCareers: "Careers",
+                ftStoreTitle: "Store", ftAddOns: "Add-Ons", ftTemplates: "Templates", ftServices: "Services", ftMaintenance: "Maintenance",
+                ftSupportTitle: "Support", supGuides: "Guides", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal", supContact: "Contact",
+                supHelpTitle: "Explore Support", supPoliciesTitle: "Service Policies", supLegalTitle: "Legal & Transactions",
+                polClient: "Customer Policy", polStudio: "Studio Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
+                ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest projects and enterprise tech insights.", ftCopyright: "© 2026 MyanCode Inc. All Rights Reserved.",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrWorkplace: "Workplace", hdrHub: "Hub", hdrLogout: "Sign Out", msgLoggedOut: "Signed out securely.", loadingInit: "Securing Connection...",
+                nlTitle: "Stay Ahead of the Curve", nlDesc: "Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.",
+                nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
+                msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
+                
+                // Security Modal
+                secTitle: "Security Protocol Active",
+                secDesc1: "Developer tools have been initiated. This checkout environment is heavily encrypted and continuously monitored 24/7 to prevent unauthorized activities.",
+                secPolicyTitle: "Policy Reminder",
+                secPolicyDesc1: "All transactions, process statuses, and verifications are set manually by our administrators. Please wait patiently for confirmation even if you have already transferred your payment.",
+                secPolicyDesc2: "By proceeding, you agree to our Terms & Conditions, Privacy Policy, and Payment Policy.",
+                btnUnderstand: "I Understand & Agree",
+
+                // Checkout Form
+                payMethodTitle: "Select Payment Method", payMethodDesc: "Choose your preferred formal gateway to finalize the transaction securely.",
+                mobileBanking: "Mobile Banking", mobileBankingDesc: "KBZPay, UABPay, AYAPay via secure QR transfer.",
+                socialChannel: "Social Channel", socialChannelDesc: "Pay via Messenger, Telegram, Discord agents.",
+                btnContinue: "Continue", btnBack: "Back", btnCompleteOrder: "Complete Order",
+                scanTransferTitle: "Scan & Transfer", scanTransferDesc: "Select your bank, scan the QR code to transfer the exact amount, and confirm.",
+                kbzGateway: "KBZPay", uabGateway: "UABPay", ayaGateway: "AYAPay", awaitingSelection: "Awaiting Selection",
+                crucialStepTitle: "CRUCIAL STEP", 
+                crucialStep1: "After transferring the exact amount, save your e-slip (or bank slip) and email it directly to billing@myancode.com.",
+                crucialStep2: "You can click \"Complete Order\" now and confirm \"I've transferred my payment\" through the User Hub either immediately or later.",
+                processingPolicy: "Processing Policy:", processingPolicyDesc: "All order processes and payment statuses are manually verified and strictly set by our administrative team. Please wait patiently after transferring; your order is completely secure.",
+                socialTransferTitle: "Social Agent Transfer", socialTransferDesc: "Select a platform to connect with our official billing agents.",
+                verifyProtocolTitle: "Verification Protocol", verifyProtocolDesc: "After clicking complete, you will be given an Order ID. Provide this ID directly to our support agents on your chosen platform. All transactions are securely logged.",
+                thankYouTitle: "Thank You For Your Trust!", thankYouDesc: "Your order has been securely saved. Please ensure you transfer the payment and confirm via the User Hub to process delivery.",
+                btnUserHub: "Go to User Hub", btnReturnHome: "Return Home",
+                orderSummary: "Order Summary", subtotal: "Subtotal", securityFee: "Security Fee", waived: "Waived", totalDue: "Total Due", encryptedCheckout: "256-Bit Encrypted Checkout",
+                noProductTitle: "No Product Selected", noProductDesc: "You accessed the checkout directly without selecting a template. Please browse our catalog and choose a product to continue securely.", btnBrowseTemplates: "Browse Templates",
+                authReqTitle: "Authentication Required", authReqDesc: "You must be securely logged in to access our encrypted checkout process and proceed with your order.", btnLoginContinue: "Login to Continue"
+            },
+            mm: {
+                navHome: "ပင်မစာမျက်နှာ", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStudio: "စတူဒီယို", navSupport: "အကူအညီ", btnCart: "ဝယ်ယူမည့်စာရင်း",
+                langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
+                wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", wlTotal: "စုစုပေါင်း", btnContact: "ဝယ်ယူရန် ရှေ့ဆက်မည်",
+                quickLinks: "အမြန်လင့်ခ်များ", searchResults: "ရလဒ်များ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...",
+                ftCompanyTitle: "ကုမ္ပဏီ", ftAboutUs: "ကျွန်ုပ်တို့အကြောင်း", ftContactUs: "ဆက်သွယ်ရန်", ftUpdates: "သတင်းနှင့် အသစ်များ", ftCareers: "အလုပ်အကိုင်များ",
+                ftStoreTitle: "စတိုး", ftAddOns: "အပိုပစ္စည်းများ", ftTemplates: "ဝက်ဘ်ဆိုက်များ", ftServices: "ဝန်ဆောင်မှုများ", ftMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
+                ftSupportTitle: "အကူအညီ", supGuides: "လမ်းညွှန်များ", supHelp: "အကူအညီဌာန", supFaq: "အမေးများသောမေးခွန်းများ", supLegal: "တရားဝင်", supContact: "ဆက်သွယ်ရန်",
+                supHelpTitle: "အကူအညီ ရယူရန်", supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ",
+                polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
+                ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrWorkplace: "လုပ်ငန်းခွင်", hdrHub: "ဗဟိုဌာန", hdrLogout: "အကောင့်ထွက်ရန်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "လုံခြုံရေးချိတ်ဆက်နေပါသည်...",
+                nlTitle: "သတင်းအသစ်များ ရယူရန်", nlDesc: "နောက်ဆုံးရ နည်းပညာသတင်းများနှင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းအသစ်များကို ရယူရန် သင်၏ အီးမေးလ်ကို စာရင်းသွင်းပါ။",
+                nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", nlDisclaimer: "သင်၏ အချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။",
+                msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။",
+                
+                // Security Modal
+                secTitle: "လုံခြုံရေးစနစ် အသက်ဝင်နေပါသည်",
+                secDesc1: "Developer tools အသုံးပြုမှုကို တွေ့ရှိရပါသည်။ ဤငွေပေးချေမှု စာမျက်နှာကို လုံခြုံရေးစနစ်ဖြင့် အပြည့်အဝ ကာကွယ်ထားပြီး ခွင့်ပြုချက်မရှိသော လုပ်ဆောင်မှုများကို တားဆီးရန် အချိန်ပြည့် စောင့်ကြည့်နေပါသည်။",
+                secPolicyTitle: "မူဝါဒ အသိပေးချက်",
+                secPolicyDesc1: "ငွေပေးချေမှု အခြေအနေများနှင့် လုပ်ငန်းစဉ်အားလုံးကို ကျွန်ုပ်တို့၏ အက်ဒမင်များမှ ကိုယ်တိုင် စစ်ဆေးအတည်ပြုပေးပါသည်။ ငွေလွှဲပြီးပါက အတည်ပြုချက်ရရန် ခေတ္တစောင့်ဆိုင်းပေးပါ။",
+                secPolicyDesc2: "ရှေ့ဆက်လုပ်ဆောင်ပါက ကျွန်ုပ်တို့၏ စည်းမျဉ်းစည်းကမ်းများနှင့် မူဝါဒများကို သဘောတူရာရောက်ပါသည်။",
+                btnUnderstand: "သဘောတူ နားလည်ပါသည်",
+
+                // Checkout Form
+                payMethodTitle: "ငွေပေးချေမှုပုံစံ ရွေးချယ်ရန်", payMethodDesc: "လုံခြုံစိတ်ချရသော ငွေပေးချေမှုစနစ်ကို ရွေးချယ်ပါ။",
+                mobileBanking: "မိုဘိုင်းဘဏ်စနစ်", mobileBankingDesc: "KBZPay, UABPay, AYAPay တို့ဖြင့် လုံခြုံစွာ ငွေလွှဲနိုင်ပါသည်။",
+                socialChannel: "လူမှုကွန်ရက် ကိုယ်စားလှယ်", socialChannelDesc: "Messenger, Telegram, Discord တို့မှတစ်ဆင့် ပေးချေနိုင်ပါသည်။",
+                btnContinue: "ရှေ့ဆက်မည်", btnBack: "နောက်သို့", btnCompleteOrder: "အော်ဒါ အတည်ပြုမည်",
+                scanTransferTitle: "စကင်ဖတ်၍ ငွေလွှဲရန်", scanTransferDesc: "သင့်ဘဏ်ကိုရွေးချယ်ပြီး တိကျသောငွေပမာဏကို စကင်ဖတ်၍ လွှဲပြောင်းပါ။",
+                kbzGateway: "KBZPay", uabGateway: "UABPay", ayaGateway: "AYAPay", awaitingSelection: "ဘဏ်ရွေးချယ်ပါ",
+                crucialStepTitle: "အရေးကြီးသော အဆင့်", 
+                crucialStep1: "ငွေလွှဲပြီးပါက ငွေလွှဲပြေစာ (e-slip) ကို သိမ်းဆည်းပြီး billing@myancode.com သို့ အီးမေးလ်ပေးပို့ပါ။",
+                crucialStep2: "ယခု 'အော်ဒါ အတည်ပြုမည်' ကို နှိပ်ပြီးနောက် 'ငွေလွှဲပြီးပါပြီ' ဟု User Hub မှတစ်ဆင့် ချက်ချင်း သို့မဟုတ် နောက်မှ အတည်ပြုနိုင်ပါသည်။",
+                processingPolicy: "လုပ်ငန်းစဉ် မူဝါဒ -", processingPolicyDesc: "ငွေပေးချေမှု အခြေအနေများကို အက်ဒမင်များမှ ကိုယ်တိုင် စစ်ဆေးအတည်ပြုပေးပါသည်။ ငွေလွှဲပြီးပါက ခေတ္တစောင့်ဆိုင်းပေးပါ၊ သင့်အော်ဒါကို လုံခြုံစွာ သိမ်းဆည်းထားပါသည်။",
+                socialTransferTitle: "ကိုယ်စားလှယ်ဖြင့် ငွေပေးချေရန်", socialTransferDesc: "ငွေပေးချေရန်အတွက် သက်ဆိုင်ရာ လူမှုကွန်ရက်ကို ရွေးချယ်ပါ။",
+                verifyProtocolTitle: "အတည်ပြုခြင်း လုပ်ငန်းစဉ်", verifyProtocolDesc: "အော်ဒါတင်ပြီးပါက Order ID ရရှိပါမည်။ ထို ID ကို သက်ဆိုင်ရာ ကိုယ်စားလှယ်ထံ ပေးပို့ပါ။ လုံခြုံရေးအတွက် ငွေပေးချေမှုအားလုံးကို မှတ်တမ်းတင်ထားပါသည်။",
+                thankYouTitle: "ယုံကြည်စိတ်ချမှုအတွက် ကျေးဇူးတင်ပါသည်!", thankYouDesc: "သင့်အော်ဒါကို လုံခြုံစွာ သိမ်းဆည်းပြီးပါပြီ။ User Hub တွင် ငွေလွှဲပြေစာကို အတည်ပြုပေးပါ။",
+                btnUserHub: "User Hub သို့ သွားမည်", btnReturnHome: "ပင်မစာမျက်နှာသို့ ပြန်သွားမည်",
+                orderSummary: "အော်ဒါ အကျဉ်းချုပ်", subtotal: "ကျသင့်ငွေ", securityFee: "လုံခြုံရေး ဝန်ဆောင်ခ", waived: "ကင်းလွတ်ခွင့်ပေးထားသည်", totalDue: "စုစုပေါင်းပေးချေရန်", encryptedCheckout: "256-Bit လုံခြုံရေးစနစ်ဖြင့် ကာကွယ်ထားပါသည်",
+                noProductTitle: "ကုန်ပစ္စည်း ရွေးချယ်ထားခြင်း မရှိပါ", noProductDesc: "ဝယ်ယူရန် ကုန်ပစ္စည်း မရွေးချယ်ရသေးပါ။ ကတ်တလောက်တွင် ပြန်လည်ရွေးချယ်ပါ။", btnBrowseTemplates: "ဝက်ဘ်ဆိုက်များ လေ့လာရန်",
+                authReqTitle: "အကောင့်ဝင်ရန် လိုအပ်ပါသည်", authReqDesc: "လုံခြုံစွာ ဝယ်ယူနိုင်ရန် အကောင့်အရင်ဝင်ပါ။", btnLoginContinue: "အကောင့်ဝင်မည်"
+            }
+        };
+
+        const globalLoader = document.getElementById('globalLoader');
+        function showLoader(i18nKey = 'loadingInit') { document.getElementById('loaderText').innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit']; globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); globalLoader.classList.add('opacity-100', 'visibility-visible'); document.body.classList.add('no-scroll'); }
+        function hideLoader() { globalLoader.classList.remove('opacity-100', 'visibility-visible'); globalLoader.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600); }
+
+        const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
+
+        let supabaseInstance = null; let currentUser = null; let currentUserWishlist = [];
+        
+        function setCheckoutViewState(stateId) {
+            document.getElementById('authGateState').classList.replace('step-active', 'step-hidden');
+            document.getElementById('authGateState').classList.add('absolute', 'pointer-events-none');
+            
+            document.getElementById('emptyCartState').classList.replace('step-active', 'step-hidden');
+            document.getElementById('emptyCartState').classList.add('absolute', 'pointer-events-none');
+
+            document.getElementById('wizardState').classList.replace('step-active', 'step-hidden');
+            document.getElementById('wizardState').classList.add('absolute', 'pointer-events-none');
+
+            const activeEl = document.getElementById(stateId);
+            if (activeEl) {
+                activeEl.classList.replace('step-hidden', 'step-active');
+                activeEl.classList.remove('absolute', 'pointer-events-none');
+            }
+        }
+
+        if (window.supabase) {
+            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: false } });
+            supabaseInstance.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    currentUser = { name: session.user.user_metadata?.full_name || session.user.email.split('@')[0], email: session.user.email, id: session.user.id, avatar_url: session.user.user_metadata?.avatar_url || null, role: session.user.user_metadata?.role || 'user' };
+                    currentUserWishlist = session.user.user_metadata?.wishlist || [];
+                    if (urlHasProduct) setCheckoutViewState('wizardState');
+                    else setCheckoutViewState('emptyCartState');
+                } else { 
+                    currentUser = null; currentUserWishlist = []; 
+                    if (urlHasProduct) setCheckoutViewState('authGateState');
+                    else setCheckoutViewState('emptyCartState');
+                }
+                updateAuthUI();
+            });
+        }
+
+        function renderLanguage() {
+            document.documentElement.lang = currentLang;
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
+            updateAuthUI();
+            if (document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
+        }
+
+        function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
+        function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
+
+        function updateAuthUI() {
+            const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
+            if (!desktopAuth || !containerMob) return;
+            if (currentUser) {
+                const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-gray-200">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
+                const mobileAvatarHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-gray-200 shadow-sm">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-blue"></i>`;
+
+                desktopAuth.innerHTML = `
+                    <div class="relative" id="profileContainer">
+                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black flex items-center justify-center">${avatarIconHTML}</button>
+                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
+                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
+                            ${currentUser.role === 'user' ? `<a href="../hub/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
+                            <button onclick="window.location.href='../profile/index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
+                            <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
+                        </div>
+                    </div>`;
+
+                containerMob.innerHTML = `
+                    <div class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide border-b border-gray-100 pb-6 mb-6">
+                        <span class="capitalize truncate max-w-[200px]">${currentUser.name}</span> 
+                        ${mobileAvatarHTML}
+                    </div>
+                    <div class="flex flex-col gap-6">
+                        ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                            <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
+                        </a>` : ''}
+                        ${currentUser.role === 'user' ? `<a href="../hub/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                            <span>${dict[currentLang].hdrHub}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i>
+                        </a>` : ''}
+                        <button onclick="window.location.href='../profile/index.html'" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
+                        <button onclick="handleLogout()" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5 text-gray-400"></i></button>
+                    </div>`;
+            } else {
+                desktopAuth.innerHTML = `
+                    <a href="../login/index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link text-myancode-black px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
+                    <a href="../register/index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+
+                containerMob.innerHTML = `
+                    <div class="flex flex-col gap-6">
+                        <a href="../login/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                            <span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-400"></i>
+                        </a>
+                        <a href="../register/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                            <span>${dict[currentLang].hdrRegister}</span> <i data-lucide="user-plus" class="h-5 w-5 text-gray-400"></i>
+                        </a>
+                    </div>
+                `;
+            }
+            lucide.createIcons();
+            setActiveNavLinks();
+        }
+
+        /* --- Active Nav Links Tracker --- */
+        function setActiveNavLinks() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link[data-nav-path]').forEach(link => {
+                const path = link.getAttribute('data-nav-path');
+                if (path !== '/' && currentPath.includes(path)) {
+                    link.classList.add('text-myancode-blue', 'font-bold', 'active-nav-item');
+                    link.classList.remove('hover:text-myancode-blue', 'text-white/80', 'text-white/90', 'text-myancode-black/80', 'text-myancode-black');
+                }
+            });
+        }
+
+        /* --- CHECKOUT SPECIFIC LOGIC --- */
+        async function fetchCheckoutData() {
+            if (!supabaseInstance) return;
+            
+            if (!urlHasProduct) {
+                setCheckoutViewState('emptyCartState');
+                hideLoader();
+                return;
+            }
+
+            showLoader();
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const productIdentifier = params.get('product') || params.get('slug') || params.get('id');
+
+                const { data, error } = await supabaseInstance
+                    .from('products')
+                    .select('*')
+                    .or(`product_slug.eq.${productIdentifier},product_id.eq.${productIdentifier}`);
+
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    currentProduct = data[0];
+                    renderSummary();
+                } else {
+                    setCheckoutViewState('emptyCartState');
+                }
+            } catch (err) {
+                console.error("Error fetching checkout data:", err);
+                showErrorToast("Failed to initialize checkout.");
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function renderSummary() {
+            if(!currentProduct) return;
+            const name = currentLang === 'en' ? (currentProduct.product_name_en || currentProduct.product_name_mm) : (currentProduct.product_name_mm || currentProduct.product_name_en);
+            const price = currentProduct.product_discount_price || currentProduct.product_price;
+            
+            document.getElementById('summaryName').innerText = name;
+            document.getElementById('summaryCat').innerText = currentProduct.category_id || 'Template';
+            document.getElementById('summarySubtotal').innerText = `${price.toLocaleString()} ${currentProduct.currency || 'MMK'}`;
+            document.getElementById('summaryTotal').innerText = `${price.toLocaleString()} ${currentProduct.currency || 'MMK'}`;
+            
+            if(currentProduct.product_image) {
+                const imgEl = document.getElementById('summaryImg');
+                imgEl.src = currentProduct.product_image.startsWith('./') ? currentProduct.product_image.replace('./', '../') : currentProduct.product_image;
+                imgEl.classList.remove('opacity-0');
+                document.getElementById('summaryFallback').classList.add('hidden');
+            }
+        }
+
+        // Checkout Wizard Flow Control
+        function handlePaymentTypeChange() {
+            // Can be used for dynamic validations if needed
+        }
+
+        function goToStep1() {
+            document.getElementById('step1Content').classList.replace('step-hidden', 'step-active');
+            document.getElementById('step1Content').classList.remove('absolute', 'pointer-events-none');
+            
+            document.getElementById('step2aContent').classList.replace('step-active', 'step-hidden');
+            document.getElementById('step2aContent').classList.add('absolute', 'pointer-events-none');
+            
+            document.getElementById('step2bContent').classList.replace('step-active', 'step-hidden');
+            document.getElementById('step2bContent').classList.add('absolute', 'pointer-events-none');
+
+            document.getElementById('mobileBankingNotice').classList.add('hidden');
+            document.getElementById('socialMediaNotice').classList.add('hidden');
+
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('step2Indicator').classList.remove('bg-myancode-black', 'text-white');
+            document.getElementById('step2Indicator').classList.add('bg-gray-100', 'text-gray-400');
+        }
+
+        function goToStep2() {
+            const selectedTypeInput = document.querySelector('input[name="payment_type"]:checked');
+            
+            if (!selectedTypeInput) {
+                showErrorToast(currentLang === 'en' ? "Please select a payment method." : "ကျေးဇူးပြု၍ ငွေပေးချေမှုစနစ် ရွေးချယ်ပါ။");
+                return;
+            }
+
+            const selectedType = selectedTypeInput.value;
+            
+            document.getElementById('step1Content').classList.replace('step-active', 'step-hidden');
+            document.getElementById('step1Content').classList.add('absolute', 'pointer-events-none');
+
+            if(selectedType === 'mobile_banking') {
+                document.getElementById('step2aContent').classList.replace('step-hidden', 'step-active');
+                document.getElementById('step2aContent').classList.remove('absolute', 'pointer-events-none');
+                document.getElementById('mobileBankingNotice').classList.remove('hidden');
+            } else {
+                document.getElementById('step2bContent').classList.replace('step-hidden', 'step-active');
+                document.getElementById('step2bContent').classList.remove('absolute', 'pointer-events-none');
+                document.getElementById('socialMediaNotice').classList.remove('hidden');
+            }
+
+            document.getElementById('progressBar').style.width = '100%';
+            document.getElementById('step2Indicator').classList.remove('bg-gray-100', 'text-gray-400');
+            document.getElementById('step2Indicator').classList.add('bg-myancode-black', 'text-white');
+        }
+
+        function updateQR(bankStr) {
+            const box = document.getElementById('qrDisplayBox');
+            const label = document.getElementById('qrLabel');
+            const qrImg = document.getElementById('qrCodeImg');
+            
+            box.className = "w-40 h-40 sm:w-48 sm:h-48 bg-white rounded-2xl shadow-sm border mb-4 p-2 flex items-center justify-center transition-all duration-500 overflow-hidden hover:shadow-md";
+            
+            let colorClass = 'border-gray-200';
+            if (bankStr === 'kbz') {
+                colorClass = 'border-blue-600'; 
+                label.innerText = dict[currentLang].kbzGateway;
+                qrImg.src = '../imgs/qrs/kbzpay.jpg';
+            } else if (bankStr === 'uab') {
+                colorClass = 'border-green-600'; 
+                label.innerText = dict[currentLang].uabGateway;
+                qrImg.src = '../imgs/qrs/uabpay.jpg';
+            } else if (bankStr === 'aya') {
+                colorClass = 'border-red-600'; 
+                label.innerText = dict[currentLang].ayaGateway;
+                qrImg.src = '../imgs/qrs/ayapay.jpg';
+            }
+
+            box.className += ` ${colorClass}`;
+        }
+
+        async function submitOrder(type) {
+            if(!currentUser || !currentProduct || !supabaseInstance) return;
+            
+            let paymentMethod = '';
+            if(type === 'mobile_banking') {
+                const selectedBank = document.querySelector('input[name="bank_choice"]:checked');
+                if (!selectedBank) {
+                    showErrorToast(currentLang === 'en' ? "Please select a bank." : "ကျေးဇူးပြု၍ ဘဏ်ရွေးချယ်ပါ။");
+                    return;
+                }
+                paymentMethod = selectedBank.value;
+            } else {
+                const selectedSocial = document.querySelector('input[name="social_choice"]:checked');
+                if (!selectedSocial) {
+                    showErrorToast(currentLang === 'en' ? "Please select a platform." : "ကျေးဇူးပြု၍ ပလက်ဖောင်း ရွေးချယ်ပါ။");
+                    return;
+                }
+                paymentMethod = selectedSocial.value;
+            }
+
+            showLoader();
+
+            try {
+                const price = currentProduct.product_discount_price || currentProduct.product_price;
+                const name = currentProduct.product_name_en || currentProduct.product_name_mm;
+
+                const { data, error } = await supabaseInstance.from('orders').insert([{
+                    user_id: currentUser.id,
+                    product_id: currentProduct.product_id,
+                    product_name: name,
+                    amount: price,
+                    currency: currentProduct.currency || 'MMK',
+                    payment_type: type,
+                    payment_method: paymentMethod,
+                    payment_status: 'pending',
+                    order_status: 'pending'
+                }]);
+
+                if (error) throw error;
+
+                // Show Success Screen
+                document.getElementById('wizardHeader').classList.add('hidden');
+                
+                document.getElementById('step2aContent').classList.replace('step-active', 'step-hidden');
+                document.getElementById('step2aContent').classList.add('absolute', 'pointer-events-none');
+                document.getElementById('mobileBankingNotice').classList.add('hidden');
+
+                document.getElementById('step2bContent').classList.replace('step-active', 'step-hidden');
+                document.getElementById('step2bContent').classList.add('absolute', 'pointer-events-none');
+                document.getElementById('socialMediaNotice').classList.add('hidden');
+                
+                document.getElementById('step3Content').classList.replace('step-hidden', 'step-active');
+                document.getElementById('step3Content').classList.remove('absolute', 'pointer-events-none');
+
+            } catch (error) {
+                console.error("Order error:", error);
+                showErrorToast("Failed to secure order. Please try again.");
+            } finally {
+                hideLoader();
+            }
+        }
+
+        /* --- Wishlist Drawers & Misc --- */
+        function toggleWishlistDrawer() {
+            if (!currentUser) return showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ");
+            const drawer = document.getElementById('wishlistDrawer'); const overlay = document.getElementById('wishlistOverlay');
+            if (!drawer.classList.contains('open')) document.getElementById('mobileDrawer').classList.remove('open');
+            drawer.classList.toggle('open'); overlay.classList.toggle('open');
+            if (drawer.classList.contains('open')) { document.body.classList.add('no-scroll'); renderWishlistItems(); } else { document.body.classList.remove('no-scroll'); }
+        }
+        function renderWishlistItems() {
+            const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal'); let total = 0;
+            if (currentUserWishlist.length === 0) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400"><i data-lucide="heart" class="h-12 w-12 mb-4 opacity-50"></i><p class="text-sm font-medium tracking-wide">${dict[currentLang].emptyWishlist}</p></div>`;
+                totalDisplay.textContent = `0 MMK`; lucide.createIcons(); return;
+            }
+            container.innerHTML = currentUserWishlist.map(item => {
+                total += item.price;
+                return `
+                <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div>
+                        <h4 class="font-semibold text-sm mb-1">${item.name}</h4>
+                        <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
+                    </div>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                </div>`}).join('');
+            totalDisplay.textContent = `${total.toLocaleString()} MMK`; lucide.createIcons();
+        }
+        function toggleWishlist(id, name, price) {
+            if (!currentUser) return;
+            const index = currentUserWishlist.findIndex(i => i.id === id);
+            if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); }
+            else { currentUserWishlist.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
+            if (supabaseInstance && currentUser) supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } });
+            const countSpan = document.getElementById('wishlist-count');
+            if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } else { countSpan.classList.add('opacity-0'); }
+            renderWishlistItems();
+        }
+        
+        async function handleLogout() { showLoader(); if (supabaseInstance) await supabaseInstance.auth.signOut(); window.location.reload(); }
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            if (!drawer.classList.contains('open')) { document.getElementById('wishlistDrawer').classList.remove('open'); document.getElementById('wishlistOverlay').classList.remove('open'); }
+            drawer.classList.toggle('open'); document.body.classList.toggle('no-scroll', drawer.classList.contains('open'));
+        }
+        function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); if (document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden'); }
+        function toggleProfile(e) { e.stopPropagation(); const profDrop = document.getElementById('profileDropdown'); if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); } }
+        document.addEventListener('click', (e) => {
+            const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
+            if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
+            const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
+        });
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
+        function toggleSearchOverlay() {
+            const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
+            if (overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } 
+            else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; }, 400); }
+        }
+
+        window.addEventListener('load', () => {
+            renderLanguage();
+            fetchCheckoutData();
+        });
+    </script>
+</body>
+
+</html>
