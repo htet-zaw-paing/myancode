@@ -385,19 +385,82 @@
                 <div class="flex-1 w-full bg-white rounded-[2.5rem] p-8 sm:p-12 border border-gray-200/80 shadow-[0_8px_40px_rgba(0,0,0,0.04)] relative overflow-hidden min-h-[500px]">
                     
                     <!-- Progress Bar Header -->
-                    <div class="flex items-center gap-4 mb-6 sm:mb-8 pb-6 border-b border-gray-100" id="wizardHeader">
-                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-myancode-black text-white font-bold text-sm shadow-md z-10 transition-colors" id="step1Indicator">1</div>
+                    <div class="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8 pb-6 border-b border-gray-100" id="wizardHeader">
+                        <div class="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-myancode-black text-white font-bold text-xs sm:text-sm shadow-md z-10 transition-colors shrink-0" id="step1Indicator">1</div>
                         <div class="h-1 flex-1 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full w-0 bg-myancode-black transition-all duration-700" id="progressBar"></div>
+                            <div class="h-full w-0 bg-myancode-black transition-all duration-700" id="progressBar1"></div>
                         </div>
-                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-400 font-bold text-sm z-10 transition-colors" id="step2Indicator">2</div>
+                        <div class="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 text-gray-400 font-bold text-xs sm:text-sm z-10 transition-colors shrink-0" id="step2Indicator">2</div>
+                        <div class="h-1 flex-1 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full w-0 bg-myancode-black transition-all duration-700" id="progressBar2"></div>
+                        </div>
+                        <div class="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 text-gray-400 font-bold text-xs sm:text-sm z-10 transition-colors shrink-0" id="step3Indicator">3</div>
                     </div>
 
                     <!-- Inner container for absolute positioning without top padding issues -->
                     <div class="relative w-full h-full flex flex-col flex-1">
 
-                        <!-- Step 1: Choose Payment Type -->
+                        <!-- Step 1: Billing Information -->
                         <div id="step1Content" class="step-active step-transition w-full flex flex-col h-full">
+                            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="billingTitle">Billing Information</h2>
+                            <p class="text-sm text-gray-500 mb-8 font-medium" data-i18n="billingDesc">Please provide your contact and address details for order processing.</p>
+
+                            <form id="billingForm" class="space-y-5 mb-8">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5" data-i18n="lblFullName">Full Name *</label>
+                                        <input type="text" id="b_name" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all outline-none" placeholder="John Doe">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5" data-i18n="lblEmail">Email Address *</label>
+                                        <input type="email" id="b_email" required readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-sm font-semibold text-gray-500 cursor-not-allowed outline-none transition-all select-none" placeholder="john@example.com" title="Email cannot be changed for security reasons">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5" data-i18n="lblPhone">Phone Number *</label>
+                                    <input type="tel" id="b_phone" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all outline-none" placeholder="+95 9...">
+                                </div>
+                                
+                                <h4 class="text-xs font-bold text-myancode-black mt-6 mb-3 border-b border-gray-100 pb-2" data-i18n="lblAddressTitle">Address Details</h4>
+                                <div class="space-y-5">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5" data-i18n="lblStreet">Street Address *</label>
+                                        <input type="text" id="b_street" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all outline-none" placeholder="No 123, Bogyoke Road">
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5" data-i18n="lblTownship">Township *</label>
+                                            <input type="text" id="b_township" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all outline-none" placeholder="e.g. Bahan">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5" data-i18n="lblCity">City *</label>
+                                            <input type="text" id="b_city" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all outline-none" placeholder="e.g. Yangon">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5" data-i18n="lblRegion">Region/Country *</label>
+                                            <input type="text" id="b_region" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all outline-none" placeholder="e.g. Myanmar">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5" data-i18n="lblRemark">Remark (Optional)</label>
+                                        <textarea id="b_remark" rows="2" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all outline-none resize-none" placeholder="Any special instructions..."></textarea>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="mt-auto flex justify-end">
+                                <button type="button" onclick="validateAndGoToStep2()" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center gap-2">
+                                    <span data-i18n="btnNext">Next Step</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Choose Payment Type -->
+                        <div id="step2Content" class="step-hidden step-transition w-full flex flex-col h-full absolute top-0 left-0 pointer-events-none">
+                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep1()">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase tracking-widest" data-i18n="btnBack">Back</span>
+                            </div>
+
                             <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black mb-2" data-i18n="payMethodTitle">Select Payment Method</h2>
                             <p class="text-sm text-gray-500 mb-10 font-medium" data-i18n="payMethodDesc">Choose your preferred formal gateway to finalize the transaction securely.</p>
                             
@@ -434,15 +497,15 @@
                             </div>
 
                             <div class="mt-auto flex justify-end">
-                                <button onclick="goToStep2()" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center gap-2">
+                                <button onclick="goToStep3()" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center gap-2">
                                     <span data-i18n="btnContinue">Continue</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Step 2A: Mobile Banking Setup -->
-                        <div id="step2aContent" class="step-hidden step-transition w-full flex flex-col h-full absolute top-0 left-0 pointer-events-none">
-                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep1()">
+                        <!-- Step 3A: Mobile Banking Setup -->
+                        <div id="step3aContent" class="step-hidden step-transition w-full flex flex-col h-full absolute top-0 left-0 pointer-events-none">
+                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep2()">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase tracking-widest" data-i18n="btnBack">Back</span>
                             </div>
                             
@@ -507,9 +570,9 @@
                             </div>
                         </div>
 
-                        <!-- Step 2B: Social Media Setup -->
-                        <div id="step2bContent" class="step-hidden step-transition w-full flex flex-col h-full absolute top-0 left-0 pointer-events-none">
-                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep1()">
+                        <!-- Step 3B: Social Media Setup -->
+                        <div id="step3bContent" class="step-hidden step-transition w-full flex flex-col h-full absolute top-0 left-0 pointer-events-none">
+                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep2()">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase tracking-widest" data-i18n="btnBack">Back</span>
                             </div>
                             
@@ -571,8 +634,8 @@
                             </div>
                         </div>
 
-                        <!-- Step 3: Success State -->
-                        <div id="step3Content" class="step-hidden step-transition w-full flex flex-col items-center justify-center text-center h-full absolute top-0 left-0 pointer-events-none">
+                        <!-- Step 4: Success State -->
+                        <div id="step4Content" class="step-hidden step-transition w-full flex flex-col items-center justify-center text-center h-full absolute top-0 left-0 pointer-events-none">
                             <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-6 shadow-inner animate-[scale-in_0.5s_ease-out]">
                                 <i data-lucide="check" class="w-12 h-12 text-green-500 stroke-[3px]"></i>
                             </div>
@@ -860,6 +923,11 @@
                 btnUnderstand: "I Understand & Agree",
 
                 // Checkout Form
+                billingTitle: "Billing Information", billingDesc: "Please provide your contact and address details for order processing.",
+                lblFullName: "Full Name *", lblEmail: "Email Address *", lblPhone: "Phone Number *", lblAddressTitle: "Address Details",
+                lblStreet: "Street Address *", lblTownship: "Township *", lblCity: "City *", lblRegion: "Region/Country *", lblRemark: "Remark (Optional)",
+                btnNext: "Next Step",
+
                 payMethodTitle: "Select Payment Method", payMethodDesc: "Choose your preferred formal gateway to finalize the transaction securely.",
                 mobileBanking: "Mobile Banking", mobileBankingDesc: "KBZPay, UABPay, AYAPay via secure QR transfer.",
                 socialChannel: "Social Channel", socialChannelDesc: "Pay via Messenger, Telegram, Discord agents.",
@@ -903,6 +971,11 @@
                 btnUnderstand: "သဘောတူ နားလည်ပါသည်",
 
                 // Checkout Form
+                billingTitle: "ငွေပေးချေမည့်သူ၏ အချက်အလက်", billingDesc: "အော်ဒါလုပ်ငန်းစဉ်အတွက် သင်၏ ဆက်သွယ်ရန်နှင့် လိပ်စာအချက်အလက်များကို ဖြည့်သွင်းပါ။",
+                lblFullName: "အမည်အပြည့်အစုံ *", lblEmail: "အီးမေးလ်လိပ်စာ *", lblPhone: "ဖုန်းနံပါတ် *", lblAddressTitle: "လိပ်စာ အသေးစိတ်",
+                lblStreet: "လမ်းအမည် နှင့် အမှတ် *", lblTownship: "မြို့နယ် *", lblCity: "မြို့ *", lblRegion: "တိုင်း / နိုင်ငံ *", lblRemark: "မှတ်ချက် (ရွေးချယ်ရန်)",
+                btnNext: "ရှေ့ဆက်မည်",
+
                 payMethodTitle: "ငွေပေးချေမှုပုံစံ ရွေးချယ်ရန်", payMethodDesc: "လုံခြုံစိတ်ချရသော ငွေပေးချေမှုစနစ်ကို ရွေးချယ်ပါ။",
                 mobileBanking: "မိုဘိုင်းဘဏ်စနစ်", mobileBankingDesc: "KBZPay, UABPay, AYAPay တို့ဖြင့် လုံခြုံစွာ ငွေလွှဲနိုင်ပါသည်။",
                 socialChannel: "လူမှုကွန်ရက် ကိုယ်စားလှယ်", socialChannelDesc: "Messenger, Telegram, Discord တို့မှတစ်ဆင့် ပေးချေနိုင်ပါသည်။",
@@ -957,6 +1030,7 @@
                     currentUserWishlist = session.user.user_metadata?.wishlist || [];
                     if (urlHasProduct) setCheckoutViewState('wizardState');
                     else setCheckoutViewState('emptyCartState');
+                    prefillBillingInfo();
                 } else { 
                     currentUser = null; currentUserWishlist = []; 
                     if (urlHasProduct) setCheckoutViewState('authGateState');
@@ -964,6 +1038,15 @@
                 }
                 updateAuthUI();
             });
+        }
+
+        function prefillBillingInfo() {
+            if(currentUser) {
+                const nameEl = document.getElementById('b_name');
+                const emailEl = document.getElementById('b_email');
+                if(nameEl && !nameEl.value) nameEl.value = currentUser.name || '';
+                if(emailEl && !emailEl.value) emailEl.value = currentUser.email || '';
+            }
         }
 
         function renderLanguage() {
@@ -1098,29 +1181,68 @@
         }
 
         // Checkout Wizard Flow Control
-        function handlePaymentTypeChange() {
-            // Can be used for dynamic validations if needed
+        
+        function validateAndGoToStep2() {
+            // Check Required fields for Billing Info
+            const requiredIds = ['b_name', 'b_email', 'b_phone', 'b_street', 'b_township', 'b_city', 'b_region'];
+            let isValid = true;
+            let phoneInvalid = false;
+
+            requiredIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el.value.trim()) {
+                    isValid = false;
+                    el.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                    el.addEventListener('input', () => el.classList.remove('border-red-500', 'ring-1', 'ring-red-500'), {once: true});
+                } else if (id === 'b_phone') {
+                    // Strict Myanmar Phone Number Validation
+                    const phoneClean = el.value.replace(/[\s-]/g, '');
+                    const phoneRegex = /^(\+959|\+951|09|01)(\d{7}|\d{9})$/;
+                    const extractedDigits = phoneClean.replace(/^(\+959|\+951|09|01)/, '');
+                    const isDummy = /^(1234567|123456789|0000000|000000000)$/.test(extractedDigits);
+
+                    if (!phoneRegex.test(phoneClean) || isDummy) {
+                        isValid = false;
+                        phoneInvalid = true;
+                        el.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                        el.addEventListener('input', () => el.classList.remove('border-red-500', 'ring-1', 'ring-red-500'), {once: true});
+                    }
+                }
+            });
+
+            if(!isValid) {
+                if (phoneInvalid) {
+                    showErrorToast(currentLang === 'en' ? "Please enter a valid Myanmar phone number (+959, 09, etc)." : "မှန်ကန်သော မြန်မာဖုန်းနံပါတ် ဖြည့်သွင်းပါ။");
+                } else {
+                    showErrorToast(currentLang === 'en' ? "Please fill in all required fields." : "လိုအပ်သော အချက်အလက်များအားလုံး ဖြည့်သွင်းပါ။");
+                }
+                return;
+            }
+
+            document.getElementById('step1Content').classList.replace('step-active', 'step-hidden');
+            document.getElementById('step1Content').classList.add('absolute', 'pointer-events-none');
+            
+            document.getElementById('step2Content').classList.replace('step-hidden', 'step-active');
+            document.getElementById('step2Content').classList.remove('absolute', 'pointer-events-none');
+
+            document.getElementById('progressBar1').style.width = '100%';
+            document.getElementById('step2Indicator').classList.remove('bg-gray-100', 'text-gray-400');
+            document.getElementById('step2Indicator').classList.add('bg-myancode-black', 'text-white');
         }
 
         function goToStep1() {
+            document.getElementById('step2Content').classList.replace('step-active', 'step-hidden');
+            document.getElementById('step2Content').classList.add('absolute', 'pointer-events-none');
+            
             document.getElementById('step1Content').classList.replace('step-hidden', 'step-active');
             document.getElementById('step1Content').classList.remove('absolute', 'pointer-events-none');
-            
-            document.getElementById('step2aContent').classList.replace('step-active', 'step-hidden');
-            document.getElementById('step2aContent').classList.add('absolute', 'pointer-events-none');
-            
-            document.getElementById('step2bContent').classList.replace('step-active', 'step-hidden');
-            document.getElementById('step2bContent').classList.add('absolute', 'pointer-events-none');
 
-            document.getElementById('mobileBankingNotice').classList.add('hidden');
-            document.getElementById('socialMediaNotice').classList.add('hidden');
-
-            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar1').style.width = '0%';
             document.getElementById('step2Indicator').classList.remove('bg-myancode-black', 'text-white');
             document.getElementById('step2Indicator').classList.add('bg-gray-100', 'text-gray-400');
         }
 
-        function goToStep2() {
+        function goToStep3() {
             const selectedTypeInput = document.querySelector('input[name="payment_type"]:checked');
             
             if (!selectedTypeInput) {
@@ -1130,22 +1252,40 @@
 
             const selectedType = selectedTypeInput.value;
             
-            document.getElementById('step1Content').classList.replace('step-active', 'step-hidden');
-            document.getElementById('step1Content').classList.add('absolute', 'pointer-events-none');
+            document.getElementById('step2Content').classList.replace('step-active', 'step-hidden');
+            document.getElementById('step2Content').classList.add('absolute', 'pointer-events-none');
 
             if(selectedType === 'mobile_banking') {
-                document.getElementById('step2aContent').classList.replace('step-hidden', 'step-active');
-                document.getElementById('step2aContent').classList.remove('absolute', 'pointer-events-none');
+                document.getElementById('step3aContent').classList.replace('step-hidden', 'step-active');
+                document.getElementById('step3aContent').classList.remove('absolute', 'pointer-events-none');
                 document.getElementById('mobileBankingNotice').classList.remove('hidden');
             } else {
-                document.getElementById('step2bContent').classList.replace('step-hidden', 'step-active');
-                document.getElementById('step2bContent').classList.remove('absolute', 'pointer-events-none');
+                document.getElementById('step3bContent').classList.replace('step-hidden', 'step-active');
+                document.getElementById('step3bContent').classList.remove('absolute', 'pointer-events-none');
                 document.getElementById('socialMediaNotice').classList.remove('hidden');
             }
 
-            document.getElementById('progressBar').style.width = '100%';
-            document.getElementById('step2Indicator').classList.remove('bg-gray-100', 'text-gray-400');
-            document.getElementById('step2Indicator').classList.add('bg-myancode-black', 'text-white');
+            document.getElementById('progressBar2').style.width = '100%';
+            document.getElementById('step3Indicator').classList.remove('bg-gray-100', 'text-gray-400');
+            document.getElementById('step3Indicator').classList.add('bg-myancode-black', 'text-white');
+        }
+
+        function goToStep2() {
+            document.getElementById('step3aContent').classList.replace('step-active', 'step-hidden');
+            document.getElementById('step3aContent').classList.add('absolute', 'pointer-events-none');
+            
+            document.getElementById('step3bContent').classList.replace('step-active', 'step-hidden');
+            document.getElementById('step3bContent').classList.add('absolute', 'pointer-events-none');
+
+            document.getElementById('mobileBankingNotice').classList.add('hidden');
+            document.getElementById('socialMediaNotice').classList.add('hidden');
+
+            document.getElementById('step2Content').classList.replace('step-hidden', 'step-active');
+            document.getElementById('step2Content').classList.remove('absolute', 'pointer-events-none');
+
+            document.getElementById('progressBar2').style.width = '0%';
+            document.getElementById('step3Indicator').classList.remove('bg-myancode-black', 'text-white');
+            document.getElementById('step3Indicator').classList.add('bg-gray-100', 'text-gray-400');
         }
 
         function updateQR(bankStr) {
@@ -1193,6 +1333,16 @@
                 paymentMethod = selectedSocial.value;
             }
 
+            // Capture Billing Form Fields
+            const b_name = document.getElementById('b_name').value.trim();
+            const b_email = document.getElementById('b_email').value.trim();
+            const b_phone = document.getElementById('b_phone').value.trim();
+            const b_street = document.getElementById('b_street').value.trim();
+            const b_township = document.getElementById('b_township').value.trim();
+            const b_city = document.getElementById('b_city').value.trim();
+            const b_region = document.getElementById('b_region').value.trim();
+            const b_remark = document.getElementById('b_remark').value.trim();
+
             showLoader();
 
             try {
@@ -1208,7 +1358,15 @@
                     payment_type: type,
                     payment_method: paymentMethod,
                     payment_status: 'pending',
-                    order_status: 'pending'
+                    order_status: 'pending',
+                    billing_name: b_name,
+                    billing_email: b_email,
+                    billing_phone: b_phone,
+                    billing_street: b_street,
+                    billing_township: b_township,
+                    billing_city: b_city,
+                    billing_region: b_region,
+                    billing_remark: b_remark
                 }]);
 
                 if (error) throw error;
@@ -1216,16 +1374,16 @@
                 // Show Success Screen
                 document.getElementById('wizardHeader').classList.add('hidden');
                 
-                document.getElementById('step2aContent').classList.replace('step-active', 'step-hidden');
-                document.getElementById('step2aContent').classList.add('absolute', 'pointer-events-none');
+                document.getElementById('step3aContent').classList.replace('step-active', 'step-hidden');
+                document.getElementById('step3aContent').classList.add('absolute', 'pointer-events-none');
                 document.getElementById('mobileBankingNotice').classList.add('hidden');
 
-                document.getElementById('step2bContent').classList.replace('step-active', 'step-hidden');
-                document.getElementById('step2bContent').classList.add('absolute', 'pointer-events-none');
+                document.getElementById('step3bContent').classList.replace('step-active', 'step-hidden');
+                document.getElementById('step3bContent').classList.add('absolute', 'pointer-events-none');
                 document.getElementById('socialMediaNotice').classList.add('hidden');
                 
-                document.getElementById('step3Content').classList.replace('step-hidden', 'step-active');
-                document.getElementById('step3Content').classList.remove('absolute', 'pointer-events-none');
+                document.getElementById('step4Content').classList.replace('step-hidden', 'step-active');
+                document.getElementById('step4Content').classList.remove('absolute', 'pointer-events-none');
 
             } catch (error) {
                 console.error("Order error:", error);
