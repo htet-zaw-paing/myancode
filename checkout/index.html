@@ -13,56 +13,53 @@
         href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Cloudflare Turnstile Script for Newsletter -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-    <!-- ANTI-HACKER SECURITY MODULE (PURE BLACK, NO ANIMATIONS) -->
+    <!-- HIGH-END SILENT SECURITY MODULE -->
     <script>
         (function() {
+            // 0. Professional Developer Greeting
+            const _log = window.console.log;
+            _log(
+                "%c✦ </> MyanCode Secure Environment ✦",
+                "font-family: system-ui, -apple-system, sans-serif; font-size: 22px; font-weight: 800; color: #2997ff; text-shadow: 0 4px 14px rgba(41, 151, 255, 0.25); padding: 10px 0;"
+            );
+            _log(
+                "%cGreetings, fellow engineer! 👋\n\nWe appreciate your curiosity. All systems are engineered and maintained in accordance with strict security and reliability protocols to safeguard user data and ensure transaction integrity.\n\nIf you are passionate about cybersecurity, modern software architecture, or wish to report a vulnerability responsibly, we cordially invite you to connect with us at %csecurity@myancode.com%c.\n\nBest regards,\nThe MyanCode Engineering Team",
+                "font-family: system-ui, -apple-system, sans-serif; font-size: 13px; color: #6e6e73; line-height: 1.8;",
+                "color: #2997ff; font-weight: 700; text-decoration: none;",
+                "color: #6e6e73;"
+            );
+
+            // 1. Silent Console Suppression
             const noop = () => {};
             window.console.log = noop; window.console.warn = noop; window.console.error = noop; window.console.info = noop; window.console.table = noop;
 
-            let devToolsOpen = false;
-            window.showSecurityWarning = function() {
-                if(!devToolsOpen) {
-                    devToolsOpen = true;
-                    const modal = document.getElementById('securityModal');
-                    if(modal) {
-                        modal.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
-                        modal.classList.add('visible', 'opacity-100', 'pointer-events-auto');
-                        document.body.classList.add('no-scroll');
-                    }
-                }
-            };
+            // 2. Prevent Context Menu (Right-Click)
+            document.addEventListener('contextmenu', e => e.preventDefault());
 
-            window.dismissSecurityWarning = function() {
-                const modal = document.getElementById('securityModal');
-                if(modal) {
-                    modal.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
-                    modal.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-                    document.body.classList.remove('no-scroll');
-                    setTimeout(() => { devToolsOpen = false; }, 2000);
-                }
-            };
-
+            // 3. Prevent Developer Shortcuts
             document.onkeydown = function(e) {
-                if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
-                    showSecurityWarning();
+                if(e.keyCode == 123 || // F12
+                  (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // I, J, C
+                  (e.ctrlKey && e.keyCode === 85)) { // U
+                    e.preventDefault();
+                    return false;
                 }
             };
 
+            // 4. Debugger Trap - Silently freezes the site only if DevTools is forced open
             setInterval(function() {
-                const threshold = 160;
-                if(window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
-                    showSecurityWarning();
-                }
-            }, 1000);
+                debugger;
+            }, 100);
         })();
     </script>
 
+    <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
             theme: {
@@ -78,8 +75,9 @@
                     colors: { myancode: { black: '#111111', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } }
                 }
             }
-        }
+        };
     </script>
+
     <style>
         html, body { width: 100%; overflow-x: clip; position: relative; background-color: #fbfbfd; color: #111111; -webkit-font-smoothing: antialiased; }
         body.no-scroll { overflow: hidden; }
@@ -134,32 +132,6 @@
 
 <body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
 
-    <!-- UPGRADED ENTERPRISE SECURITY MODAL (PURE BLACK & FORMAL) -->
-    <div id="securityModal" class="fixed inset-0 z-[99999] bg-[#050505]/95 backdrop-blur-3xl flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none invisible opacity-0 pointer-events-none transition-all duration-500">
-        <div class="bg-[#0a0a0a] rounded-[2.5rem] p-8 sm:p-14 max-w-2xl w-full shadow-[0_0_80px_rgba(255,255,255,0.03)] flex flex-col items-center border border-gray-800 relative overflow-hidden">
-            
-            <div class="h-20 w-20 bg-gray-900 rounded-full flex items-center justify-center mb-8 border border-gray-800 shadow-inner relative">
-                <i data-lucide="shield-check" class="h-10 w-10 text-white"></i>
-            </div>
-            
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight uppercase" data-i18n="secTitle">Security Protocol Active</h2>
-            
-            <p class="text-gray-400 mb-6 text-sm sm:text-base leading-relaxed font-medium" data-i18n="secDesc1">
-                Developer tools have been initiated. This checkout environment is heavily encrypted and continuously monitored <span class="text-white">24/7</span> to prevent unauthorized activities.
-            </p>
-
-            <div class="bg-[#111111] border border-gray-800 rounded-2xl p-5 mb-10 text-left w-full shadow-inner">
-                <h4 class="text-xs font-bold text-gray-300 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4 text-gray-400"></i> <span data-i18n="secPolicyTitle">Policy Reminder</span></h4>
-                <p class="text-gray-500 text-xs sm:text-sm leading-relaxed mb-3" data-i18n="secPolicyDesc1">All transactions, process statuses, and verifications are set <strong class="text-white">manually by our administrators</strong>. Please wait patiently for confirmation even if you have already transferred your payment.</p>
-                <p class="text-gray-500 text-xs sm:text-sm leading-relaxed" data-i18n="secPolicyDesc2">By proceeding, you agree to our Terms & Conditions, Privacy Policy, and Payment Policy.</p>
-            </div>
-            
-            <button onclick="dismissSecurityWarning()" class="w-full sm:w-auto px-12 py-4 bg-white text-black rounded-full font-bold tracking-widest text-xs uppercase shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:bg-gray-200 transition-all duration-300" data-i18n="btnUnderstand">
-                I Understand & Agree
-            </button>
-        </div>
-    </div>
-
     <!-- GLOBAL ENTERPRISE LOADER -->
     <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
         <i data-lucide="shield-check" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
@@ -178,16 +150,16 @@
                         <i data-lucide="menu" class="h-5 w-5"></i>
                     </button>
                     <!-- LOGO LINK -->
-                    <a href="../index.html" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
+                    <a href="../" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
                         <i data-lucide="code-2" class="h-5 w-5 mr-2 transition-all duration-500 group-hover:rotate-12 nav-icon text-myancode-black"></i>
                         <span class="font-semibold text-lg sm:text-xl tracking-wide transition-colors duration-300 group-hover:text-myancode-blue nav-text text-myancode-black" id="navLogoText">MyanCode</span>
                     </a>
                 </div>
 
                 <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium items-center h-full">
-                    <a href="../studio/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
-                    <a href="../templates/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
-                    <a href="../services/index.html" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    <a href="../studio/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="../templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../services/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/services/" data-i18n="navServices">Services</a>
                     
                     <!-- FULL-WIDTH APPLE STYLE SUPPORT MEGA MENU -->
                     <div class="relative group h-full flex items-center">
@@ -202,29 +174,29 @@
                                 <div class="flex-[1.2]">
                                     <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
                                     <div class="flex flex-col gap-4">
-                                        <a href="../guides/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supGuides">Guides</a>
-                                        <a href="../help/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supHelp">Help Center</a>
-                                        <a href="../faq/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supFaq">FAQs</a>
-                                        <a href="../contact-us/index.html" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                        <a href="../guides/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supGuides">Guides</a>
+                                        <a href="../help/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                        <a href="../faq/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supFaq">FAQs</a>
+                                        <a href="../contact-us/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
                                     </div>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
                                     <div class="flex flex-col gap-3">
-                                        <a href="../legal/index.html#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
-                                        <a href="../legal/index.html#studio-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
-                                        <a href="../legal/index.html#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
-                                        <a href="../legal/index.html#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polService">Service Policy</a>
-                                        <a href="../legal/index.html#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                        <a href="../legal/#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                        <a href="../legal/#studio-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
+                                        <a href="../legal/#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                        <a href="../legal/#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                        <a href="../legal/#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
                                     </div>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
                                     <div class="flex flex-col gap-3">
-                                        <a href="../legal/index.html#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
-                                        <a href="../legal/index.html#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
-                                        <a href="../legal/index.html#privacy-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
-                                        <a href="../legal/index.html#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                        <a href="../legal/#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                        <a href="../legal/#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                        <a href="../legal/#privacy-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="../legal/#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
                                     </div>
                                 </div>
                             </div>
@@ -266,9 +238,9 @@
                 <div class="w-full md:w-1/3">
                     <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Links</h4>
                     <ul class="space-y-4">
-                        <li><a href="../services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navServices">Web Development</span></a></li>
-                        <li><a href="../templates/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navWebsites">Featured Templates</span></a></li>
-                        <li><a href="../services/index.html" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navStudio">SEO Optimization</span></a></li>
+                        <li><a href="../services/" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navServices">Web Development</span></a></li>
+                        <li><a href="../templates/" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navWebsites">Featured Templates</span></a></li>
+                        <li><a href="../services/" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navStudio">SEO Optimization</span></a></li>
                     </ul>
                 </div>
                 <div class="w-full md:w-2/3">
@@ -293,13 +265,13 @@
                 <input type="text" class="w-full pl-8 py-3 border-b border-gray-300 focus:outline-none text-base bg-transparent text-gray-600 placeholder-gray-400 pointer-events-none" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
             </div>
             <div class="space-y-6 text-base font-normal text-myancode-black tracking-wide flex-1">
-                <a href="../studio/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                <a href="../studio/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
                     <span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                 </a>
-                <a href="../templates/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                <a href="../templates/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
                     <span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                 </a>
-                <a href="../services/index.html" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                <a href="../services/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
                     <span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
                 </a>
                 <div class="flex flex-col">
@@ -310,10 +282,10 @@
                         <div class="mb-6">
                             <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
                             <div class="flex flex-col gap-4">
-                                <a href="../guides/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supGuides">Guides</a>
-                                <a href="../help/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supHelp">Help Center</a>
-                                <a href="../faq/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supFaq">FAQs</a>
-                                <a href="../contact-us/index.html" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supContact">Contact</a>
+                                <a href="../guides/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supGuides">Guides</a>
+                                <a href="../help/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supHelp">Help Center</a>
+                                <a href="../faq/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supFaq">FAQs</a>
+                                <a href="../contact-us/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supContact">Contact</a>
                             </div>
                         </div>
                     </div>
@@ -345,7 +317,8 @@
         <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
         <div class="p-6 border-t border-gray-100 bg-gray-50">
             <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold text-black" id="wishlistTotal">0 MMK</span></div>
-            <button class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
+            <!-- Dinamically goes to checkout with wishlist items -->
+            <button onclick="window.location.href='?source=wishlist'" class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
         </div>
     </div>
 
@@ -361,7 +334,7 @@
                 </div>
                 <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-myancode-black mb-4" data-i18n="noProductTitle">No Product Selected</h2>
                 <p class="text-base text-gray-500 mb-10 max-w-md mx-auto leading-relaxed font-medium" data-i18n="noProductDesc">You accessed the checkout directly without selecting a template. Please browse our catalog and choose a product to continue securely.</p>
-                <a href="../templates/index.html" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center justify-center gap-2">
+                <a href="../templates/" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center justify-center gap-2">
                     <i data-lucide="layout-grid" class="w-4 h-4"></i> <span data-i18n="btnBrowseTemplates">Browse Templates</span>
                 </a>
             </div>
@@ -373,7 +346,7 @@
                 </div>
                 <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-myancode-black mb-4" data-i18n="authReqTitle">Authentication Required</h2>
                 <p class="text-base text-gray-500 mb-10 max-w-md mx-auto leading-relaxed font-medium" data-i18n="authReqDesc">You must be securely logged in to access our encrypted checkout process and proceed with your order.</p>
-                <a href="../login/index.html" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center justify-center gap-2">
+                <a href="../login/" class="bg-myancode-black text-white px-10 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex items-center justify-center gap-2">
                     <i data-lucide="log-in" class="w-4 h-4"></i> <span data-i18n="btnLoginContinue">Login to Continue</span>
                 </a>
             </div>
@@ -643,10 +616,10 @@
                             <p class="text-base text-gray-500 mb-8 max-w-md mx-auto font-medium" data-i18n="thankYouDesc">Your order has been securely saved. Please ensure you transfer the payment and confirm via the User Hub to process delivery.</p>
                             
                             <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                                <a href="../hub/index.html" class="bg-myancode-black text-white px-8 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex justify-center items-center gap-2">
+                                <a href="../hub/" class="bg-myancode-black text-white px-8 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition-all shadow-lg btn-hover-effect flex justify-center items-center gap-2">
                                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="btnUserHub">Go to User Hub</span>
                                 </a>
-                                <a href="../index.html" class="bg-white border border-gray-200 text-myancode-black px-8 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-50 transition-colors btn-hover-effect flex justify-center items-center gap-2">
+                                <a href="../" class="bg-white border border-gray-200 text-myancode-black px-8 py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-50 transition-colors btn-hover-effect flex justify-center items-center gap-2">
                                     <i data-lucide="home" class="w-4 h-4"></i> <span data-i18n="btnReturnHome">Return Home</span>
                                 </a>
                             </div>
@@ -661,15 +634,9 @@
                     <div class="bg-white rounded-[2rem] p-8 border border-gray-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.04)] w-full">
                         <h3 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-6 border-b border-gray-100 pb-4" data-i18n="orderSummary">Order Summary</h3>
                         
-                        <div class="flex gap-4 items-center mb-6">
-                            <div class="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center p-1 relative shadow-sm">
-                                <img id="summaryImg" src="" class="w-full h-full object-cover rounded-lg opacity-0 transition-opacity duration-300 z-10" alt="Product">
-                                <i data-lucide="package" id="summaryFallback" class="w-6 h-6 text-gray-300 absolute z-0"></i>
-                            </div>
-                            <div class="flex flex-col flex-1 min-w-0">
-                                <span class="text-sm font-bold text-myancode-black truncate block mb-1" id="summaryName">Loading...</span>
-                                <span class="text-[10px] font-bold uppercase tracking-widest text-myancode-blue bg-blue-50 w-fit px-2 py-0.5 rounded border border-blue-100" id="summaryCat">Category</span>
-                            </div>
+                        <!-- DYNAMIC ITEMS CONTAINER -->
+                        <div id="summaryItemsContainer" class="flex flex-col gap-4 mb-6 max-h-[250px] overflow-y-auto no-scrollbar">
+                            <!-- Items will be injected here dynamically -->
                         </div>
 
                         <div class="space-y-4 border-t border-gray-100 pt-6">
@@ -710,7 +677,7 @@
                         </p>
                         
                         <p class="text-sm text-gray-700 leading-relaxed font-medium" data-i18n="crucialStep2">
-                            You can click "Complete Order" now and confirm <span class="italic font-bold text-myancode-black">"I've transferred my payment"</span> through the <a href="../hub/index.html" class="text-myancode-blue hover:underline font-bold">User Hub</a> either immediately or later.
+                            You can click "Complete Order" now and confirm <span class="italic font-bold text-myancode-black">"I've transferred my payment"</span> through the <a href="../hub/" class="text-myancode-blue hover:underline font-bold">User Hub</a> either immediately or later.
                         </p>
                         
                         <div class="bg-gray-50/50 rounded-xl p-4 mt-2 border border-gray-100">
@@ -790,16 +757,16 @@
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4"
                         data-i18n="ftCompanyTitle">Company</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="../about-us/index.html"
+                        <li><a href="../about-us/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="ftAboutUs">About Us</a></li>
-                        <li><a href="../contact-us/index.html"
+                        <li><a href="../contact-us/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="ftContactUs">Contact Us</a></li>
-                        <li><a href="../updates-news/index.html"
+                        <li><a href="../updates-news/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="ftUpdates">Updates & News</a></li>
-                        <li><a href="../careers/index.html"
+                        <li><a href="../careers/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="ftCareers">Careers</a></li>
                     </ul>
@@ -808,16 +775,16 @@
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4"
                         data-i18n="ftStoreTitle">Store</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="../studio/index.html"
+                        <li><a href="../studio/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="ftAddOns">Add-Ons</a></li>
-                        <li><a href="../templates/index.html"
+                        <li><a href="../templates/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="ftTemplates">Templates</a></li>
-                        <li><a href="../services/index.html"
+                        <li><a href="../services/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="ftServices">Services</a></li>
-                        <li><a href="../maintenance/index.html"
+                        <li><a href="../maintenance/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="ftMaintenance">Maintenance</a></li>
                     </ul>
@@ -826,15 +793,15 @@
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4"
                         data-i18n="ftSupportTitle">Support</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="../guides/index.html"
+                        <li><a href="../guides/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="supGuides">Guides</a></li>
-                        <li><a href="../help/index.html"
+                        <li><a href="../help/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="supHelp">Help Center</a></li>
-                        <li><a href="../faq/index.html" class="text-xs text-gray-500 hover:text-black transition-colors"
+                        <li><a href="../faq/" class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="supFaq">FAQs</a></li>
-                        <li><a href="../about/index.html"
+                        <li><a href="../about/"
                                 class="text-xs text-gray-500 hover:text-black transition-colors"
                                 data-i18n="supLegal">Legal</a></li>
                     </ul>
@@ -845,13 +812,13 @@
                     <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-5 leading-relaxed pr-4"
                         data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
                     <div class="flex space-x-5">
-                        <a href="../comming-soon/index.html"
+                        <a href="../comming-soon/"
                             class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i
                                 data-lucide="facebook" class="h-4 w-4 fill-current"></i></a>
-                        <a href="../comming-soon/index.html"
+                        <a href="../comming-soon/"
                             class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i
                                 data-lucide="instagram" class="h-4 w-4"></i></a>
-                        <a href="../comming-soon/index.html"
+                        <a href="../comming-soon/"
                             class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i
                                 data-lucide="linkedin" class="h-4 w-4 fill-current"></i></a>
                     </div>
@@ -892,9 +859,9 @@
         lucide.createIcons();
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
 
-        let activeProducts = [];
-        let currentProduct = null;
-        let urlHasProduct = !!(new URLSearchParams(window.location.search).get('product') || new URLSearchParams(window.location.search).get('slug') || new URLSearchParams(window.location.search).get('id'));
+        // NEW: Handles an array of items for dynamic orders.
+        let checkoutItems = [];
+        let urlHasProduct = !!(new URLSearchParams(window.location.search).get('product') || new URLSearchParams(window.location.search).get('slug') || new URLSearchParams(window.location.search).get('id') || new URLSearchParams(window.location.search).get('source') === 'wishlist');
 
         const dict = {
             en: {
@@ -914,14 +881,6 @@
                 nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
                 msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
                 
-                // Security Modal
-                secTitle: "Security Protocol Active",
-                secDesc1: "Developer tools have been initiated. This checkout environment is heavily encrypted and continuously monitored 24/7 to prevent unauthorized activities.",
-                secPolicyTitle: "Policy Reminder",
-                secPolicyDesc1: "All transactions, process statuses, and verifications are set manually by our administrators. Please wait patiently for confirmation even if you have already transferred your payment.",
-                secPolicyDesc2: "By proceeding, you agree to our Terms & Conditions, Privacy Policy, and Payment Policy.",
-                btnUnderstand: "I Understand & Agree",
-
                 // Checkout Form
                 billingTitle: "Billing Information", billingDesc: "Please provide your contact and address details for order processing.",
                 lblFullName: "Full Name *", lblEmail: "Email Address *", lblPhone: "Phone Number *", lblAddressTitle: "Address Details",
@@ -962,14 +921,6 @@
                 nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", nlDisclaimer: "သင်၏ အချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။",
                 msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။",
                 
-                // Security Modal
-                secTitle: "လုံခြုံရေးစနစ် အသက်ဝင်နေပါသည်",
-                secDesc1: "Developer tools အသုံးပြုမှုကို တွေ့ရှိရပါသည်။ ဤငွေပေးချေမှု စာမျက်နှာကို လုံခြုံရေးစနစ်ဖြင့် အပြည့်အဝ ကာကွယ်ထားပြီး ခွင့်ပြုချက်မရှိသော လုပ်ဆောင်မှုများကို တားဆီးရန် အချိန်ပြည့် စောင့်ကြည့်နေပါသည်။",
-                secPolicyTitle: "မူဝါဒ အသိပေးချက်",
-                secPolicyDesc1: "ငွေပေးချေမှု အခြေအနေများနှင့် လုပ်ငန်းစဉ်အားလုံးကို ကျွန်ုပ်တို့၏ အက်ဒမင်များမှ ကိုယ်တိုင် စစ်ဆေးအတည်ပြုပေးပါသည်။ ငွေလွှဲပြီးပါက အတည်ပြုချက်ရရန် ခေတ္တစောင့်ဆိုင်းပေးပါ။",
-                secPolicyDesc2: "ရှေ့ဆက်လုပ်ဆောင်ပါက ကျွန်ုပ်တို့၏ စည်းမျဉ်းစည်းကမ်းများနှင့် မူဝါဒများကို သဘောတူရာရောက်ပါသည်။",
-                btnUnderstand: "သဘောတူ နားလည်ပါသည်",
-
                 // Checkout Form
                 billingTitle: "ငွေပေးချေမည့်သူ၏ အချက်အလက်", billingDesc: "အော်ဒါလုပ်ငန်းစဉ်အတွက် သင်၏ ဆက်သွယ်ရန်နှင့် လိပ်စာအချက်အလက်များကို ဖြည့်သွင်းပါ။",
                 lblFullName: "အမည်အပြည့်အစုံ *", lblEmail: "အီးမေးလ်လိပ်စာ *", lblPhone: "ဖုန်းနံပါတ် *", lblAddressTitle: "လိပ်စာ အသေးစိတ်",
@@ -1004,6 +955,7 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
 
         let supabaseInstance = null; let currentUser = null; let currentUserWishlist = [];
+        let authResolved = false; // Add control flag
         
         function setCheckoutViewState(stateId) {
             document.getElementById('authGateState').classList.replace('step-active', 'step-hidden');
@@ -1022,21 +974,42 @@
             }
         }
 
+        // NEW: Helper function to globally update the header wishlist count badge
+        function updateWishlistBadge() {
+            const countSpan = document.getElementById('wishlist-count');
+            if (countSpan) {
+                if (currentUserWishlist.length > 0) { 
+                    countSpan.textContent = currentUserWishlist.length; 
+                    countSpan.classList.remove('opacity-0'); 
+                } else { 
+                    countSpan.classList.add('opacity-0'); 
+                }
+            }
+        }
+
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: false } });
             supabaseInstance.auth.onAuthStateChange((event, session) => {
                 if (session) {
                     currentUser = { name: session.user.user_metadata?.full_name || session.user.email.split('@')[0], email: session.user.email, id: session.user.id, avatar_url: session.user.user_metadata?.avatar_url || null, role: session.user.user_metadata?.role || 'user' };
                     currentUserWishlist = session.user.user_metadata?.wishlist || [];
-                    if (urlHasProduct) setCheckoutViewState('wizardState');
-                    else setCheckoutViewState('emptyCartState');
                     prefillBillingInfo();
                 } else { 
                     currentUser = null; currentUserWishlist = []; 
-                    if (urlHasProduct) setCheckoutViewState('authGateState');
-                    else setCheckoutViewState('emptyCartState');
                 }
+                updateWishlistBadge(); // Dynamically update count UI on session load
                 updateAuthUI();
+
+                // Process fetch checkout data strictly after determining authentication
+                if (!authResolved) {
+                    authResolved = true;
+                    if (!currentUser && urlHasProduct) {
+                        setCheckoutViewState('authGateState');
+                        hideLoader();
+                    } else {
+                        fetchCheckoutData();
+                    }
+                }
             });
         }
 
@@ -1072,9 +1045,9 @@
                         <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black flex items-center justify-center">${avatarIconHTML}</button>
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
                             <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
-                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
-                            ${currentUser.role === 'user' ? `<a href="../hub/index.html" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
-                            <button onclick="window.location.href='../profile/index.html'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
+                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
+                            ${currentUser.role === 'user' ? `<a href="../hub/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
+                            <button onclick="window.location.href='../profile/'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
                         </div>
                     </div>`;
@@ -1085,26 +1058,26 @@
                         ${mobileAvatarHTML}
                     </div>
                     <div class="flex flex-col gap-6">
-                        ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                        ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
                             <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
                         </a>` : ''}
-                        ${currentUser.role === 'user' ? `<a href="../hub/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                        ${currentUser.role === 'user' ? `<a href="../hub/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
                             <span>${dict[currentLang].hdrHub}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i>
                         </a>` : ''}
-                        <button onclick="window.location.href='../profile/index.html'" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
+                        <button onclick="window.location.href='../profile/'" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
                         <button onclick="handleLogout()" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5 text-gray-400"></i></button>
                     </div>`;
             } else {
                 desktopAuth.innerHTML = `
-                    <a href="../login/index.html" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link text-myancode-black px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
-                    <a href="../register/index.html" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+                    <a href="../login/" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link text-myancode-black px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
+                    <a href="../register/" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
 
                 containerMob.innerHTML = `
                     <div class="flex flex-col gap-6">
-                        <a href="../login/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                        <a href="../login/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
                             <span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-400"></i>
                         </a>
-                        <a href="../register/index.html" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                        <a href="../register/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
                             <span>${dict[currentLang].hdrRegister}</span> <i data-lucide="user-plus" class="h-5 w-5 text-gray-400"></i>
                         </a>
                     </div>
@@ -1126,7 +1099,7 @@
             });
         }
 
-        /* --- CHECKOUT SPECIFIC LOGIC --- */
+        /* --- DYNAMIC MULTI-ITEM CHECKOUT LOGIC --- */
         async function fetchCheckoutData() {
             if (!supabaseInstance) return;
             
@@ -1140,17 +1113,45 @@
             try {
                 const params = new URLSearchParams(window.location.search);
                 const productIdentifier = params.get('product') || params.get('slug') || params.get('id');
+                const source = params.get('source');
 
-                const { data, error } = await supabaseInstance
-                    .from('products')
-                    .select('*')
-                    .or(`product_slug.eq.${productIdentifier},product_id.eq.${productIdentifier}`);
+                // DYNAMIC: Logic handles Wishlist Arrays vs Single items
+                if (source === 'wishlist' && currentUser) {
+                    if (currentUserWishlist && currentUserWishlist.length > 0) {
+                        const ids = currentUserWishlist.map(i => i.id);
+                        const { data, error } = await supabaseInstance
+                            .from('products')
+                            .select('*')
+                            .in('product_id', ids);
 
-                if (error) throw error;
-                
-                if (data && data.length > 0) {
-                    currentProduct = data[0];
-                    renderSummary();
+                        if (error) throw error;
+                        
+                        if (data && data.length > 0) {
+                            checkoutItems = data;
+                            renderSummary();
+                            setCheckoutViewState('wizardState');
+                        } else {
+                            setCheckoutViewState('emptyCartState');
+                        }
+                    } else {
+                        setCheckoutViewState('emptyCartState');
+                    }
+                } 
+                else if (productIdentifier) {
+                    const { data, error } = await supabaseInstance
+                        .from('products')
+                        .select('*')
+                        .or(`product_slug.eq.${productIdentifier},product_id.eq.${productIdentifier}`);
+
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        checkoutItems = [data[0]];
+                        renderSummary();
+                        setCheckoutViewState('wizardState');
+                    } else {
+                        setCheckoutViewState('emptyCartState');
+                    }
                 } else {
                     setCheckoutViewState('emptyCartState');
                 }
@@ -1163,21 +1164,39 @@
         }
 
         function renderSummary() {
-            if(!currentProduct) return;
-            const name = currentLang === 'en' ? (currentProduct.product_name_en || currentProduct.product_name_mm) : (currentProduct.product_name_mm || currentProduct.product_name_en);
-            const price = currentProduct.product_discount_price || currentProduct.product_price;
+            if(!checkoutItems || checkoutItems.length === 0) return;
             
-            document.getElementById('summaryName').innerText = name;
-            document.getElementById('summaryCat').innerText = currentProduct.category_id || 'Template';
-            document.getElementById('summarySubtotal').innerText = `${price.toLocaleString()} ${currentProduct.currency || 'MMK'}`;
-            document.getElementById('summaryTotal').innerText = `${price.toLocaleString()} ${currentProduct.currency || 'MMK'}`;
+            let subtotal = 0;
+            let currency = 'MMK'; // Defaulting safely
             
-            if(currentProduct.product_image) {
-                const imgEl = document.getElementById('summaryImg');
-                imgEl.src = currentProduct.product_image.startsWith('./') ? currentProduct.product_image.replace('./', '../') : currentProduct.product_image;
-                imgEl.classList.remove('opacity-0');
-                document.getElementById('summaryFallback').classList.add('hidden');
-            }
+            const container = document.getElementById('summaryItemsContainer');
+            container.innerHTML = '';
+            
+            checkoutItems.forEach(item => {
+                const name = currentLang === 'en' ? (item.product_name_en || item.product_name_mm) : (item.product_name_mm || item.product_name_en);
+                const price = item.product_discount_price || item.product_price;
+                subtotal += price;
+                if (item.currency) currency = item.currency;
+
+                let imgSrc = item.product_image ? (item.product_image.startsWith('./') ? item.product_image.replace('./', '../') : item.product_image) : '';
+                
+                // Inject the dynamic list
+                container.innerHTML += `
+                    <div class="flex gap-4 items-center p-3 bg-gray-50 border border-gray-100 rounded-2xl relative shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-14 h-14 rounded-xl bg-white border border-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center p-1 relative">
+                            ${imgSrc ? `<img src="${imgSrc}" class="w-full h-full object-cover rounded-lg z-10" alt="Product">` : `<i data-lucide="package" class="w-5 h-5 text-gray-300 absolute z-0"></i>`}
+                        </div>
+                        <div class="flex flex-col flex-1 min-w-0">
+                            <span class="text-sm font-bold text-myancode-black truncate block mb-1" title="${name}">${name}</span>
+                            <span class="text-xs font-bold text-myancode-blue">${price.toLocaleString()} ${item.currency || 'MMK'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('summarySubtotal').innerText = `${subtotal.toLocaleString()} ${currency}`;
+            document.getElementById('summaryTotal').innerText = `${subtotal.toLocaleString()} ${currency}`;
+            lucide.createIcons();
         }
 
         // Checkout Wizard Flow Control
@@ -1314,7 +1333,7 @@
         }
 
         async function submitOrder(type) {
-            if(!currentUser || !currentProduct || !supabaseInstance) return;
+            if(!currentUser || checkoutItems.length === 0 || !supabaseInstance) return;
             
             let paymentMethod = '';
             if(type === 'mobile_banking') {
@@ -1346,30 +1365,43 @@
             showLoader();
 
             try {
-                const price = currentProduct.product_discount_price || currentProduct.product_price;
-                const name = currentProduct.product_name_en || currentProduct.product_name_mm;
+                // Multi-item payload support. Maps every checkout items into distinct order logs securely.
+                const orderPayloads = checkoutItems.map(item => {
+                    const price = item.product_discount_price || item.product_price;
+                    const name = item.product_name_en || item.product_name_mm;
+                    return {
+                        user_id: currentUser.id,
+                        product_id: item.product_id,
+                        product_name: name,
+                        amount: price,
+                        currency: item.currency || 'MMK',
+                        payment_type: type,
+                        payment_method: paymentMethod,
+                        payment_status: 'pending',
+                        order_status: 'pending',
+                        billing_name: b_name,
+                        billing_email: b_email,
+                        billing_phone: b_phone,
+                        billing_street: b_street,
+                        billing_township: b_township,
+                        billing_city: b_city,
+                        billing_region: b_region,
+                        billing_remark: b_remark
+                    };
+                });
 
-                const { data, error } = await supabaseInstance.from('orders').insert([{
-                    user_id: currentUser.id,
-                    product_id: currentProduct.product_id,
-                    product_name: name,
-                    amount: price,
-                    currency: currentProduct.currency || 'MMK',
-                    payment_type: type,
-                    payment_method: paymentMethod,
-                    payment_status: 'pending',
-                    order_status: 'pending',
-                    billing_name: b_name,
-                    billing_email: b_email,
-                    billing_phone: b_phone,
-                    billing_street: b_street,
-                    billing_township: b_township,
-                    billing_city: b_city,
-                    billing_region: b_region,
-                    billing_remark: b_remark
-                }]);
-
+                // Batch insert into Supabase
+                const { data, error } = await supabaseInstance.from('orders').insert(orderPayloads);
                 if (error) throw error;
+
+                // If coming from wishlist, we cleanly clear it out post purchase as intended
+                const source = new URLSearchParams(window.location.search).get('source');
+                if (source === 'wishlist') {
+                    await supabaseInstance.auth.updateUser({ data: { wishlist: [] } });
+                    currentUserWishlist = [];
+                    updateWishlistBadge(); // Dynamically clear badge when successful order is made
+                    renderWishlistItems();
+                }
 
                 // Show Success Screen
                 document.getElementById('wizardHeader').classList.add('hidden');
@@ -1425,8 +1457,7 @@
             if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); }
             else { currentUserWishlist.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
             if (supabaseInstance && currentUser) supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } });
-            const countSpan = document.getElementById('wishlist-count');
-            if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } else { countSpan.classList.add('opacity-0'); }
+            updateWishlistBadge(); // Dynamically update count UI from here as well
             renderWishlistItems();
         }
         
@@ -1454,7 +1485,6 @@
 
         window.addEventListener('load', () => {
             renderLanguage();
-            fetchCheckoutData();
         });
     </script>
 </body>
