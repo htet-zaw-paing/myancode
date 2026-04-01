@@ -4,18 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Services | MyanCode</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="../imgs/web-banners/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
     <script>
         tailwind.config = {
             theme: {
@@ -25,6 +21,7 @@
                     'md': '768px',
                     'lg': '1024px',
                     'xl': '1280px',
+                    '2xl': '1536px',
                 },
                 extend: {
                     fontFamily: { sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'] },
@@ -52,35 +49,26 @@
     </script>
     <style>
         html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #fbfbfd; color: #0a0a0a; -webkit-font-smoothing: antialiased; }
-        body.no-scroll {
-            overflow: hidden !important;
-            touch-action: none;
-        }
-
+        body.no-scroll { overflow: hidden !important; touch-action: none; }
         html[lang="mm"] body { font-size: 14px; line-height: 2; }
         html[lang="mm"] h1 { font-size: 2.5rem; line-height: 1.6; letter-spacing: normal; }
         html[lang="mm"] h3 { font-size: 1.25rem; line-height: 1.7; letter-spacing: normal; }
         html[lang="mm"] p { font-size: 0.9rem; line-height: 2.2; }
         html[lang="mm"] .uppercase, html[lang="mm"] .capitalize { text-transform: none; }
         html[lang="mm"] .tracking-widest, html[lang="mm"] .tracking-wide { letter-spacing: normal; }
-        
         #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; }
         .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
         .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
-        
         .hover-underline { position: relative; }
         .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
-        
         .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
         .btn-hover-effect:disabled { opacity: 0.7; cursor: not-allowed; }
-
         #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
         .progress-line { width: 100%; height: 2px; background-color: #e5e5ea; border-radius: 4px; overflow: hidden; position: relative; }
         .progress-line::after { content: ''; position: absolute; left: -50%; top: 0; height: 100%; width: 50%; background-color: #111111; border-radius: 4px; animation: lineAnim 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
         @keyframes lineAnim { 0% { left: -50%; width: 50%; } 50% { width: 20%; } 100% { left: 100%; width: 50%; } }
-
         .search-overlay { transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; opacity: 0; pointer-events: none; }
         .search-overlay.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
         .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
@@ -93,23 +81,19 @@
         .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e5e5ea; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #d1d1d6; }
         .user-avatar-global { transition: all 0.3s ease; }
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
-
-        /* Animation utilities */
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
-        .bg-grid-pattern {
-            background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
         .icon-float { animation: float 6s ease-in-out infinite; }
+        input[type="radio"]:checked + span { font-weight: 700; color: #0a0a0a; }
     </style>
 </head>
-<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
-
-    <!-- GLOBAL ENTERPRISE LOADER -->
+<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll relative">
+    <div class="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100/40 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-purple-100/30 rounded-full blur-[150px] pointer-events-none z-0"></div>
     <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
         <i data-lucide="code-2" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
         <div class="w-48 max-w-[80vw]">
@@ -117,39 +101,27 @@
         </div>
         <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 transition-colors" data-i18n="loadingInit">Initializing...</span>
     </div>
-
-    <!-- Navigation -->
     <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent">
-        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
             <div class="flex justify-between items-center h-14 sm:h-16">
                 <div class="flex items-center h-full">
                     <button class="md:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-myancode-black" onclick="toggleMobileMenu()">
                         <i data-lucide="menu" class="h-5 w-5"></i>
                     </button>
-                    <!-- LOGO LINK -->
                     <a href="../" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
                         <i data-lucide="code-2" class="h-5 w-5 mr-2 transition-all duration-500 group-hover:rotate-12 nav-icon text-myancode-black"></i>
                         <span class="font-semibold text-lg sm:text-xl tracking-wide transition-colors duration-300 group-hover:text-myancode-blue nav-text text-myancode-black" id="navLogoText">MyanCode</span>
                     </a>
                 </div>
-                
                 <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium items-center h-full">
                     <a href="../studio/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
                     <a href="../templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
                     <a href="../services/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/services/" data-i18n="navServices">Services</a>
-                    
-                    <!-- FULL-WIDTH APPLE STYLE SUPPORT MEGA MENU -->
                     <div class="relative group h-full flex items-center">
                         <button class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link flex items-center gap-1 cursor-pointer text-myancode-black/80" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
-                        
-                        <!-- Invisible bridge -->
                         <div class="absolute top-[80%] left-0 w-full h-8"></div>
-
-                        <!-- Fixed Full-Width Dropdown Content -->
                         <div class="fixed top-[56px] sm:top-[64px] left-0 w-full bg-[#fbfbfd]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border-b border-gray-200/60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
                             <div class="max-w-[1024px] mx-auto px-4 sm:px-6 py-12 flex gap-8 md:gap-16 lg:gap-24 text-black">
-                                
-                                <!-- Column 1: Explore Support -->
                                 <div class="flex-[1.2]">
                                     <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
                                     <div class="flex flex-col gap-4">
@@ -159,8 +131,6 @@
                                         <a href="../contact-us/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
                                     </div>
                                 </div>
-                                
-                                <!-- Column 2: Service Policies -->
                                 <div class="flex-1">
                                     <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
                                     <div class="flex flex-col gap-3">
@@ -171,8 +141,6 @@
                                         <a href="../legal/#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
                                     </div>
                                 </div>
-                                
-                                <!-- Column 3: Legal & Transactions -->
                                 <div class="flex-1">
                                     <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
                                     <div class="flex flex-col gap-3">
@@ -182,7 +150,6 @@
                                         <a href="../legal/#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
                     </div>
@@ -200,14 +167,12 @@
                     <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
                     <button onclick="toggleWishlistDrawer()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black">
                         <i data-lucide="heart" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
-                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-myancode-blue text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-myancode-blue text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity shadow-sm">0</span>
                     </button>
                 </div>
             </div>
         </div>
     </nav>
-
-    <!-- SEARCH OVERLAY -->
     <div id="searchOverlay" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
         <div class="max-w-[1024px] mx-auto px-6 pt-10">
             <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-500 hover:text-black transition-colors rounded-full bg-gray-50 hover:bg-gray-200"><i data-lucide="x" class="h-5 w-5"></i></button></div>
@@ -233,8 +198,6 @@
             </div>
         </div>
     </div>
-
-    <!-- MOBILE MENU DRAWER -->
     <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#fafafa] z-[80] drawer-left flex flex-col overflow-hidden">
         <div class="px-6 py-6 flex items-center justify-between flex-shrink-0">
             <span class="font-bold text-xl tracking-wide text-black">MyanCode</span>
@@ -246,48 +209,17 @@
                 <input type="text" class="w-full pl-8 py-3 border-b border-gray-300 focus:outline-none text-base bg-transparent text-gray-600 placeholder-gray-400 pointer-events-none" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
             </div>
             <div class="space-y-6 text-base font-normal text-myancode-black tracking-wide flex-1">
-                <a href="../studio/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
-                    <span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
-                </a>
-                <a href="../templates/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
-                    <span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
-                </a>
-                <a href="../services/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
-                    <span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
-                </a>
+                <a href="../studio/" class="flex justify-between items-center hover:text-myancode-blue transition-colors"><span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i></a>
+                <a href="../templates/" class="flex justify-between items-center hover:text-myancode-blue transition-colors"><span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i></a>
+                <a href="../services/" class="flex justify-between items-center hover:text-myancode-blue transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i></a>
                 <div class="flex flex-col">
                     <button onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
                         <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform"></i>
                     </button>
                     <div id="mobSupportDrop" class="hidden flex-col w-full mt-6 pb-2 pl-4 border-l-2 border-gray-100">
-                        <div class="mb-6">
-                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
-                            <div class="flex flex-col gap-4">
-                                <a href="../guides/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supGuides">Guides</a>
-                                <a href="../help/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supHelp">Help Center</a>
-                                <a href="../faq/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supFaq">FAQs</a>
-                                <a href="../contact-us/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supContact">Contact</a>
-                            </div>
-                        </div>
-                        <div class="mb-6">
-                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
-                            <div class="flex flex-col gap-3">
-                                <a href="../legal/#client-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polClient">Customer Policy</a>
-                                <a href="../legal/#studio-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polStudio">Studio Policy</a>
-                                <a href="../legal/#template-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polTemplate">Template Policy</a>
-                                <a href="../legal/#service-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polService">Service Policy</a>
-                                <a href="../legal/#maintenance-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polMaintenance">Maintenance Policy</a>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
-                            <div class="flex flex-col gap-3">
-                                <a href="../legal/#payment-policy" target="_blank"  class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polPayment">Payment Policy</a>
-                                <a href="../legal/#refund-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polRefund">Refund Policy</a>
-                                <a href="../legal/#privacy-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polPrivacy">Privacy Policy</a>
-                                <a href="../legal/#terms-of-services" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polTerms">Terms of Service</a>
-                            </div>
-                        </div>
+                         <a href="../help/" class="text-lg font-bold text-myancode-black py-2" data-i18n="supHelp">Help Center</a>
+                         <a href="../guides/" class="text-lg font-bold text-myancode-black py-2" data-i18n="supGuides">Guides</a>
+                         <a href="../legal/#terms-of-services" class="text-sm font-semibold text-gray-700 py-2" data-i18n="polTerms">Terms of Service</a>
                     </div>
                 </div>
                 <div class="pt-4 border-t border-gray-100">
@@ -306,8 +238,6 @@
             </div>
         </div>
     </div>
-
-    <!-- WISHLIST DRAWER -->
     <div id="wishlistOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
     <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-gray-100">
         <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100 bg-gray-50/50">
@@ -320,36 +250,77 @@
             <button onclick="proceedToCheckoutFromWishlist()" class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
         </div>
     </div>
-
-    <!-- MAIN CONTENT: SERVICES -->
-    <main class="flex-grow pt-24 pb-20 w-full relative z-10 bg-[#fbfbfd]">
-        
-        <!-- Hero Section -->
-        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-12 sm:mb-20 pt-8 sm:pt-16 text-center">
-            <div class="inline-flex items-center justify-center p-4 sm:p-5 bg-blue-50/50 rounded-3xl shadow-sm border border-blue-100/50 mb-6 sm:mb-8 icon-float">
-                <i data-lucide="briefcase" class="h-8 w-8 sm:h-10 sm:w-10 text-myancode-blue"></i>
+    <main class="flex-grow pt-24 pb-20 w-full relative z-10">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 mb-12 sm:mb-16 pt-8 sm:pt-16 text-center">
+            <div class="inline-flex items-center justify-center p-4 sm:p-5 bg-white/60 backdrop-blur-md rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 mb-6 sm:mb-8 icon-float relative">
+                <div class="absolute inset-0 bg-blue-100/50 rounded-3xl blur-md -z-10"></div>
+                <i data-lucide="layers" class="h-8 w-8 sm:h-10 sm:w-10 text-myancode-blue"></i>
             </div>
             <h1 class="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-myancode-black mb-4 sm:mb-6 leading-tight" data-i18n="servicesHeroTitle">Premium Digital Services</h1>
             <p class="text-base sm:text-lg text-gray-500 leading-relaxed max-w-2xl mx-auto" data-i18n="servicesHeroDesc">Elevate your business with our top-tier web solutions, from advanced SEO optimizations to seamless domain acquisitions and enterprise-grade maintenance.</p>
+            <div class="max-w-2xl mx-auto mt-10 relative group z-20">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="h-5 w-5 text-gray-400 group-focus-within:text-myancode-blue transition-colors"></i>
+                </div>
+                <input type="text" id="serviceSearch" oninput="handleServiceSearch(event)" class="w-full pl-14 pr-5 py-4 sm:py-5 bg-white/80 backdrop-blur-xl border border-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:shadow-[0_20px_40px_-10px_rgba(41,151,255,0.15)] outline-none transition-all duration-300 text-gray-700 text-sm sm:text-base font-medium" placeholder="Search for enterprise services, platforms..." data-i18n-placeholder="searchServicesPlaceholder">
+            </div>
         </div>
-
-        <!-- Services Grid -->
-        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
-            <div id="servicesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                <!-- Data will be loaded here -->
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 relative z-10 flex flex-col lg:flex-row gap-8 items-start">
+            <button onclick="toggleMobileFilters()" class="lg:hidden w-full flex items-center justify-between bg-white/80 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-gray-100/50 transition-active">
+                <span class="font-bold text-sm tracking-wide flex items-center gap-3"><i data-lucide="sliders-horizontal" class="h-5 w-5 text-myancode-blue"></i> <span data-i18n="filterTitle">Filters & Sorting</span></span>
+                <i data-lucide="chevron-down" id="mobileFilterIcon" class="h-5 w-5 transition-transform text-gray-400"></i>
+            </button>
+            <aside id="filterSidebar" class="hidden lg:block w-full lg:w-72 flex-shrink-0 sticky top-24 transition-all duration-300 z-30">
+                <div class="bg-white/60 backdrop-blur-2xl p-6 sm:p-7 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/80 space-y-8 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-blue-50/50 rounded-full blur-3xl -z-10"></div>
+                    <div class="pb-5 border-b border-gray-100/80">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1" data-i18n="resultsFound">Results</span>
+                        <div class="flex items-baseline gap-2">
+                            <span id="resultCount" class="text-3xl font-black text-myancode-black tracking-tighter">0</span>
+                            <span class="text-sm font-medium text-gray-500" data-i18n="servicesLbl">Services</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-myancode-black mb-4 uppercase tracking-widest flex items-center gap-2"><i data-lucide="arrow-up-down" class="h-4 w-4 text-gray-400"></i> <span data-i18n="sortByTitle">Sort By</span></h4>
+                        <div class="relative">
+                            <select id="sortSelect" onchange="applyFiltersAndSort()" class="w-full bg-white border border-gray-100 text-gray-700 text-sm font-medium rounded-2xl focus:ring-2 focus:ring-myancode-blue/20 focus:border-myancode-blue block px-4 py-3.5 outline-none cursor-pointer transition-all shadow-sm appearance-none pr-10">
+                                <option value="default" data-i18n="sortDefault">Recommendation</option>
+                                <option value="priceAsc" data-i18n="sortPriceAsc">Price: Low to High</option>
+                                <option value="priceDesc" data-i18n="sortPriceDesc">Price: High to Low</option>
+                                <option value="nameAsc" data-i18n="sortNameAsc">Alphabetical: A-Z</option>
+                                <option value="nameDesc" data-i18n="sortNameDesc">Alphabetical: Z-A</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-myancode-black mb-4 uppercase tracking-widest flex items-center gap-2"><i data-lucide="wallet" class="h-4 w-4 text-gray-400"></i> <span data-i18n="priceTitle">Price Range (MMK)</span></h4>
+                        <div class="flex items-center gap-3">
+                            <input type="number" id="minPriceInput" oninput="applyFiltersAndSort()" placeholder="Min" class="w-full bg-white border border-gray-100 rounded-2xl p-3 text-sm font-medium focus:ring-2 focus:ring-myancode-blue/20 focus:border-myancode-blue outline-none transition-all shadow-sm placeholder-gray-300" data-i18n-placeholder="minPrice">
+                            <span class="text-gray-300 font-medium">-</span>
+                            <input type="number" id="maxPriceInput" oninput="applyFiltersAndSort()" placeholder="Max" class="w-full bg-white border border-gray-100 rounded-2xl p-3 text-sm font-medium focus:ring-2 focus:ring-myancode-blue/20 focus:border-myancode-blue outline-none transition-all shadow-sm placeholder-gray-300" data-i18n-placeholder="maxPrice">
+                        </div>
+                    </div>
+                    <button onclick="resetFilters()" class="w-full py-3.5 bg-gray-50/80 hover:bg-gray-100 text-gray-600 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 border border-gray-100 shadow-sm btn-hover-effect">
+                        <i data-lucide="rotate-ccw" class="h-4 w-4"></i> <span data-i18n="clearFilter">Reset Filters</span>
+                    </button>
+                </div>
+            </aside>
+            <div class="flex-1 w-full pb-10">
+                <div id="servicesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+                </div>
             </div>
         </div>
     </main>
 
+
     <!-- Detailed Footer with Integrated Newsletter -->
-    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10">
+    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative overflow-hidden z-10 mt-auto">
+        <!-- Subtle Bottom Glow -->
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-blue-400/20 rounded-full filter blur-[100px] pointer-events-none z-0"></div>
-        <div class="max-w-[1024px] mx-auto">
-            
-            <!-- Enterprise Newsletter Card -->
+
+        <div class="max-w-[1024px] mx-auto relative z-10">
             <div class="bg-white rounded-[2.5rem] p-8 sm:p-12 mb-20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
-                
-                <!-- Left: Text Content -->
                 <div class="text-center lg:text-left w-full lg:w-1/2 flex flex-col items-center lg:items-start">
                     <div class="inline-flex items-center justify-center w-14 h-14 bg-[#f0f5ff] rounded-full mb-6">
                         <i data-lucide="mail" class="w-6 h-6 text-[#2997ff]"></i>
@@ -357,8 +328,6 @@
                     <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-4" data-i18n="nlTitle">Stay Ahead of the Curve</h3>
                     <p class="text-base text-gray-500 font-normal leading-relaxed max-w-md mx-auto lg:mx-0" data-i18n="nlDesc">Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.</p>
                 </div>
-                
-                <!-- Right: Subscription Form + Turnstile -->
                 <div class="w-full lg:w-1/2">
                     <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="w-full flex flex-col gap-3">
                         <div class="relative flex items-center bg-white border border-gray-200 rounded-full p-1.5 shadow-sm transition-all focus-within:border-myancode-black focus-within:ring-1 focus-within:ring-myancode-black">
@@ -370,52 +339,55 @@
                                 <span data-i18n="btnSubscribe">Subscribe</span>
                             </button>
                         </div>
-                        
-                        <!-- Cloudflare Turnstile Widget -->
                         <div class="cf-turnstile pl-2" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="light"></div>
                     </form>
-                    
                     <p class="text-[11px] text-gray-400 mt-4 font-medium tracking-wide uppercase text-center lg:text-left lg:ml-6" data-i18n="nlDisclaimer">We respect your privacy. No spam, ever.</p>
                 </div>
-                
             </div>
 
-            <!-- Modern Formal Footer Links Grid -->
             <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-16 border-t border-gray-200 pt-16 mt-16">
                 <div>
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftCompanyTitle">Company</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="../about-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAboutUs">About Us</a></li>
-                        <li><a href="../contact-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftContactUs">Contact Us</a></li>
-                        <li><a href="../updates-news/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftUpdates">Updates & News</a></li>
-                        <li><a href="../careers/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftCareers">Careers</a></li>
+                        <li><a href="./about-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAboutUs">About Us</a></li>
+                        <li><a href="./contact-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftContactUs">Contact Us</a></li>
+                        <li><a href="./updates-news/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftUpdates">Updates & News</a></li>
+                        <li><a href="./careers/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftCareers">Careers</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftStoreTitle">Store</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="../studio/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAddOns">Add-Ons</a></li>
-                        <li><a href="../templates/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftTemplates">Templates</a></li>
-                        <li><a href="../services/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftServices">Services</a></li>
-                        <li><a href="../maintenance/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftMaintenance">Maintenance</a></li>
+                        <li><a href="./studio/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAddOns">Add-Ons</a></li>
+                        <li><a href="./templates/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftTemplates">Templates</a></li>
+                        <li><a href="./services/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftServices">Services</a></li>
+                        <li><a href="./maintenance/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftMaintenance">Maintenance</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftSupportTitle">Support</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="../guides/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supGuides">Guides</a></li>
-                        <li><a href="../help/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supHelp">Help Center</a></li>
-                        <li><a href="../faq/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supFaq">FAQs</a></li>
-                        <li><a href="../about/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supLegal">Legal</a></li>
+                        <li><a href="./guides/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supGuides">Guides</a></li>
+                        <li><a href="./help/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supHelp">Help Center</a></li>
+                        <li><a href="./faq/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supFaq">FAQs</a></li>
+                        <li><a href="./about/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supLegal">Legal</a></li>
                     </ul>
                 </div>
                 <div class="xs:col-span-2 md:col-span-1">
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftFollow">Follow Us</h4>
-                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-5 leading-relaxed pr-4" data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-3 leading-relaxed pr-4" data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-3 leading-relaxed pr-4">contact@myancode.com</p>
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-4 leading-relaxed pr-4">+959 4567 51 882</p>
                     <div class="flex space-x-5">
-                        <a href="../comming-soon/" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="facebook" class="h-4 w-4 fill-current"></i></a>
-                        <a href="../comming-soon/" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="instagram" class="h-4 w-4"></i></a>
-                        <a href="../comming-soon/" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="linkedin" class="h-4 w-4 fill-current"></i></a>
+                        <a href="./comming-soon/" class="text-gray-400 hover:text-myancode-blue transition-colors btn-hover-effect" aria-label="Facebook">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                        </a>
+                        <a href="./comming-soon/" class="text-gray-400 hover:text-pink-500 transition-colors btn-hover-effect" aria-label="Instagram">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                        </a>
+                        <a href="./comming-soon/" class="text-gray-400 hover:text-blue-500 transition-colors btn-hover-effect" aria-label="LinkedIn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -424,93 +396,108 @@
             </div>
         </div>
     </footer>
-
-    <!-- Notification Toasts -->
+    
     <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
         <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
         <span id="toast-msg" class="text-sm font-medium tracking-wide">Success!</span>
     </div>
-
-    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-myancode-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
         <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-white"></i>
         <span id="error-toast-msg" class="text-sm font-medium tracking-wide">Error!</span>
     </div>
-
     <script>
         lucide.createIcons();
-
-        /* --- Dictionary & Language (Updated for all keys) --- */
         const dict = {
             en: {
                 navStudio: "Studio", navWebsites: "Templates", navServices: "Services", navSupport: "Support",
                 langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
                 wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", btnCart: "Cart", wlTotal: "Total", btnContact: "Proceed to Checkout",
                 quickLinks: "Quick Links", searchResults: "Results", searchHint: "Type to discover our enterprise products and services...",
-                
                 ftCompanyTitle: "Company", ftAboutUs: "About Us", ftContactUs: "Contact Us", ftUpdates: "Updates & News", ftCareers: "Careers",
                 ftStoreTitle: "Store", ftAddOns: "Add-Ons", ftTemplates: "Templates", ftServices: "Services", ftMaintenance: "Maintenance",
                 ftSupportTitle: "Support", supGuides: "Guides", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal", supContact: "Contact",
                 supHelpTitle: "Explore Support", supPoliciesTitle: "Service Policies", supLegalTitle: "Legal & Transactions",
                 supPolicies: "Policies", polClient: "Customer Policy", polStudio: "Studio Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
-                
                 ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest products and tech insights.", ftCopyright: "© 2026 MyanCode Inc. All Rights Reserved.",
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrHub: "Hub", hdrLogout: "Sign Out", hdrWorkplace: "Workplace", msgLoggedOut: "Signed out securely.",
                 prod1Title: "Business & Org", prod3Title: "Info & Education",
                 loadingInit: "Initializing...",
-                
                 servicesHeroTitle: "Premium Digital Services",
                 servicesHeroDesc: "Elevate your business with our top-tier web solutions, from advanced SEO optimizations to seamless domain acquisitions and enterprise-grade maintenance.",
                 btnPurchase: "Purchase",
-                btnViewDetails: "View Detail",
+                btnViewDetails: "View Details",
                 lblAvailable: "Available",
                 lblUnavailable: "Unavailable",
-                
                 nlTitle: "Stay Ahead of the Curve", nlDesc: "Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.",
                 nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
-                msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list."
+                msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
+                searchServicesPlaceholder: "Search for enterprise services, maintenance...",
+                filterTitle: "Filters & Sorting",
+                resultsFound: "Results Found",
+                servicesLbl: "Services",
+                sortByTitle: "Sort By",
+                sortDefault: "Recommendation",
+                sortPriceAsc: "Price: Low to High",
+                sortPriceDesc: "Price: High to Low",
+                sortNameAsc: "Alphabetical: A to Z",
+                sortNameDesc: "Alphabetical: Z to A",
+                categoryTitle: "Category",
+                allCategories: "All Categories",
+                priceTitle: "Price Range (MMK)",
+                minPrice: "Min",
+                maxPrice: "Max",
+                clearFilter: "Reset Filters"
             },
             mm: {
                 navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ",
                 langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
                 wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", btnCart: "ဝယ်ယူမည့်စာရင်း", wlTotal: "စုစုပေါင်း", btnContact: "ဝယ်ယူရန် ရှေ့ဆက်မည်",
                 quickLinks: "အမြန်လင့်ခ်များ", searchResults: "ရလဒ်များ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...",
-                
                 ftCompanyTitle: "ကုမ္ပဏီ", ftAboutUs: "ကျွန်ုပ်တို့အကြောင်း", ftContactUs: "ဆက်သွယ်ရန်", ftUpdates: "သတင်းနှင့် အသစ်များ", ftCareers: "အလုပ်အကိုင်များ",
                 ftStoreTitle: "စတိုး", ftAddOns: "အပိုပစ္စည်းများ", ftTemplates: "ဝက်ဘ်ဆိုက်များ", ftServices: "ဝန်ဆောင်မှုများ", ftMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
                 ftSupportTitle: "အကူအညီ", supGuides: "လမ်းညွှန်များ", supHelp: "အကူအညီဌာန", supFaq: "အမေးများသောမေးခွန်းများ", supLegal: "တရားဝင်", supContact: "ဆက်သွယ်ရန်",
                 supHelpTitle: "အကူအညီ ရယူရန်", supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ",
                 supPolicies: "မူဝါဒများ", polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
-                
                 ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
                 hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrHub: "ဗဟိုဌာန", hdrLogout: "အကောင့်ထွက်ရန်", hdrWorkplace: "လုပ်ငန်းခွင်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
                 prod1Title: "စီးပွားရေးနှင့် အဖွဲ့အစည်း", prod3Title: "သတင်းအချက်အလက်နှင့် ပညာရေး",
                 loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...",
-                
                 servicesHeroTitle: "အဆင့်မြင့် ဒီဂျစ်တယ် ဝန်ဆောင်မှုများ",
                 servicesHeroDesc: "လူကြီးမင်း၏ လုပ်ငန်းအတွက် အကောင်းမွန်ဆုံးသော ဝန်ဆောင်မှုများကို ရွေးချယ်ပါ။",
                 btnPurchase: "ဝယ်ယူမည်",
                 btnViewDetails: "အသေးစိတ်ကြည့်ရန်",
                 lblAvailable: "ရရှိနိုင်သည်",
                 lblUnavailable: "မရရှိနိုင်ပါ",
-                
                 nlTitle: "သတင်းအသစ်များ ရယူရန်", nlDesc: "နောက်ဆုံးရ နည်းပညာသတင်းများနှင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းအသစ်များကို ရယူရန် သင်၏ အီးမေးလ်ကို စာရင်းသွင်းပါ။",
                 nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", nlDisclaimer: "သင်၏ အချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။",
-                msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။"
+                msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။",
+                searchServicesPlaceholder: "ဝန်ဆောင်မှုများ ရှာဖွေရန်...",
+                filterTitle: "စစ်ထုတ်ခြင်းများ",
+                resultsFound: "ရှာဖွေတွေ့ရှိမှု",
+                servicesLbl: "ဝန်ဆောင်မှုများ",
+                sortByTitle: "စီစဥ်မှု",
+                sortDefault: "အကြံပြုချက်အတိုင်း",
+                sortPriceAsc: "စျေးနှုန်း - အနည်းမှအများ",
+                sortPriceDesc: "စျေးနှုန်း - အများမှအနည်း",
+                sortNameAsc: "အက္ခရာစဉ် - က မှ အ",
+                sortNameDesc: "အက္ခရာစဉ် - အ မှ က",
+                categoryTitle: "ကဏ္ဍ",
+                allCategories: "ကဏ္ဍအားလုံး",
+                priceTitle: "စျေးနှုန်းအကွာအဝေး (MMK)",
+                minPrice: "အနည်းဆုံး",
+                maxPrice: "အများဆုံး",
+                clearFilter: "စစ်ထုတ်ခြင်းကို ဖျက်မည်"
             }
         };
-
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
-        let allServicesData = []; // To store fetched services
-
-        /* --- REAL SUPABASE AUTHENTICATION --- */
+        let allServicesData = []; 
+        let activeFilters = { search: '', minPrice: '', maxPrice: '', sort: 'default' };
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
-        
         let supabaseInstance = null; let currentUser = null; let currentUserWishlist = [];
         if (window.supabase) {
              supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
-
         if (supabaseInstance) {
             supabaseInstance.auth.onAuthStateChange((event, session) => {
                 if (session) {
@@ -524,29 +511,24 @@
                     currentUserWishlist = session.user.user_metadata?.wishlist || [];
                 } else { currentUser = null; currentUserWishlist = []; }
                 updateAuthUI();
-                if(allServicesData.length > 0) renderServices(allServicesData); // Re-render to update wishlist icons
+                if(allServicesData.length > 0) applyFiltersAndSort();
             });
         } else { updateAuthUI(); }
-
         function renderLanguage() {
             document.documentElement.lang = currentLang;
             document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
             updateAuthUI();
             if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
-            if(allServicesData.length > 0) renderServices(allServicesData); // Re-render labels for services
+            if(allServicesData.length > 0) applyFiltersAndSort();
         }
-
         function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
         function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
-
         function updateAuthUI() {
             const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
             if (!desktopAuth || !containerMob) return;
             if (currentUser) {
                 const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-gray-200">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
-                const mobileAvatarHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-gray-200 shadow-sm">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-blue"></i>`;
-
                 desktopAuth.innerHTML = `
                     <div class="relative" id="profileContainer">
                         <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black flex items-center justify-center">${avatarIconHTML}</button>
@@ -555,45 +537,18 @@
                             ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
                             ${currentUser.role === 'user' ? `<a href="../hub/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
                             <button onclick="window.location.href='../profile/'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
-                            <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
+                            <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-myancode-black hover:bg-gray-50 transition-colors">${dict[currentLang].hdrLogout}</button>
                         </div>
                     </div>`;
-                containerMob.innerHTML = `
-                    <div class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide border-b border-gray-100 pb-6 mb-6">
-                        <span class="capitalize truncate max-w-[200px]">${currentUser.name}</span> 
-                        ${mobileAvatarHTML}
-                    </div>
-                    <div class="flex flex-col gap-6">
-                        ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
-                            <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
-                        </a>` : ''}
-                        ${currentUser.role === 'user' ? `<a href="../hub/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
-                            <span>${dict[currentLang].hdrHub}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i>
-                        </a>` : ''}
-                        <button onclick="window.location.href='../profile/'" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
-                        <button onclick="handleLogout()" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5 text-gray-400"></i></button>
-                    </div>`;
+                containerMob.innerHTML = `<button onclick="handleLogout()" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5 text-gray-400"></i></button>`;
             } else {
                 desktopAuth.innerHTML = `
                     <a href="../login/" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link text-myancode-black px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
                     <a href="../register/" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
-                containerMob.innerHTML = `
-                    <div class="flex flex-col gap-6">
-                        <a href="../login/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
-                            <span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-400"></i>
-                        </a>
-                        <a href="../register/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
-                            <span>${dict[currentLang].hdrRegister}</span> <i data-lucide="user-plus" class="h-5 w-5 text-gray-400"></i>
-                        </a>
-                    </div>`;
+                containerMob.innerHTML = `<a href="../login/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-400"></i></a>`;
             }
-            updateWishlistCount(); lucide.createIcons();
-            
-            // Re-apply active nav links since DOM might have changed
-            setActiveNavLinks();
+            updateWishlistCount(); lucide.createIcons(); setActiveNavLinks();
         }
-
-        /* --- Active Nav Links Tracker --- */
         function setActiveNavLinks() {
             const currentPath = window.location.pathname;
             document.querySelectorAll('.nav-link[data-nav-path]').forEach(link => {
@@ -604,14 +559,11 @@
                 }
             });
         }
-
-        /* --- Wishlist System --- */
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
             if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } 
             else { countSpan.classList.add('opacity-0'); }
         }
-
         function toggleWishlistDrawer() {
             if (!currentUser) return showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ");
             const drawer = document.getElementById('wishlistDrawer'); const overlay = document.getElementById('wishlistOverlay');
@@ -620,27 +572,16 @@
             if(drawer.classList.contains('open')) { document.body.classList.add('no-scroll'); renderWishlistItems(); } 
             else { document.body.classList.remove('no-scroll'); }
         }
-
         function toggleWishlist(id, name, price) {
             if (!currentUser) { showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ"); return; }
             const index = currentUserWishlist.findIndex(i => i.id === id);
             if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); } 
             else { currentUserWishlist.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
-            syncWishlistToSupabase(); 
-            updateWishlistCount(); 
-            renderWishlistItems();
-            if (allServicesData.length > 0) renderServices(allServicesData); // Re-render grid to update heart icons
+            syncWishlistToSupabase(); updateWishlistCount(); renderWishlistItems(); applyFiltersAndSort(); 
         }
-
         async function syncWishlistToSupabase() {
-            if (supabaseInstance && currentUser) {
-                const { error } = await supabaseInstance.auth.updateUser({
-                    data: { wishlist: currentUserWishlist }
-                });
-                if (error) console.error("Error syncing wishlist:", error);
-            }
+            if (supabaseInstance && currentUser) await supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } });
         }
-
         function renderWishlistItems() {
             const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal'); let total = 0;
             if (currentUserWishlist.length === 0) {
@@ -650,88 +591,124 @@
             container.innerHTML = currentUserWishlist.map(item => { total += item.price;
                 return `
                 <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                    <div><h4 class="font-semibold text-sm mb-1">${dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name}</h4><span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span></div>
-                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                    <div><h4 class="font-semibold text-sm mb-1">${item.name}</h4><span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span></div>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-myancode-blue hover:text-blue-700 font-medium tracking-wide p-2 bg-blue-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
                 </div>`}).join('');
             totalDisplay.textContent = `${total.toLocaleString()} MMK`; lucide.createIcons();
         }
-
-        // >>> CHECKOUT INTEGRATION LOGIC <<<
         window.proceedToCheckoutFromWishlist = function() {
-            if (!currentUser) {
-                showErrorToast(currentLang === 'en' ? "Please log in to proceed" : "အကောင့်အရင်ဝင်ပါ");
-                return;
-            }
-            if (currentUserWishlist.length === 0) {
-                showErrorToast(currentLang === 'en' ? "Your wishlist is empty" : "ဝယ်ယူရန်စာရင်း လွတ်နေပါသည်");
-                return;
-            }
-            // Seamlessly route to secure checkout utilizing the wishlist source flag to carry all items
+            if (!currentUser) return showErrorToast(currentLang === 'en' ? "Please log in to proceed" : "အကောင့်အရင်ဝင်ပါ");
+            if (currentUserWishlist.length === 0) return showErrorToast(currentLang === 'en' ? "Your wishlist is empty" : "ဝယ်ယူရန်စာရင်း လွတ်နေပါသည်");
             window.location.href = `../checkout/?source=wishlist`;
         }
-
-        /* --- Fetch & Render Services --- */
         async function fetchServices() {
             showLoader('loadingInit');
             try {
                 const { data, error } = await supabaseInstance.from('services').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
                 allServicesData = data || [];
-                renderServices(allServicesData);
+                applyFiltersAndSort();
             } catch (err) {
-                console.error("Failed to fetch services:", err);
-                document.getElementById('servicesGrid').innerHTML = `<div class="col-span-full text-center py-12 text-red-500 font-bold tracking-wide">Failed to load services. Please check your connection.</div>`;
+                document.getElementById('servicesGrid').innerHTML = `<div class="col-span-full text-center py-12 text-myancode-blue font-bold tracking-wide">Failed to load services. Please check your connection.</div>`;
             } finally {
                 hideLoader();
             }
         }
-
+        function handleServiceSearch(e) {
+            activeFilters.search = e.target.value.toLowerCase().trim();
+            applyFiltersAndSort();
+        }
+        function toggleMobileFilters() {
+            const sidebar = document.getElementById('filterSidebar');
+            const icon = document.getElementById('mobileFilterIcon');
+            if(sidebar.classList.contains('hidden')) { sidebar.classList.remove('hidden'); icon.classList.add('rotate-180'); } 
+            else { sidebar.classList.add('hidden'); icon.classList.remove('rotate-180'); }
+        }
+        function applyFiltersAndSort() {
+            activeFilters.minPrice = document.getElementById('minPriceInput').value;
+            activeFilters.maxPrice = document.getElementById('maxPriceInput').value;
+            activeFilters.sort = document.getElementById('sortSelect').value;
+            let filtered = allServicesData.filter(s => {
+                const matchSearch = s.name.toLowerCase().includes(activeFilters.search) || (s.short_desc && s.short_desc.toLowerCase().includes(activeFilters.search));
+                let matchPrice = true;
+                const price = parseFloat(s.price) || 0;
+                if(activeFilters.minPrice !== "" && price < parseFloat(activeFilters.minPrice)) matchPrice = false;
+                if(activeFilters.maxPrice !== "" && price > parseFloat(activeFilters.maxPrice)) matchPrice = false;
+                return matchSearch && matchPrice;
+            });
+            filtered.sort((a, b) => {
+                const priceA = parseFloat(a.price) || 0; const priceB = parseFloat(b.price) || 0;
+                const nameA = a.name.toLowerCase(); const nameB = b.name.toLowerCase();
+                switch(activeFilters.sort) {
+                    case 'priceAsc': return priceA - priceB;
+                    case 'priceDesc': return priceB - priceA;
+                    case 'nameAsc': return nameA.localeCompare(nameB);
+                    case 'nameDesc': return nameB.localeCompare(nameA);
+                    default: return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                }
+            });
+            document.getElementById('resultCount').innerText = filtered.length;
+            renderServices(filtered);
+        }
+        function resetFilters() {
+            document.getElementById('serviceSearch').value = '';
+            document.getElementById('minPriceInput').value = '';
+            document.getElementById('maxPriceInput').value = '';
+            document.getElementById('sortSelect').value = 'default';
+            activeFilters = { search: '', minPrice: '', maxPrice: '', sort: 'default' };
+            applyFiltersAndSort();
+        }
         function renderServices(services) {
             const grid = document.getElementById('servicesGrid');
             if (services.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 font-bold tracking-wide">${currentLang === 'en' ? 'No services available at the moment.' : 'လောလောဆယ် ဝန်ဆောင်မှုများ မရှိသေးပါ။'}</div>`;
+                grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-20 bg-white/40 backdrop-blur-sm rounded-[3rem] border border-dashed border-gray-200"><i data-lucide="ghost" class="h-16 w-16 text-gray-300 mb-4 animate-float"></i><h4 class="text-xl font-bold text-gray-400 tracking-tight">${currentLang === 'en' ? 'No services found.' : 'ဝန်ဆောင်မှု ရှာမတွေ့ပါ။'}</h4><button onclick="resetFilters()" class="mt-6 px-6 py-2 bg-myancode-blue text-white rounded-full text-sm font-bold btn-hover-effect tracking-wide shadow-md">Reset Search</button></div>`;
+                lucide.createIcons();
                 return;
             }
-
             grid.innerHTML = services.map(s => {
                 const isWishlisted = currentUserWishlist.some(item => item.id === s.id);
-                // Fallback icon style if no image URL
                 const imgArea = s.image_url 
-                    ? `<img src="${s.image_url}" alt="${s.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">`
-                    : `<div class="w-full h-full flex items-center justify-center bg-gray-100 group-hover:scale-105 transition-transform duration-700 ease-out"><i data-lucide="box" class="w-16 h-16 text-gray-300"></i></div>`;
-                
-                const price = s.price ? `${parseFloat(s.price).toLocaleString()} MMK` : 'Custom Pricing';
+                    ? `<img src="${s.image_url}" alt="${s.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[600ms] ease-out">`
+                    : `<div class="w-full h-full flex items-center justify-center bg-gray-50 group-hover:scale-105 transition-transform duration-[600ms] ease-out"><i data-lucide="box" class="w-12 h-12 text-gray-200"></i></div>`;
+                const price = s.price ? `${parseFloat(s.price).toLocaleString()}` : 'Custom';
                 const statusHtml = s.status === 'available' || !s.status 
-                    ? `<span class="absolute top-4 left-4 bg-green-50/90 backdrop-blur-sm text-green-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-green-100 shadow-sm z-10">${dict[currentLang].lblAvailable}</span>`
-                    : `<span class="absolute top-4 left-4 bg-red-50/90 backdrop-blur-sm text-red-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-red-100 shadow-sm z-10">${dict[currentLang].lblUnavailable}</span>`;
+                    ? `<span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-myancode-black px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm z-20 flex items-center gap-1.5 border border-white/50"><span class="w-1.5 h-1.5 rounded-full bg-myancode-blue animate-pulse"></span> ${dict[currentLang].lblAvailable}</span>`
+                    : `<span class="absolute top-4 left-4 bg-gray-100/90 backdrop-blur-md text-gray-500 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm z-20 border border-gray-200/50 flex items-center gap-1.5"><i data-lucide="x-circle" class="h-3 w-3"></i> ${dict[currentLang].lblUnavailable}</span>`;
 
                 return `
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] transition-all duration-400 group flex flex-col">
-                    <div class="h-48 sm:h-56 relative overflow-hidden bg-gray-50 flex items-center justify-center border-b border-gray-50">
+                <div class="bg-white rounded-[1.5rem] shadow-[0_2px_12px_rgb(0,0,0,0.03)] border border-gray-100 overflow-hidden hover:shadow-[0_12px_30px_-10px_rgba(41,151,255,0.15)] hover:-translate-y-1 transition-all duration-300 group flex flex-col relative z-10 hover:border-blue-100/50">
+                    <div class="h-48 relative overflow-hidden bg-gray-50 flex items-center justify-center border-b border-gray-100">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent z-[5] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         ${statusHtml}
-                        <button onclick="event.preventDefault(); toggleWishlist('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price || 0})" class="absolute top-4 right-4 p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:bg-white hover:scale-110 transition-all z-10">
-                            <i data-lucide="heart" class="w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-300 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-400'}"></i>
+                        <button onclick="event.preventDefault(); toggleWishlist('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price || 0})" class="absolute top-4 right-4 p-2.5 bg-white/70 backdrop-blur-lg border border-white/50 rounded-xl shadow-sm hover:bg-white hover:scale-105 transition-all z-20 group/btn">
+                            <i data-lucide="heart" class="w-4 h-4 transition-colors duration-300 ${isWishlisted ? 'fill-myancode-blue text-myancode-blue' : 'text-gray-500 group-hover/btn:text-myancode-blue'}"></i>
                         </button>
                         ${imgArea}
                     </div>
-                    <div class="p-6 sm:p-8 flex flex-col flex-grow">
-                        <h3 class="text-lg sm:text-xl font-bold text-myancode-black mb-2 tracking-tight">${s.name}</h3>
-                        <p class="text-[11px] sm:text-sm text-gray-500 mb-6 flex-grow line-clamp-2 leading-relaxed font-medium">${s.short_desc || ''}</p>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-lg font-bold text-myancode-black tracking-tight leading-snug group-hover:text-myancode-blue transition-colors duration-300 mb-1.5 truncate">${s.name}</h3>
+                        <p class="text-[13px] text-gray-500 mb-4 flex-grow line-clamp-2 leading-relaxed font-normal">${s.short_desc || ''}</p>
                         
-                        <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-50">
-                            <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Starting at</span>
-                            <span class="text-base sm:text-xl font-bold text-myancode-blue">${price}</span>
-                        </div>
-                        
-                        <div class="flex gap-3 mt-auto">
-                            <button onclick="window.location.href='../checkout/?product=${s.slug || s.id}'" class="flex-1 bg-myancode-black text-white px-4 py-3 sm:py-3.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md btn-hover-effect flex items-center justify-center gap-2" ${s.status === 'unavailable' ? 'disabled' : ''}>
-                                <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                                <span>${dict[currentLang].btnPurchase}</span>
-                            </button>
-                            <button onclick="window.location.href='../service-detail/?id=${s.slug || s.id}'" class="flex-1 bg-gray-50 text-myancode-black border border-gray-200 px-4 py-3 sm:py-3.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide hover:bg-gray-100 transition-colors btn-hover-effect flex items-center justify-center gap-2">
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                <span>${dict[currentLang].btnViewDetails}</span>
-                            </button>
+                        <div class="flex flex-col gap-4 mt-auto pt-4 border-t border-gray-100/80">
+                            <div class="flex justify-between items-end">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] uppercase tracking-widest text-gray-400 font-bold mb-0.5">Starting at</span>
+                                    <div class="flex items-baseline gap-1">
+                                        <span class="text-xl font-black text-myancode-blue">${price}</span>
+                                        ${s.price ? `<span class="text-[10px] font-bold text-gray-400">MMK</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="window.location.href='../checkout/?product=${s.slug || s.id}&type=service'" class="flex-1 bg-myancode-black text-white px-4 py-3 rounded-xl font-semibold text-xs sm:text-sm tracking-wide shadow-sm hover:shadow-md hover:bg-gray-800 transition-all duration-200 flex items-center justify-center gap-1.5" ${s.status === 'unavailable' ? 'disabled' : ''}>
+                                    <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                                    <span>${dict[currentLang].btnPurchase}</span>
+                                </button>
+                                <button onclick="window.location.href='../service-detail/?id=${s.slug || s.id}'" class="flex-none px-4 py-3 bg-blue-50 text-myancode-blue rounded-xl hover:bg-myancode-blue hover:text-white transition-colors duration-200 flex items-center justify-center group/view shadow-sm btn-hover-effect">
+                                    <i data-lucide="arrow-right" class="w-4 h-4 transition-transform duration-300 group-hover/view:translate-x-1"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -739,14 +716,11 @@
             }).join('');
             lucide.createIcons();
         }
-
-        /* --- Drawers & Overlays --- */
         function toggleMobileMenu() {
             const drawer = document.getElementById('mobileDrawer');
             if(!drawer.classList.contains('open')) { document.getElementById('wishlistDrawer').classList.remove('open'); document.getElementById('wishlistOverlay').classList.remove('open'); }
             drawer.classList.toggle('open'); document.body.classList.toggle('no-scroll', drawer.classList.contains('open'));
         }
-
         function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); if(document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden'); }
         function toggleProfile(e) { e.stopPropagation(); const profDrop = document.getElementById('profileDropdown'); if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); } }
         document.addEventListener('click', (e) => {
@@ -755,178 +729,25 @@
             const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
             if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
         });
-
-        /* --- Scroll Logic for Subpages --- */
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('mainNav');
-            const scrollThreshold = 10; // Trigger almost immediately on subpages
-            if (window.scrollY > scrollThreshold) {
-                nav.classList.add('glass-nav');
-                nav.classList.remove('nav-transparent', 'border-transparent');
-            } else {
-                nav.classList.remove('glass-nav');
-                nav.classList.add('nav-transparent', 'border-transparent');
-            }
+            if (window.scrollY > 10) { nav.classList.add('glass-nav'); nav.classList.remove('nav-transparent', 'border-transparent'); } 
+            else { nav.classList.remove('glass-nav'); nav.classList.add('nav-transparent', 'border-transparent'); }
         });
-
-        /* --- Search System --- */
-        const searchCatalog = [
-            { id: 'prod1', type: 'Product', name: 'Business Website', mm: 'စီးပွားရေး ဝက်ဘ်ဆိုက်', icon: 'building-2', url: '../templates/', keywords: ['company', 'corporate', 'organization', 'agency', 'commerce', 'business'] },
-            { id: 'prod2', type: 'Product', name: 'Personal Portfolio', mm: 'ပုဂ္ဂိုလ်ရေး မှတ်တမ်း', icon: 'user-circle', url: '../templates/', keywords: ['cv', 'resume', 'blog', 'profile', 'freelance', 'personal'] },
-            { id: 'prod3', type: 'Product', name: 'Info & Education', mm: 'သတင်းအချက်အလက်', icon: 'book-open', url: '../templates/', keywords: ['school', 'college', 'university', 'learning', 'course', 'academy', 'student', 'education', 'info'] },
-            { id: 'srv1', type: 'Service', name: 'Advanced Web SEO', mm: 'အဆင့်မြင့် SEO', icon: 'search', url: '../comming-soon/', keywords: ['google', 'ranking', 'search engine', 'marketing', 'optimization', 'seo'] },
-            { id: 'srv2', type: 'Service', name: 'Domain Acquisition', mm: 'ဒိုမိန်းအမည်', icon: 'globe-2', url: '../comming-soon/', keywords: ['url', 'address', 'website name', 'registration', 'dot com', 'domain'] },
-            { id: 'srv3', type: 'Service', name: 'Maintenance & Security', mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', icon: 'shield-check', url: '../comming-soon/', keywords: ['protection', 'update', 'support', 'hosting', 'safe', 'secure', 'maintenance'] }
-        ];
-
-        function toggleSearchOverlay() {
-            const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
-            if(overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } 
-            else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; }, 400); }
-        }
-
-        function getSimilarityScore(a, b) {
-            if (a.length === 0) return b.length; if (b.length === 0) return a.length; 
-            const matrix = []; for (let i = 0; i <= b.length; i++) matrix[i] = [i]; for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-            for (let i = 1; i <= b.length; i++) {
-                for (let j = 1; j <= a.length; j++) {
-                    if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
-                    else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
-                }
-            } return matrix[b.length][a.length];
-        }
-
-        function handleMegaSearch(e) {
-            const query = e.target.value.toLowerCase().trim(); const resultsContainer = document.getElementById('megaSearchResults');
-            if (!query) { resultsContainer.innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; return; }
-            
-            const queryWords = query.split(/\s+/).filter(w => w.length > 0);
-            
-            let scoredItems = searchCatalog.map(item => {
-                const nameEn = item.name.toLowerCase(); 
-                const nameMm = item.mm.toLowerCase(); 
-                const keywords = (item.keywords || []).map(k => k.toLowerCase());
-                const allTargets = [nameEn, nameMm, ...keywords];
-                
-                let itemScore = Infinity;
-                
-                if (allTargets.some(t => t.includes(query))) {
-                    itemScore = -100;
-                } else {
-                    let totalWordScore = 0;
-                    let matchCount = 0;
-                    
-                    for (let qWord of queryWords) {
-                        let bestWordScore = Infinity;
-                        
-                        for (let target of allTargets) {
-                            const targetWords = target.split(/\s+/);
-                            for (let tWord of targetWords) {
-                                if (tWord.includes(qWord)) {
-                                    bestWordScore = Math.min(bestWordScore, -50);
-                                } else {
-                                    const dist = getSimilarityScore(qWord, tWord);
-                                    const allowedTypos = qWord.length <= 3 ? 1 : (qWord.length <= 6 ? 2 : 3);
-                                    if (dist <= allowedTypos) {
-                                        bestWordScore = Math.min(bestWordScore, dist);
-                                    }
-                                }
-                            }
-                        }
-                        
-                        if (bestWordScore !== Infinity) {
-                            totalWordScore += bestWordScore;
-                            matchCount++;
-                        }
-                    }
-                    
-                    if (matchCount > 0 && matchCount === queryWords.length) {
-                        itemScore = totalWordScore;
-                    } else if (matchCount > 0) {
-                        itemScore = totalWordScore + 10;
-                    }
-                }
-                
-                return { ...item, score: itemScore };
-            });
-            
-            const results = scoredItems.filter(item => item.score < 20).sort((a, b) => a.score - b.score);
-            
-            if (results.length === 0) { resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p>`; return; }
-            resultsContainer.innerHTML = results.map(item => `
-                <a href="${item.url}" onclick="toggleSearchOverlay()" class="flex items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors group">
-                    <div class="p-3 bg-white rounded-xl shadow-sm mr-4 group-hover:bg-myancode-black group-hover:text-white transition-colors"><i data-lucide="${item.icon}" class="h-5 w-5"></i></div>
-                    <div><h5 class="text-sm font-semibold text-black mb-0.5">${currentLang === 'en' ? item.name : item.mm}</h5><span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">${item.type}</span></div>
-                </a>`).join('');
-            lucide.createIcons();
-        }
-
-        /* --- Newsletter Subscription Logic --- */
-        async function handleSubscribe(e) {
-            e.preventDefault();
-            if (!supabaseInstance) { showErrorToast("Database not connected."); return; }
-
-            const emailInput = document.getElementById('newsletterEmail');
-            const btn = document.getElementById('btnSubscribe');
-            const email = emailInput.value.trim();
-
-            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
-            if (!turnstileResponse) { showErrorToast(currentLang === 'en' ? "Please complete the security check." : "ကျေးဇူးပြု၍ လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); return; }
-            if (!email) return;
-
-            btn.disabled = true; const originalBtnText = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>`;
-            lucide.createIcons();
-
-            try {
-                const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
-                if (error) {
-                    if (error.code === '23505') { showToast(dict[currentLang].msgSubscribedAlready); } 
-                    else { throw error; }
-                } else {
-                    showToast(dict[currentLang].msgSubscribedSuccess);
-                    emailInput.value = '';
-                    if (window.turnstile) turnstile.reset();
-                }
-            } catch (err) {
-                showErrorToast(err.message || "Subscription failed. Please try again later.");
-            } finally {
-                btn.disabled = false; btn.innerHTML = originalBtnText;
-            }
-        }
-
-        /* --- Custom Notification Toasts --- */
-        function showToast(msg) { 
-            const toast = document.getElementById('toast'); 
-            document.getElementById('toast-msg').textContent = msg; 
-            toast.classList.remove('translate-y-24', 'opacity-0'); 
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); 
-        }
-
-        function showErrorToast(msg) { 
-            const toast = document.getElementById('error-toast'); 
-            document.getElementById('error-toast-msg').textContent = msg; 
-            toast.classList.remove('translate-y-24', 'opacity-0'); 
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
-        }
-
-        /* --- Loader --- */
+        const searchCatalog = [ { id: 'prod1', type: 'Product', name: 'Business Website', mm: 'စီးပွားရေး ဝက်ဘ်ဆိုက်', icon: 'building-2', url: '../templates/', keywords: ['company', 'business'] }, { id: 'prod2', type: 'Product', name: 'Personal Portfolio', mm: 'ပုဂ္ဂိုလ်ရေး မှတ်တမ်း', icon: 'user-circle', url: '../templates/', keywords: ['resume', 'personal'] } ];
+        function toggleSearchOverlay() { const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open'); if(overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; }, 400); } }
+        function handleMegaSearch(e) { }
+        async function handleSubscribe(e) { e.preventDefault(); }
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
         const globalLoader = document.getElementById('globalLoader');
         function showLoader(textKey) { document.getElementById('loaderText').innerText = dict[currentLang][textKey] || textKey; globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); globalLoader.classList.add('opacity-100', 'visibility-visible'); }
         function hideLoader() { globalLoader.classList.remove('opacity-100', 'visibility-visible'); globalLoader.classList.add('opacity-0', 'pointer-events-none'); setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600); }
-
-        async function handleLogout() {
-            showLoader('loadingAuth');
-            if (supabaseInstance) await supabaseInstance.auth.signOut();
-            hideLoader();
-            showToast(dict[currentLang].msgLoggedOut);
-            window.location.reload();
-        }
-
+        async function handleLogout() { showLoader('loadingInit'); if (supabaseInstance) await supabaseInstance.auth.signOut(); hideLoader(); showToast(dict[currentLang].msgLoggedOut); window.location.reload(); }
         window.addEventListener('load', () => {
             setActiveNavLinks();
             renderLanguage();
-            fetchServices(); // Trigger data fetch on load
+            fetchServices();
         });
     </script>
 </body>

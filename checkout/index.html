@@ -564,7 +564,7 @@
 
                         <!-- Step 3B: Social Media Setup -->
                         <div id="step3bContent" class="step-hidden step-transition w-full flex flex-col h-full absolute top-0 left-0 pointer-events-none">
-                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep1()">
+                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep2()">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase tracking-widest" data-i18n="btnBack">Back</span>
                             </div>
                             
@@ -1135,6 +1135,9 @@
                 const source = params.get('source');
                 const itemType = params.get('type');
 
+                // FIX: UUID Parser Validation - Prevents Postgres UUID syntax errors on Supabase when querying '.or()' with slugs
+                const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(productIdentifier);
+
                 // DYNAMIC: Logic handles Wishlist Arrays vs Single items
                 if (source === 'wishlist' && currentUser) {
                     if (currentUserWishlist && currentUserWishlist.length > 0) {
@@ -1182,12 +1185,12 @@
                     }
                 } 
                 else if (itemType === 'service' && productIdentifier) {
-                    // SECURE: Validates if string is UUID to bypass postgres casting crashes
-                    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productIdentifier);
+                    // DYNAMIC: Route strictly for Single Service Checkouts
+                    const orCondition = isUUID ? `slug.eq.${productIdentifier},id.eq.${productIdentifier}` : `slug.eq.${productIdentifier}`;
                     const { data, error } = await supabaseInstance
                         .from('services')
                         .select('*')
-                        .eq(isUUID ? 'id' : 'slug', productIdentifier);
+                        .or(orCondition);
 
                     if (error) throw error;
                     
@@ -1209,12 +1212,12 @@
                     }
                 }
                 else if (productIdentifier) {
-                    // SECURE: Validates if string is UUID to bypass postgres casting crashes
-                    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productIdentifier);
+                    // DYNAMIC: Route strictly for Single Product/Template Checkouts
+                    const orConditionProduct = isUUID ? `product_slug.eq.${productIdentifier},product_id.eq.${productIdentifier}` : `product_slug.eq.${productIdentifier}`;
                     const { data, error } = await supabaseInstance
                         .from('products')
                         .select('*')
-                        .eq(isUUID ? 'product_id' : 'product_slug', productIdentifier);
+                        .or(orConditionProduct);
 
                     if (error) throw error;
                     
@@ -1229,7 +1232,7 @@
                     setCheckoutViewState('emptyCartState');
                 }
             } catch (err) {
-                // Preserving the custom security suppression design
+                console.error("Error fetching checkout data:", err);
                 showErrorToast("Failed to initialize checkout.");
             } finally {
                 hideLoader();
@@ -1241,17 +1244,26 @@
             
             let subtotal = 0;
             let currency = 'MMK'; // Defaulting safely
+            let hasCustomPrice = false;
             
             const container = document.getElementById('summaryItemsContainer');
             container.innerHTML = '';
             
             checkoutItems.forEach(item => {
                 const name = currentLang === 'en' ? (item.product_name_en || item.product_name_mm) : (item.product_name_mm || item.product_name_en);
-                const price = item.product_discount_price || item.product_price;
+                
+                // SAFELY PARSE AND DETECT CUSTOM PRICING
+                const rawPrice = item.product_discount_price !== undefined && item.product_discount_price !== null ? item.product_discount_price : item.product_price;
+                const price = parseFloat(rawPrice) || 0;
+                
+                if (price === 0) hasCustomPrice = true;
                 subtotal += price;
+                
                 if (item.currency) currency = item.currency;
 
                 let imgSrc = item.product_image ? (item.product_image.startsWith('./') ? item.product_image.replace('./', '../') : item.product_image) : '';
+                
+                const priceDisplay = (price === 0) ? (currentLang === 'en' ? 'Custom Pricing' : 'ဈေးနှုန်း ညှိနှိုင်း') : `${price.toLocaleString()} ${item.currency || 'MMK'}`;
                 
                 // Inject the dynamic list
                 container.innerHTML += `
@@ -1261,14 +1273,15 @@
                         </div>
                         <div class="flex flex-col flex-1 min-w-0">
                             <span class="text-sm font-bold text-myancode-black truncate block mb-1" title="${name}">${name}</span>
-                            <span class="text-xs font-bold text-myancode-blue">${price.toLocaleString()} ${item.currency || 'MMK'}</span>
+                            <span class="text-xs font-bold text-myancode-blue">${priceDisplay}</span>
                         </div>
                     </div>
                 `;
             });
             
-            document.getElementById('summarySubtotal').innerText = `${subtotal.toLocaleString()} ${currency}`;
-            document.getElementById('summaryTotal').innerText = `${subtotal.toLocaleString()} ${currency}`;
+            const totalDisplay = (subtotal === 0 && hasCustomPrice) ? (currentLang === 'en' ? 'Custom Pricing' : 'ဈေးနှုန်း ညှိနှိုင်း') : `${subtotal.toLocaleString()} ${currency}`;
+            document.getElementById('summarySubtotal').innerText = totalDisplay;
+            document.getElementById('summaryTotal').innerText = totalDisplay;
             lucide.createIcons();
         }
 
@@ -1440,7 +1453,7 @@
             try {
                 // Multi-item payload support. Maps every checkout items into distinct order logs securely.
                 const orderPayloads = checkoutItems.map(item => {
-                    const price = item.product_discount_price || item.product_price;
+                    const price = parseFloat(item.product_discount_price ?? item.product_price) || 0; // Ensures 0 for custom pricing seamlessly
                     const name = item.product_name_en || item.product_name_mm;
                     return {
                         user_id: currentUser.id,

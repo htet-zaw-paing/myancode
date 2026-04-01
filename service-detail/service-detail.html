@@ -50,8 +50,7 @@
         }
     </script>
     <style>
-        /* FIX: Changed overflow-x: hidden to overflow-x: clip so position:sticky works correctly */
-        html, body { width: 100%; overflow-x: clip; position: relative; background-color: #fbfbfd; color: #0a0a0a; -webkit-font-smoothing: antialiased; }
+        html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #fbfbfd; color: #0a0a0a; -webkit-font-smoothing: antialiased; }
         body.no-scroll { overflow: hidden !important; touch-action: none; }
 
         html[lang="mm"] body { font-size: 14px; line-height: 2; }
@@ -72,9 +71,6 @@
         .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
         .btn-hover-effect:disabled { opacity: 0.7; cursor: not-allowed; }
-
-        .card-hover { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08); }
 
         #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
         .progress-line { width: 100%; height: 2px; background-color: #e5e5ea; border-radius: 4px; overflow: hidden; position: relative; }
@@ -355,19 +351,18 @@
                 <span class="text-myancode-black font-bold truncate max-w-[200px]" id="bcServiceName">Details</span>
             </nav>
 
-            <!-- MATCHING TEMPLATE-DETAIL GRID LAYOUT -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 relative items-start">
+            <div class="flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
                 
-                <!-- Left Column: Sticky Image -->
-                <div class="w-full lg:sticky lg:top-[120px] lg:self-start">
+                <!-- Left Column: Sticky Image (Single Image Mode) -->
+                <div class="w-full lg:w-1/2 lg:sticky lg:top-32">
                     <!-- Cover Image -->
-                    <div class="aspect-[4/3] w-full rounded-[2rem] overflow-hidden bg-gray-50 border border-gray-200 relative flex items-center justify-center shadow-sm p-2" id="sdImageContainer">
+                    <div class="aspect-[4/3] w-full rounded-3xl overflow-hidden bg-[#f5f3ef] border border-gray-100 relative flex items-center justify-center shadow-sm" id="sdImageContainer">
                         <!-- Filled by JS -->
                     </div>
                 </div>
                 
                 <!-- Right Column: Scrolling Content Area -->
-                <div class="w-full flex flex-col justify-start">
+                <div class="w-full lg:w-1/2 flex flex-col">
                     
                     <!-- Category Badge -->
                     <div class="mb-4">
@@ -378,13 +373,9 @@
                     <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-myancode-black mb-4 tracking-tight leading-tight" id="sdName">Loading Service...</h1>
                     
                     <!-- Pricing Area -->
-                    <div class="flex flex-col sm:flex-row sm:items-end gap-3 mb-6">
-                         <div class="flex flex-col">
-                             <span id="sdOriginalPrice" class="text-lg font-bold text-gray-400 line-through mb-1 hidden"></span>
-                             <div class="flex items-baseline gap-1.5">
-                                 <span class="text-3xl font-extrabold text-myancode-black tracking-tight" id="sdPrice">...</span>
-                             </div>
-                         </div>
+                    <div class="flex items-baseline gap-4 mb-6">
+                        <h2 class="text-3xl font-bold text-myancode-black" id="sdPrice">...</h2>
+                        <span class="text-xl text-gray-400 line-through font-medium" id="sdOriginalPrice" style="display:none;"></span>
                     </div>
 
                     <!-- Badges Row: Stock & SKU -->
@@ -403,12 +394,12 @@
                     </div>
                     
                     <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4 mt-auto mb-6">
-                        <button id="btnPurchaseAction" class="flex-1 bg-myancode-black text-white py-4 px-8 rounded-full text-sm font-bold tracking-wide shadow-lg btn-hover-effect flex items-center justify-center gap-2">
+                    <div class="flex flex-col sm:flex-row gap-4 mt-auto">
+                        <button id="btnPurchaseAction" class="w-full sm:w-auto flex-1 bg-myancode-black text-white px-8 py-4 rounded-full font-bold text-sm tracking-wide shadow-md btn-hover-effect flex items-center justify-center gap-2">
                             <span data-i18n="btnPurchaseReq">Request Service</span>
                         </button>
-                        <button id="btnWishlistAction" class="px-8 py-4 rounded-full text-sm font-bold border border-gray-200 text-myancode-black hover:bg-gray-50 btn-hover-effect flex justify-center items-center gap-2 shadow-sm transition-colors">
-                            <i data-lucide="heart" id="sdWishlistIcon" class="w-5 h-5 text-gray-400 transition-colors duration-300"></i> <span id="sdWishlistText" data-i18n="btnSaveWishlist">Add to Wishlist</span>
+                        <button id="btnWishlistAction" class="w-full sm:w-auto flex-1 bg-white text-myancode-blue border border-gray-200 px-8 py-4 rounded-full font-bold text-sm tracking-wide hover:bg-gray-50 transition-colors btn-hover-effect flex items-center justify-center gap-2">
+                            <i data-lucide="heart" class="w-4 h-4" id="sdWishlistIcon"></i> <span id="sdWishlistText" data-i18n="btnSaveWishlist">Add to Wishlist</span>
                         </button>
                     </div>
 
@@ -418,12 +409,12 @@
             <!-- Related Services Section ("You May Also Like") -->
             <div class="mt-20 sm:mt-24 pt-12 sm:pt-16 border-t border-gray-200">
                 <div class="flex items-center justify-between mb-8 sm:mb-12">
-                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-myancode-black" data-i18n="youMayAlsoLike">You May Also Like</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-myancode-black tracking-tight" data-i18n="youMayAlsoLike">You May Also Like</h2>
                     <a href="../services/" class="text-myancode-blue text-sm font-bold hover:underline hidden sm:flex items-center gap-1 group">
                         <span data-i18n="viewAllServices">View All Services</span> <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                     </a>
                 </div>
-                <div id="relatedServicesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+                <div id="relatedServicesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     <!-- Related service cards go here -->
                 </div>
                 <div class="mt-8 text-center sm:hidden">
@@ -435,12 +426,14 @@
     </main>
 
     <!-- Detailed Footer with Integrated Newsletter -->
-    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative overflow-hidden z-10 mt-auto">
-        <!-- Subtle Bottom Glow -->
+    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10">
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-blue-400/20 rounded-full filter blur-[100px] pointer-events-none z-0"></div>
-
-        <div class="max-w-[1024px] mx-auto relative z-10">
+        <div class="max-w-[1024px] mx-auto">
+            
+            <!-- Enterprise Newsletter Card -->
             <div class="bg-white rounded-[2.5rem] p-8 sm:p-12 mb-20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
+                
+                <!-- Left: Text Content -->
                 <div class="text-center lg:text-left w-full lg:w-1/2 flex flex-col items-center lg:items-start">
                     <div class="inline-flex items-center justify-center w-14 h-14 bg-[#f0f5ff] rounded-full mb-6">
                         <i data-lucide="mail" class="w-6 h-6 text-[#2997ff]"></i>
@@ -448,6 +441,8 @@
                     <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-4" data-i18n="nlTitle">Stay Ahead of the Curve</h3>
                     <p class="text-base text-gray-500 font-normal leading-relaxed max-w-md mx-auto lg:mx-0" data-i18n="nlDesc">Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.</p>
                 </div>
+                
+                <!-- Right: Subscription Form + Turnstile -->
                 <div class="w-full lg:w-1/2">
                     <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="w-full flex flex-col gap-3">
                         <div class="relative flex items-center bg-white border border-gray-200 rounded-full p-1.5 shadow-sm transition-all focus-within:border-myancode-black focus-within:ring-1 focus-within:ring-myancode-black">
@@ -459,55 +454,52 @@
                                 <span data-i18n="btnSubscribe">Subscribe</span>
                             </button>
                         </div>
+                        
+                        <!-- Cloudflare Turnstile Widget -->
                         <div class="cf-turnstile pl-2" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="light"></div>
                     </form>
+                    
                     <p class="text-[11px] text-gray-400 mt-4 font-medium tracking-wide uppercase text-center lg:text-left lg:ml-6" data-i18n="nlDisclaimer">We respect your privacy. No spam, ever.</p>
                 </div>
+                
             </div>
 
+            <!-- Modern Formal Footer Links Grid -->
             <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-16 border-t border-gray-200 pt-16 mt-16">
                 <div>
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftCompanyTitle">Company</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="./about-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAboutUs">About Us</a></li>
-                        <li><a href="./contact-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftContactUs">Contact Us</a></li>
-                        <li><a href="./updates-news/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftUpdates">Updates & News</a></li>
-                        <li><a href="./careers/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftCareers">Careers</a></li>
+                        <li><a href="../about-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAboutUs">About Us</a></li>
+                        <li><a href="../contact-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftContactUs">Contact Us</a></li>
+                        <li><a href="../updates-news/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftUpdates">Updates & News</a></li>
+                        <li><a href="../careers/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftCareers">Careers</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftStoreTitle">Store</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="./studio/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAddOns">Add-Ons</a></li>
-                        <li><a href="./templates/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftTemplates">Templates</a></li>
-                        <li><a href="./services/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftServices">Services</a></li>
-                        <li><a href="./maintenance/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftMaintenance">Maintenance</a></li>
+                        <li><a href="../studio/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAddOns">Add-Ons</a></li>
+                        <li><a href="../templates/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftTemplates">Templates</a></li>
+                        <li><a href="../services/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftServices">Services</a></li>
+                        <li><a href="../maintenance/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftMaintenance">Maintenance</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftSupportTitle">Support</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="./guides/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supGuides">Guides</a></li>
-                        <li><a href="./help/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supHelp">Help Center</a></li>
-                        <li><a href="./faq/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supFaq">FAQs</a></li>
-                        <li><a href="./about/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supLegal">Legal</a></li>
+                        <li><a href="../guides/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supGuides">Guides</a></li>
+                        <li><a href="../help/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supHelp">Help Center</a></li>
+                        <li><a href="../faq/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supFaq">FAQs</a></li>
+                        <li><a href="../about/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supLegal">Legal</a></li>
                     </ul>
                 </div>
                 <div class="xs:col-span-2 md:col-span-1">
                     <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftFollow">Follow Us</h4>
-                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-3 leading-relaxed pr-4" data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
-                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-3 leading-relaxed pr-4">contact@myancode.com</p>
-                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-4 leading-relaxed pr-4">+959 4567 51 882</p>
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-5 leading-relaxed pr-4" data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
                     <div class="flex space-x-5">
-                        <a href="./comming-soon/" class="text-gray-400 hover:text-myancode-blue transition-colors btn-hover-effect" aria-label="Facebook">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                        </a>
-                        <a href="./comming-soon/" class="text-gray-400 hover:text-pink-500 transition-colors btn-hover-effect" aria-label="Instagram">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-                        </a>
-                        <a href="./comming-soon/" class="text-gray-400 hover:text-blue-500 transition-colors btn-hover-effect" aria-label="LinkedIn">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-                        </a>
+                        <a href="../comming-soon/" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="facebook" class="h-4 w-4 fill-current"></i></a>
+                        <a href="../comming-soon/" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="instagram" class="h-4 w-4"></i></a>
+                        <a href="../comming-soon/" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="linkedin" class="h-4 w-4 fill-current"></i></a>
                     </div>
                 </div>
             </div>
@@ -963,10 +955,11 @@
             const defaultSku = service.slug ? service.slug.toUpperCase().substring(0, 6) : 'MC-001';
             document.getElementById('sdSku').innerText = `SKU : ${defaultSku}`;
 
-            // Image Updates with exact template-detail styling
+            // Image Updates
             const imgContainer = document.getElementById('sdImageContainer');
+            // thumb1 reference removed as requested
             if (service.image_url) {
-                imgContainer.innerHTML = `<img src="${service.image_url}" alt="${service.name}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105 rounded-[1.5rem]">`;
+                imgContainer.innerHTML = `<img src="${service.image_url}" alt="${service.name}" class="w-full h-full object-cover">`;
             } else {
                 imgContainer.innerHTML = `<i data-lucide="box" class="w-24 h-24 text-gray-300"></i>`;
             }
@@ -974,20 +967,20 @@
             // Pricing Area Logic (With original price mock rendering if needed)
             const parsedPrice = parseFloat(service.price);
             if (!isNaN(parsedPrice) && parsedPrice > 0) {
-                document.getElementById('sdPrice').innerText = `${parsedPrice.toLocaleString()}`;
+                document.getElementById('sdPrice').innerText = `${parsedPrice.toLocaleString()} MMK`;
                 document.getElementById('sdOriginalPrice').innerText = `${(parsedPrice * 1.5).toLocaleString()} MMK`;
-                document.getElementById('sdOriginalPrice').classList.remove('hidden');
+                document.getElementById('sdOriginalPrice').style.display = 'inline';
             } else {
-                const priceText = service.price ? `${parseFloat(service.price).toLocaleString()}` : 'Custom Pricing';
+                const priceText = service.price ? `${parseFloat(service.price).toLocaleString()} MMK` : 'Custom Pricing';
                 document.getElementById('sdPrice').innerText = priceText;
-                document.getElementById('sdOriginalPrice').classList.add('hidden');
+                document.getElementById('sdOriginalPrice').style.display = 'none';
             }
             
             // Status Badge
             const isAvailable = service.status === 'available' || !service.status;
             document.getElementById('sdStatusBadge').innerHTML = isAvailable 
-                ? `<span class="bg-green-50 text-green-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-green-100 shadow-sm">${dict[currentLang].lblAvailable || 'IN STOCK'}</span>`
-                : `<span class="bg-red-50 text-red-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-red-100 shadow-sm">${dict[currentLang].lblUnavailable || 'UNAVAILABLE'}</span>`;
+                ? `<span class="bg-green-50 text-green-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">${dict[currentLang].lblAvailable || 'IN STOCK'}</span>`
+                : `<span class="bg-red-50 text-red-600 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">${dict[currentLang].lblUnavailable || 'UNAVAILABLE'}</span>`;
 
             // Action Buttons Setup
             const btnPurchase = document.getElementById('btnPurchaseAction');
@@ -1025,23 +1018,16 @@
 
         function updateDetailWishlistState() {
             if (!currentServiceDetails) return;
-            const btn = document.getElementById('btnWishlistAction');
             const icon = document.getElementById('sdWishlistIcon');
             const text = document.getElementById('sdWishlistText');
-            if (!icon || !text || !btn) return;
+            if (!icon || !text) return;
 
             const isWishlisted = currentUserWishlist.some(item => item.id === currentServiceDetails.id);
             if (isWishlisted) {
-                icon.classList.remove('text-gray-400');
                 icon.classList.add('fill-myancode-blue', 'text-myancode-blue');
-                btn.classList.add('border-myancode-blue', 'text-myancode-blue');
-                btn.classList.remove('border-gray-200', 'text-myancode-black');
                 text.innerText = currentLang === 'en' ? "Added to Wishlist" : "သိမ်းဆည်းပြီးပါပြီ";
             } else {
-                icon.classList.add('text-gray-400');
                 icon.classList.remove('fill-myancode-blue', 'text-myancode-blue');
-                btn.classList.remove('border-myancode-blue', 'text-myancode-blue');
-                btn.classList.add('border-gray-200', 'text-myancode-black');
                 text.innerText = dict[currentLang].btnSaveWishlist;
             }
             
@@ -1080,42 +1066,27 @@
 
             grid.innerHTML = services.map(s => {
                 const isWishlisted = currentUserWishlist.some(item => item.id === s.id);
-                const brand = s.category || 'Service'; 
+                const imgArea = s.image_url 
+                    ? `<img src="${s.image_url}" alt="${s.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">`
+                    : `<div class="w-full h-full flex items-center justify-center bg-gray-100 group-hover:scale-105 transition-transform duration-700 ease-out"><i data-lucide="box" class="w-12 h-12 text-gray-300"></i></div>`;
                 
+                const price = s.price ? `${parseFloat(s.price).toLocaleString()} MMK` : 'Custom Pricing';
+
                 return `
-                <div class="card-hover bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 shadow-sm flex flex-col group relative transition-all duration-500 overflow-hidden h-full">
-                    
-                    <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price || 0})" class="absolute top-8 right-8 z-20 p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-md hover:scale-110 transition-transform hover:bg-white group/btn">
-                        <i data-lucide="heart" class="h-4 w-4 ${isWishlisted ? 'text-myancode-blue fill-myancode-blue' : 'text-gray-400 group-hover/btn:text-myancode-blue'} transition-colors duration-300"></i>
-                    </button>
-
-                    <div class="rounded-xl overflow-hidden mb-6 aspect-[16/10] relative bg-gray-50 flex items-center justify-center z-10 border border-gray-100/50 flex-shrink-0 cursor-pointer" onclick="window.location.href='../service-detail/?id=${s.slug || s.id}'">
-                        ${s.image_url 
-                            ? `<img src="${s.image_url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="${s.name}" loading="lazy"/>`
-                            : `<i data-lucide="box" class="w-12 h-12 text-gray-300 transition-transform duration-700 group-hover:scale-105"></i>`
-                        }
-                        
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500"></div>
-
-                        <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest text-myancode-black shadow-sm">${brand}</span>
+                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] transition-all duration-400 group flex flex-col cursor-pointer" onclick="window.location.href='../service-detail/?id=${s.slug || s.id}'">
+                    <div class="h-40 sm:h-48 relative overflow-hidden bg-gray-50 flex items-center justify-center border-b border-gray-50">
+                        <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price || 0})" class="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm hover:bg-white hover:scale-110 transition-all z-10">
+                            <i data-lucide="heart" class="w-4 h-4 transition-colors duration-300 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-400'}"></i>
+                        </button>
+                        ${imgArea}
                     </div>
-
-                    <div class="flex flex-col flex-1 px-1">
-                        
-                        <h3 class="text-base sm:text-lg font-bold tracking-tight text-myancode-black mb-1.5 truncate group-hover:text-myancode-blue transition-colors duration-300 cursor-pointer" onclick="window.location.href='../service-detail/?id=${s.slug || s.id}'">${s.name}</h3>
-                        <p class="text-xs text-gray-500 mb-6 line-clamp-2 leading-relaxed flex-1 cursor-pointer" onclick="window.location.href='../service-detail/?id=${s.slug || s.id}'">${s.short_desc || ''}</p>
-
-                        <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-                            <div class="flex flex-col">
-                                <span class="text-base sm:text-lg font-extrabold text-myancode-black tracking-tight">${s.price ? parseFloat(s.price).toLocaleString() : 'Custom Pricing'} ${s.price ? `<span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-0.5">MMK</span>` : ''}</span>
-                            </div>
-                            
-                            <a href="../service-detail/?id=${s.slug || s.id}" class="h-10 w-10 sm:h-12 sm:w-12 bg-myancode-black rounded-full flex items-center justify-center hover:scale-105 hover:bg-myancode-blue transition-all duration-300 shadow-md group/link shrink-0 relative overflow-hidden">
-                                <i data-lucide="arrow-right" class="absolute h-4 w-4 sm:h-5 sm:w-5 text-white transition-opacity duration-300 opacity-100 group-hover/link:opacity-0"></i>
-                                <i data-lucide="arrow-up-right" class="absolute h-4 w-4 sm:h-5 sm:w-5 text-white transition-opacity duration-300 opacity-0 group-hover/link:opacity-100"></i>
-                            </a>
+                    <div class="p-5 sm:p-6 flex flex-col flex-grow">
+                        <h3 class="text-base sm:text-lg font-bold text-myancode-black mb-1 tracking-tight truncate">${s.name}</h3>
+                        <p class="text-[10px] sm:text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed font-medium">${s.short_desc || ''}</p>
+                        <div class="flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
+                            <span class="text-sm font-bold text-myancode-blue">${price}</span>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-400 group-hover:text-myancode-black transition-colors"></i>
                         </div>
-
                     </div>
                 </div>
                 `;
