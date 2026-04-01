@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Official Guides | MyanCode</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="../imgs/web-banners/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <!-- HIGH-END SILENT SECURITY MODULE -->
+    <script>
+        (function() {
+            const _log = window.console.log;
+            _log(
+                "%c✦ MyanCode Secure Environment ✦",
+                "font-family: system-ui, -apple-system, sans-serif; font-size: 22px; font-weight: 800; color: #2997ff; text-shadow: 0 4px 14px rgba(41, 151, 255, 0.25); padding: 10px 0;"
+            );
+            _log(
+                "%cGreetings, fellow engineer! 👋\n\nWe appreciate your curiosity. This environment is strictly monitored and secured to protect our users.\n\nIf you are passionate about cybersecurity, modern software architecture, or wish to report a vulnerability responsibly, we cordially invite you to connect with us at %csecurity@myancode.com%c.\n\nBest regards,\nThe MyanCode Engineering Team",
+                "font-family: system-ui, -apple-system, sans-serif; font-size: 13px; color: #6e6e73; line-height: 1.8;",
+                "color: #2997ff; font-weight: 700; text-decoration: none;",
+                "color: #6e6e73;"
+            );
+
+            const noop = () => {};
+            window.console.log = noop; window.console.warn = noop; window.console.error = noop; window.console.info = noop; window.console.table = noop;
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.onkeydown = function(e) {
+                if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85)) { e.preventDefault(); return false; }
+            };
+            setInterval(function() { debugger; }, 100);
+        })();
+    </script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: { 'xs': '400px', 'sm': '640px', 'md': '768px', 'lg': '1024px', 'xl': '1280px' },
+                extend: {
+                    fontFamily: { sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'] },
+                    colors: { myancode: { black: '#111111', gray: '#f5f5f7', darkgray: '#6e6e73', blue: '#2997ff' } }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        html, body { width: 100%; overflow-x: clip; position: relative; background-color: #fbfbfd; color: #111111; -webkit-font-smoothing: antialiased; }
+        body.no-scroll { overflow: hidden; }
+
+        html[lang="mm"] body { font-size: 14px; line-height: 2; }
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4 { letter-spacing: normal; }
+        html[lang="mm"] .uppercase, html[lang="mm"] .capitalize, html[lang="mm"] .tracking-widest { text-transform: none; letter-spacing: normal; }
+
+        #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; }
+        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important; }
+        .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
+
+        .hover-underline { position: relative; }
+        .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+
+        .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15); }
+
+        #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
+        
+        /* Drawer styles */
+        .search-overlay { transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; opacity: 0; pointer-events: none; }
+        .search-overlay.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .drawer-left { transform: translateX(-100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-left.open { transform: translateX(0); }
+        .drawer-right { transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-right.open { transform: translateX(0); }
+        .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Guide Specific Styles */
+        .guide-section { scroll-margin-top: 120px; transition: opacity 0.3s ease; }
+        .toc-link { transition: all 0.3s ease; }
+        .toc-link.active { color: #2997ff; font-weight: 700; border-left-color: #2997ff; background-color: #f0f5ff; }
+    </style>
+</head>
+
+<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
+
+    <!-- Ambient Background Blobs for Futuristic Feel -->
+    <div class="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100/40 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-50/40 rounded-full blur-[150px] pointer-events-none z-0"></div>
+
+    <!-- GLOBAL ENTERPRISE LOADER -->
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
+        <i data-lucide="shield-check" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
+        <div class="w-48 max-w-[80vw]">
+            <div class="h-1 w-full bg-gray-200 rounded-full overflow-hidden relative">
+                <div class="absolute top-0 left-0 h-full w-1/2 bg-myancode-black rounded-full animate-[lineAnim_1.2s_cubic-bezier(0.4,0,0.2,1)_infinite]"></div>
+            </div>
+            <style>@keyframes lineAnim { 0% { left: -50%; width: 50%; } 50% { width: 20%; } 100% { left: 100%; width: 50%; } }</style>
+        </div>
+        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 transition-colors" data-i18n="loadingInit">Securing Connection...</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent">
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center h-full">
+                    <button class="md:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-myancode-black" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="h-5 w-5"></i>
+                    </button>
+                    <!-- LOGO LINK -->
+                    <a href="../" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
+                        <i data-lucide="code-2" class="h-5 w-5 mr-2 transition-all duration-500 group-hover:rotate-12 nav-icon text-myancode-black"></i>
+                        <span class="font-semibold text-lg sm:text-xl tracking-wide transition-colors duration-300 group-hover:text-myancode-blue nav-text text-myancode-black" id="navLogoText">MyanCode</span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium items-center h-full">
+                    <a href="../studio/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="../templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../services/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link text-myancode-black/80" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    
+                    <!-- FULL-WIDTH APPLE STYLE SUPPORT MEGA MENU -->
+                    <div class="relative group h-full flex items-center">
+                        <button class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link flex items-center gap-1 cursor-pointer text-myancode-black/80 font-bold text-myancode-blue active-nav-item" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
+                        
+                        <!-- Invisible bridge -->
+                        <div class="absolute top-[80%] left-0 w-full h-8"></div>
+
+                        <!-- Fixed Full-Width Dropdown Content -->
+                        <div class="fixed top-[56px] sm:top-[64px] left-0 w-full bg-[#fbfbfd]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border-b border-gray-200/60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
+                            <div class="max-w-[1024px] mx-auto px-4 sm:px-6 py-12 flex gap-8 md:gap-16 lg:gap-24 text-black">
+                                <div class="flex-[1.2]">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                                    <div class="flex flex-col gap-4">
+                                        <a href="../guides/" class="text-2xl font-bold text-myancode-blue transition-colors w-fit" data-i18n="supGuides">Guides</a>
+                                        <a href="../help/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                        <a href="../faq/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supFaq">FAQs</a>
+                                        <a href="../contact-us/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                        <a href="../legal/#studio-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
+                                        <a href="../legal/#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                        <a href="../legal/#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                        <a href="../legal/#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                        <a href="../legal/#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                        <a href="../legal/#privacy-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="../legal/#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4 sm:space-x-5">
+                    <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i></button>
+                    <div class="relative hidden sm:block" id="langContainer">
+                        <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-4 pb-2 mb-2 border-b border-gray-50 text-[10px] uppercase tracking-widest text-gray-400 font-semibold" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        </div>
+                    </div>
+                    <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
+                    <button onclick="toggleWishlistDrawer()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black">
+                        <i data-lucide="heart" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-myancode-blue text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SEARCH OVERLAY & MOBILE MENU ... -->
+    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
+        <div class="max-w-[1024px] mx-auto px-6 pt-10">
+            <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-500 hover:text-black transition-colors rounded-full bg-gray-50 hover:bg-gray-200"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+            <div class="mt-8 sm:mt-16 max-w-3xl mx-auto">
+                <div class="relative w-full border-b border-gray-300 focus-within:border-myancode-black transition-colors pb-4 flex items-center">
+                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-4"></i>
+                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off" class="w-full text-3xl sm:text-5xl font-semibold text-black bg-transparent border-none outline-none placeholder-gray-200" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+                </div>
+            </div>
+            <div class="mt-16 flex flex-col-reverse md:flex-row gap-12 sm:gap-20 max-w-3xl mx-auto">
+                <div class="w-full md:w-1/3">
+                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Links</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../services/" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navServices">Web Development</span></a></li>
+                        <li><a href="../templates/" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navWebsites">Featured Templates</span></a></li>
+                        <li><a href="../studio/" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navStudio">Custom Studio</span></a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-2/3">
+                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="searchResults">Results</h4>
+                    <div id="megaSearchResults" class="space-y-4">
+                        <p class="text-gray-400 text-sm font-light italic" data-i18n="searchHint">Type to discover our products and services...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE MENU DRAWER -->
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#fafafa] z-[80] drawer-left flex flex-col overflow-hidden">
+        <div class="px-6 py-6 flex items-center justify-between flex-shrink-0">
+            <span class="font-bold text-xl tracking-wide text-black">MyanCode</span>
+            <button onclick="toggleMobileMenu()" class="p-2.5 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-600"><i data-lucide="x" class="h-5 w-5"></i></button>
+        </div>
+        <div class="flex-1 px-8 py-4 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar overscroll-contain">
+            <div class="relative mb-8" onclick="toggleMobileMenu(); toggleSearchOverlay();">
+                <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-400"></i>
+                <input type="text" class="w-full pl-8 py-3 border-b border-gray-300 focus:outline-none text-base bg-transparent text-gray-600 placeholder-gray-400 pointer-events-none" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+            </div>
+            <div class="space-y-6 text-base font-normal text-myancode-black tracking-wide flex-1">
+                <a href="../studio/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                    <span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                </a>
+                <a href="../templates/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                    <span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                </a>
+                <a href="../services/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
+                    <span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                </a>
+                <div class="flex flex-col">
+                    <button onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
+                        <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform"></i>
+                    </button>
+                    <div id="mobSupportDrop" class="hidden flex-col w-full mt-6 pb-2 pl-4 border-l-2 border-gray-100">
+                        <div class="mb-6">
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                            <div class="flex flex-col gap-4">
+                                <a href="../guides/" class="text-lg font-bold text-myancode-blue transition-colors" data-i18n="supGuides">Guides</a>
+                                <a href="../help/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supHelp">Help Center</a>
+                                <a href="../faq/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supFaq">FAQs</a>
+                                <a href="../contact-us/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supContact">Contact</a>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                            <div class="flex flex-col gap-3">
+                                <a href="../legal/#client-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polClient">Customer Policy</a>
+                                <a href="../legal/#studio-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polStudio">Studio Policy</a>
+                                <a href="../legal/#template-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polTemplate">Template Policy</a>
+                                <a href="../legal/#service-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polService">Service Policy</a>
+                                <a href="../legal/#maintenance-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polMaintenance">Maintenance Policy</a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                            <div class="flex flex-col gap-3">
+                                <a href="../legal/#payment-policy" target="_blank"  class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polPayment">Payment Policy</a>
+                                <a href="../legal/#refund-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polRefund">Refund Policy</a>
+                                <a href="../legal/#privacy-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polPrivacy">Privacy Policy</a>
+                                <a href="../legal/#terms-of-services" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polTerms">Terms of Service</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-gray-100">
+                    <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
+                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-5 w-5 text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
+                <div id="mobileAuthContainer" class="w-full flex flex-col space-y-6"></div>
+                <div class="border-t border-gray-200 pt-8 mt-6">
+                    <button onclick="toggleMobileMenu(); toggleWishlistDrawer();" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                        <span data-i18n="wishlistTitle">My Wishlist</span> <i data-lucide="heart" class="h-5 w-5 text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WISHLIST DRAWER -->
+    <div id="wishlistOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
+    <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-gray-100">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100 bg-gray-50/50">
+            <h3 class="font-semibold text-lg tracking-tight flex items-center gap-2"><i data-lucide="heart" class="h-5 w-5 text-myancode-blue fill-myancode-blue"></i> <span data-i18n="wishlistTitle">My Wishlist</span></h3>
+            <button onclick="toggleWishlistDrawer()" class="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-gray-500 hover:text-black"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+            <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold text-black" id="wishlistTotal">0 MMK</span></div>
+            <button onclick="window.location.href='../checkout/?source=wishlist'" class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- GUIDES MAIN SECTION -->
+    <main class="pt-32 sm:pt-40 pb-20 relative z-10 flex-grow">
+        
+        <!-- Hero Header -->
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-12 text-center lg:text-left flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div class="flex-1">
+                <div class="inline-flex items-center justify-center p-3 bg-blue-50 border border-blue-100 rounded-2xl mb-6 shadow-sm">
+                    <i data-lucide="book-open" class="h-6 w-6 text-myancode-blue"></i>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-myancode-black mb-4" data-i18n="gHeroTitle">Official MyanCode Guides</h1>
+                <p class="text-lg text-gray-500 max-w-2xl font-medium leading-relaxed" data-i18n="gHeroDesc">Master the platform with our comprehensive, step-by-step documentation designed for seamless navigation and convenience.</p>
+            </div>
+        </div>
+
+        <!-- SEARCH BAR FOR GUIDES -->
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-12 lg:mb-16 relative z-20">
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="h-5 w-5 text-gray-400 group-focus-within:text-myancode-blue transition-colors"></i>
+                </div>
+                <input type="text" id="guideSearchInput" oninput="filterGuides()" class="w-full pl-14 pr-5 py-4 sm:py-5 bg-white/80 backdrop-blur-xl border border-gray-200/80 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:shadow-[0_20px_40px_-10px_rgba(41,151,255,0.15)] focus:border-white outline-none transition-all duration-300 text-gray-700 text-sm sm:text-base font-medium" placeholder="Search guides, tutorials, or keywords..." data-i18n-placeholder="searchGuidesPlaceholder">
+            </div>
+        </div>
+
+        <!-- Main Layout (Sidebar + Content) -->
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 flex flex-col lg:flex-row gap-10 lg:gap-16 items-start relative">
+            
+            <!-- Sticky Sidebar (Table of Contents) -->
+            <aside class="hidden lg:block w-64 shrink-0 sticky top-32 self-start">
+                <div class="bg-white/60 backdrop-blur-xl border border-gray-200/60 rounded-[2rem] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)]">
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="gTocTitle">On This Page</h4>
+                    <nav class="flex flex-col space-y-1" id="tocMenu">
+                        <a href="#guide-register" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gRegTitle">Register Account</a>
+                        <a href="#guide-login" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gLoginTitle">Login Account</a>
+                        <a href="#guide-purchase" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gPurchaseTitle">Purchase a Website</a>
+                        <a href="#guide-language" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gLangTitle">Change Language</a>
+                        <a href="#guide-hub" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gHubTitle">Track Your Orders</a>
+                        <a href="#guide-studio" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gStudioTitle">Using the Custom Studio</a>
+                        <a href="#guide-wishlist" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gWishTitle">Manage Your Wishlist</a>
+                        <a href="#guide-profile" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gProfTitle">Change Username & Profile</a>
+                        <a href="#guide-password" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gPassTitle">Change Account Password</a>
+                        <a href="#guide-forgot-password" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gForgotTitle">Reset Forgotten Password</a>
+                        <a href="#guide-delete-account" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors border-l-2 border-transparent" data-i18n="gDelTitle">Delete Account</a>
+                        <a href="#guide-download" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gDownTitle">Download Purchased Templates</a>
+                        <a href="#guide-support" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gSupTitle">Contact Support</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Guides Content Area -->
+            <div class="flex-1 w-full space-y-16 lg:space-y-24 pb-10" id="guidesContainer">
+
+                <!-- EMPTY SEARCH STATE -->
+                <div id="emptySearchState" class="hidden flex-col items-center justify-center text-center py-16 px-4 bg-white/60 backdrop-blur-md rounded-[2rem] border border-dashed border-gray-300">
+                    <i data-lucide="search-x" class="h-16 w-16 text-gray-300 mb-4"></i>
+                    <h3 class="text-xl font-bold text-myancode-black mb-2" data-i18n="gNoResultsTitle">No Guides Found</h3>
+                    <p class="text-sm text-gray-500 font-medium" data-i18n="gNoResultsDesc">We couldn't find any guides matching your search criteria. Please try different keywords.</p>
+                </div>
+
+                <!-- Guide 1: Registration -->
+                <section id="guide-register" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="user-plus" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gRegTitle">Register Account</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gRegDeskStep1">Click the <span class="font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100">Register</span> button located at the right side of the main header navigation.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gRegDeskStep2">Fill in your required personal details, email address, and create a secure password.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">3</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gRegDeskStep3">Complete the process and verify your account via the link sent to your provided email.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gRegMobStep1">Tap the <span class="font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200"><i data-lucide="menu" class="w-3 h-3 inline"></i> Menu</span> icon situated at the top-left corner of your screen.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gRegMobStep2">Scroll down and tap on "Register", then proceed to fill in your data and verify your email.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 2: Login -->
+                <section id="guide-login" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="log-in" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gLoginTitle">Login Account</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gLogDeskStep1">Click the <span class="font-bold text-myancode-black">Login</span> link located on the right side of the header navigation.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gLogDeskStep2">Enter your verified email address and the password you created, then click Login.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gLogMobStep1">Tap the <span class="font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200"><i data-lucide="menu" class="w-3 h-3 inline"></i> Menu</span> icon at the top-left to open the drawer.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gLogMobStep2">Tap on "Login", enter your credentials, and securely access your account.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 3: Purchase Website -->
+                <section id="guide-purchase" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="shopping-bag" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gPurchaseTitle">Purchase a Website</h2>
+                    </div>
+                    
+                    <p class="text-[15px] text-gray-500 font-medium mb-6 leading-relaxed" data-i18n="gPurchaseIntro">MyanCode offers two powerful ways to acquire a professional website, depending on your business requirements.</p>
+
+                    <!-- Method A: Custom Studio -->
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8 mb-6 relative overflow-hidden group hover:border-blue-200 transition-colors">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-myancode-blue transition-colors duration-500"></div>
+                        <div>
+                            <h3 class="text-lg font-bold text-myancode-black flex items-center gap-2 mb-2" data-i18n="gMethod1Title">Method 1: Custom Tailored Website</h3>
+                            <p class="text-sm text-gray-500 mb-6 font-medium" data-i18n="gMethod1Desc">Build exactly what you need with dynamic, customized pricing.</p>
+                            
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-blue-50 text-myancode-blue font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod1Step1"><strong>Desktop:</strong> Click <span class="font-bold">"Studio"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class="font-bold">"Studio"</span>.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-blue-50 text-myancode-blue font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod1Step2">In the Studio interface, browse and add your desired custom designs, advanced functions, and total page count.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-blue-50 text-myancode-blue font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">3</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod1Step3">Submit your tailored request and our engineering team will handle the rest.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Method B: Ready-made Templates -->
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8 relative overflow-hidden group hover:border-gray-400 transition-colors">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-myancode-black transition-colors duration-500"></div>
+                        <div>
+                            <h3 class="text-lg font-bold text-myancode-black flex items-center gap-2 mb-2" data-i18n="gMethod2Title">Method 2: Ready-Made Templates</h3>
+                            <p class="text-sm text-gray-500 mb-6 font-medium" data-i18n="gMethod2Desc">Purchase complete, premium codebases that you can adjust and own entirely.</p>
+                            
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod2Step1"><strong>Desktop:</strong> Click <span class="font-bold">"Templates"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class="font-bold">"Templates"</span>.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod2Step2">Browse our catalog, select the template that fits your needs, and click Purchase to proceed to checkout.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 4: Change Language -->
+                <section id="guide-language" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="globe" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gLangTitle">Change Language</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gLangDeskStep1">Locate the <span class="font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200"><i data-lucide="globe" class="w-3 h-3 inline"></i> Global Icon</span> on the right side of the main header navigation.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gLangDeskStep2">Click it and select your preferred language (English or မြန်မာ) from the beautifully designed dropdown menu.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gLangMobStep1">Tap the <span class="font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200"><i data-lucide="menu" class="w-3 h-3 inline"></i> Menu</span> icon at the top-left corner.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gLangMobStep2">At the bottom of the menu list, tap "Switch Language" next to the global icon.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 5: Track Your Orders (User Hub) -->
+                <section id="guide-hub" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gHubTitle">Track Your Orders (User Hub)</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gHubDeskStep1">Ensure you are logged in, then click on your <span class="font-bold text-myancode-black">Avatar Icon</span> at the top-right of the header.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gHubDeskStep2">Click on <span class="font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100">Hub</span> to view your active orders, payment statuses, and acquired templates.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gHubMobStep1">Tap the <span class="font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200"><i data-lucide="menu" class="w-3 h-3 inline"></i> Menu</span> icon at the top-left.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gHubMobStep2">Tap on <span class="font-bold text-myancode-black">Hub</span> under your account section to track all your enterprise purchases.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 6: Using Custom Studio -->
+                <section id="guide-studio" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="layers" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gStudioTitle">Using the Custom Studio</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gStudioDeskStep1">Navigate to <span class="font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100">Studio</span> from the header. This is our advanced price calculator.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gStudioDeskStep2">Toggle required features (e.g., E-commerce, CMS, Dark Mode) to see real-time price changes, then click "Request Custom Build".</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gStudioMobStep1">Open the <span class="font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200"><i data-lucide="menu" class="w-3 h-3 inline"></i> Menu</span> and select <span class="font-bold text-myancode-black">Studio</span>.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gStudioMobStep2">Select the specific add-ons you need and tap the request button to finalize your customized quotation.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 7: Manage Your Wishlist -->
+                <section id="guide-wishlist" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="heart" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gWishTitle">Manage Your Wishlist</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gWishDeskStep1">Click the <span class="font-bold text-myancode-blue">Heart Icon</span> on any product card to save it for later.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gWishDeskStep2">Click the <span class="font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Heart Icon</span> in the top-right header to open your drawer and proceed to checkout.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gWishMobStep1">Tap the heart button on products to bookmark them.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gWishMobStep2">Open the <span class="font-bold text-myancode-black">Menu</span>, scroll to the bottom, and tap <span class="font-bold">My Wishlist</span> to manage your saved items.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 8: Account & Profile Setup -->
+                <section id="guide-profile" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="user" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gProfTitle">Change Username & Profile</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gProfDeskStep1">Click your <span class="font-bold text-myancode-blue">Avatar</span> in the header and select <span class="font-bold">My Profile</span>.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gProfDeskStep2">Here you can securely change your username, update your profile picture, and manage your account details.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gProfMobStep1">Open the <span class="font-bold text-myancode-black">Menu</span> and tap on <span class="font-bold text-myancode-blue">My Profile</span>.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gProfMobStep2">Modify your username and profile picture directly from your mobile device.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 9: Change Password -->
+                <section id="guide-password" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="key" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gPassTitle">Change Account Password</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPassDeskStep1">Navigate to <span class="font-bold">My Profile</span> by clicking your Avatar icon in the top-right header.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPassDeskStep2">Go to the Security settings, enter your <span class="font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded">Old Password</span>, then input your new password to save changes.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPassMobStep1">Open the <span class="font-bold">Menu</span> and tap on <span class="font-bold text-myancode-blue">My Profile</span>.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPassMobStep2">Scroll to the Security section, verify using your current password, and update to the new password.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 10: Forgot Password -->
+                <section id="guide-forgot-password" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="unlock" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gForgotTitle">Reset Forgotten Password</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gForgotDeskStep1">Navigate to the <span class="font-bold">Login</span> page. Click the <span class="font-bold text-myancode-blue">Forgot Password?</span> link positioned just above the password input field.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gForgotDeskStep2">Follow the secure reset instructions sent to your email. If the issue persists, please contact <a href="mailto:support@myancode.com" class="text-myancode-blue hover:underline font-bold">support@myancode.com</a>.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gForgotMobStep1">On the Login screen, tap the <span class="font-bold text-myancode-blue">Forgot Password?</span> link located above the password field.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gForgotMobStep2">Check your email for reset instructions. If you need further assistance, email <a href="mailto:support@myancode.com" class="text-myancode-blue hover:underline font-bold">support@myancode.com</a>.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 11: Delete Account -->
+                <section id="guide-delete-account" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center shadow-md shrink-0 border border-red-100"><i data-lucide="user-x" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gDelTitle">Delete Account</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-red-200/60 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelDeskStep1">Access <span class="font-bold">My Profile</span> via the top-right Avatar dropdown menu.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelDeskStep2">Scroll down to the Danger Zone. Click Delete Account, and <span class="font-bold text-red-500">type the provided confirmation text</span> exactly as shown to permanently remove your data.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelMobStep1">Open the Menu and navigate to <span class="font-bold">My Profile</span>.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelMobStep2">Find the Danger Zone at the bottom, tap Delete Account, and type the required confirmation text to authorize the deletion.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 12: Download Purchased Templates -->
+                <section id="guide-download" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="download-cloud" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gDownTitle">Download Purchased Templates</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDownDeskStep1">Ensure you are logged in, then click on your Avatar and select <span class="font-bold">Hub</span>.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDownDeskStep2">Find your successfully completed orders and click the <span class="font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100">Download Source Code</span> button to get your files.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDownMobStep1">Open the Menu and tap on <span class="font-bold">Hub</span> to view your active and past purchases.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDownMobStep2">Locate your completed template order and tap the download button to securely save the source code to your device.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 13: Contact Support -->
+                <section id="guide-support" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="life-buoy" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gSupTitle">Contact Support</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8">
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gSupDeskStep1">Hover over the <span class="font-bold text-myancode-blue">Support</span> link in the main navigation bar to reveal the mega-menu.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gSupDeskStep2">Click on <span class="font-bold">Contact</span> or <span class="font-bold">Help Center</span> to reach our dedicated enterprise engineering and support team.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gSupMobStep1">Open the <span class="font-bold text-myancode-black">Menu</span> and tap to expand the <span class="font-bold text-myancode-blue">Support</span> section.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gSupMobStep2">Tap on "Contact" to access email, hotline, and social channel support details.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Detailed Footer with Integrated Newsletter -->
+    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative z-10 mt-auto">
+        <div class="max-w-[1024px] mx-auto relative z-10">
+
+            <!-- Enterprise Newsletter Card -->
+            <div class="bg-white rounded-[2.5rem] p-8 sm:p-12 mb-20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
+                <!-- Left: Text Content -->
+                <div class="text-center lg:text-left w-full lg:w-1/2 flex flex-col items-center lg:items-start">
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-[#f0f5ff] rounded-full mb-6">
+                        <i data-lucide="mail" class="w-6 h-6 text-[#2997ff]"></i>
+                    </div>
+                    <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-4" data-i18n="nlTitle">Stay Ahead of the Curve</h3>
+                    <p class="text-base text-gray-500 font-normal leading-relaxed max-w-md mx-auto lg:mx-0" data-i18n="nlDesc">Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.</p>
+                </div>
+
+                <!-- Right: Subscription Form + Turnstile -->
+                <div class="w-full lg:w-1/2">
+                    <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="w-full flex flex-col gap-3">
+                        <div class="relative flex items-center bg-white border border-gray-200 rounded-full p-1.5 shadow-sm transition-all focus-within:border-myancode-black focus-within:ring-1 focus-within:ring-myancode-black">
+                            <div class="pl-5 pr-3 text-gray-400 flex items-center justify-center pointer-events-none">
+                                <i data-lucide="mail" class="w-5 h-5"></i>
+                            </div>
+                            <input type="email" id="newsletterEmail" required
+                                class="w-full py-3.5 bg-transparent border-none outline-none text-sm font-medium text-myancode-black placeholder-gray-400 focus:ring-0"
+                                placeholder="Enter your email address" data-i18n-placeholder="nlPlaceholder">
+                            <button type="submit" id="btnSubscribe" class="bg-myancode-black text-white px-8 py-3.5 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition shadow-md flex items-center justify-center gap-2 btn-hover-effect whitespace-nowrap shrink-0">
+                                <span data-i18n="btnSubscribe">Subscribe</span>
+                            </button>
+                        </div>
+                        <div class="cf-turnstile pl-2" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="light"></div>
+                    </form>
+                    <p class="text-[11px] text-gray-400 mt-4 font-medium tracking-wide uppercase text-center lg:text-left lg:ml-6" data-i18n="nlDisclaimer">We respect your privacy. No spam, ever.</p>
+                </div>
+            </div>
+
+            <!-- Modern Formal Footer Links Grid -->
+            <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-16 border-t border-gray-200 pt-16 mt-16">
+                <div>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftCompanyTitle">Company</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../about-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAboutUs">About Us</a></li>
+                        <li><a href="../contact-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftContactUs">Contact Us</a></li>
+                        <li><a href="../updates-news/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftUpdates">Updates & News</a></li>
+                        <li><a href="../careers/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftCareers">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftStoreTitle">Store</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../studio/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAddOns">Add-Ons</a></li>
+                        <li><a href="../templates/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftTemplates">Templates</a></li>
+                        <li><a href="../services/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftServices">Services</a></li>
+                        <li><a href="../maintenance/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftMaintenance">Maintenance</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftSupportTitle">Support</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="../guides/" class="text-xs text-gray-500 hover:text-black transition-colors font-bold text-myancode-blue" data-i18n="supGuides">Guides</a></li>
+                        <li><a href="../help/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supHelp">Help Center</a></li>
+                        <li><a href="../faq/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supFaq">FAQs</a></li>
+                        <li><a href="../about/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supLegal">Legal</a></li>
+                    </ul>
+                </div>
+                <div class="xs:col-span-2 md:col-span-1">
+                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftFollow">Follow Us</h4>
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-5 leading-relaxed pr-4" data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
+                    <div class="flex space-x-5">
+                        <a href="../comming-soon/" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="facebook" class="h-4 w-4 fill-current"></i></a>
+                        <a href="../comming-soon/" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="instagram" class="h-4 w-4"></i></a>
+                        <a href="../comming-soon/" class="text-gray-400 hover:text-black transition-colors btn-hover-effect"><i data-lucide="linkedin" class="h-4 w-4 fill-current"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-6 pb-2 flex justify-center items-center">
+                <p class="text-[10px] sm:text-[11px] text-gray-400 font-medium text-center tracking-wide" data-i18n="ftCopyright">&copy; 2026 MyanCode. All rights reserved. Engineered in Yangon.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification Toasts -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
+        <span id="toast-msg" class="text-sm font-medium tracking-wide">Success!</span>
+    </div>
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-white"></i>
+        <span id="error-toast-msg" class="text-sm font-medium tracking-wide">Error!</span>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNav');
+            const scrollThreshold = 10;
+            if (window.scrollY > scrollThreshold) {
+                nav.classList.add('glass-nav');
+                nav.classList.remove('nav-transparent', 'border-transparent');
+            } else {
+                nav.classList.remove('glass-nav');
+                nav.classList.add('nav-transparent', 'border-transparent');
+            }
+
+            // TOC Active State Logic
+            let fromTop = window.scrollY + 130;
+            const links = document.querySelectorAll('.toc-link');
+            links.forEach(link => {
+                let section = document.querySelector(link.hash);
+                if (section && section.offsetTop <= fromTop && section.offsetTop + section.offsetHeight > fromTop) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+
+        // Smooth TOC Scrolling
+        document.querySelectorAll('.toc-link').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetNode = document.querySelector(targetId);
+                if (targetNode) {
+                    targetNode.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+        
+        lucide.createIcons();
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+
+        // COMPREHENSIVE NATIVE DICTIONARY FOR GUIDES
+        const dict = {
+            en: {
+                navHome: "Home", navWebsites: "Templates", navServices: "Services",
+                navStudio: "Studio", navSupport: "Support", btnCart: "Cart",
+                langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
+                wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", wlTotal: "Total", btnContact: "Proceed to Checkout",
+                quickLinks: "Quick Links", searchResults: "Results", searchHint: "Type to discover our enterprise products and services...",
+                ftCompanyTitle: "Company", ftAboutUs: "About Us", ftContactUs: "Contact Us", ftUpdates: "Updates & News", ftCareers: "Careers",
+                ftStoreTitle: "Store", ftAddOns: "Add-Ons", ftTemplates: "Templates", ftServices: "Services", ftMaintenance: "Maintenance",
+                ftSupportTitle: "Support", supGuides: "Guides", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal", supContact: "Contact",
+                supHelpTitle: "Explore Support", supPoliciesTitle: "Service Policies", supLegalTitle: "Legal & Transactions",
+                polClient: "Customer Policy", polStudio: "Studio Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
+                ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest projects and enterprise tech insights.", ftCopyright: "© 2026 MyanCode Inc. All Rights Reserved.",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrWorkplace: "Workplace", hdrHub: "Hub", hdrLogout: "Sign Out", msgLoggedOut: "Signed out securely.", loadingInit: "Initializing...",
+                nlTitle: "Stay Ahead of the Curve", nlDesc: "Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.",
+                nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
+                
+                // GUIDES SPECIFIC
+                gHeroTitle: "Official MyanCode Guides",
+                gHeroDesc: "Master the platform with our comprehensive, step-by-step documentation designed for seamless navigation and convenience.",
+                gTocTitle: "On This Page",
+                gDesktopGuide: "Desktop / Laptop",
+                gMobileGuide: "Mobile Device",
+                searchGuidesPlaceholder: "Search guides, tutorials, or keywords...",
+                gNoResultsTitle: "No Guides Found",
+                gNoResultsDesc: "We couldn't find any guides matching your search criteria. Please try different keywords.",
+
+                gRegTitle: "Register Account",
+                gRegDeskStep1: "Click the <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Register</span> button located at the right side of the main header navigation.",
+                gRegDeskStep2: "Fill in your required personal details, email address, and create a secure password.",
+                gRegDeskStep3: "Complete the process and verify your account via the link sent to your provided email.",
+                gRegMobStep1: "Tap the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> icon situated at the top-left corner of your screen.",
+                gRegMobStep2: "Scroll down and tap on \"Register\", then proceed to fill in your data and verify your email.",
+
+                gLoginTitle: "Login Account",
+                gLogDeskStep1: "Click the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">Login</span> link located on the right side of the header navigation.",
+                gLogDeskStep2: "Enter your verified email address and the password you created, then click Login.",
+                gLogMobStep1: "Tap the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> icon at the top-left to open the drawer.",
+                gLogMobStep2: "Tap on \"Login\", enter your credentials, and securely access your account.",
+
+                gPurchaseTitle: "Purchase a Website",
+                gPurchaseIntro: "MyanCode offers two powerful ways to acquire a professional website, depending on your business requirements.",
+                gMethod1Title: "Method 1: Custom Tailored Website",
+                gMethod1Desc: "Build exactly what you need with dynamic, customized pricing.",
+                gPurMethod1Step1: "<strong>Desktop:</strong> Click <span class=\"font-bold text-myancode-black\">\"Studio\"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class=\"font-bold text-myancode-black\">\"Studio\"</span>.",
+                gPurMethod1Step2: "In the Studio interface, browse and add your desired custom designs, advanced functions, and total page count.",
+                gPurMethod1Step3: "Submit your tailored request and our engineering team will handle the rest.",
+                gMethod2Title: "Method 2: Ready-Made Templates",
+                gMethod2Desc: "Purchase complete, premium codebases that you can adjust and own entirely.",
+                gPurMethod2Step1: "<strong>Desktop:</strong> Click <span class=\"font-bold text-myancode-black\">\"Templates\"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class=\"font-bold text-myancode-black\">\"Templates\"</span>.",
+                gPurMethod2Step2: "Browse our catalog, select the template that fits your needs, and click Purchase to proceed to checkout.",
+
+                gLangTitle: "Change Language",
+                gLangDeskStep1: "Locate the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">Global Icon</span> on the right side of the main header navigation.",
+                gLangDeskStep2: "Click it and select your preferred language (English or မြန်မာ) from the beautifully designed dropdown menu.",
+                gLangMobStep1: "Tap the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> icon at the top-left corner.",
+                gLangMobStep2: "At the bottom of the menu list, tap \"Switch Language\" next to the global icon.",
+
+                gHubTitle: "Track Your Orders (User Hub)",
+                gHubDeskStep1: "Ensure you are logged in, then click on your <span class=\"font-bold text-myancode-black\">Avatar Icon</span> at the top-right of the header.",
+                gHubDeskStep2: "Click on <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Hub</span> to view your active orders, payment statuses, and acquired templates.",
+                gHubMobStep1: "Tap the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> icon at the top-left.",
+                gHubMobStep2: "Tap on <span class=\"font-bold text-myancode-black\">Hub</span> under your account section to track all your enterprise purchases.",
+
+                gStudioTitle: "Using the Custom Studio",
+                gStudioDeskStep1: "Navigate to <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Studio</span> from the header. This is our advanced price calculator.",
+                gStudioDeskStep2: "Toggle required features (e.g., E-commerce, CMS, Dark Mode) to see real-time price changes, then click \"Request Custom Build\".",
+                gStudioMobStep1: "Open the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> and select <span class=\"font-bold text-myancode-black\">Studio</span>.",
+                gStudioMobStep2: "Select the specific add-ons you need and tap the request button to finalize your customized quotation.",
+
+                gWishTitle: "Manage Your Wishlist",
+                gWishDeskStep1: "Click the <span class=\"font-bold text-myancode-blue\">Heart Icon</span> on any product card to save it for later.",
+                gWishDeskStep2: "Click the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">Heart Icon</span> in the top-right header to open your drawer and proceed to checkout.",
+                gWishMobStep1: "Tap the heart button on products to bookmark them.",
+                gWishMobStep2: "Open the <span class=\"font-bold text-myancode-black\">Menu</span>, scroll to the bottom, and tap <span class=\"font-bold\">My Wishlist</span> to manage your saved items.",
+
+                gProfTitle: "Change Username & Profile",
+                gProfDeskStep1: "Click your <span class=\"font-bold text-myancode-blue\">Avatar</span> in the header and select <span class=\"font-bold\">My Profile</span>.",
+                gProfDeskStep2: "Here you can securely change your username, update your profile picture, and manage your account details.",
+                gProfMobStep1: "Open the <span class=\"font-bold text-myancode-black\">Menu</span> and tap on <span class=\"font-bold text-myancode-blue\">My Profile</span>.",
+                gProfMobStep2: "Modify your username and profile picture directly from your mobile device.",
+
+                gPassTitle: "Change Account Password",
+                gPassDeskStep1: "Navigate to <span class=\"font-bold\">My Profile</span> by clicking your Avatar icon in the top-right header.",
+                gPassDeskStep2: "Go to the Security settings, enter your <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded\">Old Password</span>, then input your new password to save changes.",
+                gPassMobStep1: "Open the <span class=\"font-bold\">Menu</span> and tap on <span class=\"font-bold text-myancode-blue\">My Profile</span>.",
+                gPassMobStep2: "Scroll to the Security section, verify using your current password, and update to the new password.",
+
+                gForgotTitle: "Reset Forgotten Password",
+                gForgotDeskStep1: "Navigate to the <span class=\"font-bold\">Login</span> page. Click the <span class=\"font-bold text-myancode-blue\">Forgot Password?</span> link positioned just above the password input field.",
+                gForgotDeskStep2: "Follow the secure reset instructions sent to your email. If the issue persists, please contact <a href=\"mailto:support@myancode.com\" class=\"text-myancode-blue hover:underline font-bold\">support@myancode.com</a>.",
+                gForgotMobStep1: "On the Login screen, tap the <span class=\"font-bold text-myancode-blue\">Forgot Password?</span> link located above the password field.",
+                gForgotMobStep2: "Check your email for reset instructions. If you need further assistance, email <a href=\"mailto:support@myancode.com\" class=\"text-myancode-blue hover:underline font-bold\">support@myancode.com</a>.",
+
+                gDelTitle: "Delete Account",
+                gDelDeskStep1: "Access <span class=\"font-bold\">My Profile</span> via the top-right Avatar dropdown menu.",
+                gDelDeskStep2: "Scroll down to the Danger Zone. Click Delete Account, and <span class=\"font-bold text-red-500\">type the provided confirmation text</span> exactly as shown to permanently remove your data.",
+                gDelMobStep1: "Open the Menu and navigate to <span class=\"font-bold\">My Profile</span>.",
+                gDelMobStep2: "Find the Danger Zone at the bottom, tap Delete Account, and type the required confirmation text to authorize the deletion.",
+
+                gDownTitle: "Download Purchased Templates",
+                gDownDeskStep1: "Ensure you are logged in, then click on your Avatar and select <span class=\"font-bold\">Hub</span>.",
+                gDownDeskStep2: "Find your successfully completed orders and click the <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Download Source Code</span> button to get your files.",
+                gDownMobStep1: "Open the Menu and tap on <span class=\"font-bold\">Hub</span> to view your active and past purchases.",
+                gDownMobStep2: "Locate your completed template order and tap the download button to securely save the source code to your device.",
+
+                gSupTitle: "Contact Support",
+                gSupDeskStep1: "Hover over the <span class=\"font-bold text-myancode-blue\">Support</span> link in the main navigation bar to reveal the mega-menu.",
+                gSupDeskStep2: "Click on <span class=\"font-bold\">Contact</span> or <span class=\"font-bold\">Help Center</span> to reach our dedicated enterprise engineering and support team.",
+                gSupMobStep1: "Open the <span class=\"font-bold text-myancode-black\">Menu</span> and tap to expand the <span class=\"font-bold text-myancode-blue\">Support</span> section.",
+                gSupMobStep2: "Tap on \"Contact\" to access email, hotline, and social channel support details."
+            },
+            mm: {
+                navHome: "ပင်မစာမျက်နှာ", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navStudio: "စတူဒီယို", navSupport: "အကူအညီ", btnCart: "ဝယ်ယူမည့်စာရင်း",
+                langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
+                wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", wlTotal: "စုစုပေါင်း", btnContact: "ဝယ်ယူရန် ရှေ့ဆက်မည်",
+                quickLinks: "အမြန်လင့်ခ်များ", searchResults: "ရလဒ်များ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...",
+                ftCompanyTitle: "ကုမ္ပဏီ", ftAboutUs: "ကျွန်ုပ်တို့အကြောင်း", ftContactUs: "ဆက်သွယ်ရန်", ftUpdates: "သတင်းနှင့် အသစ်များ", ftCareers: "အလုပ်အကိုင်များ",
+                ftStoreTitle: "စတိုး", ftAddOns: "အပိုပစ္စည်းများ", ftTemplates: "ဝက်ဘ်ဆိုက်များ", ftServices: "ဝန်ဆောင်မှုများ", ftMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
+                ftSupportTitle: "အကူအညီ", supGuides: "လမ်းညွှန်များ", supHelp: "အကူအညီဌာန", supFaq: "အမေးများသောမေးခွန်းများ", supLegal: "တရားဝင်", supContact: "ဆက်သွယ်ရန်",
+                supHelpTitle: "အကူအညီ ရယူရန်", supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ",
+                polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
+                ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrWorkplace: "လုပ်ငန်းခွင်", hdrHub: "ဗဟိုဌာန", hdrLogout: "အကောင့်ထွက်ရန်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "ချိတ်ဆက်နေပါသည်...",
+                nlTitle: "သတင်းအသစ်များ ရယူရန်", nlDesc: "နောက်ဆုံးရ နည်းပညာသတင်းများနှင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းအသစ်များကို ရယူရန် သင်၏ အီးမေးလ်ကို စာရင်းသွင်းပါ။",
+                nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", nlDisclaimer: "သင်၏ အချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။",
+                
+                // GUIDES SPECIFIC
+                gHeroTitle: "MyanCode တရားဝင် လမ်းညွှန်များ",
+                gHeroDesc: "ကျွန်ုပ်တို့၏ ပြည့်စုံသော အဆင့်လိုက် လမ်းညွှန်ချက်များဖြင့် ပလက်ဖောင်းကို အလွယ်တကူနှင့် ကျွမ်းကျင်စွာ အသုံးပြုပါ။",
+                gTocTitle: "ဤစာမျက်နှာတွင်",
+                gDesktopGuide: "ကွန်ပျူတာဖြင့် အသုံးပြုရန် လမ်းညွှန်",
+                gMobileGuide: "မိုဘိုင်းဖုန်းဖြင့် အသုံးပြုရန် လမ်းညွှန်",
+                searchGuidesPlaceholder: "လမ်းညွှန်များ၊ သင်ခန်းစာများ သို့မဟုတ် သော့ချက်စာလုံးများကို ရှာဖွေရန်...",
+                gNoResultsTitle: "လမ်းညွှန်များ ရှာမတွေ့ပါ",
+                gNoResultsDesc: "သင်ရှာဖွေသော အချက်အလက်နှင့် ကိုက်ညီသည့် လမ်းညွှန်ချက် မရှိပါ။ အခြားသော သော့ချက်စာလုံးများဖြင့် ထပ်မံရှာဖွေကြည့်ပါ။",
+
+                gRegTitle: "အကောင့်အသစ် ဖွင့်ခြင်း",
+                gRegDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ အပြာရောင် <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Register</span> ခလုတ်ကို နှိပ်ပါ။",
+                gRegDeskStep2: "သင်၏ ကိုယ်ရေးအချက်အလက်များ၊ အီးမေးလ်လိပ်စာ နှင့် လုံခြုံသော စကားဝှက် (Password) ကို ဖြည့်သွင်းပါ။",
+                gRegDeskStep3: "ဖြည့်သွင်းပြီးပါက သင်၏အီးမေးလ်သို့ ပို့ပေးသောလင့်ခ်ကို နှိပ်၍ အကောင့်ကို အတည်ပြု (Verify) ပါ။",
+                gRegMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> (မျဉ်းသုံးကြောင်း) ခလုတ်ကို နှိပ်ပါ။",
+                gRegMobStep2: "မီနူးစာရင်းမှ \"Register\" ကို ရွေးချယ်ပြီး အချက်အလက်များ ဖြည့်သွင်း၍ အကောင့်အတည်ပြုပါ။",
+
+                gLoginTitle: "အကောင့် ဝင်ရောက်ခြင်း",
+                gLogDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">Login</span> ကို နှိပ်ပါ။",
+                gLogDeskStep2: "သင်အတည်ပြုထားသော အီးမေးလ်လိပ်စာ နှင့် စကားဝှက်ကို ဖြည့်သွင်းပြီး ဝင်ရောက်ပါ။",
+                gLogMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> ခလုတ်ကို နှိပ်၍ မီနူးကို ဖွင့်ပါ။",
+                gLogMobStep2: "\"Login\" ကို ရွေးချယ်ပြီး သင်၏ အီးမေးလ်၊ စကားဝှက်တို့ဖြင့် လုံခြုံစွာ ဝင်ရောက်ပါ။",
+
+                gPurchaseTitle: "ဝက်ဘ်ဆိုက် ဝယ်ယူခြင်း",
+                gPurchaseIntro: "MyanCode တွင် လူကြီးမင်း၏ စီးပွားရေး လိုအပ်ချက်ပေါ်မူတည်၍ ဝက်ဘ်ဆိုက် ဝယ်ယူရန် နည်းလမ်း (၂) မျိုး ရှိပါသည်။",
+                gMethod1Title: "နည်းလမ်း ၁ - မိမိစိတ်ကြိုက် ဖန်တီးတည်ဆောက်ခြင်း",
+                gMethod1Desc: "သင့်လိုအပ်ချက်အတိုင်း တိကျသောလုပ်ဆောင်ချက်များနှင့် စျေးနှုန်းများဖြင့် စိတ်ကြိုက် ဖန်တီးပါ။",
+                gPurMethod1Step1: "<strong>ကွန်ပျူတာ -</strong> ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <span class=\"font-bold text-myancode-black\">\"Studio\"</span> ကို နှိပ်ပါ။ <br><strong>မိုဘိုင်းဖုန်း -</strong> Menu ခလုတ်ကို နှိပ်ပြီးနောက် <span class=\"font-bold text-myancode-black\">\"Studio\"</span> ကို ရွေးချယ်ပါ။",
+                gPurMethod1Step2: "Studio အတွင်း၌ သင်အလိုရှိသော ဒီဇိုင်းများ၊ အဆင့်မြင့် လုပ်ဆောင်ချက်များ နှင့် စာမျက်နှာ အရေအတွက်ကို ရွေးချယ်ပေါင်းထည့်ပါ။",
+                gPurMethod1Step3: "သင်၏ စိတ်ကြိုက်တောင်းဆိုမှုကို Submit လုပ်ပါ။ ကျန်ရှိသော အပိုင်းများကို ကျွန်ုပ်တို့ အင်ဂျင်နီယာအဖွဲ့မှ တာဝန်ယူဆောင်ရွက်ပေးပါမည်။",
+                gMethod2Title: "နည်းလမ်း ၂ - အသင့်သုံး ဝက်ဘ်ဆိုက်ပုံစံများ ဝယ်ယူခြင်း",
+                gMethod2Desc: "ပရီမီယံ ကုဒ်အပြည့်အစုံပါဝင်ပြီး မိမိစိတ်ကြိုက် ပြင်ဆင်အသုံးပြုနိုင်သော ပုံစံများကို ဝယ်ယူပါ။",
+                gPurMethod2Step1: "<strong>ကွန်ပျူတာ -</strong> ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <span class=\"font-bold text-myancode-black\">\"Templates\"</span> ကို နှိပ်ပါ။ <br><strong>မိုဘိုင်းဖုန်း -</strong> Menu ခလုတ်ကို နှိပ်ပြီးနောက် <span class=\"font-bold text-myancode-black\">\"Templates\"</span> ကို ရွေးချယ်ပါ။",
+                gPurMethod2Step2: "ကတ်တလောက်တွင် ရှာဖွေလေ့လာပြီး သင်နှင့်ကိုက်ညီမည့် ပုံစံကို ရွေးချယ်ကာ Purchase နှိပ်၍ ငွေပေးချေမှု အဆင့်သို့ သွားပါ။",
+
+                gLangTitle: "ဘာသာစကား ပြောင်းလဲခြင်း",
+                gLangDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">ကမ္ဘာလုံးပုံ အိုင်ကွန် (Global Icon)</span> ကို ရှာပါ။",
+                gLangDeskStep2: "အိုင်ကွန်ကို နှိပ်ပြီး ကျလာသော စာရင်းထဲမှ သင်အသုံးပြုလိုသော ဘာသာစကား (English သို့ မြန်မာ) ကို ရွေးချယ်ပါ။",
+                gLangMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> ခလုတ်ကို နှိပ်ပါ။",
+                gLangMobStep2: "မီနူးစာရင်း၏ အောက်ခြေဆုံးရှိ ကမ္ဘာလုံးပုံ အိုင်ကွန်ဘေးမှ \"Switch Language\" ကို နှိပ်၍ ပြောင်းလဲပါ။",
+
+                gHubTitle: "ဝယ်ယူမှု မှတ်တမ်း (User Hub)",
+                gHubDeskStep1: "အကောင့်ဝင်ထားရန် သေချာပါစေ။ ထို့နောက် အပေါ်ဘက် ညာဘက်ထောင့်ရှိ သင်၏ <span class=\"font-bold text-myancode-black\">အကောင့် အိုင်ကွန် (Avatar)</span> ကို နှိပ်ပါ။",
+                gHubDeskStep2: "<span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Hub</span> ကို ရွေးချယ်ပြီး သင်၏ အော်ဒါအခြေအနေ၊ ငွေပေးချေမှု မှတ်တမ်းများနှင့် ဝယ်ယူထားသော ပုံစံများကို ကြည့်ရှုပါ။",
+                gHubMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> ခလုတ်ကို နှိပ်ပါ။",
+                gHubMobStep2: "သင်၏ အကောင့်စာရင်းအောက်ရှိ <span class=\"font-bold text-myancode-black\">Hub</span> ကို ရွေးချယ်၍ အချက်အလက်များ အားလုံးကို လေ့လာစစ်ဆေးပါ။",
+
+                gStudioTitle: "စိတ်ကြိုက် ဝက်ဘ်ဆိုက် ဖန်တီးခြင်း (Custom Studio)",
+                gStudioDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Studio</span> သို့ သွားပါ။ ၎င်းမှာ ကျွန်ုပ်တို့၏ အဆင့်မြင့် စျေးနှုန်းတွက်ချက်မှု စနစ်ဖြစ်ပါသည်။",
+                gStudioDeskStep2: "လိုအပ်သော လုပ်ဆောင်ချက်များ (ဥပမာ E-commerce, CMS) ကို ရွေးချယ်ပြီး ကျသင့်ငွေကို ချက်ချင်း ကြည့်ရှုနိုင်သည်။ ထို့နောက် \"Request Custom Build\" ကို နှိပ်ပါ။",
+                gStudioMobStep1: "<span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> မှတဆင့် <span class=\"font-bold text-myancode-black\">Studio</span> ကို ဖွင့်ပါ။",
+                gStudioMobStep2: "လိုအပ်သော အပိုလုပ်ဆောင်ချက်များကို ရွေးချယ်ပြီး ကိုယ်ပိုင် ဈေးနှုန်းတောင်းခံလွှာကို အတည်ပြုရန် Request ခလုတ်ကို နှိပ်ပါ။",
+
+                gWishTitle: "သိမ်းဆည်းထားသော စာရင်း စီမံခြင်း",
+                gWishDeskStep1: "နောက်မှ ဝယ်ယူရန်အတွက် ကုန်ပစ္စည်းများပေါ်ရှိ <span class=\"font-bold text-myancode-blue\">အသည်းပုံ အိုင်ကွန်</span> ကို နှိပ်၍ သိမ်းဆည်းပါ။",
+                gWishDeskStep2: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">အသည်းပုံ အိုင်ကွန်</span> ကို နှိပ်ပြီး သိမ်းဆည်းထားသည်များကို ပြန်လည်ကြည့်ရှု၍ ဝယ်ယူပါ။",
+                gWishMobStep1: "သိမ်းဆည်းလိုသော ဝက်ဘ်ဆိုက်များရှိ အသည်းပုံလေးကို နှိပ်ပါ။",
+                gWishMobStep2: "<span class=\"font-bold text-myancode-black\">Menu</span> ကို ဖွင့်ပြီး အောက်ခြေရှိ <span class=\"font-bold\">My Wishlist</span> သို့ သွားရောက်၍ သင်၏ စာရင်းကို စီမံပါ။",
+
+                gProfTitle: "အမည်နှင့် ကိုယ်ရေးအချက်အလက် ပြင်ဆင်ခြင်း",
+                gProfDeskStep1: "အပေါ်ဘက် ညာဘက်ထောင့်ရှိ သင်၏ <span class=\"font-bold text-myancode-blue\">အကောင့် အိုင်ကွန် (Avatar)</span> ကို နှိပ်ပြီး <span class=\"font-bold\">My Profile</span> ကို ရွေးပါ။",
+                gProfDeskStep2: "ထိုနေရာတွင် သင်၏ အကောင့်အမည် (Username) ကို ပြောင်းလဲခြင်း၊ ပရိုဖိုင်ပုံ ပြောင်းခြင်းတို့ကို လုံခြုံစွာ စီမံနိုင်ပါသည်။",
+                gProfMobStep1: "<span class=\"font-bold text-myancode-black\">Menu</span> ကို ဖွင့်ပြီး <span class=\"font-bold text-myancode-blue\">My Profile</span> သို့ ဝင်ရောက်ပါ။",
+                gProfMobStep2: "မိုဘိုင်းဖုန်းမှတဆင့် သင်၏ အကောင့်အမည် (Username) နှင့် ပရိုဖိုင်ပုံများကို အလွယ်တကူ ပြင်ဆင်နိုင်ပါသည်။",
+
+                gPassTitle: "စကားဝှက် (Password) ပြောင်းလဲခြင်း",
+                gPassDeskStep1: "အပေါ်ဘက် ညာဘက်ထောင့်ရှိ သင့်အကောင့် အိုင်ကွန်ကို နှိပ်ပြီး <span class=\"font-bold\">My Profile</span> သို့ ဝင်ရောက်ပါ။",
+                gPassDeskStep2: "လုံခြုံရေး (Security) အပိုင်းတွင် <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded\">ယခင် စကားဝှက်ဟောင်း</span> ကို အရင်ရိုက်ထည့်ပြီးမှ စကားဝှက်အသစ်ကို ပြောင်းလဲသတ်မှတ်ပါ။",
+                gPassMobStep1: "Menu ကို ဖွင့်ပြီး <span class=\"font-bold text-myancode-blue\">My Profile</span> ကို ရွေးချယ်ပါ။",
+                gPassMobStep2: "လုံခြုံရေး (Security) အပိုင်းသို့ သွားပြီး လက်ရှိစကားဝှက်ကို ရိုက်ထည့်ကာ အသစ်ပြောင်းလဲပါ။",
+
+                gForgotTitle: "မေ့နေသော စကားဝှက်ကို ပြန်လည်ရယူခြင်း",
+                gForgotDeskStep1: "<span class=\"font-bold\">Login</span> စာမျက်နှာသို့ သွားပါ။ Password ရိုက်ထည့်ရမည့် အကွက်အပေါ်ရှိ <span class=\"font-bold text-myancode-blue\">Forgot Password?</span> လင့်ခ်ကို နှိပ်ပါ။",
+                gForgotDeskStep2: "သင့်အီးမေးလ်သို့ ပို့ပေးသော လမ်းညွှန်ချက်များအတိုင်း စကားဝှက်အသစ် ပြန်လည်သတ်မှတ်ပါ။ အဆင်မပြေမှုများ ရှိပါက <a href=\"mailto:support@myancode.com\" class=\"text-myancode-blue hover:underline font-bold\">support@myancode.com</a> သို့ ဆက်သွယ်နိုင်ပါသည်။",
+                gForgotMobStep1: "Login စာမျက်နှာတွင် Password အကွက်အပေါ်ရှိ <span class=\"font-bold text-myancode-blue\">Forgot Password?</span> ကို နှိပ်ပါ။",
+                gForgotMobStep2: "အီးမေးလ်ထဲသို့ ဝင်ရောက်စစ်ဆေးပြီး စကားဝှက်အသစ် ပြောင်းလဲပါ။ အကူအညီ လိုအပ်ပါက <a href=\"mailto:support@myancode.com\" class=\"text-myancode-blue hover:underline font-bold\">support@myancode.com</a> သို့ ဆက်သွယ်ပါ။",
+
+                gDelTitle: "အကောင့် ဖျက်သိမ်းခြင်း",
+                gDelDeskStep1: "အကောင့် အိုင်ကွန်မှတဆင့် <span class=\"font-bold\">My Profile</span> သို့ သွားပါ။",
+                gDelDeskStep2: "အောက်ဆုံးရှိ Danger Zone သို့ သွားပါ။ Delete Account ကို နှိပ်ပြီးနောက် <span class=\"font-bold text-red-500\">ပေးထားသော စာသားအတိုင်း တိကျစွာ ရိုက်ထည့်၍</span> အကောင့်ကို အပြီးတိုင် ဖျက်သိမ်းနိုင်ပါသည်။",
+                gDelMobStep1: "Menu ကို ဖွင့်၍ <span class=\"font-bold\">My Profile</span> သို့ ဝင်ရောက်ပါ။",
+                gDelMobStep2: "အောက်ဆုံးရှိ Danger Zone တွင် အကောင့်ဖျက်ရန် ရွေးချယ်ပြီး လိုအပ်သော အတည်ပြုစာသားကို မှန်ကန်စွာ ရိုက်ထည့်ပါ။",
+
+                gDownTitle: "ဝယ်ယူထားသော ဝက်ဘ်ဆိုက်ပုံစံများ ဒေါင်းလုဒ်ရယူခြင်း",
+                gDownDeskStep1: "အကောင့်ဝင်ထားပြီးနောက် အကောင့်အိုင်ကွန်ကို နှိပ်၍ <span class=\"font-bold\">Hub</span> သို့ သွားပါ။",
+                gDownDeskStep2: "အောင်မြင်စွာ ဝယ်ယူထားသော အော်ဒါများကို ရှာဖွေပြီး <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Download Source Code</span> ခလုတ်ကို နှိပ်၍ ရယူပါ။",
+                gDownMobStep1: "Menu ကို ဖွင့်ပြီး <span class=\"font-bold\">Hub</span> သို့ ဝင်ရောက်ပါ။",
+                gDownMobStep2: "ဝယ်ယူထားသော ဝက်ဘ်ဆိုက်ကို ရှာဖွေပြီး ဒေါင်းလုဒ်ခလုတ်ကို နှိပ်၍ သင့်ဖုန်းထဲသို့ လုံခြုံစွာ သိမ်းဆည်းပါ။",
+
+                gSupTitle: "အကူအညီနှင့် ဆက်သွယ်ရန်",
+                gSupDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <span class=\"font-bold text-myancode-blue\">Support</span> ဆိုသည့် လင့်ခ်ပေါ်သို့ မောက်စ်တင်လိုက်ပါ။",
+                gSupDeskStep2: "ကျလာသော မီနူးများထဲမှ <span class=\"font-bold\">Contact</span> သို့မဟုတ် <span class=\"font-bold\">Help Center</span> ကို ရွေးချယ်ပြီး ကျွန်ုပ်တို့၏ အင်ဂျင်နီယာအဖွဲ့ထံ ဆက်သွယ်ပါ။",
+                gSupMobStep1: "<span class=\"font-bold text-myancode-black\">Menu</span> ထဲရှိ <span class=\"font-bold text-myancode-blue\">Support</span> အပိုင်းကို နှိပ်၍ ဖွင့်ပါ။",
+                gSupMobStep2: "\"Contact\" ကို ရွေးချယ်၍ အီးမေးလ်၊ ဖုန်းနံပါတ် နှင့် လူမှုကွန်ယက် စာမျက်နှာများမှတဆင့် အကူအညီ တောင်းခံနိုင်ပါသည်။"
+            }
+        };
+
+        let supabaseInstance = null; let currentUser = null; let currentUserWishlist = [];
+        const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
+
+        // --- NEW LOADER LOGIC ---
+        const globalLoader = document.getElementById('globalLoader');
+        function showLoader(i18nKey = 'loadingInit') { 
+            const textEl = document.getElementById('loaderText');
+            if(textEl && dict[currentLang]) textEl.innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit']; 
+            if(globalLoader) {
+                globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden'); 
+                globalLoader.classList.add('opacity-100', 'visibility-visible'); 
+            }
+            document.body.classList.add('no-scroll'); 
+        }
+
+        function hideLoader() { 
+            if(globalLoader) {
+                globalLoader.classList.remove('opacity-100', 'visibility-visible'); 
+                globalLoader.classList.add('opacity-0', 'pointer-events-none'); 
+                setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600); 
+            }
+            document.body.classList.remove('no-scroll'); 
+        }
+        // ------------------------
+
+        function updateWishlistBadge() {
+            const countSpan = document.getElementById('wishlist-count');
+            if (countSpan) {
+                if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } 
+                else { countSpan.classList.add('opacity-0'); }
+            }
+        }
+
+        if (window.supabase) {
+            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: false } });
+            supabaseInstance.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    currentUser = { name: session.user.user_metadata?.full_name || session.user.email.split('@')[0], email: session.user.email, id: session.user.id, avatar_url: session.user.user_metadata?.avatar_url || null, role: session.user.user_metadata?.role || 'user' };
+                    currentUserWishlist = session.user.user_metadata?.wishlist || [];
+                } else { currentUser = null; currentUserWishlist = []; }
+                updateWishlistBadge();
+                updateAuthUI();
+                hideLoader(); // Safely dismiss loader when auth initializes
+            });
+        } else {
+            // Fallback if supabase library is completely missing
+            window.addEventListener('load', hideLoader);
+        }
+
+        function renderLanguage() {
+            document.documentElement.lang = currentLang;
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
+            updateAuthUI();
+            if (document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
+            lucide.createIcons();
+        }
+
+        function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
+        function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
+
+        function updateAuthUI() {
+            const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
+            if (!desktopAuth || !containerMob) return;
+            if (currentUser) {
+                const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover border border-gray-200">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
+                const mobileAvatarHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-gray-200 shadow-sm">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-blue"></i>`;
+
+                desktopAuth.innerHTML = `
+                    <div class="relative" id="profileContainer">
+                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black flex items-center justify-center">${avatarIconHTML}</button>
+                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
+                            <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
+                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
+                            ${currentUser.role === 'user' ? `<a href="../hub/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
+                            <button onclick="window.location.href='../profile/'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
+                            <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
+                        </div>
+                    </div>`;
+
+                containerMob.innerHTML = `
+                    <div class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide border-b border-gray-100 pb-6 mb-6">
+                        <span class="capitalize truncate max-w-[200px]">${currentUser.name}</span> 
+                        ${mobileAvatarHTML}
+                    </div>
+                    <div class="flex flex-col gap-6">
+                        ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                            <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
+                        </a>` : ''}
+                        ${currentUser.role === 'user' ? `<a href="../hub/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                            <span>${dict[currentLang].hdrHub}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i>
+                        </a>` : ''}
+                        <button onclick="window.location.href='../profile/'" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
+                        <button onclick="handleLogout()" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5 text-gray-400"></i></button>
+                    </div>`;
+            } else {
+                desktopAuth.innerHTML = `
+                    <a href="../login/" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link text-myancode-black px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
+                    <a href="../register/" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+
+                containerMob.innerHTML = `
+                    <div class="flex flex-col gap-6">
+                        <a href="../login/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                            <span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-400"></i>
+                        </a>
+                        <a href="../register/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
+                            <span>${dict[currentLang].hdrRegister}</span> <i data-lucide="user-plus" class="h-5 w-5 text-gray-400"></i>
+                        </a>
+                    </div>
+                `;
+            }
+            lucide.createIcons();
+            setActiveNavLinks();
+        }
+
+        function setActiveNavLinks() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link[data-nav-path]').forEach(link => {
+                const path = link.getAttribute('data-nav-path');
+                if (path !== '/' && currentPath.includes(path)) {
+                    link.classList.add('text-myancode-blue', 'font-bold', 'active-nav-item');
+                    link.classList.remove('hover:text-myancode-blue', 'text-white/80', 'text-white/90', 'text-myancode-black/80', 'text-myancode-black');
+                }
+            });
+        }
+
+        /* --- Wishlist Drawers & Misc --- */
+        function toggleWishlistDrawer() {
+            if (!currentUser) return showErrorToast(currentLang === 'en' ? "Please log in first" : "အကောင့်အရင်ဝင်ပါ");
+            const drawer = document.getElementById('wishlistDrawer'); const overlay = document.getElementById('wishlistOverlay');
+            if (!drawer.classList.contains('open')) document.getElementById('mobileDrawer').classList.remove('open');
+            drawer.classList.toggle('open'); overlay.classList.toggle('open');
+            if (drawer.classList.contains('open')) { document.body.classList.add('no-scroll'); renderWishlistItems(); } else { document.body.classList.remove('no-scroll'); }
+        }
+        function renderWishlistItems() {
+            const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal'); let total = 0;
+            if (currentUserWishlist.length === 0) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400"><i data-lucide="heart" class="h-12 w-12 mb-4 opacity-50"></i><p class="text-sm font-medium tracking-wide">${dict[currentLang].emptyWishlist}</p></div>`;
+                totalDisplay.textContent = `0 MMK`; lucide.createIcons(); return;
+            }
+            container.innerHTML = currentUserWishlist.map(item => {
+                total += item.price;
+                return `
+                <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div>
+                        <h4 class="font-semibold text-sm mb-1">${item.name}</h4>
+                        <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
+                    </div>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                </div>`}).join('');
+            totalDisplay.textContent = `${total.toLocaleString()} MMK`; lucide.createIcons();
+        }
+        function toggleWishlist(id, name, price) {
+            if (!currentUser) return;
+            const index = currentUserWishlist.findIndex(i => i.id === id);
+            if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); }
+            else { currentUserWishlist.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
+            if (supabaseInstance && currentUser) supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } });
+            updateWishlistBadge(); renderWishlistItems();
+        }
+        
+        async function handleLogout() { showLoader('loadingInit'); if (supabaseInstance) await supabaseInstance.auth.signOut(); window.location.reload(); }
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            if (!drawer.classList.contains('open')) { document.getElementById('wishlistDrawer').classList.remove('open'); document.getElementById('wishlistOverlay').classList.remove('open'); }
+            drawer.classList.toggle('open'); document.body.classList.toggle('no-scroll', drawer.classList.contains('open'));
+        }
+        function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); if (document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden'); }
+        function toggleProfile(e) { e.stopPropagation(); const profDrop = document.getElementById('profileDropdown'); if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); } }
+        document.addEventListener('click', (e) => {
+            const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
+            if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
+            const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
+        });
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
+        
+        function toggleSearchOverlay() {
+            const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
+            if (overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } 
+            else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; }, 400); }
+        }
+        function handleMegaSearch(e) { /* Placeholder to prevent console error */ }
+        async function handleSubscribe(e) { 
+            e.preventDefault(); 
+            showToast(currentLang === 'en' ? dict.en.msgSubscribedSuccess : dict.mm.msgSubscribedSuccess); 
+        }
+
+        // --- NEW SEARCH LOGIC FOR GUIDES ---
+        function filterGuides() {
+            const query = document.getElementById('guideSearchInput').value.toLowerCase().trim();
+            const sections = document.querySelectorAll('.guide-section');
+            const emptyState = document.getElementById('emptySearchState');
+            let hasVisible = false;
+
+            sections.forEach((section) => {
+                const text = section.innerText.toLowerCase();
+                const link = document.querySelector(`.toc-link[href="#${section.id}"]`);
+                
+                if (text.includes(query)) {
+                    section.classList.remove('hidden');
+                    if(link) link.classList.remove('hidden');
+                    hasVisible = true;
+                } else {
+                    section.classList.add('hidden');
+                    if(link) link.classList.add('hidden');
+                }
+            });
+
+            if(!hasVisible && query !== '') {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+            } else {
+                emptyState.classList.remove('flex');
+                emptyState.classList.add('hidden');
+            }
+        }
+
+        window.addEventListener('load', () => {
+            renderLanguage();
+        });
+    </script>
+</body>
+</html>
