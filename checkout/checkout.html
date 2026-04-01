@@ -564,7 +564,7 @@
 
                         <!-- Step 3B: Social Media Setup -->
                         <div id="step3bContent" class="step-hidden step-transition w-full flex flex-col h-full absolute top-0 left-0 pointer-events-none">
-                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep1()">
+                            <div class="flex items-center gap-3 mb-8 cursor-pointer text-gray-400 hover:text-myancode-black transition-colors w-fit" onclick="goToStep2()">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase tracking-widest" data-i18n="btnBack">Back</span>
                             </div>
                             
@@ -1182,12 +1182,11 @@
                     }
                 } 
                 else if (itemType === 'service' && productIdentifier) {
-                    // SECURE: Validates if string is UUID to bypass postgres casting crashes
-                    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productIdentifier);
+                    // DYNAMIC: Route strictly for Single Service Checkouts
                     const { data, error } = await supabaseInstance
                         .from('services')
                         .select('*')
-                        .eq(isUUID ? 'id' : 'slug', productIdentifier);
+                        .or(`slug.eq.${productIdentifier},id.eq.${productIdentifier}`);
 
                     if (error) throw error;
                     
@@ -1209,12 +1208,11 @@
                     }
                 }
                 else if (productIdentifier) {
-                    // SECURE: Validates if string is UUID to bypass postgres casting crashes
-                    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productIdentifier);
+                    // DYNAMIC: Route strictly for Single Product/Template Checkouts
                     const { data, error } = await supabaseInstance
                         .from('products')
                         .select('*')
-                        .eq(isUUID ? 'product_id' : 'product_slug', productIdentifier);
+                        .or(`product_slug.eq.${productIdentifier},product_id.eq.${productIdentifier}`);
 
                     if (error) throw error;
                     
@@ -1229,7 +1227,7 @@
                     setCheckoutViewState('emptyCartState');
                 }
             } catch (err) {
-                // Preserving the custom security suppression design
+                console.error("Error fetching checkout data:", err);
                 showErrorToast("Failed to initialize checkout.");
             } finally {
                 hideLoader();

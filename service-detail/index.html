@@ -986,7 +986,22 @@
             const btnPurchase = document.getElementById('btnPurchaseAction');
             if (isAvailable) {
                 btnPurchase.disabled = false;
-                btnPurchase.onclick = () => window.location.href = `../checkout/?product=${service.slug || service.id}`;
+                btnPurchase.onclick = () => {
+                    if (!currentUser) {
+                        showErrorToast(currentLang === 'en' ? "Please log in to proceed" : "အကောင့်အရင်ဝင်ပါ");
+                        return;
+                    }
+                    const params = new URLSearchParams({
+                        id: service.id || '',
+                        product: service.slug || service.id || '',
+                        name: service.name || '',
+                        price: service.price || 0,
+                        image: service.image_url || '',
+                        type: 'service',
+                        currency: 'MMK'
+                    });
+                    window.location.href = `../checkout/?${params.toString()}`;
+                };
             } else {
                 btnPurchase.disabled = true;
                 btnPurchase.onclick = null;
