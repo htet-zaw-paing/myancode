@@ -90,10 +90,31 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Guide Specific Styles */
-        .guide-section { scroll-margin-top: 120px; transition: opacity 0.3s ease; }
-        .toc-link { transition: all 0.3s ease; }
-        .toc-link.active { color: #2997ff; font-weight: 700; border-left-color: #2997ff; background-color: #f0f5ff; }
+        /* Advanced Guide & TOC Styles */
+        .guide-section { scroll-margin-top: 170px; transition: opacity 0.3s ease; }
+        
+        .toc-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            padding: 0.625rem 1rem; 
+            border-radius: 0.75rem; 
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            color: #4b5563; 
+            transition: all 0.3s ease; 
+            border-left: 2px solid transparent; 
+            word-break: keep-all; 
+        }
+        .toc-link:hover { background-color: #f9fafb; color: #111111; }
+        .toc-link.active { color: #2997ff; background-color: #f0f5ff; border-left-color: #2997ff; }
+        
+        /* Dedicated active style specifically for delete account */
+        .toc-link.delete-link:hover { background-color: #fef2f2; color: #dc2626; }
+        .toc-link.delete-link.active { color: #dc2626 !important; background-color: #fef2f2 !important; border-left-color: #dc2626 !important; }
+        
+        .toc-link i { flex-shrink: 0; }
+        .toc-link span { white-space: normal; line-height: 1.4; }
     </style>
 </head>
 
@@ -318,7 +339,7 @@
     <main class="pt-32 sm:pt-40 pb-20 relative z-10 flex-grow">
         
         <!-- Hero Header -->
-        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-12 text-center lg:text-left flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-10 text-center lg:text-left flex flex-col lg:flex-row items-center justify-between gap-8">
             <div class="flex-1">
                 <div class="inline-flex items-center justify-center p-3 bg-blue-50 border border-blue-100 rounded-2xl mb-6 shadow-sm">
                     <i data-lucide="book-open" class="h-6 w-6 text-myancode-blue"></i>
@@ -328,13 +349,15 @@
             </div>
         </div>
 
-        <!-- SEARCH BAR FOR GUIDES -->
-        <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-12 lg:mb-16 relative z-20">
-            <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="h-5 w-5 text-gray-400 group-focus-within:text-myancode-blue transition-colors"></i>
+        <!-- STICKY SEARCH BAR FOR GUIDES -->
+        <div class="sticky top-[56px] sm:top-[64px] z-40 py-4 sm:py-6 backdrop-blur-xl bg-[#fbfbfd]/80 border-b border-gray-200/50 mb-10 transition-all duration-300">
+            <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="h-5 w-5 text-gray-400 group-focus-within:text-myancode-blue transition-colors"></i>
+                    </div>
+                    <input type="text" id="guideSearchInput" oninput="filterGuides()" class="w-full pl-14 pr-5 py-3.5 sm:py-4 bg-white/80 backdrop-blur-2xl border border-gray-200/80 rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] focus:shadow-[0_20px_40px_-10px_rgba(41,151,255,0.15)] focus:border-myancode-blue/40 outline-none transition-all duration-300 text-gray-700 text-sm sm:text-base font-medium" placeholder="Search guides, tutorials, or keywords..." data-i18n-placeholder="searchGuidesPlaceholder">
                 </div>
-                <input type="text" id="guideSearchInput" oninput="filterGuides()" class="w-full pl-14 pr-5 py-4 sm:py-5 bg-white/80 backdrop-blur-xl border border-gray-200/80 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:shadow-[0_20px_40px_-10px_rgba(41,151,255,0.15)] focus:border-white outline-none transition-all duration-300 text-gray-700 text-sm sm:text-base font-medium" placeholder="Search guides, tutorials, or keywords..." data-i18n-placeholder="searchGuidesPlaceholder">
             </div>
         </div>
 
@@ -342,23 +365,24 @@
         <div class="max-w-[1024px] mx-auto px-4 sm:px-6 flex flex-col lg:flex-row gap-10 lg:gap-16 items-start relative">
             
             <!-- Sticky Sidebar (Table of Contents) -->
-            <aside class="hidden lg:block w-64 shrink-0 sticky top-32 self-start">
+            <aside class="hidden lg:block w-64 shrink-0 sticky top-[180px] self-start transition-all duration-300">
                 <div class="bg-white/60 backdrop-blur-xl border border-gray-200/60 rounded-[2rem] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)]">
-                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="gTocTitle">On This Page</h4>
-                    <nav class="flex flex-col space-y-1" id="tocMenu">
-                        <a href="#guide-register" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gRegTitle">Register Account</a>
-                        <a href="#guide-login" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gLoginTitle">Login Account</a>
-                        <a href="#guide-purchase" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gPurchaseTitle">Purchase a Website</a>
-                        <a href="#guide-language" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gLangTitle">Change Language</a>
-                        <a href="#guide-hub" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gHubTitle">Track Your Orders</a>
-                        <a href="#guide-studio" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gStudioTitle">Using the Custom Studio</a>
-                        <a href="#guide-wishlist" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gWishTitle">Manage Your Wishlist</a>
-                        <a href="#guide-profile" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gProfTitle">Change Username & Profile</a>
-                        <a href="#guide-password" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gPassTitle">Change Account Password</a>
-                        <a href="#guide-forgot-password" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gForgotTitle">Reset Forgotten Password</a>
-                        <a href="#guide-delete-account" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors border-l-2 border-transparent" data-i18n="gDelTitle">Delete Account</a>
-                        <a href="#guide-download" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gDownTitle">Download Purchased Templates</a>
-                        <a href="#guide-support" class="toc-link px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-myancode-black transition-colors border-l-2 border-transparent" data-i18n="gSupTitle">Contact Support</a>
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-5 pl-2" data-i18n="gTocTitle">On This Page</h4>
+                    <nav class="flex flex-col space-y-1.5" id="tocMenu">
+                        <a href="#guide-register" class="toc-link"><i data-lucide="user-plus" class="w-4 h-4"></i> <span data-i18n="gRegTitle">Register Account</span></a>
+                        <a href="#guide-login" class="toc-link"><i data-lucide="log-in" class="w-4 h-4"></i> <span data-i18n="gLoginTitle">Login Account</span></a>
+                        <a href="#guide-purchase" class="toc-link"><i data-lucide="shopping-bag" class="w-4 h-4"></i> <span data-i18n="gPurchaseTitle">Purchase a Website</span></a>
+                        <a href="#guide-language" class="toc-link"><i data-lucide="globe" class="w-4 h-4"></i> <span data-i18n="gLangTitle">Change Language</span></a>
+                        <a href="#guide-hub" class="toc-link"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="gHubTitle">Track Your Orders</span></a>
+                        <a href="#guide-studio" class="toc-link"><i data-lucide="layers" class="w-4 h-4"></i> <span data-i18n="gStudioTitle">Using the Custom Studio</span></a>
+                        <a href="#guide-wishlist" class="toc-link"><i data-lucide="heart" class="w-4 h-4"></i> <span data-i18n="gWishTitle">Manage Your Wishlist</span></a>
+                        <a href="#guide-profile" class="toc-link"><i data-lucide="user" class="w-4 h-4"></i> <span data-i18n="gProfTitle">Change Username & Profile</span></a>
+                        <a href="#guide-password" class="toc-link"><i data-lucide="key" class="w-4 h-4"></i> <span data-i18n="gPassTitle">Change Account Password</span></a>
+                        <a href="#guide-forgot-password" class="toc-link"><i data-lucide="unlock" class="w-4 h-4"></i> <span data-i18n="gForgotTitle">Reset Forgotten Password</span></a>
+                        <a href="#guide-download" class="toc-link"><i data-lucide="download-cloud" class="w-4 h-4"></i> <span data-i18n="gDownTitle">Download Purchased Templates</span></a>
+                        <a href="#guide-maintenance" class="toc-link"><i data-lucide="wrench" class="w-4 h-4"></i> <span data-i18n="gMaintTitle">Request Maintenance</span></a>
+                        <a href="#guide-support" class="toc-link"><i data-lucide="life-buoy" class="w-4 h-4"></i> <span data-i18n="gSupTitle">Contact Support</span></a>
+                        <a href="#guide-delete-account" class="toc-link delete-link"><i data-lucide="user-x" class="w-4 h-4"></i> <span data-i18n="gDelTitle">Delete Account</span></a>
                     </nav>
                 </div>
             </aside>
@@ -464,50 +488,67 @@
                         <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gPurchaseTitle">Purchase a Website</h2>
                     </div>
                     
-                    <p class="text-[15px] text-gray-500 font-medium mb-6 leading-relaxed" data-i18n="gPurchaseIntro">MyanCode offers two powerful ways to acquire a professional website, depending on your business requirements.</p>
+                    <p class="text-[15px] text-gray-500 font-medium mb-8 leading-relaxed" data-i18n="gPurchaseIntro">MyanCode offers two powerful ways to acquire a professional website, depending on your business requirements.</p>
 
-                    <!-- Method A: Custom Studio -->
-                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8 mb-6 relative overflow-hidden group hover:border-blue-200 transition-colors">
+                    <!-- Method 1: Custom Studio -->
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col mb-6 relative overflow-hidden group hover:border-blue-200 transition-colors">
                         <div class="absolute top-0 left-0 w-1.5 h-full bg-myancode-blue transition-colors duration-500"></div>
-                        <div>
+                        <div class="mb-6">
                             <h3 class="text-lg font-bold text-myancode-black flex items-center gap-2 mb-2" data-i18n="gMethod1Title">Method 1: Custom Tailored Website</h3>
-                            <p class="text-sm text-gray-500 mb-6 font-medium" data-i18n="gMethod1Desc">Build exactly what you need with dynamic, customized pricing.</p>
-                            
-                            <ul class="space-y-4">
-                                <li class="flex items-start gap-4">
-                                    <div class="w-6 h-6 rounded-full bg-blue-50 text-myancode-blue font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">1</div>
-                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod1Step1"><strong>Desktop:</strong> Click <span class="font-bold">"Studio"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class="font-bold">"Studio"</span>.</p>
-                                </li>
-                                <li class="flex items-start gap-4">
-                                    <div class="w-6 h-6 rounded-full bg-blue-50 text-myancode-blue font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">2</div>
-                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod1Step2">In the Studio interface, browse and add your desired custom designs, advanced functions, and total page count.</p>
-                                </li>
-                                <li class="flex items-start gap-4">
-                                    <div class="w-6 h-6 rounded-full bg-blue-50 text-myancode-blue font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">3</div>
-                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod1Step3">Submit your tailored request and our engineering team will handle the rest.</p>
-                                </li>
-                            </ul>
+                            <p class="text-sm text-gray-500 font-medium" data-i18n="gMethod1Desc">Build exactly what you need with dynamic, customized pricing.</p>
                         </div>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-500 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">1</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod1Step1"><strong>Desktop:</strong> Click <span class="font-bold">"Studio"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class="font-bold">"Studio"</span>.</p>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-500 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">2</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod1Step2">In the Studio interface, browse and add your desired custom designs, advanced functions, and total page count.</p>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-500 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">3</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod1Step3">Submit your tailored request and our engineering team will handle the rest.</p>
+                            </li>
+                        </ul>
                     </div>
 
-                    <!-- Method B: Ready-made Templates -->
-                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8 relative overflow-hidden group hover:border-gray-400 transition-colors">
+                    <!-- Method 2: Ready-made Templates -->
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col mb-6 relative overflow-hidden group hover:border-gray-400 transition-colors">
                         <div class="absolute top-0 left-0 w-1.5 h-full bg-myancode-black transition-colors duration-500"></div>
-                        <div>
+                        <div class="mb-6">
                             <h3 class="text-lg font-bold text-myancode-black flex items-center gap-2 mb-2" data-i18n="gMethod2Title">Method 2: Ready-Made Templates</h3>
-                            <p class="text-sm text-gray-500 mb-6 font-medium" data-i18n="gMethod2Desc">Purchase complete, premium codebases that you can adjust and own entirely.</p>
-                            
-                            <ul class="space-y-4">
-                                <li class="flex items-start gap-4">
-                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
-                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod2Step1"><strong>Desktop:</strong> Click <span class="font-bold">"Templates"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class="font-bold">"Templates"</span>.</p>
-                                </li>
-                                <li class="flex items-start gap-4">
-                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
-                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod2Step2">Browse our catalog, select the template that fits your needs, and click Purchase to proceed to checkout.</p>
-                                </li>
-                            </ul>
+                            <p class="text-sm text-gray-500 font-medium" data-i18n="gMethod2Desc">Purchase complete, premium codebases that you can adjust and own entirely.</p>
                         </div>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod2Step1"><strong>Desktop:</strong> Click <span class="font-bold">"Templates"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class="font-bold">"Templates"</span>.</p>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod2Step2">Browse our catalog, select the template that fits your needs, and click Purchase to proceed to checkout.</p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Method 3: Request Service (NEW) -->
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col relative overflow-hidden group hover:border-gray-300 transition-colors">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-gray-400 transition-colors duration-500"></div>
+                        <div class="mb-6">
+                            <h3 class="text-lg font-bold text-myancode-black flex items-center gap-2 mb-2" data-i18n="gMethod3Title">Method 3: Professional Services</h3>
+                            <p class="text-sm text-gray-500 font-medium" data-i18n="gMethod3Desc">Request specific web development and custom services directly.</p>
+                        </div>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod3Step1">Navigate to the <span class="font-bold">Services</span> page from the main header or mobile menu.</p>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gPurMethod3Step2">Select your desired service, view the detailed description, and click the Purchase or Request button.</p>
+                            </li>
+                        </ul>
                     </div>
                 </section>
 
@@ -791,48 +832,7 @@
                     </div>
                 </section>
 
-                <!-- Guide 11: Delete Account -->
-                <section id="guide-delete-account" class="guide-section">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center shadow-md shrink-0 border border-red-100"><i data-lucide="user-x" class="w-5 h-5"></i></div>
-                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gDelTitle">Delete Account</h2>
-                    </div>
-                    
-                    <div class="bg-white border border-red-200/60 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8 relative overflow-hidden group">
-                        <div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>
-                        <!-- Desktop View -->
-                        <div>
-                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
-                            <ul class="space-y-4">
-                                <li class="flex items-start gap-4">
-                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
-                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelDeskStep1">Access <span class="font-bold">My Profile</span> via the top-right Avatar dropdown menu.</p>
-                                </li>
-                                <li class="flex items-start gap-4">
-                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
-                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelDeskStep2">Scroll down to the Danger Zone. Click Delete Account, and <span class="font-bold text-red-500">type the provided confirmation text</span> exactly as shown to permanently remove your data.</p>
-                                </li>
-                            </ul>
-                        </div>
-                        <hr class="border-gray-100">
-                        <!-- Mobile View -->
-                        <div>
-                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
-                            <ul class="space-y-4">
-                                <li class="flex items-start gap-4">
-                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
-                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelMobStep1">Open the Menu and navigate to <span class="font-bold">My Profile</span>.</p>
-                                </li>
-                                <li class="flex items-start gap-4">
-                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
-                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelMobStep2">Find the Danger Zone at the bottom, tap Delete Account, and type the required confirmation text to authorize the deletion.</p>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Guide 12: Download Purchased Templates -->
+                <!-- Guide 11: Download Purchased Templates -->
                 <section id="guide-download" class="guide-section">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="download-cloud" class="w-5 h-5"></i></div>
@@ -872,6 +872,50 @@
                     </div>
                 </section>
 
+                <!-- Guide 12: Request Maintenance (NEW) -->
+                <section id="guide-maintenance" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-myancode-black text-white flex items-center justify-center shadow-md shrink-0"><i data-lucide="wrench" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gMaintTitle">Request Maintenance</h2>
+                    </div>
+
+                    <!-- Method 1: Hub -->
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col mb-6 relative overflow-hidden group hover:border-gray-400 transition-colors">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-myancode-black transition-colors duration-500"></div>
+                        <div class="mb-6">
+                            <h3 class="text-lg font-bold text-myancode-black flex items-center gap-2 mb-2" data-i18n="gMaintMethod1Title">Method 1: Via User Hub</h3>
+                        </div>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gMaintMethod1Step1">Open the Avatar menu and navigate to your <span class="font-bold">Hub</span>.</p>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gMaintMethod1Step2">Click on the <span class="font-bold">Maintenance</span> tab and select the 'Request Maintenance' button.</p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Method 2: Footer -->
+                    <div class="bg-white border border-gray-200/80 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col relative overflow-hidden group hover:border-blue-200 transition-colors">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-myancode-blue transition-colors duration-500"></div>
+                        <div class="mb-6">
+                            <h3 class="text-lg font-bold text-myancode-black flex items-center gap-2 mb-2" data-i18n="gMaintMethod2Title">Method 2: Via Footer Menu</h3>
+                        </div>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-500 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">1</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gMaintMethod2Step1">Scroll to the very bottom of any page to find the <span class="font-bold">Footer</span>.</p>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-500 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue-100">2</div>
+                                <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gMaintMethod2Step2">Under the 'Store' category, click on <span class="font-bold">Maintenance</span> to submit a new request.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
                 <!-- Guide 13: Contact Support -->
                 <section id="guide-support" class="guide-section">
                     <div class="flex items-center gap-3 mb-6">
@@ -906,6 +950,47 @@
                                 <li class="flex items-start gap-4">
                                     <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
                                     <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gSupMobStep2">Tap on "Contact" to access email, hotline, and social channel support details.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Guide 14: Delete Account -->
+                <section id="guide-delete-account" class="guide-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center shadow-md shrink-0 border border-red-100"><i data-lucide="user-x" class="w-5 h-5"></i></div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-myancode-black" data-i18n="gDelTitle">Delete Account</h2>
+                    </div>
+                    
+                    <div class="bg-white border border-red-200/60 rounded-[2rem] p-6 sm:p-8 shadow-sm flex flex-col gap-8 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>
+                        <!-- Desktop View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gDesktopGuide">Desktop / Laptop</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelDeskStep1">Access <span class="font-bold">My Profile</span> via the top-right Avatar dropdown menu.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelDeskStep2">Scroll down to the Danger Zone. Click Delete Account, and <span class="font-bold text-red-500">type the provided confirmation text</span> exactly as shown to permanently remove your data.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-100">
+                        <!-- Mobile View -->
+                        <div>
+                            <h3 class="text-sm font-bold text-myancode-black flex items-center gap-2 mb-4 uppercase tracking-widest"><i data-lucide="smartphone" class="w-4 h-4 text-gray-400"></i> <span data-i18n="gMobileGuide">Mobile Device</span></h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">1</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelMobStep1">Open the Menu and navigate to <span class="font-bold">My Profile</span>.</p>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-gray-200">2</div>
+                                    <p class="text-gray-600 text-[15px] font-medium leading-relaxed" data-i18n="gDelMobStep2">Find the Danger Zone at the bottom, tap Delete Account, and type the required confirmation text to authorize the deletion.</p>
                                 </li>
                             </ul>
                         </div>
@@ -1018,15 +1103,28 @@
                 nav.classList.add('nav-transparent', 'border-transparent');
             }
 
-            // TOC Active State Logic
-            let fromTop = window.scrollY + 130;
-            const links = document.querySelectorAll('.toc-link');
-            links.forEach(link => {
-                let section = document.querySelector(link.hash);
-                if (section && section.offsetTop <= fromTop && section.offsetTop + section.offsetHeight > fromTop) {
+            // Advanced Precise TOC Active State Logic
+            const tocLinks = document.querySelectorAll('.toc-link');
+            const sections = document.querySelectorAll('.guide-section');
+            let currentSectionId = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                // Buffer of 180px perfectly aligns with the scroll-margin-top logic
+                if (window.scrollY >= sectionTop - 180) {
+                    currentSectionId = section.getAttribute('id');
+                }
+            });
+
+            // If scrolled to the absolute bottom, select the very last section to prevent hanging
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+                currentSectionId = sections[sections.length - 1].getAttribute('id');
+            }
+
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (currentSectionId && link.getAttribute('href') === `#${currentSectionId}`) {
                     link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
                 }
             });
         });
@@ -1047,6 +1145,7 @@
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
 
         // COMPREHENSIVE NATIVE DICTIONARY FOR GUIDES
+        // Upgraded with inline beautifully structured UI Buttons mapped precisely to HTML elements.
         const dict = {
             en: {
                 navHome: "Home", navWebsites: "Templates", navServices: "Services",
@@ -1075,86 +1174,98 @@
                 gNoResultsDesc: "We couldn't find any guides matching your search criteria. Please try different keywords.",
 
                 gRegTitle: "Register Account",
-                gRegDeskStep1: "Click the <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Register</span> button located at the right side of the main header navigation.",
+                gRegDeskStep1: "Click the <a href=\"../register/\" class=\"inline-flex items-center gap-1.5 bg-myancode-blue border border-blue-500 text-white px-2.5 py-1 rounded-lg text-[13px] font-bold hover:bg-blue-600 transition-colors shadow-sm\">Register</a> button located at the right side of the main header navigation.",
                 gRegDeskStep2: "Fill in your required personal details, email address, and create a secure password.",
                 gRegDeskStep3: "Complete the process and verify your account via the link sent to your provided email.",
-                gRegMobStep1: "Tap the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> icon situated at the top-left corner of your screen.",
+                gRegMobStep1: "Tap the <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> icon situated at the top-left corner of your screen.",
                 gRegMobStep2: "Scroll down and tap on \"Register\", then proceed to fill in your data and verify your email.",
 
                 gLoginTitle: "Login Account",
-                gLogDeskStep1: "Click the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">Login</span> link located on the right side of the header navigation.",
+                gLogDeskStep1: "Click the <a href=\"../login/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\">Login</a> link located on the right side of the header navigation.",
                 gLogDeskStep2: "Enter your verified email address and the password you created, then click Login.",
-                gLogMobStep1: "Tap the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> icon at the top-left to open the drawer.",
+                gLogMobStep1: "Tap the <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> icon at the top-left to open the drawer.",
                 gLogMobStep2: "Tap on \"Login\", enter your credentials, and securely access your account.",
 
                 gPurchaseTitle: "Purchase a Website",
-                gPurchaseIntro: "MyanCode offers two powerful ways to acquire a professional website, depending on your business requirements.",
+                gPurchaseIntro: "MyanCode offers powerful ways to acquire a professional website, depending on your business requirements.",
                 gMethod1Title: "Method 1: Custom Tailored Website",
                 gMethod1Desc: "Build exactly what you need with dynamic, customized pricing.",
-                gPurMethod1Step1: "<strong>Desktop:</strong> Click <span class=\"font-bold text-myancode-black\">\"Studio\"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class=\"font-bold text-myancode-black\">\"Studio\"</span>.",
+                gPurMethod1Step1: "<strong>Desktop:</strong> Click <a href=\"../studio/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"layers\" class=\"w-3.5 h-3.5\"></i> Studio</a> from the main header. <br><div class=\"mt-2\"></div><strong>Mobile:</strong> Tap the <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> icon, then select <span class=\"font-bold text-myancode-black\">Studio</span>.",
                 gPurMethod1Step2: "In the Studio interface, browse and add your desired custom designs, advanced functions, and total page count.",
                 gPurMethod1Step3: "Submit your tailored request and our engineering team will handle the rest.",
                 gMethod2Title: "Method 2: Ready-Made Templates",
                 gMethod2Desc: "Purchase complete, premium codebases that you can adjust and own entirely.",
-                gPurMethod2Step1: "<strong>Desktop:</strong> Click <span class=\"font-bold text-myancode-black\">\"Templates\"</span> from the main header. <br><strong>Mobile:</strong> Tap the Menu icon, then select <span class=\"font-bold text-myancode-black\">\"Templates\"</span>.",
+                gPurMethod2Step1: "<strong>Desktop:</strong> Click <a href=\"../templates/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"layout-grid\" class=\"w-3.5 h-3.5\"></i> Templates</a> from the main header. <br><div class=\"mt-2\"></div><strong>Mobile:</strong> Tap the <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> icon, then select <span class=\"font-bold text-myancode-black\">Templates</span>.",
                 gPurMethod2Step2: "Browse our catalog, select the template that fits your needs, and click Purchase to proceed to checkout.",
+                gMethod3Title: "Method 3: Professional Services",
+                gMethod3Desc: "Request specific web development and custom services directly.",
+                gPurMethod3Step1: "Navigate to the <span class=\"font-bold\">Services</span> page from the main header or mobile menu.",
+                gPurMethod3Step2: "Select your desired service, view the detailed description, and click the Purchase or Request button.",
 
                 gLangTitle: "Change Language",
-                gLangDeskStep1: "Locate the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">Global Icon</span> on the right side of the main header navigation.",
+                gLangDeskStep1: "Locate the <span class=\"inline-flex items-center gap-1 bg-gray-100 border border-gray-200 px-2 py-1 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"globe\" class=\"w-3.5 h-3.5\"></i></span> Icon on the right side of the main header navigation.",
                 gLangDeskStep2: "Click it and select your preferred language (English or မြန်မာ) from the beautifully designed dropdown menu.",
-                gLangMobStep1: "Tap the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> icon at the top-left corner.",
+                gLangMobStep1: "Tap the <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> icon at the top-left corner.",
                 gLangMobStep2: "At the bottom of the menu list, tap \"Switch Language\" next to the global icon.",
 
                 gHubTitle: "Track Your Orders (User Hub)",
-                gHubDeskStep1: "Ensure you are logged in, then click on your <span class=\"font-bold text-myancode-black\">Avatar Icon</span> at the top-right of the header.",
-                gHubDeskStep2: "Click on <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Hub</span> to view your active orders, payment statuses, and acquired templates.",
-                gHubMobStep1: "Tap the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> icon at the top-left.",
+                gHubDeskStep1: "Ensure you are logged in, then click on your <span class=\"inline-flex items-center justify-center w-7 h-7 bg-gray-100 border border-gray-200 rounded-full shadow-sm align-middle mx-1\"><i data-lucide=\"user\" class=\"w-4 h-4 text-myancode-black\"></i></span> Avatar Icon at the top-right of the header.",
+                gHubDeskStep2: "Click on <a href=\"../hub/\" class=\"inline-flex items-center gap-1.5 bg-blue-50 border border-blue-100 text-myancode-blue px-2.5 py-1 rounded-lg text-[13px] font-bold hover:bg-blue-100 transition-colors shadow-sm\"><i data-lucide=\"layout-dashboard\" class=\"w-3.5 h-3.5\"></i> Hub</a> to view your active orders, payment statuses, and acquired templates.",
+                gHubMobStep1: "Tap the <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> icon at the top-left.",
                 gHubMobStep2: "Tap on <span class=\"font-bold text-myancode-black\">Hub</span> under your account section to track all your enterprise purchases.",
 
                 gStudioTitle: "Using the Custom Studio",
-                gStudioDeskStep1: "Navigate to <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Studio</span> from the header. This is our advanced price calculator.",
+                gStudioDeskStep1: "Navigate to <a href=\"../studio/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"layers\" class=\"w-3.5 h-3.5\"></i> Studio</a> from the header. This is our advanced price calculator.",
                 gStudioDeskStep2: "Toggle required features (e.g., E-commerce, CMS, Dark Mode) to see real-time price changes, then click \"Request Custom Build\".",
-                gStudioMobStep1: "Open the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> and select <span class=\"font-bold text-myancode-black\">Studio</span>.",
+                gStudioMobStep1: "Open the <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> and select <span class=\"font-bold text-myancode-black\">Studio</span>.",
                 gStudioMobStep2: "Select the specific add-ons you need and tap the request button to finalize your customized quotation.",
 
                 gWishTitle: "Manage Your Wishlist",
                 gWishDeskStep1: "Click the <span class=\"font-bold text-myancode-blue\">Heart Icon</span> on any product card to save it for later.",
-                gWishDeskStep2: "Click the <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">Heart Icon</span> in the top-right header to open your drawer and proceed to checkout.",
+                gWishDeskStep2: "Click the <span class=\"inline-flex items-center gap-1 bg-gray-100 border border-gray-200 px-2 py-1 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"heart\" class=\"w-3.5 h-3.5\"></i></span> Icon in the top-right header to open your drawer and proceed to checkout.",
                 gWishMobStep1: "Tap the heart button on products to bookmark them.",
                 gWishMobStep2: "Open the <span class=\"font-bold text-myancode-black\">Menu</span>, scroll to the bottom, and tap <span class=\"font-bold\">My Wishlist</span> to manage your saved items.",
 
                 gProfTitle: "Change Username & Profile",
-                gProfDeskStep1: "Click your <span class=\"font-bold text-myancode-blue\">Avatar</span> in the header and select <span class=\"font-bold\">My Profile</span>.",
+                gProfDeskStep1: "Click your Avatar in the header and select <a href=\"../profile/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"user\" class=\"w-3.5 h-3.5\"></i> My Profile</a>.",
                 gProfDeskStep2: "Here you can securely change your username, update your profile picture, and manage your account details.",
-                gProfMobStep1: "Open the <span class=\"font-bold text-myancode-black\">Menu</span> and tap on <span class=\"font-bold text-myancode-blue\">My Profile</span>.",
+                gProfMobStep1: "Open the <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> and tap on <span class=\"font-bold text-myancode-blue\">My Profile</span>.",
                 gProfMobStep2: "Modify your username and profile picture directly from your mobile device.",
 
                 gPassTitle: "Change Account Password",
-                gPassDeskStep1: "Navigate to <span class=\"font-bold\">My Profile</span> by clicking your Avatar icon in the top-right header.",
+                gPassDeskStep1: "Navigate to <a href=\"../profile/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"user\" class=\"w-3.5 h-3.5\"></i> My Profile</a> by clicking your Avatar icon in the top-right header.",
                 gPassDeskStep2: "Go to the Security settings, enter your <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded\">Old Password</span>, then input your new password to save changes.",
                 gPassMobStep1: "Open the <span class=\"font-bold\">Menu</span> and tap on <span class=\"font-bold text-myancode-blue\">My Profile</span>.",
                 gPassMobStep2: "Scroll to the Security section, verify using your current password, and update to the new password.",
 
                 gForgotTitle: "Reset Forgotten Password",
-                gForgotDeskStep1: "Navigate to the <span class=\"font-bold\">Login</span> page. Click the <span class=\"font-bold text-myancode-blue\">Forgot Password?</span> link positioned just above the password input field.",
+                gForgotDeskStep1: "Navigate to the <a href=\"../login/\" class=\"font-bold text-myancode-black hover:text-myancode-blue transition-colors\">Login</a> page. Click the <a href=\"../login/\" class=\"inline-flex items-center gap-1.5 bg-blue-50 border border-blue-100 text-myancode-blue px-2.5 py-1 rounded-lg text-[13px] font-bold hover:bg-blue-100 transition-colors shadow-sm\"><i data-lucide=\"unlock\" class=\"w-3.5 h-3.5\"></i> Forgot Password?</a> link positioned just above the password input field.",
                 gForgotDeskStep2: "Follow the secure reset instructions sent to your email. If the issue persists, please contact <a href=\"mailto:support@myancode.com\" class=\"text-myancode-blue hover:underline font-bold\">support@myancode.com</a>.",
                 gForgotMobStep1: "On the Login screen, tap the <span class=\"font-bold text-myancode-blue\">Forgot Password?</span> link located above the password field.",
                 gForgotMobStep2: "Check your email for reset instructions. If you need further assistance, email <a href=\"mailto:support@myancode.com\" class=\"text-myancode-blue hover:underline font-bold\">support@myancode.com</a>.",
 
                 gDelTitle: "Delete Account",
-                gDelDeskStep1: "Access <span class=\"font-bold\">My Profile</span> via the top-right Avatar dropdown menu.",
+                gDelDeskStep1: "Access <a href=\"../profile/\" class=\"font-bold text-myancode-black hover:text-myancode-blue transition-colors\">My Profile</a> via the top-right Avatar dropdown menu.",
                 gDelDeskStep2: "Scroll down to the Danger Zone. Click Delete Account, and <span class=\"font-bold text-red-500\">type the provided confirmation text</span> exactly as shown to permanently remove your data.",
                 gDelMobStep1: "Open the Menu and navigate to <span class=\"font-bold\">My Profile</span>.",
                 gDelMobStep2: "Find the Danger Zone at the bottom, tap Delete Account, and type the required confirmation text to authorize the deletion.",
 
                 gDownTitle: "Download Purchased Templates",
-                gDownDeskStep1: "Ensure you are logged in, then click on your Avatar and select <span class=\"font-bold\">Hub</span>.",
+                gDownDeskStep1: "Ensure you are logged in, then click on your Avatar and select <a href=\"../hub/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"layout-dashboard\" class=\"w-3.5 h-3.5\"></i> Hub</a>.",
                 gDownDeskStep2: "Find your successfully completed orders and click the <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Download Source Code</span> button to get your files.",
                 gDownMobStep1: "Open the Menu and tap on <span class=\"font-bold\">Hub</span> to view your active and past purchases.",
                 gDownMobStep2: "Locate your completed template order and tap the download button to securely save the source code to your device.",
+                
+                gMaintTitle: "Request Maintenance",
+                gMaintMethod1Title: "Method 1: Via User Hub",
+                gMaintMethod1Step1: "Open the Avatar menu and navigate to your <span class=\"font-bold\">Hub</span>.",
+                gMaintMethod1Step2: "Click on the <span class=\"font-bold\">Maintenance</span> tab and select the 'Request Maintenance' button.",
+                gMaintMethod2Title: "Method 2: Via Footer Menu",
+                gMaintMethod2Step1: "Scroll to the very bottom of any page to find the <span class=\"font-bold\">Footer</span>.",
+                gMaintMethod2Step2: "Under the 'Store' category, click on <span class=\"font-bold\">Maintenance</span> to submit a new request.",
 
                 gSupTitle: "Contact Support",
-                gSupDeskStep1: "Hover over the <span class=\"font-bold text-myancode-blue\">Support</span> link in the main navigation bar to reveal the mega-menu.",
+                gSupDeskStep1: "Hover over the <span class=\"font-bold text-myancode-blue inline-flex items-center gap-1\">Support <i data-lucide=\"chevron-down\" class=\"w-3 h-3\"></i></span> link in the main navigation bar to reveal the mega-menu.",
                 gSupDeskStep2: "Click on <span class=\"font-bold\">Contact</span> or <span class=\"font-bold\">Help Center</span> to reach our dedicated enterprise engineering and support team.",
                 gSupMobStep1: "Open the <span class=\"font-bold text-myancode-black\">Menu</span> and tap to expand the <span class=\"font-bold text-myancode-blue\">Support</span> section.",
                 gSupMobStep2: "Tap on \"Contact\" to access email, hotline, and social channel support details."
@@ -1185,86 +1296,98 @@
                 gNoResultsDesc: "သင်ရှာဖွေသော အချက်အလက်နှင့် ကိုက်ညီသည့် လမ်းညွှန်ချက် မရှိပါ။ အခြားသော သော့ချက်စာလုံးများဖြင့် ထပ်မံရှာဖွေကြည့်ပါ။",
 
                 gRegTitle: "အကောင့်အသစ် ဖွင့်ခြင်း",
-                gRegDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ အပြာရောင် <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Register</span> ခလုတ်ကို နှိပ်ပါ။",
+                gRegDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ အပြာရောင် <a href=\"../register/\" class=\"inline-flex items-center gap-1.5 bg-myancode-blue border border-blue-500 text-white px-2.5 py-1 rounded-lg text-[13px] font-bold hover:bg-blue-600 transition-colors shadow-sm\">Register</a> ခလုတ်ကို နှိပ်ပါ။",
                 gRegDeskStep2: "သင်၏ ကိုယ်ရေးအချက်အလက်များ၊ အီးမေးလ်လိပ်စာ နှင့် လုံခြုံသော စကားဝှက် (Password) ကို ဖြည့်သွင်းပါ။",
                 gRegDeskStep3: "ဖြည့်သွင်းပြီးပါက သင်၏အီးမေးလ်သို့ ပို့ပေးသောလင့်ခ်ကို နှိပ်၍ အကောင့်ကို အတည်ပြု (Verify) ပါ။",
-                gRegMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> (မျဉ်းသုံးကြောင်း) ခလုတ်ကို နှိပ်ပါ။",
+                gRegMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> (မျဉ်းသုံးကြောင်း) ခလုတ်ကို နှိပ်ပါ။",
                 gRegMobStep2: "မီနူးစာရင်းမှ \"Register\" ကို ရွေးချယ်ပြီး အချက်အလက်များ ဖြည့်သွင်း၍ အကောင့်အတည်ပြုပါ။",
 
                 gLoginTitle: "အကောင့် ဝင်ရောက်ခြင်း",
-                gLogDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">Login</span> ကို နှိပ်ပါ။",
+                gLogDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ <a href=\"../login/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\">Login</a> ကို နှိပ်ပါ။",
                 gLogDeskStep2: "သင်အတည်ပြုထားသော အီးမေးလ်လိပ်စာ နှင့် စကားဝှက်ကို ဖြည့်သွင်းပြီး ဝင်ရောက်ပါ။",
-                gLogMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> ခလုတ်ကို နှိပ်၍ မီနူးကို ဖွင့်ပါ။",
+                gLogMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> ခလုတ်ကို နှိပ်၍ မီနူးကို ဖွင့်ပါ။",
                 gLogMobStep2: "\"Login\" ကို ရွေးချယ်ပြီး သင်၏ အီးမေးလ်၊ စကားဝှက်တို့ဖြင့် လုံခြုံစွာ ဝင်ရောက်ပါ။",
 
                 gPurchaseTitle: "ဝက်ဘ်ဆိုက် ဝယ်ယူခြင်း",
-                gPurchaseIntro: "MyanCode တွင် လူကြီးမင်း၏ စီးပွားရေး လိုအပ်ချက်ပေါ်မူတည်၍ ဝက်ဘ်ဆိုက် ဝယ်ယူရန် နည်းလမ်း (၂) မျိုး ရှိပါသည်။",
+                gPurchaseIntro: "MyanCode တွင် လူကြီးမင်း၏ စီးပွားရေး လိုအပ်ချက်ပေါ်မူတည်၍ ဝက်ဘ်ဆိုက် ဝယ်ယူရန် နည်းလမ်း အမျိုးမျိုး ရှိပါသည်။",
                 gMethod1Title: "နည်းလမ်း ၁ - မိမိစိတ်ကြိုက် ဖန်တီးတည်ဆောက်ခြင်း",
                 gMethod1Desc: "သင့်လိုအပ်ချက်အတိုင်း တိကျသောလုပ်ဆောင်ချက်များနှင့် စျေးနှုန်းများဖြင့် စိတ်ကြိုက် ဖန်တီးပါ။",
-                gPurMethod1Step1: "<strong>ကွန်ပျူတာ -</strong> ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <span class=\"font-bold text-myancode-black\">\"Studio\"</span> ကို နှိပ်ပါ။ <br><strong>မိုဘိုင်းဖုန်း -</strong> Menu ခလုတ်ကို နှိပ်ပြီးနောက် <span class=\"font-bold text-myancode-black\">\"Studio\"</span> ကို ရွေးချယ်ပါ။",
+                gPurMethod1Step1: "<strong>ကွန်ပျူတာ -</strong> ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <a href=\"../studio/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"layers\" class=\"w-3.5 h-3.5\"></i> Studio</a> ကို နှိပ်ပါ။ <br><div class=\"mt-2\"></div><strong>မိုဘိုင်းဖုန်း -</strong> <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> ခလုတ်ကို နှိပ်ပြီးနောက် <span class=\"font-bold text-myancode-black\">\"Studio\"</span> ကို ရွေးချယ်ပါ။",
                 gPurMethod1Step2: "Studio အတွင်း၌ သင်အလိုရှိသော ဒီဇိုင်းများ၊ အဆင့်မြင့် လုပ်ဆောင်ချက်များ နှင့် စာမျက်နှာ အရေအတွက်ကို ရွေးချယ်ပေါင်းထည့်ပါ။",
                 gPurMethod1Step3: "သင်၏ စိတ်ကြိုက်တောင်းဆိုမှုကို Submit လုပ်ပါ။ ကျန်ရှိသော အပိုင်းများကို ကျွန်ုပ်တို့ အင်ဂျင်နီယာအဖွဲ့မှ တာဝန်ယူဆောင်ရွက်ပေးပါမည်။",
                 gMethod2Title: "နည်းလမ်း ၂ - အသင့်သုံး ဝက်ဘ်ဆိုက်ပုံစံများ ဝယ်ယူခြင်း",
                 gMethod2Desc: "ပရီမီယံ ကုဒ်အပြည့်အစုံပါဝင်ပြီး မိမိစိတ်ကြိုက် ပြင်ဆင်အသုံးပြုနိုင်သော ပုံစံများကို ဝယ်ယူပါ။",
-                gPurMethod2Step1: "<strong>ကွန်ပျူတာ -</strong> ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <span class=\"font-bold text-myancode-black\">\"Templates\"</span> ကို နှိပ်ပါ။ <br><strong>မိုဘိုင်းဖုန်း -</strong> Menu ခလုတ်ကို နှိပ်ပြီးနောက် <span class=\"font-bold text-myancode-black\">\"Templates\"</span> ကို ရွေးချယ်ပါ။",
+                gPurMethod2Step1: "<strong>ကွန်ပျူတာ -</strong> ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <a href=\"../templates/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"layout-grid\" class=\"w-3.5 h-3.5\"></i> Templates</a> ကို နှိပ်ပါ။ <br><div class=\"mt-2\"></div><strong>မိုဘိုင်းဖုန်း -</strong> <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> ခလုတ်ကို နှိပ်ပြီးနောက် <span class=\"font-bold text-myancode-black\">\"Templates\"</span> ကို ရွေးချယ်ပါ။",
                 gPurMethod2Step2: "ကတ်တလောက်တွင် ရှာဖွေလေ့လာပြီး သင်နှင့်ကိုက်ညီမည့် ပုံစံကို ရွေးချယ်ကာ Purchase နှိပ်၍ ငွေပေးချေမှု အဆင့်သို့ သွားပါ။",
+                gMethod3Title: "နည်းလမ်း ၃ - Professional ဝန်ဆောင်မှုများ",
+                gMethod3Desc: "ဝက်ဘ်ဆိုက် ရေးဆွဲခြင်းနှင့် အခြားဝန်ဆောင်မှုများကို တိုက်ရိုက် တောင်းဆိုပါ။",
+                gPurMethod3Step1: "ပင်မမီနူး သို့မဟုတ် မိုဘိုင်းမီနူးမှတဆင့် <span class=\"font-bold\">Services</span> စာမျက်နှာသို့ သွားပါ။",
+                gPurMethod3Step2: "မိမိအလိုရှိသော ဝန်ဆောင်မှုကို ရွေးချယ်၍ အသေးစိတ်ဖတ်ရှုပြီးနောက် Purchase သို့မဟုတ် Request ခလုတ်ကို နှိပ်ပါ။",
 
                 gLangTitle: "ဘာသာစကား ပြောင်းလဲခြင်း",
-                gLangDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">ကမ္ဘာလုံးပုံ အိုင်ကွန် (Global Icon)</span> ကို ရှာပါ။",
+                gLangDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ <span class=\"inline-flex items-center gap-1 bg-gray-100 border border-gray-200 px-2 py-1 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"globe\" class=\"w-3.5 h-3.5\"></i></span> အိုင်ကွန် (Global Icon) ကို ရှာပါ။",
                 gLangDeskStep2: "အိုင်ကွန်ကို နှိပ်ပြီး ကျလာသော စာရင်းထဲမှ သင်အသုံးပြုလိုသော ဘာသာစကား (English သို့ မြန်မာ) ကို ရွေးချယ်ပါ။",
-                gLangMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> ခလုတ်ကို နှိပ်ပါ။",
+                gLangMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> ခလုတ်ကို နှိပ်ပါ။",
                 gLangMobStep2: "မီနူးစာရင်း၏ အောက်ခြေဆုံးရှိ ကမ္ဘာလုံးပုံ အိုင်ကွန်ဘေးမှ \"Switch Language\" ကို နှိပ်၍ ပြောင်းလဲပါ။",
 
                 gHubTitle: "ဝယ်ယူမှု မှတ်တမ်း (User Hub)",
-                gHubDeskStep1: "အကောင့်ဝင်ထားရန် သေချာပါစေ။ ထို့နောက် အပေါ်ဘက် ညာဘက်ထောင့်ရှိ သင်၏ <span class=\"font-bold text-myancode-black\">အကောင့် အိုင်ကွန် (Avatar)</span> ကို နှိပ်ပါ။",
-                gHubDeskStep2: "<span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Hub</span> ကို ရွေးချယ်ပြီး သင်၏ အော်ဒါအခြေအနေ၊ ငွေပေးချေမှု မှတ်တမ်းများနှင့် ဝယ်ယူထားသော ပုံစံများကို ကြည့်ရှုပါ။",
-                gHubMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> ခလုတ်ကို နှိပ်ပါ။",
+                gHubDeskStep1: "အကောင့်ဝင်ထားရန် သေချာပါစေ။ ထို့နောက် အပေါ်ဘက် ညာဘက်ထောင့်ရှိ သင်၏ <span class=\"inline-flex items-center justify-center w-7 h-7 bg-gray-100 border border-gray-200 rounded-full shadow-sm align-middle mx-1\"><i data-lucide=\"user\" class=\"w-4 h-4 text-myancode-black\"></i></span> အကောင့် အိုင်ကွန် ကို နှိပ်ပါ။",
+                gHubDeskStep2: "<a href=\"../hub/\" class=\"inline-flex items-center gap-1.5 bg-blue-50 border border-blue-100 text-myancode-blue px-2.5 py-1 rounded-lg text-[13px] font-bold hover:bg-blue-100 transition-colors shadow-sm\"><i data-lucide=\"layout-dashboard\" class=\"w-3.5 h-3.5\"></i> Hub</a> ကို ရွေးချယ်ပြီး သင်၏ အော်ဒါအခြေအနေ၊ ငွေပေးချေမှု မှတ်တမ်းများနှင့် ဝယ်ယူထားသော ပုံစံများကို ကြည့်ရှုပါ။",
+                gHubMobStep1: "မျက်နှာပြင်၏ ဘယ်ဘက်အပေါ်ထောင့်ရှိ <span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> ခလုတ်ကို နှိပ်ပါ။",
                 gHubMobStep2: "သင်၏ အကောင့်စာရင်းအောက်ရှိ <span class=\"font-bold text-myancode-black\">Hub</span> ကို ရွေးချယ်၍ အချက်အလက်များ အားလုံးကို လေ့လာစစ်ဆေးပါ။",
 
                 gStudioTitle: "စိတ်ကြိုက် ဝက်ဘ်ဆိုက် ဖန်တီးခြင်း (Custom Studio)",
-                gStudioDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Studio</span> သို့ သွားပါ။ ၎င်းမှာ ကျွန်ုပ်တို့၏ အဆင့်မြင့် စျေးနှုန်းတွက်ချက်မှု စနစ်ဖြစ်ပါသည်။",
+                gStudioDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <a href=\"../studio/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"layers\" class=\"w-3.5 h-3.5\"></i> Studio</a> သို့ သွားပါ။ ၎င်းမှာ ကျွန်ုပ်တို့၏ အဆင့်မြင့် စျေးနှုန်းတွက်ချက်မှု စနစ်ဖြစ်ပါသည်။",
                 gStudioDeskStep2: "လိုအပ်သော လုပ်ဆောင်ချက်များ (ဥပမာ E-commerce, CMS) ကို ရွေးချယ်ပြီး ကျသင့်ငွေကို ချက်ချင်း ကြည့်ရှုနိုင်သည်။ ထို့နောက် \"Request Custom Build\" ကို နှိပ်ပါ။",
-                gStudioMobStep1: "<span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\"><i data-lucide=\"menu\" class=\"w-3 h-3 inline\"></i> Menu</span> မှတဆင့် <span class=\"font-bold text-myancode-black\">Studio</span> ကို ဖွင့်ပါ။",
+                gStudioMobStep1: "<span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> မှတဆင့် <span class=\"font-bold text-myancode-black\">Studio</span> ကို ဖွင့်ပါ။",
                 gStudioMobStep2: "လိုအပ်သော အပိုလုပ်ဆောင်ချက်များကို ရွေးချယ်ပြီး ကိုယ်ပိုင် ဈေးနှုန်းတောင်းခံလွှာကို အတည်ပြုရန် Request ခလုတ်ကို နှိပ်ပါ။",
 
                 gWishTitle: "သိမ်းဆည်းထားသော စာရင်း စီမံခြင်း",
                 gWishDeskStep1: "နောက်မှ ဝယ်ယူရန်အတွက် ကုန်ပစ္စည်းများပေါ်ရှိ <span class=\"font-bold text-myancode-blue\">အသည်းပုံ အိုင်ကွန်</span> ကို နှိပ်၍ သိမ်းဆည်းပါ။",
-                gWishDeskStep2: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200\">အသည်းပုံ အိုင်ကွန်</span> ကို နှိပ်ပြီး သိမ်းဆည်းထားသည်များကို ပြန်လည်ကြည့်ရှု၍ ဝယ်ယူပါ။",
+                gWishDeskStep2: "ပင်မစာမျက်နှာ အပေါ်ဘက် ညာဘက်ထောင့်ရှိ <span class=\"inline-flex items-center gap-1 bg-gray-100 border border-gray-200 px-2 py-1 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"heart\" class=\"w-3.5 h-3.5\"></i></span> အိုင်ကွန် ကို နှိပ်ပြီး သိမ်းဆည်းထားသည်များကို ပြန်လည်ကြည့်ရှု၍ ဝယ်ယူပါ။",
                 gWishMobStep1: "သိမ်းဆည်းလိုသော ဝက်ဘ်ဆိုက်များရှိ အသည်းပုံလေးကို နှိပ်ပါ။",
                 gWishMobStep2: "<span class=\"font-bold text-myancode-black\">Menu</span> ကို ဖွင့်ပြီး အောက်ခြေရှိ <span class=\"font-bold\">My Wishlist</span> သို့ သွားရောက်၍ သင်၏ စာရင်းကို စီမံပါ။",
 
                 gProfTitle: "အမည်နှင့် ကိုယ်ရေးအချက်အလက် ပြင်ဆင်ခြင်း",
-                gProfDeskStep1: "အပေါ်ဘက် ညာဘက်ထောင့်ရှိ သင်၏ <span class=\"font-bold text-myancode-blue\">အကောင့် အိုင်ကွန် (Avatar)</span> ကို နှိပ်ပြီး <span class=\"font-bold\">My Profile</span> ကို ရွေးပါ။",
+                gProfDeskStep1: "အပေါ်ဘက် ညာဘက်ထောင့်ရှိ သင်၏ အကောင့် အိုင်ကွန် (Avatar) ကို နှိပ်ပြီး <a href=\"../profile/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"user\" class=\"w-3.5 h-3.5\"></i> My Profile</a> ကို ရွေးပါ။",
                 gProfDeskStep2: "ထိုနေရာတွင် သင်၏ အကောင့်အမည် (Username) ကို ပြောင်းလဲခြင်း၊ ပရိုဖိုင်ပုံ ပြောင်းခြင်းတို့ကို လုံခြုံစွာ စီမံနိုင်ပါသည်။",
-                gProfMobStep1: "<span class=\"font-bold text-myancode-black\">Menu</span> ကို ဖွင့်ပြီး <span class=\"font-bold text-myancode-blue\">My Profile</span> သို့ ဝင်ရောက်ပါ။",
+                gProfMobStep1: "<span class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-lg text-[13px] font-bold text-myancode-black shadow-sm\"><i data-lucide=\"menu\" class=\"w-3.5 h-3.5\"></i> Menu</span> ကို ဖွင့်ပြီး <span class=\"font-bold text-myancode-blue\">My Profile</span> သို့ ဝင်ရောက်ပါ။",
                 gProfMobStep2: "မိုဘိုင်းဖုန်းမှတဆင့် သင်၏ အကောင့်အမည် (Username) နှင့် ပရိုဖိုင်ပုံများကို အလွယ်တကူ ပြင်ဆင်နိုင်ပါသည်။",
 
                 gPassTitle: "စကားဝှက် (Password) ပြောင်းလဲခြင်း",
-                gPassDeskStep1: "အပေါ်ဘက် ညာဘက်ထောင့်ရှိ သင့်အကောင့် အိုင်ကွန်ကို နှိပ်ပြီး <span class=\"font-bold\">My Profile</span> သို့ ဝင်ရောက်ပါ။",
+                gPassDeskStep1: "အပေါ်ဘက် ညာဘက်ထောင့်ရှိ သင့်အကောင့် အိုင်ကွန်ကို နှိပ်ပြီး <a href=\"../profile/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"user\" class=\"w-3.5 h-3.5\"></i> My Profile</a> သို့ ဝင်ရောက်ပါ။",
                 gPassDeskStep2: "လုံခြုံရေး (Security) အပိုင်းတွင် <span class=\"font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded\">ယခင် စကားဝှက်ဟောင်း</span> ကို အရင်ရိုက်ထည့်ပြီးမှ စကားဝှက်အသစ်ကို ပြောင်းလဲသတ်မှတ်ပါ။",
                 gPassMobStep1: "Menu ကို ဖွင့်ပြီး <span class=\"font-bold text-myancode-blue\">My Profile</span> ကို ရွေးချယ်ပါ။",
                 gPassMobStep2: "လုံခြုံရေး (Security) အပိုင်းသို့ သွားပြီး လက်ရှိစကားဝှက်ကို ရိုက်ထည့်ကာ အသစ်ပြောင်းလဲပါ။",
 
                 gForgotTitle: "မေ့နေသော စကားဝှက်ကို ပြန်လည်ရယူခြင်း",
-                gForgotDeskStep1: "<span class=\"font-bold\">Login</span> စာမျက်နှာသို့ သွားပါ။ Password ရိုက်ထည့်ရမည့် အကွက်အပေါ်ရှိ <span class=\"font-bold text-myancode-blue\">Forgot Password?</span> လင့်ခ်ကို နှိပ်ပါ။",
+                gForgotDeskStep1: "<a href=\"../login/\" class=\"font-bold text-myancode-black hover:text-myancode-blue transition-colors\">Login</a> စာမျက်နှာသို့ သွားပါ။ Password ရိုက်ထည့်ရမည့် အကွက်အပေါ်ရှိ <a href=\"../login/\" class=\"inline-flex items-center gap-1.5 bg-blue-50 border border-blue-100 text-myancode-blue px-2.5 py-1 rounded-lg text-[13px] font-bold hover:bg-blue-100 transition-colors shadow-sm\"><i data-lucide=\"unlock\" class=\"w-3.5 h-3.5\"></i> Forgot Password?</a> လင့်ခ်ကို နှိပ်ပါ။",
                 gForgotDeskStep2: "သင့်အီးမေးလ်သို့ ပို့ပေးသော လမ်းညွှန်ချက်များအတိုင်း စကားဝှက်အသစ် ပြန်လည်သတ်မှတ်ပါ။ အဆင်မပြေမှုများ ရှိပါက <a href=\"mailto:support@myancode.com\" class=\"text-myancode-blue hover:underline font-bold\">support@myancode.com</a> သို့ ဆက်သွယ်နိုင်ပါသည်။",
                 gForgotMobStep1: "Login စာမျက်နှာတွင် Password အကွက်အပေါ်ရှိ <span class=\"font-bold text-myancode-blue\">Forgot Password?</span> ကို နှိပ်ပါ။",
                 gForgotMobStep2: "အီးမေးလ်ထဲသို့ ဝင်ရောက်စစ်ဆေးပြီး စကားဝှက်အသစ် ပြောင်းလဲပါ။ အကူအညီ လိုအပ်ပါက <a href=\"mailto:support@myancode.com\" class=\"text-myancode-blue hover:underline font-bold\">support@myancode.com</a> သို့ ဆက်သွယ်ပါ။",
 
                 gDelTitle: "အကောင့် ဖျက်သိမ်းခြင်း",
-                gDelDeskStep1: "အကောင့် အိုင်ကွန်မှတဆင့် <span class=\"font-bold\">My Profile</span> သို့ သွားပါ။",
+                gDelDeskStep1: "အကောင့် အိုင်ကွန်မှတဆင့် <a href=\"../profile/\" class=\"font-bold text-myancode-black hover:text-myancode-blue transition-colors\">My Profile</a> သို့ သွားပါ။",
                 gDelDeskStep2: "အောက်ဆုံးရှိ Danger Zone သို့ သွားပါ။ Delete Account ကို နှိပ်ပြီးနောက် <span class=\"font-bold text-red-500\">ပေးထားသော စာသားအတိုင်း တိကျစွာ ရိုက်ထည့်၍</span> အကောင့်ကို အပြီးတိုင် ဖျက်သိမ်းနိုင်ပါသည်။",
                 gDelMobStep1: "Menu ကို ဖွင့်၍ <span class=\"font-bold\">My Profile</span> သို့ ဝင်ရောက်ပါ။",
                 gDelMobStep2: "အောက်ဆုံးရှိ Danger Zone တွင် အကောင့်ဖျက်ရန် ရွေးချယ်ပြီး လိုအပ်သော အတည်ပြုစာသားကို မှန်ကန်စွာ ရိုက်ထည့်ပါ။",
 
                 gDownTitle: "ဝယ်ယူထားသော ဝက်ဘ်ဆိုက်ပုံစံများ ဒေါင်းလုဒ်ရယူခြင်း",
-                gDownDeskStep1: "အကောင့်ဝင်ထားပြီးနောက် အကောင့်အိုင်ကွန်ကို နှိပ်၍ <span class=\"font-bold\">Hub</span> သို့ သွားပါ။",
+                gDownDeskStep1: "အကောင့်ဝင်ထားပြီးနောက် အကောင့်အိုင်ကွန်ကို နှိပ်၍ <a href=\"../hub/\" class=\"inline-flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[13px] font-bold text-myancode-black hover:bg-gray-200 transition-colors shadow-sm\"><i data-lucide=\"layout-dashboard\" class=\"w-3.5 h-3.5\"></i> Hub</a> သို့ သွားပါ။",
                 gDownDeskStep2: "အောင်မြင်စွာ ဝယ်ယူထားသော အော်ဒါများကို ရှာဖွေပြီး <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Download Source Code</span> ခလုတ်ကို နှိပ်၍ ရယူပါ။",
                 gDownMobStep1: "Menu ကို ဖွင့်ပြီး <span class=\"font-bold\">Hub</span> သို့ ဝင်ရောက်ပါ။",
                 gDownMobStep2: "ဝယ်ယူထားသော ဝက်ဘ်ဆိုက်ကို ရှာဖွေပြီး ဒေါင်းလုဒ်ခလုတ်ကို နှိပ်၍ သင့်ဖုန်းထဲသို့ လုံခြုံစွာ သိမ်းဆည်းပါ။",
 
+                gMaintTitle: "ပြုပြင်ထိန်းသိမ်းမှု (Maintenance) တောင်းဆိုခြင်း",
+                gMaintMethod1Title: "နည်းလမ်း ၁ - User Hub မှတဆင့် တောင်းဆိုခြင်း",
+                gMaintMethod1Step1: "အကောင့် အိုင်ကွန်မှတဆင့် <span class=\"font-bold\">Hub</span> သို့ ဝင်ရောက်ပါ။",
+                gMaintMethod1Step2: "<span class=\"font-bold\">Maintenance</span> tab ကို ရွေးချယ်ပြီး 'Request Maintenance' ခလုတ်ကို နှိပ်ပါ။",
+                gMaintMethod2Title: "နည်းလမ်း ၂ - Footer အောက်ခြေလင့်ခ် မှတဆင့် တောင်းဆိုခြင်း",
+                gMaintMethod2Step1: "မည်သည့်စာမျက်နှာတွင်မဆို အောက်ခြေဆုံး (Footer) သို့ ဆင်းပါ။",
+                gMaintMethod2Step2: "'Store' ကဏ္ဍအောက်ရှိ <span class=\"font-bold\">Maintenance</span> ကို နှိပ်၍ အလွယ်တကူ တောင်းဆိုပါ။",
+
                 gSupTitle: "အကူအညီနှင့် ဆက်သွယ်ရန်",
-                gSupDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <span class=\"font-bold text-myancode-blue\">Support</span> ဆိုသည့် လင့်ခ်ပေါ်သို့ မောက်စ်တင်လိုက်ပါ။",
+                gSupDeskStep1: "ပင်မစာမျက်နှာ အပေါ်ဘက်ရှိ <span class=\"font-bold text-myancode-blue inline-flex items-center gap-1\">Support <i data-lucide=\"chevron-down\" class=\"w-3 h-3\"></i></span> ဆိုသည့် လင့်ခ်ပေါ်သို့ မောက်စ်တင်လိုက်ပါ။",
                 gSupDeskStep2: "ကျလာသော မီနူးများထဲမှ <span class=\"font-bold\">Contact</span> သို့မဟုတ် <span class=\"font-bold\">Help Center</span> ကို ရွေးချယ်ပြီး ကျွန်ုပ်တို့၏ အင်ဂျင်နီယာအဖွဲ့ထံ ဆက်သွယ်ပါ။",
                 gSupMobStep1: "<span class=\"font-bold text-myancode-black\">Menu</span> ထဲရှိ <span class=\"font-bold text-myancode-blue\">Support</span> အပိုင်းကို နှိပ်၍ ဖွင့်ပါ။",
                 gSupMobStep2: "\"Contact\" ကို ရွေးချယ်၍ အီးမေးလ်၊ ဖုန်းနံပါတ် နှင့် လူမှုကွန်ယက် စာမျက်နှာများမှတဆင့် အကူအညီ တောင်းခံနိုင်ပါသည်။"

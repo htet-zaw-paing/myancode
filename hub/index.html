@@ -299,7 +299,7 @@
         <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
         <div class="p-6 border-t border-gray-100 bg-gray-50">
             <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold text-black" id="wishlistTotal">0 MMK</span></div>
-            <button onclick="proceedToCheckoutFromWishlist()" class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
+            <button onclick="window.location.href='../checkout/?source=wishlist'" class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
         </div>
     </div>
 
@@ -405,6 +405,13 @@
             
             <!-- TAB 3: MAINTENANCE SECTION -->
             <div id="sectionMaintenance" class="hidden reveal">
+                <!-- NEW BUTTON ADDED HERE -->
+                <div class="w-full flex justify-end mb-4 sm:mb-6">
+                    <button onclick="window.location.href='../maintenance/'" class="bg-[#000000] text-[#ffffff] px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-bold btn-hover-effect flex items-center gap-2 shadow-[0_4px_14px_0_rgba(0,0,0,0.15)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.2)] transition-all">
+                        <i data-lucide="plus-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i> <span>Request Maintenance</span>
+                    </button>
+                </div>
+
                 <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100">
                     <div class="overflow-x-auto no-scrollbar">
                         <table class="w-full text-left whitespace-nowrap">
@@ -1189,16 +1196,28 @@
             }
 
             container.innerHTML = currentUserWishlist.map(item => {
-                const title = dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name;
+                const title = item.name || 'Saved Item';
                 return `
-                <div class="bg-white p-6 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow relative group">
-                    <button onclick="removeHubWishlist('${item.id}')" class="absolute top-4 right-4 p-2 bg-red-50 text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100 hover:scale-105" title="Remove"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    <div class="h-12 w-12 bg-pink-50 rounded-xl flex items-center justify-center mb-4 border border-pink-100 text-pink-500"><i data-lucide="heart" class="w-5 h-5 fill-current"></i></div>
-                    <h3 class="font-bold text-lg text-black mb-1 truncate pr-8">${title}</h3>
-                    <p class="text-myancode-blue font-bold text-base mb-6">${item.price.toLocaleString()} MMK</p>
-                    <button onclick="window.location.href='../templates/'" class="w-full bg-gray-50 hover:bg-myancode-black hover:text-white text-gray-600 font-bold py-3 rounded-xl transition-colors text-sm flex justify-center items-center gap-2 btn-hover-effect">
-                        <span data-i18n="btnExploreTemplates">${dict[currentLang].btnExploreTemplates}</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <div class="bg-white p-6 sm:p-8 rounded-[2rem] border border-gray-100 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_-6px_rgba(0,0,0,0.08)] hover:border-gray-200 transition-all duration-500 relative group flex flex-col h-full">
+                    <button onclick="removeHubWishlist('${item.id}')" class="absolute top-5 right-5 p-2.5 bg-gray-50/80 text-gray-400 hover:text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 z-10" title="${dict[currentLang].removeFromWishlist || 'Remove'}">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
+                    <div class="h-14 w-14 bg-[#f8f9fa] rounded-2xl flex items-center justify-center mb-6 border border-gray-100 shadow-inner-soft group-hover:bg-blue-50/50 group-hover:border-blue-100 transition-colors">
+                        <i data-lucide="layout-template" class="w-6 h-6 text-gray-400 group-hover:text-myancode-blue transition-colors"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <div class="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-2">Saved Item</div>
+                        <h3 class="font-bold text-lg sm:text-xl text-myancode-black mb-2 line-clamp-2 pr-6 leading-tight">${title}</h3>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Price</p>
+                            <p class="text-myancode-black font-bold text-lg sm:text-xl">${(item.price || 0).toLocaleString()} <span class="text-xs text-gray-400">MMK</span></p>
+                        </div>
+                        <button onclick="window.location.href='../templates/'" class="bg-myancode-black hover:bg-gray-800 text-white p-3 rounded-xl transition-colors btn-hover-effect flex items-center justify-center" title="View Details">
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </div>`;
             }).join('');
             lucide.createIcons();
@@ -1321,14 +1340,21 @@
                 totalDisplay.textContent = `0 MMK`; lucide.createIcons(); return;
             }
             container.innerHTML = currentUserWishlist.map(item => {
-                total += item.price;
+                total += (item.price || 0);
                 return `
-                <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                    <div>
-                        <h4 class="font-semibold text-sm mb-1">${dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name}</h4>
-                        <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
+                <div class="group flex justify-between items-center p-4 bg-white border border-gray-100/80 rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:border-gray-200 transition-all duration-300">
+                    <div class="flex items-center gap-4">
+                        <div class="h-10 w-10 bg-[#fbfbfd] border border-gray-100 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-blue-50/50 group-hover:border-blue-100 transition-colors">
+                            <i data-lucide="layout" class="w-4 h-4 text-gray-400 group-hover:text-myancode-blue transition-colors"></i>
+                        </div>
+                        <div class="pr-2">
+                            <h4 class="font-bold text-[13px] sm:text-sm text-myancode-black mb-0.5 line-clamp-1">${item.name}</h4>
+                            <span class="text-xs font-semibold text-myancode-blue">${(item.price || 0).toLocaleString()} <span class="text-[10px] text-gray-400">MMK</span></span>
+                        </div>
                     </div>
-                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-2.5 rounded-xl transition-all shrink-0" title="${dict[currentLang].removeFromWishlist}">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
                 </div>
             `}).join('');
             totalDisplay.textContent = `${total.toLocaleString()} MMK`;
