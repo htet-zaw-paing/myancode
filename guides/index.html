@@ -90,8 +90,8 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Advanced Guide & TOC Styles */
-        .guide-section { scroll-margin-top: 170px; transition: opacity 0.3s ease; }
+        /* Advanced Guide & TOC Styles - perfectly calibrated for sticky header + searchbar */
+        .guide-section { scroll-margin-top: 260px; transition: opacity 0.3s ease; }
         
         .toc-link { 
             display: flex; 
@@ -1103,21 +1103,30 @@
                 nav.classList.add('nav-transparent', 'border-transparent');
             }
 
-            // Advanced Precise TOC Active State Logic
+            // Advanced Precise TOC Active State Logic (Viewport Relative)
             const tocLinks = document.querySelectorAll('.toc-link');
             const sections = document.querySelectorAll('.guide-section');
             let currentSectionId = '';
             
+            // We use a detection line slightly below the 260px scroll-margin-top
+            const detectionLine = 280; 
+            
             sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                // Buffer of 180px perfectly aligns with the scroll-margin-top logic
-                if (window.scrollY >= sectionTop - 180) {
+                const rect = section.getBoundingClientRect();
+                // Because sections are processed in order, the LAST section whose top 
+                // is above our detection line is the currently active one.
+                if (rect.top <= detectionLine) {
                     currentSectionId = section.getAttribute('id');
                 }
             });
 
+            // Fallback: If we are at the very top, ensure the first item is selected
+            if (!currentSectionId && sections.length > 0) {
+                currentSectionId = sections[0].getAttribute('id');
+            }
+
             // If scrolled to the absolute bottom, select the very last section to prevent hanging
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+            if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight - 50) {
                 currentSectionId = sections[sections.length - 1].getAttribute('id');
             }
 
@@ -1377,7 +1386,7 @@
                 gDownDeskStep2: "အောင်မြင်စွာ ဝယ်ယူထားသော အော်ဒါများကို ရှာဖွေပြီး <span class=\"font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100\">Download Source Code</span> ခလုတ်ကို နှိပ်၍ ရယူပါ။",
                 gDownMobStep1: "Menu ကို ဖွင့်ပြီး <span class=\"font-bold\">Hub</span> သို့ ဝင်ရောက်ပါ။",
                 gDownMobStep2: "ဝယ်ယူထားသော ဝက်ဘ်ဆိုက်ကို ရှာဖွေပြီး ဒေါင်းလုဒ်ခလုတ်ကို နှိပ်၍ သင့်ဖုန်းထဲသို့ လုံခြုံစွာ သိမ်းဆည်းပါ။",
-
+                
                 gMaintTitle: "ပြုပြင်ထိန်းသိမ်းမှု (Maintenance) တောင်းဆိုခြင်း",
                 gMaintMethod1Title: "နည်းလမ်း ၁ - User Hub မှတဆင့် တောင်းဆိုခြင်း",
                 gMaintMethod1Step1: "အကောင့် အိုင်ကွန်မှတဆင့် <span class=\"font-bold\">Hub</span> သို့ ဝင်ရောက်ပါ။",
