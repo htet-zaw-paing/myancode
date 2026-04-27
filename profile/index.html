@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="../imgs/web-banners/favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
 
@@ -29,21 +29,37 @@
                     'md': '768px',
                     'lg': '1024px',
                     'xl': '1280px',
+                    '2xl': '1536px',
                 },
                 extend: {
                     fontFamily: { 
-                        sans: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'],
+                        sans: ['Inter', '"Noto Sans Myanmar"', 'sans-serif'],
+                        display: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
                         myancode: {
-                            black: '#0a0a0a',
-                            gray: '#f5f5f7',
-                            darkgray: '#6e6e73',
-                            blue: '#2997ff',
+                            black: '#050505',
+                            gray: '#111111',
+                            darkgray: '#222222',
+                            blue: '#0066CC',
+                            accent: '#2997ff',
                         }
                     },
                     animation: {
+                        'float': 'float 6s ease-in-out infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-subtle': 'bounce-subtle 2s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'bounce-subtle': {
+                            '0%, 100%': { transform: 'translateY(-10%)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' },
+                            '50%': { transform: 'translateY(10%)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' },
+                        }
                     }
                 }
             }
@@ -54,534 +70,567 @@
             width: 100%;
             overflow-x: hidden;
             position: relative;
-            background-color: #fbfbfd;
-            color: #0a0a0a;
+            background-color: #050505;
+            color: #ffffff;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        body.no-scroll {
-            overflow: hidden !important;
-            touch-action: none;
-        }
+        body.no-scroll { overflow: hidden !important; touch-action: none; }
 
-        html[lang="mm"] body { font-size: 14px; line-height: 2; }
-        html[lang="mm"] h1 { font-size: 2.5rem; line-height: 1.6; letter-spacing: normal; }
-        html[lang="mm"] h2 { font-size: 2rem; line-height: 1.6; letter-spacing: normal; }
+        /* Localization Base */
+        html[lang="mm"] body { font-family: 'Inter', 'Noto Sans Myanmar', sans-serif; font-size: 14px; line-height: 2.2; }
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 { font-family: 'Jost', 'Noto Sans Myanmar', sans-serif; }
+        html[lang="mm"] h1 { font-size: 2.5rem; line-height: 1.6; letter-spacing: normal; font-weight: 700; }
+        html[lang="mm"] h2 { font-size: 2rem; line-height: 1.6; letter-spacing: normal; font-weight: 700; }
         html[lang="mm"] h3 { font-size: 1.25rem; line-height: 1.7; letter-spacing: normal; }
-        html[lang="mm"] p { font-size: 0.9rem; line-height: 2.2; }
+        html[lang="mm"] p { font-size: 0.95rem; line-height: 2.2; }
         html[lang="mm"] .uppercase, html[lang="mm"] .capitalize { text-transform: none; }
         html[lang="mm"] .tracking-widest, html[lang="mm"] .tracking-wide, html[lang="mm"] .tracking-\[0\.4em\] { letter-spacing: normal; }
+        html[lang="mm"] .font-mono { font-family: '"JetBrains Mono"', 'Noto Sans Myanmar', monospace; }
         
+        @media (min-width: 768px) {
+            html[lang="mm"] h1 { font-size: 3.5rem; }
+            html[lang="mm"] h2 { font-size: 2.5rem; }
+        }
+        
+        /* Navigation Dynamics */
         #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; }
-        .glass-nav { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; }
+        .glass-nav-dark { background: rgba(5, 5, 5, 0.8) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
         .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
-        
+
+        /* Animations & Reveals */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Interactions */
         .hover-underline { position: relative; }
         .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
 
-        .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15); }
-        .btn-hover-effect:disabled { opacity: 0.7; cursor: not-allowed; }
-        
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
+        .btn-hover-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(255,255,255,0.1); }
+        .btn-hover-effect:active:not(:disabled) { transform: translateY(1px); }
+        .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        #globalLoader { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; }
-        .progress-line { width: 100%; height: 2px; background-color: #e5e5ea; border-radius: 4px; overflow: hidden; position: relative; }
-        .progress-line::after { content: ''; position: absolute; left: -50%; top: 0; height: 100%; width: 50%; background-color: #111111; border-radius: 4px; animation: lineAnim 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+        /* Loaders & Drawers */
+        #globalLoader { transition: opacity 0.5s ease, visibility 0.5s; }
+        .progress-line { width: 100%; height: 2px; background-color: rgba(255,255,255,0.1); overflow: hidden; position: relative; border-radius: 4px; }
+        .progress-line::after { content: ''; position: absolute; left: -50%; top: 0; height: 100%; width: 50%; background-color: #ffffff; border-radius: 4px; animation: lineAnim 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
         @keyframes lineAnim { 0% { left: -50%; width: 50%; } 50% { width: 20%; } 100% { left: 100%; width: 50%; } }
 
-        .search-overlay { transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease; opacity: 0; pointer-events: none; }
-        .search-overlay.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        /* Search Overlay */
+        .search-overlay { clip-path: circle(0% at 85% 5%); opacity: 0; pointer-events: none; transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease; }
+        .search-overlay.open { clip-path: circle(150% at 85% 5%); opacity: 1; pointer-events: auto; }
+        @media (max-width: 640px) {
+            .search-overlay { clip-path: circle(0px at calc(100% - 80px) 30px); }
+            .search-overlay.open { clip-path: circle(150% at calc(100% - 80px) 30px); }
+        }
 
-        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
         .drawer-overlay.open { opacity: 1; pointer-events: auto; }
-        .drawer-left { transform: translateX(-100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-left { transform: translateX(-100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .drawer-left.open { transform: translateX(0); }
-        .drawer-right { transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-right { transform: translateX(100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .drawer-right.open { transform: translateX(0); }
         .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
-        .dropdown-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.96); pointer-events: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Elegant Backgrounds */
+        .bg-grid-dark { 
+            background-size: 50px 50px; 
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), 
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px); 
+        }
+
+        /* 96% Width Layout Classes */
+        .layout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
 
         .user-avatar-global { transition: all 0.3s ease; }
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
         
-        .avatar-upload-overlay { opacity: 0; transition: opacity 0.3s ease; background: rgba(0,0,0,0.5); }
+        .avatar-upload-overlay { opacity: 0; transition: opacity 0.3s ease; background: rgba(0,0,0,0.6); }
         .avatar-upload-container:hover .avatar-upload-overlay { opacity: 1; cursor: pointer; }
         
         .cropper-view-box,
-        .cropper-face {
-          border-radius: 50%;
-        }
-        .cropper-modal {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
+        .cropper-face { border-radius: 50%; }
+        .cropper-modal { background-color: rgba(0, 0, 0, 0.8); }
     </style>
 </head>
-<body class="font-sans selection:bg-myancode-blue selection:text-white flex flex-col min-h-screen no-scroll">
+<body class="font-sans selection:bg-white selection:text-black flex flex-col min-h-screen no-scroll bg-[#050505]">
 
-    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center opacity-100 visibility-visible">
-        <i data-lucide="code-2" class="h-12 w-12 text-myancode-black mb-6 animate-pulse"></i>
-        <div class="w-48 max-w-[80vw]">
+    <!-- GLOBAL ENTERPRISE LOADER -->
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center opacity-100 visibility-visible">
+        <div class="relative w-16 h-16 mb-8 flex items-center justify-center">
+            <i data-lucide="code-2" class="h-8 w-8 text-white absolute animate-pulse"></i>
+        </div>
+        <div class="w-64 max-w-[80vw]">
             <div class="progress-line"></div>
         </div>
-        <span id="loaderText" class="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 transition-colors" data-i18n="loadingInit">Initializing Experience...</span>
+        <div class="mt-6 flex flex-col items-center gap-1 font-mono">
+            <span id="loaderText" class="text-[11px] font-bold tracking-[0.2em] text-gray-400 uppercase" data-i18n="loadingInit">Initializing Experience...</span>
+        </div>
     </div>
 
+    <!-- Header / Nav (Dynamic Dark Focus) -->
     <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent">
-        <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
-            <div class="flex justify-between items-center h-14 sm:h-16">
+        <div class="layout-width">
+            <div class="flex justify-between items-center h-16 sm:h-20">
                 <div class="flex items-center h-full">
-                    <button class="md:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-myancode-black" onclick="toggleMobileMenu()">
+                    <button class="md:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-white" onclick="toggleMobileMenu()">
                         <i data-lucide="menu" class="h-5 w-5"></i>
                     </button>
+                    <!-- LOGO LINK -->
                     <a href="../" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
-                        <i data-lucide="code-2" class="h-5 w-5 mr-2 transition-all duration-500 group-hover:rotate-12 nav-icon text-myancode-black"></i>
-                        <span class="font-semibold text-lg sm:text-xl tracking-wide transition-colors duration-300 group-hover:text-myancode-blue nav-text text-myancode-black" id="navLogoText">MyanCode</span>
+                        <i data-lucide="code-2" class="h-6 w-6 mr-2 transition-all duration-500 group-hover:rotate-12 nav-icon text-white"></i>
+                        <span class="font-display font-bold text-xl sm:text-2xl tracking-tight transition-colors duration-300 group-hover:text-myancode-accent nav-text text-white" id="navLogoText">MyanCode</span>
                     </a>
                 </div>
                 
-                <div class="hidden md:flex space-x-10 text-[12px] capitalize tracking-wide font-medium items-center h-full">
-                    <a href="../studio/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
-                    <a href="../templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
-                    <a href="../services/" class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link mega-nav-link text-myancode-black/80" data-nav-path="/services/" data-i18n="navServices">Services</a>
-                    
+                <div class="hidden md:flex space-x-10 text-[13px] capitalize tracking-wide font-semibold items-center h-full">
+                    <a href="../studio/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link mega-nav-link text-white/90" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="../templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link mega-nav-link text-white/90" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../services/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link mega-nav-link text-white/90" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    <a href="../maintenance/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link mega-nav-link text-white/90" data-nav-path="/maintenance/" data-i18n="navMaintenance">Maintenance</a>
+                    <a href="../about-us/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link mega-nav-link text-white/90" data-nav-path="/about-us/" data-i18n="navAbout">About</a>
+
+                    <!-- Support Dropdown -->
                     <div class="relative group h-full flex items-center">
-                        <button class="hover-underline transition-colors duration-300 hover:text-myancode-blue nav-link flex items-center gap-1 cursor-pointer text-myancode-black/80" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
+                        <button class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link flex items-center gap-1 cursor-pointer text-white/90" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
                         
                         <div class="absolute top-[80%] left-0 w-full h-8"></div>
 
-                        <div class="fixed top-[56px] sm:top-[64px] left-0 w-full bg-[#fbfbfd]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] border-b border-gray-200/60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
-                            <div class="max-w-[1024px] mx-auto px-4 sm:px-6 py-12 flex gap-8 md:gap-16 lg:gap-24 text-black">
-                                
+                        <div class="fixed top-[64px] sm:top-[80px] left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] border-b border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
+                            <div class="layout-width py-12 flex gap-8 md:gap-16 lg:gap-24 text-white">
                                 <div class="flex-[1.2]">
-                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
-                                    <div class="flex flex-col gap-4">
-                                        <a href="../guides/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supGuides">Guides</a>
-                                        <a href="../help/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supHelp">Help Center</a>
-                                        <a href="../faq/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supFaq">FAQs</a>
-                                        <a href="../contact-us/" target="_blank" class="text-2xl font-bold text-myancode-black hover:text-myancode-blue transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                                    <div class="flex flex-col gap-4 font-display">
+                                        <a href="../guides/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supGuides">Guides</a>
+                                        <a href="../help/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                        <a href="../faq/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supFaq">FAQs</a>
+                                        <a href="../contact-us/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supContact">Contact</a>
                                     </div>
                                 </div>
-                                
                                 <div class="flex-1">
-                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
                                     <div class="flex flex-col gap-3">
-                                        <a href="../legal/#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
-                                        <a href="../legal/#studio-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
-                                        <a href="../legal/#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
-                                        <a href="../legal/#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polService">Service Policy</a>
-                                        <a href="../legal/#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                        <a href="../legal/#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                        <a href="../legal/#studio-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
+                                        <a href="../legal/#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                        <a href="../legal/#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                        <a href="../legal/#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
                                     </div>
                                 </div>
-                                
                                 <div class="flex-1">
-                                    <div class="text-[11px] font-semibold text-gray-400 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
                                     <div class="flex flex-col gap-3">
-                                        <a href="../legal/#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
-                                        <a href="../legal/#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
-                                        <a href="../legal/#privacy-policy" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
-                                        <a href="../legal/#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-700 hover:text-myancode-blue transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                        <a href="../legal/#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                        <a href="../legal/#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                        <a href="../legal/#privacy-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="../legal/#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4 sm:space-x-5">
-                    <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i></button>
+                <div class="flex items-center space-x-4 sm:space-x-6">
+                    <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i></button>
+                    
+                    <!-- Bag/Cart Drawer Mapped Instead of Wishlist -->
+                    <button onclick="toggleWishlistDrawer()" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
+                        <i data-lucide="shopping-bag" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-white text-black text-[9px] font-bold font-mono h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    </button>
+                    
                     <div class="relative hidden sm:block" id="langContainer">
-                        <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
-                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
-                            <div class="px-4 pb-2 mb-2 border-b border-gray-50 text-[10px] uppercase tracking-widest text-gray-400 font-semibold" data-i18n="langSelect">Language</div>
-                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
-                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
+                            <div class="px-4 pb-2 mb-2 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-bold font-mono" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
                         </div>
                     </div>
                     <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
-                    <button onclick="toggleWishlistDrawer()" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black">
-                        <i data-lucide="heart" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
-                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-myancode-blue text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
-                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
-        <div class="max-w-[1024px] mx-auto px-6 pt-10">
-            <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-500 hover:text-black transition-colors rounded-full bg-gray-50 hover:bg-gray-200"><i data-lucide="x" class="h-5 w-5"></i></button></div>
-            <div class="mt-8 sm:mt-16 max-w-3xl mx-auto">
-                <div class="relative w-full border-b border-gray-300 focus-within:border-myancode-black transition-colors pb-4 flex items-center">
-                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mr-4"></i>
-                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off" class="w-full text-3xl sm:text-5xl font-semibold text-black bg-transparent border-none outline-none placeholder-gray-200" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+    <!-- Search Overlay -->
+    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-[#0a0a0a]/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
+        <div class="layout-width pt-10">
+            <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-400 hover:text-white transition-colors rounded-full bg-white/5 border border-white/10 hover:bg-white/10"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+            <div class="mt-8 sm:mt-16 max-w-4xl mx-auto">
+                <div class="relative w-full border-b border-gray-700 focus-within:border-white transition-colors pb-4 flex items-center">
+                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-500 mr-4"></i>
+                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off" class="w-full text-3xl sm:text-4xl font-display font-semibold text-white bg-transparent border-none outline-none placeholder-gray-600" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
                 </div>
             </div>
-            <div class="mt-16 flex flex-col-reverse md:flex-row gap-12 sm:gap-20 max-w-3xl mx-auto">
+            <div class="mt-12 flex flex-col-reverse md:flex-row gap-12 sm:gap-20 max-w-4xl mx-auto">
                 <div class="w-full md:w-1/3">
-                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Links</h4>
+                    <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Actions</h4>
                     <ul class="space-y-4">
-                        <li><a href="../services/" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navServices">Web Development</span></a></li>
-                        <li><a href="../templates/" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navWebsites">Featured Templates</span></a></li>
-                        <li><a href="../services/" onclick="toggleSearchOverlay()" class="text-sm sm:text-base font-medium text-gray-700 hover:text-myancode-blue hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-400 group-hover:text-myancode-blue"></i> <span data-i18n="navStudio">SEO Optimization</span></a></li>
+                        <li><a href="../services/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span data-i18n="tradeInTitle">Web Development</span></a></li>
+                        <li><a href="../templates/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span data-i18n="newArrivals">Premium Templates</span></a></li>
+                        <li><a href="../services/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span data-i18n="bulkTitle">SEO Optimization</span></a></li>
                     </ul>
                 </div>
                 <div class="w-full md:w-2/3">
-                    <h4 class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6" data-i18n="searchResults">Results</h4>
-                    <div id="megaSearchResults" class="space-y-4"><p class="text-gray-400 text-sm font-light italic" data-i18n="searchHint">Type to discover our products and services...</p></div>
+                    <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6" data-i18n="searchResults">Query Results</h4>
+                    <div id="megaSearchResults" class="space-y-4"><p class="text-gray-500 text-sm font-medium italic" data-i18n="searchHint">Type to discover our products and services...</p></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#fafafa] z-[80] drawer-left flex flex-col overflow-hidden">
-        
-        <div class="px-6 py-6 flex items-center justify-between flex-shrink-0">
-            <span class="font-bold text-xl tracking-wide text-black">MyanCode</span>
-            <button onclick="toggleMobileMenu()" class="p-2.5 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-600"><i data-lucide="x" class="h-5 w-5"></i></button>
+    <!-- Mobile Drawer -->
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#050505] z-[80] drawer-left flex flex-col overflow-hidden text-white border-r border-white/10">
+        <div class="px-6 py-6 flex items-center justify-between flex-shrink-0 border-b border-white/10">
+            <span class="font-display font-bold text-xl tracking-tight">MyanCode</span>
+            <button onclick="toggleMobileMenu()" class="p-2.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors text-gray-300"><i data-lucide="x" class="h-5 w-5"></i></button>
         </div>
-        
-        <div class="flex-1 px-8 py-4 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar overscroll-contain">
-            
+        <div class="flex-1 px-8 py-6 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
             <div class="relative mb-8" onclick="toggleMobileMenu(); toggleSearchOverlay();">
-                <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-400"></i>
-                <input type="text" class="w-full pl-8 py-3 border-b border-gray-300 focus:outline-none text-base bg-transparent text-gray-600 placeholder-gray-400 pointer-events-none" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+                <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-500"></i>
+                <input type="text" class="w-full pl-8 py-3 border-b border-gray-700 focus:outline-none text-base bg-transparent text-white placeholder-gray-500 pointer-events-none" placeholder="Search..." data-i18n-placeholder="searchPlaceholder">
             </div>
-            
-            <div class="space-y-6 text-base font-normal text-myancode-black tracking-wide flex-1">
-                <a href="../studio/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
-                    <span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
-                </a>
-                <a href="../templates/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
-                    <span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
-                </a>
-                <a href="../services/" class="flex justify-between items-center hover:text-myancode-blue transition-colors">
-                    <span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
-                </a>
+            <div class="space-y-6 text-base font-semibold text-white tracking-wide flex-1">
+                <a href="../studio/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../templates/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../services/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../maintenance/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navMaintenance">Maintenance</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../about-us/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navAbout">About</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
                 
                 <div class="flex flex-col">
-                    <button onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
-                        <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform"></i>
+                    <button onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
+                        <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down" class="h-4 w-4 text-gray-500 transition-transform"></i>
                     </button>
-                    <div id="mobSupportDrop" class="hidden flex-col w-full mt-6 pb-2 pl-4 border-l-2 border-gray-100">
+                    <!-- Enhanced Mobile Support Dropdown -->
+                    <div id="mobSupportDrop" class="hidden flex-col w-full mt-6 pb-2 pl-4 border-l-2 border-white/10">
                         <div class="mb-6">
-                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
-                            <div class="flex flex-col gap-4">
-                                <a href="../guides/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supGuides">Guides</a>
-                                <a href="../help/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supHelp">Help Center</a>
-                                <a href="../faq/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supFaq">FAQs</a>
-                                <a href="../contact-us/" target="_blank" class="text-lg font-bold text-myancode-black hover:text-myancode-blue transition-colors" data-i18n="supContact">Contact</a>
+                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                            <div class="flex flex-col gap-4 font-display">
+                                <a href="../guides/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supGuides">Guides</a>
+                                <a href="../help/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supHelp">Help Center</a>
+                                <a href="../faq/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supFaq">FAQs</a>
+                                <a href="../contact-us/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supContact">Contact</a>
                             </div>
                         </div>
                         <div class="mb-6">
-                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
                             <div class="flex flex-col gap-3">
-                                <a href="../legal/#client-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polClient">Customer Policy</a>
-                                <a href="../legal/#studio-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polStudio">Studio Policy</a>
-                                <a href="../legal/#template-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polTemplate">Template Policy</a>
-                                <a href="../legal/#service-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polService">Service Policy</a>
-                                <a href="../legal/#maintenance-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polMaintenance">Maintenance Policy</a>
+                                <a href="../legal/#client-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                <a href="../legal/#studio-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
+                                <a href="../legal/#template-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                <a href="../legal/#service-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                <a href="../legal/#maintenance-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
                             </div>
                         </div>
                         <div>
-                            <div class="text-[10px] font-semibold text-gray-400 mb-4 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
                             <div class="flex flex-col gap-3">
-                                <a href="../legal/#payment-policy" target="_blank"  class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polPayment">Payment Policy</a>
-                                <a href="../legal/#refund-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polRefund">Refund Policy</a>
-                                <a href="../legal/#privacy-policy" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polPrivacy">Privacy Policy</a>
-                                <a href="../legal/#terms-of-services" target="_blank" class="text-sm font-semibold text-gray-700 hover:text-myancode-blue transition-colors" data-i18n="polTerms">Terms of Service</a>
+                                <a href="../legal/#payment-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                <a href="../legal/#refund-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                <a href="../legal/#privacy-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                <a href="../legal/#terms-of-service" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="pt-4 border-t border-gray-100">
-                    <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center hover:text-myancode-blue transition-colors">
-                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-5 w-5 text-gray-400"></i>
+                <div class="pt-4 border-t border-white/10">
+                    <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
+                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-5 w-5 text-gray-500"></i>
                     </button>
                 </div>
             </div>
-            
-            <div class="border-t border-gray-200 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
+            <div class="border-t border-white/10 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
                 <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
-                
-                <div class="border-t border-gray-200 pt-8 mt-6">
-                    <button onclick="toggleMobileMenu(); toggleWishlistDrawer();" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
-                        <span data-i18n="wishlistTitle">My Wishlist</span> <i data-lucide="heart" class="h-5 w-5 text-gray-400"></i>
+                <div class="border-t border-white/10 pt-8 mt-6">
+                    <button onclick="toggleMobileMenu(); toggleWishlistDrawer();" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors text-base font-semibold tracking-wide">
+                        <span data-i18n="wishlistTitle">Your Bag</span> <i data-lucide="shopping-bag" class="h-5 w-5 text-gray-500"></i>
                     </button>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <div id="wishlistOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
-    <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-gray-100">
-        <div class="px-6 py-6 flex items-center justify-between border-b border-gray-100 bg-gray-50/50">
-            <h3 class="font-semibold text-lg tracking-tight flex items-center gap-2"><i data-lucide="heart" class="h-5 w-5 text-myancode-blue fill-myancode-blue"></i> <span data-i18n="wishlistTitle">My Wishlist</span></h3>
-            <button onclick="toggleWishlistDrawer()" class="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-gray-500 hover:text-black"><i data-lucide="x" class="h-4 w-4"></i></button>
+    <!-- Bag Drawer (Dark Theme matched) -->
+    <div id="wishlistOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
+    <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-[#0a0a0a] text-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-white/10">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-white/10 bg-white/5">
+            <h3 class="font-bold text-lg font-display tracking-tight flex items-center gap-2"><i data-lucide="shopping-bag" class="h-5 w-5 text-white"></i> <span data-i18n="wishlistTitle">Your Bag</span></h3>
+            <button onclick="toggleWishlistDrawer()" class="p-2 bg-[#111] rounded-full border border-white/10 transition-all text-gray-400 hover:text-white hover:bg-white/10"><i data-lucide="x" class="h-4 w-4"></i></button>
         </div>
         <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
-        <div class="p-6 border-t border-gray-100 bg-gray-50">
-            <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold text-black" id="wishlistTotal">0 MMK</span></div>
-            <button class="w-full btn-hover-effect bg-myancode-black text-white py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-gray-800 transition shadow-lg" data-i18n="btnContact">Proceed to Checkout</button>
+        <div class="p-6 border-t border-white/10 bg-white/5">
+            <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest" data-i18n="wlTotal">Total</span><span class="text-xl font-bold font-display text-white" id="wishlistTotal">0 MMK</span></div>
+            <button onclick="proceedToCheckout()" class="w-full bg-white text-black py-4 rounded-xl text-sm font-bold tracking-wide hover:bg-gray-200 transition flex items-center justify-center gap-2 btn-hover-effect">
+                <span data-i18n="btnContact">Proceed to Checkout</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
         </div>
     </div>
 
-    <section class="flex-grow pt-32 sm:pt-40 pb-24 sm:pb-36 px-4 sm:px-6 relative z-10 w-full">
-        <div class="max-w-3xl mx-auto">
+    <!-- MAIN SETTINGS SECTION -->
+    <section class="flex-grow pt-32 sm:pt-48 pb-24 sm:pb-36 px-4 sm:px-6 relative z-10 w-full">
+        <!-- Background elements for visual depth -->
+        <div class="absolute inset-0 bg-grid-dark pointer-events-none z-0 opacity-40"></div>
+        
+        <div class="max-w-3xl mx-auto relative z-10">
             <div class="mb-10 text-center sm:text-left reveal">
-                <h1 class="text-3xl sm:text-5xl font-semibold tracking-tight text-myancode-black mb-3" data-i18n="profSettings">Account Settings</h1>
-                <p class="text-sm sm:text-base text-myancode-darkgray" data-i18n="profSub">Manage your personal details and security preferences.</p>
+                <div class="inline-flex items-center justify-center bg-white/5 border border-white/10 px-4 py-1.5 rounded-full mb-6 shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-myancode-accent animate-pulse mr-2"></span>
+                    <h2 class="text-[9px] font-mono tracking-[0.3em] text-gray-300 uppercase font-bold">Preferences</h2>
+                </div>
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-display font-bold tracking-tight text-white mb-4" data-i18n="profSettings">Account Settings</h1>
+                <p class="text-sm sm:text-base text-gray-400 font-medium" data-i18n="profSub">Manage your personal details and security preferences.</p>
             </div>
 
             <div class="space-y-8">
                 <!-- Public Profile Section -->
-                <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 reveal">
-                    <h3 class="text-lg font-semibold tracking-tight mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="user-circle" class="h-5 w-5 text-myancode-blue"></i> <span data-i18n="profPublic">Public Profile</span></h3>
+                <div class="bg-[#111] rounded-3xl p-6 sm:p-10 shadow-sm border border-white/10 reveal">
+                    <h3 class="text-lg font-bold tracking-tight text-white mb-6 flex items-center gap-2 border-b border-white/5 pb-4"><i data-lucide="user-circle" class="h-5 w-5 text-myancode-accent"></i> <span data-i18n="profPublic">Public Profile</span></h3>
                     
                     <div class="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
                         <div class="flex flex-col items-center gap-3">
-                            <div class="relative avatar-upload-container rounded-full h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 border-2 border-gray-100 shadow-sm overflow-hidden group">
-                                <img id="profileAvatarPreview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>" class="h-full w-full object-cover bg-gray-50" alt="Avatar">
+                            <div class="relative avatar-upload-container rounded-full h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0 border border-white/10 shadow-sm overflow-hidden group">
+                                <img id="profileAvatarPreview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>" class="h-full w-full object-cover bg-[#0a0a0a]" alt="Avatar">
                                 <div class="absolute inset-0 avatar-upload-overlay flex flex-col items-center justify-center text-white backdrop-blur-sm" onclick="document.getElementById('avatarInput').click()">
                                     <i data-lucide="camera" class="h-6 w-6 mb-1"></i>
                                     <span class="text-[10px] font-bold tracking-widest uppercase" data-i18n="profUpload">Upload</span>
                                 </div>
                                 <input type="file" id="avatarInput" accept="image/*" class="hidden" onchange="openCropper(event)">
                             </div>
-                            <button onclick="removeAvatar()" class="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase tracking-widest transition-colors" data-i18n="profRemoveAv">Remove Icon</button>
+                            <button onclick="removeAvatar()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest transition-colors" data-i18n="profRemoveAv">Remove Icon</button>
                         </div>
                         
                         <div class="flex-1 w-full space-y-4">
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profName">Full Name</label>
-                                <input type="text" id="profileNameInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="Enter your full name">
+                                <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="profName">Full Name</label>
+                                <input type="text" id="profileNameInput" class="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm font-medium text-white placeholder-gray-600 focus:outline-none focus:border-myancode-accent focus:ring-1 focus:ring-myancode-accent transition-all" placeholder="Enter your full name">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address (Read-only)</label>
-                                <input type="email" id="profileEmailInput" disabled class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-gray-500 cursor-not-allowed" placeholder="your@email.com">
+                                <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Email Address (Read-only)</label>
+                                <input type="email" id="profileEmailInput" disabled class="w-full px-4 py-3 bg-[#0a0a0a]/50 border border-white/5 rounded-xl text-sm font-medium text-gray-600 cursor-not-allowed" placeholder="your@email.com">
                             </div>
                             <div class="pt-2 text-right sm:text-left">
-                                <button onclick="updateProfileName()" class="btn-hover-effect bg-myancode-black text-white text-xs px-8 py-3.5 rounded-full font-medium tracking-wide shadow-md w-full sm:w-auto" data-i18n="profUpdateBtn">Save Changes</button>
+                                <button onclick="updateProfileName()" class="btn-hover-effect bg-white text-black text-xs px-8 py-3.5 rounded-full font-bold uppercase tracking-widest shadow-md w-full sm:w-auto transition-colors" data-i18n="profUpdateBtn">Save Changes</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Security Section -->
-                <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-gray-100 reveal" style="transition-delay: 50ms;">
-                    <h3 class="text-lg font-semibold tracking-tight mb-6 flex items-center gap-2 border-b border-gray-50 pb-4"><i data-lucide="shield" class="h-5 w-5 text-green-500"></i> <span data-i18n="profSecurity">Security</span></h3>
+                <div class="bg-[#111] rounded-3xl p-6 sm:p-10 shadow-sm border border-white/10 reveal" style="transition-delay: 50ms;">
+                    <h3 class="text-lg font-bold tracking-tight text-white mb-6 flex items-center gap-2 border-b border-white/5 pb-4"><i data-lucide="shield" class="h-5 w-5 text-green-400"></i> <span data-i18n="profSecurity">Security</span></h3>
                     
                     <div class="space-y-4 max-w-md">
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profOldPass">Current Password</label>
-                            <input type="password" id="profileOldPassInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="••••••••">
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="profOldPass">Current Password</label>
+                            <input type="password" id="profileOldPassInput" class="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm font-medium text-white placeholder-gray-600 focus:outline-none focus:border-myancode-accent focus:ring-1 focus:ring-myancode-accent transition-all" placeholder="••••••••">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profPass">New Password</label>
-                            <input type="password" id="profilePassInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="••••••••">
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="profPass">New Password</label>
+                            <input type="password" id="profilePassInput" class="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm font-medium text-white placeholder-gray-600 focus:outline-none focus:border-myancode-accent focus:ring-1 focus:ring-myancode-accent transition-all" placeholder="••••••••">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" data-i18n="profPassConfirm">Confirm Password</label>
-                            <input type="password" id="profilePassConfirmInput" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-myancode-black focus:ring-1 focus:ring-myancode-black transition-all" placeholder="••••••••">
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="profPassConfirm">Confirm Password</label>
+                            <input type="password" id="profilePassConfirmInput" class="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm font-medium text-white placeholder-gray-600 focus:outline-none focus:border-myancode-accent focus:ring-1 focus:ring-myancode-accent transition-all" placeholder="••••••••">
                         </div>
                         <div class="pt-2">
-                            <button onclick="updatePassword()" class="btn-hover-effect bg-gray-100 text-myancode-black hover:bg-gray-200 border border-gray-200 text-xs px-8 py-3.5 rounded-full font-semibold tracking-wide shadow-sm w-full sm:w-auto transition-colors" data-i18n="profUpdatePassBtn">Update Password</button>
+                            <button onclick="updatePassword()" class="btn-hover-effect bg-white/5 text-white hover:bg-white/10 border border-white/10 text-xs px-8 py-3.5 rounded-full font-bold uppercase tracking-widest shadow-sm w-full sm:w-auto transition-colors" data-i18n="profUpdatePassBtn">Update Password</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Danger Zone Section -->
-                <div class="bg-[#fff5f5] rounded-3xl p-6 sm:p-10 shadow-sm border border-red-100 reveal" style="transition-delay: 100ms;">
-                    <h3 class="text-lg font-semibold tracking-tight text-red-600 mb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="h-5 w-5"></i> <span data-i18n="profDanger">Danger Zone</span></h3>
-                    <p class="text-sm text-red-400 mb-6" data-i18n="profDeleteText">Once you delete your account, there is no going back. Please be certain.</p>
-                    <button onclick="deleteAccount()" class="btn-hover-effect bg-red-600 text-white hover:bg-red-700 text-xs px-8 py-3.5 rounded-full font-semibold tracking-wide shadow-sm w-full sm:w-auto transition-colors" data-i18n="profDeleteBtn">Delete Account</button>
+                <div class="bg-[#1a0a0a] rounded-3xl p-6 sm:p-10 shadow-sm border border-red-500/20 reveal" style="transition-delay: 100ms;">
+                    <h3 class="text-lg font-bold tracking-tight text-red-500 mb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="h-5 w-5"></i> <span data-i18n="profDanger">Danger Zone</span></h3>
+                    <p class="text-sm font-medium text-red-400/80 mb-6" data-i18n="profDeleteText">Once you delete your account, there is no going back. Please be certain.</p>
+                    <button onclick="deleteAccount()" class="btn-hover-effect bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 hover:text-red-400 text-xs px-8 py-3.5 rounded-full font-bold uppercase tracking-widest shadow-sm w-full sm:w-auto transition-colors" data-i18n="profDeleteBtn">Delete Account</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Cropper Modal -->
-    <div id="cropperModal" class="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-4 sm:p-6 rounded-3xl w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="cropperModalContent">
-            <h3 class="text-lg font-semibold mb-4 text-myancode-black flex justify-between items-center">
+    <!-- Cropper Modal (Dark Theme) -->
+    <div id="cropperModal" class="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-[#111] border border-white/10 p-4 sm:p-6 rounded-3xl w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="cropperModalContent">
+            <h3 class="text-lg font-bold tracking-tight mb-4 text-white flex justify-between items-center">
                 <span data-i18n="cropTitle">Crop Photo</span>
-                <button onclick="cancelCrop()" class="text-gray-400 hover:text-black transition-colors"><i data-lucide="x" class="h-5 w-5"></i></button>
+                <button onclick="cancelCrop()" class="text-gray-400 hover:text-white transition-colors bg-white/5 p-1.5 rounded-full hover:bg-white/10"><i data-lucide="x" class="h-4 w-4"></i></button>
             </h3>
-            <div class="w-full h-[50vh] sm:h-[400px] bg-gray-100 rounded-xl overflow-hidden relative">
+            <div class="w-full h-[50vh] sm:h-[400px] bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden relative">
                 <img id="imageToCrop" src="" class="max-w-full block" alt="Picture to crop">
             </div>
             <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
                 <div class="flex space-x-2">
-                    <button onclick="if(cropperInstance) cropperInstance.zoom(0.1)" class="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 transition-colors shadow-sm"><i data-lucide="zoom-in" class="h-5 w-5"></i></button>
-                    <button onclick="if(cropperInstance) cropperInstance.zoom(-0.1)" class="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 transition-colors shadow-sm"><i data-lucide="zoom-out" class="h-5 w-5"></i></button>
+                    <button onclick="if(cropperInstance) cropperInstance.zoom(0.1)" class="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-300 transition-colors shadow-sm border border-white/10"><i data-lucide="zoom-in" class="h-5 w-5"></i></button>
+                    <button onclick="if(cropperInstance) cropperInstance.zoom(-0.1)" class="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-300 transition-colors shadow-sm border border-white/10"><i data-lucide="zoom-out" class="h-5 w-5"></i></button>
                 </div>
                 <div class="flex space-x-3 w-full sm:w-auto">
-                    <button onclick="cancelCrop()" class="flex-1 sm:flex-none px-6 py-3 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" data-i18n="cropCancel">Cancel</button>
-                    <button onclick="saveCrop()" class="flex-1 sm:flex-none px-8 py-3 rounded-full text-sm font-semibold bg-myancode-black text-white hover:bg-gray-800 shadow-md transition-colors" data-i18n="cropSave">Save</button>
+                    <button onclick="cancelCrop()" class="flex-1 sm:flex-none px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors" data-i18n="cropCancel">Cancel</button>
+                    <button onclick="saveCrop()" class="flex-1 sm:flex-none px-8 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest bg-white text-black shadow-md transition-colors btn-hover-effect" data-i18n="cropSave">Save</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Confirm Modal -->
-    <div id="confirmModal" class="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent">
-            <div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
-                <i data-lucide="alert-triangle" class="h-8 w-8 text-red-600"></i>
+    <!-- Confirm Modal (Dark Theme) -->
+    <div id="confirmModal" class="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-[#111] border border-white/10 p-6 sm:p-8 rounded-3xl w-[95%] max-w-md shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent">
+            <div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6">
+                <i data-lucide="alert-triangle" class="h-8 w-8 text-red-500"></i>
             </div>
-            <h3 id="confirmModalTitle" class="text-2xl font-semibold tracking-tight text-myancode-black mb-3">Title</h3>
-            <p id="confirmModalMessage" class="text-sm text-gray-500 mb-6">Message</p>
+            <h3 id="confirmModalTitle" class="text-2xl font-bold font-display tracking-tight text-white mb-3">Title</h3>
+            <p id="confirmModalMessage" class="text-sm font-medium text-gray-400 mb-6">Message</p>
 
-            <div id="confirmModalCheckboxContainer" class="hidden mb-6 text-left bg-red-50 p-4 rounded-xl border border-red-100">
+            <div id="confirmModalCheckboxContainer" class="hidden mb-6 text-left bg-red-500/5 p-4 rounded-xl border border-red-500/10">
                 <label class="flex items-start gap-3 cursor-pointer group">
-                    <input type="checkbox" id="confirmModalCheckbox" class="mt-1 w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                    <span class="text-xs text-red-800 font-medium leading-relaxed" id="confirmModalCheckboxText">I have read the <a href="../comming-soon/" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">Terms and Conditions</a>. I understand that all my data will be permanently deleted and this action cannot be undone.</span>
+                    <input type="checkbox" id="confirmModalCheckbox" class="mt-1 w-4 h-4 text-red-500 bg-[#0a0a0a] border-white/20 rounded focus:ring-red-500 focus:ring-offset-[#111]">
+                    <span class="text-xs text-red-400 font-medium leading-relaxed" id="confirmModalCheckboxText">I have read the <a href="../comming-soon/" class="underline font-bold hover:text-red-300 transition-colors" onclick="event.stopPropagation()">Terms and Conditions</a>. I understand that all my data will be permanently deleted and this action cannot be undone.</span>
                 </label>
             </div>
 
             <div id="confirmModalTextContainer" class="hidden mb-6 text-left">
-                <label class="block text-xs font-bold text-gray-500 tracking-widest mb-2" id="confirmModalTextLabel">Type "DeLeTe My AccOunT" to confirm</label>
-                <input type="text" id="confirmModalTextInput" oncopy="handleCopyAttempt(event)" onpaste="handleCopyAttempt(event)" oncut="handleCopyAttempt(event)" oncontextmenu="return false;" class="w-full px-4 py-3 bg-[#fbfbfd] border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all select-none" autocomplete="off">
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2" id="confirmModalTextLabel">Type "DeLeTe My AccOunT" to confirm</label>
+                <input type="text" id="confirmModalTextInput" oncopy="handleCopyAttempt(event)" onpaste="handleCopyAttempt(event)" oncut="handleCopyAttempt(event)" oncontextmenu="return false;" class="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all select-none" autocomplete="off">
             </div>
 
             <div class="flex space-x-3 w-full">
-                <button onclick="closeConfirmModal()" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors" id="confirmModalCancelBtn">Cancel</button>
-                <button id="confirmModalBtn" class="flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-red-600 hover:bg-red-700">Confirm</button>
+                <button onclick="closeConfirmModal()" class="flex-1 px-6 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors" id="confirmModalCancelBtn">Cancel</button>
+                <button id="confirmModalBtn" class="flex-1 px-6 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700">Confirm</button>
             </div>
         </div>
     </div>
     
-    <!-- Funny Anti-Copy/Paste Modal -->
-    <div id="funnyWarningModal" class="fixed inset-0 z-[20000] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white p-6 sm:p-8 rounded-3xl w-[95%] max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="funnyWarningModalContent">
-            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4">
-                <span class="text-3xl">!</span>
+    <!-- Funny Anti-Copy/Paste Modal (Dark Theme) -->
+    <div id="funnyWarningModal" class="fixed inset-0 z-[20000] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-[#111] border border-white/10 p-6 sm:p-8 rounded-3xl w-[95%] max-w-sm shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="funnyWarningModalContent">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-500/10 border border-yellow-500/20 mb-4">
+                <span class="text-3xl text-yellow-500 font-bold">!</span>
             </div>
-            <h3 class="text-xl font-semibold tracking-tight text-myancode-black mb-3">Wait a minute!</h3>
-            <p id="funnyWarningText" class="text-sm text-gray-600 mb-6 leading-relaxed"></p>
-            <button onclick="closeFunnyModal()" class="w-full px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-myancode-blue hover:bg-blue-600">Fine</button>
+            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-3">Wait a minute!</h3>
+            <p id="funnyWarningText" class="text-sm font-medium text-gray-400 mb-6 leading-relaxed"></p>
+            <button onclick="closeFunnyModal()" class="w-full px-6 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-black shadow-md transition-colors bg-white hover:bg-gray-200">Fine</button>
         </div>
     </div>
 
-        <!-- Detailed Footer with Integrated Newsletter -->
-    <footer class="bg-[#fbfbfd] pt-20 pb-12 border-t border-gray-200 px-4 sm:px-6 relative overflow-hidden z-10 mt-auto">
-        <!-- Subtle Bottom Glow -->
-        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] bg-blue-400/20 rounded-full filter blur-[100px] pointer-events-none z-0"></div>
-
-        <div class="max-w-[1024px] mx-auto relative z-10">
-            <div class="bg-white rounded-[2.5rem] p-8 sm:p-12 mb-20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
+    <!-- Footer (Dark Theme) -->
+    <footer class="bg-[#050505] pt-20 pb-12 relative overflow-hidden z-10 mt-auto">
+        <div class="layout-width relative z-10">
+            <div class="bg-[#111] rounded-3xl p-8 sm:p-12 mb-20 border border-white/10 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16 shadow-lg">
                 <div class="text-center lg:text-left w-full lg:w-1/2 flex flex-col items-center lg:items-start">
-                    <div class="inline-flex items-center justify-center w-14 h-14 bg-[#f0f5ff] rounded-full mb-6">
-                        <i data-lucide="mail" class="w-6 h-6 text-[#2997ff]"></i>
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-white/5 border border-white/10 rounded-full mb-6">
+                        <i data-lucide="mail" class="w-6 h-6 text-myancode-accent"></i>
                     </div>
-                    <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-myancode-black mb-4" data-i18n="nlTitle">Stay Ahead of the Curve</h3>
-                    <p class="text-base text-gray-500 font-normal leading-relaxed max-w-md mx-auto lg:mx-0" data-i18n="nlDesc">Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.</p>
+                    <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-4" data-i18n="nlTitle">Stay Ahead of the Curve</h3>
+                    <p class="text-sm text-gray-400 font-medium leading-relaxed max-w-md mx-auto lg:mx-0" data-i18n="nlDesc">Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.</p>
                 </div>
                 <div class="w-full lg:w-1/2">
                     <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="w-full flex flex-col gap-3">
-                        <div class="relative flex items-center bg-white border border-gray-200 rounded-full p-1.5 shadow-sm transition-all focus-within:border-myancode-black focus-within:ring-1 focus-within:ring-myancode-black">
-                            <div class="pl-5 pr-3 text-gray-400 flex items-center justify-center pointer-events-none">
+                        <div class="relative flex items-center bg-[#0a0a0a] border border-white/10 rounded-full p-1.5 transition-all shadow-sm focus-within:border-myancode-accent">
+                            <div class="pl-5 pr-3 text-gray-500 flex items-center justify-center pointer-events-none">
                                 <i data-lucide="mail" class="w-5 h-5"></i>
                             </div>
-                            <input type="email" id="newsletterEmail" required class="w-full py-3.5 bg-transparent border-none outline-none text-sm font-medium text-myancode-black placeholder-gray-400 focus:ring-0" placeholder="Enter your email address" data-i18n-placeholder="nlPlaceholder">
-                            <button type="submit" id="btnSubscribe" class="bg-myancode-black text-white px-8 py-3.5 rounded-full text-sm font-bold tracking-wide hover:bg-gray-800 transition shadow-md flex items-center justify-center gap-2 btn-hover-effect whitespace-nowrap shrink-0">
+                            <input type="email" id="newsletterEmail" required class="w-full py-3.5 bg-transparent border-none outline-none text-sm font-medium text-white placeholder-gray-600 focus:ring-0" placeholder="Enter your email address" data-i18n-placeholder="nlPlaceholder">
+                            <button type="submit" id="btnSubscribe" class="bg-white text-black px-8 py-3.5 rounded-full text-sm font-bold tracking-wide hover:bg-gray-200 transition flex items-center justify-center gap-2 btn-hover-effect whitespace-nowrap shrink-0">
                                 <span data-i18n="btnSubscribe">Subscribe</span>
                             </button>
                         </div>
-                        <div class="cf-turnstile pl-2" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="light"></div>
+                        <div class="cf-turnstile pl-2" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="dark"></div>
                     </form>
-                    <p class="text-[11px] text-gray-400 mt-4 font-medium tracking-wide uppercase text-center lg:text-left lg:ml-6" data-i18n="nlDisclaimer">We respect your privacy. No spam, ever.</p>
+                    <p class="text-[11px] text-gray-500 mt-4 font-medium font-mono tracking-widest uppercase text-center lg:text-left lg:ml-6" data-i18n="nlDisclaimer">We respect your privacy. No spam, ever.</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-16 border-t border-gray-200 pt-16 mt-16">
+            <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-16 border-t border-white/10 pt-16 mt-16 font-display">
                 <div>
-                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftCompanyTitle">Company</h4>
-                    <ul class="space-y-2.5">
-                        <li><a href="./about-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAboutUs">About Us</a></li>
-                        <li><a href="./contact-us/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftContactUs">Contact Us</a></li>
-                        <li><a href="./updates-news/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftUpdates">Updates & News</a></li>
-                        <li><a href="./careers/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftCareers">Careers</a></li>
+                    <h4 class="text-[11px] font-bold font-mono text-white tracking-widest uppercase mb-4" data-i18n="ftCompanyTitle">Company</h4>
+                    <ul class="space-y-3">
+                        <li><a href="../about-us/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="ftAboutUs">About</a></li>
+                        <li><a href="../contact-us/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="ftContactUs">Contact Us</a></li>
+                        <li><a href="../updates-news/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="ftUpdates">Updates & News</a></li>
+                        <li><a href="../careers/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="ftCareers">Careers</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftStoreTitle">Store</h4>
-                    <ul class="space-y-2.5">
-                        <li><a href="./studio/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftAddOns">Add-Ons</a></li>
-                        <li><a href="./templates/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftTemplates">Templates</a></li>
-                        <li><a href="./services/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftServices">Services</a></li>
-                        <li><a href="./maintenance/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="ftMaintenance">Maintenance</a></li>
+                    <h4 class="text-[11px] font-bold font-mono text-white tracking-widest uppercase mb-4" data-i18n="ftStoreTitle">Store</h4>
+                    <ul class="space-y-3">
+                        <li><a href="../studio/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="ftAddOns">Add-Ons</a></li>
+                        <li><a href="../templates/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="ftTemplates">Templates</a></li>
+                        <li><a href="../services/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="ftServices">Services</a></li>
+                        <li><a href="../maintenance/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="ftMaintenance">Maintenance</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftSupportTitle">Support</h4>
-                    <ul class="space-y-2.5">
-                        <li><a href="./guides/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supGuides">Guides</a></li>
-                        <li><a href="./help/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supHelp">Help Center</a></li>
-                        <li><a href="./faq/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supFaq">FAQs</a></li>
-                        <li><a href="./about/" class="text-xs text-gray-500 hover:text-black transition-colors" data-i18n="supLegal">Legal</a></li>
+                    <h4 class="text-[11px] font-bold font-mono text-white tracking-widest uppercase mb-4" data-i18n="ftSupportTitle">Support</h4>
+                    <ul class="space-y-3">
+                        <li><a href="../guides/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="supGuides">Guides</a></li>
+                        <li><a href="../help/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="supHelp">Help Center</a></li>
+                        <li><a href="../faq/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="supFaq">FAQs</a></li>
+                        <li><a href="../legal/" class="text-xs font-medium text-gray-400 hover:text-myancode-accent transition-colors" data-i18n="supLegal">Legal</a></li>
                     </ul>
                 </div>
                 <div class="xs:col-span-2 md:col-span-1">
-                    <h4 class="text-[10px] sm:text-[11px] font-semibold text-myancode-black tracking-wider uppercase mb-3 sm:mb-4" data-i18n="ftFollow">Follow Us</h4>
-                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-3 leading-relaxed pr-4" data-i18n="ftFollowDesc">Keep up-to-date with our latest products and tech insights.</p>
-                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-3 leading-relaxed pr-4">contact@myancode.com</p>
-                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 mb-4 leading-relaxed pr-4">+959 4567 51 882</p>
-                    <div class="flex space-x-5">
-                        <a href="./comming-soon/" class="text-gray-400 hover:text-myancode-blue transition-colors btn-hover-effect" aria-label="Facebook">
+                    <h4 class="text-[11px] font-bold font-mono text-white tracking-widest uppercase mb-4" data-i18n="ftFollow">Follow Us</h4>
+                    <p class="text-[11px] font-medium text-gray-400 mb-3 leading-relaxed pr-4">contact@myancode.com</p>
+                    <p class="text-[11px] font-medium text-gray-400 mb-6 leading-relaxed pr-4">+959 4567 51 882</p>
+                    <div class="flex space-x-4">
+                        <a href="../comming-soon/" class="p-2 bg-white/5 rounded-full border border-white/10 text-gray-400 hover:text-myancode-accent hover:bg-white/10 transition-colors" aria-label="Facebook">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                         </a>
-                        <a href="./comming-soon/" class="text-gray-400 hover:text-pink-500 transition-colors btn-hover-effect" aria-label="Instagram">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                        <a href="../comming-soon/" class="p-2 bg-white/5 rounded-full border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-colors" aria-label="TikTok">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5v3a8 8 0 0 1-5-3v5.5a4 4 0 0 1-4 4Z"/></svg>
                         </a>
-                        <a href="./comming-soon/" class="text-gray-400 hover:text-blue-500 transition-colors btn-hover-effect" aria-label="LinkedIn">
+                        <a href="../comming-soon/" class="p-2 bg-white/5 rounded-full border border-white/10 text-gray-400 hover:text-myancode-accent hover:bg-white/10 transition-colors" aria-label="LinkedIn">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="border-t border-gray-200 pt-6 pb-2 flex justify-center items-center">
-                <p class="text-[10px] sm:text-[11px] text-gray-400 font-medium text-center tracking-wide" data-i18n="ftCopyright">&copy; 2026 MyanCode. All rights reserved. Engineered in Yangon.</p>
+            <div class="border-t border-white/10 pt-6 pb-2 flex justify-center items-center">
+                <p class="text-[11px] text-gray-500 font-mono tracking-widest text-center uppercase" data-i18n="ftCopyright">&copy; 2026 MyanCode Inc. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-black text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
-        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
+    <!-- Notification Toasts (Dark Theme) -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <div id="toastIconContainer" class="flex-shrink-0 flex items-center justify-center mr-3">
+            <i data-lucide="check-circle-2" class="h-5 w-5 text-green-400"></i>
+        </div>
         <span id="toast-msg" class="text-sm font-medium tracking-wide">Success!</span>
     </div>
-
-    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
-        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-white"></i>
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto">
+        <i data-lucide="alert-triangle" class="h-5 w-5 mr-3 text-red-500"></i>
         <span id="error-toast-msg" class="text-sm font-medium tracking-wide">Error!</span>
     </div>
 
     <script>
         lucide.createIcons();
 
+        // Consolidated Localization Dictionary ensuring specific features & templates logic is handled 
         const dict = {
             en: {
-                navStudio: "Studio", navWebsites: "Templates", navServices: "Services", navSupport: "Support",
-                langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
-                wishlistTitle: "My Wishlist", emptyWishlist: "Your wishlist is empty.", removeFromWishlist: "Remove", btnCart: "Cart", wlTotal: "Total", btnContact: "Proceed to Checkout",
-                quickLinks: "Quick Links", searchResults: "Results", searchHint: "Type to discover our enterprise products and services...",
+                navAbout: "About", navStudio: "Studio", navWebsites: "Templates", navServices: "Services", navSupport: "Support", navMaintenance: "Maintenance",
+                langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search directory...",
+                wishlistTitle: "Your Bag", emptyWishlist: "Your bag is empty.", removeFromWishlist: "Remove", btnCart: "Cart", wlTotal: "Est. Total", btnContact: "Proceed to Checkout",
+                quickLinks: "Quick Actions", searchResults: "Query Results", searchHint: "Type to discover our products and services...", searchLoading: "Searching across database...",
                 
-                ftCompanyTitle: "Company", ftAboutUs: "About Us", ftContactUs: "Contact Us", ftUpdates: "Updates & News", ftCareers: "Careers",
+                ftCompanyTitle: "Company", ftAboutUs: "About", ftContactUs: "Contact Us", ftUpdates: "Updates & News", ftCareers: "Careers",
                 ftStoreTitle: "Store", ftAddOns: "Add-Ons", ftTemplates: "Templates", ftServices: "Services", ftMaintenance: "Maintenance",
-                ftSupportTitle: "Support", supGuides: "Guides", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal", supContact: "Contact",
+                ftSupportTitle: "Support", supGuides: "Documentation", supHelp: "Help Center", supFaq: "FAQs", supLegal: "Legal", supContact: "Contact Sales",
                 supHelpTitle: "Explore Support", supPoliciesTitle: "Service Policies", supLegalTitle: "Legal & Transactions",
                 supPolicies: "Policies", polClient: "Customer Policy", polStudio: "Studio Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
                 
-                ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest products and tech insights.", ftCopyright: "© 2026 MyanCode Inc. All Rights Reserved.",
+                ftFollow: "Follow Us", ftFollowDesc: "Keep up-to-date with our latest products and tech insights.", ftCopyright: "© 2026 MyanCode Inc. All rights reserved.",
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrHub: "Hub", hdrLogout: "Sign Out", hdrWorkplace: "Workplace", msgLoggedOut: "Signed out securely.",
+                tradeInTitle: "Web Development", newArrivals: "Premium Templates", bulkTitle: "SEO Optimization",
                 
-                loadingInit: "Initializing Experience...", loadingAuth: "Authenticating...", loadingSec: "Preparing Interface...",
+                loadingInit: "Initializing Data...", loadingAuth: "Authenticating...", loadingSec: "Preparing Interface...",
                 
                 nlTitle: "Stay Ahead of the Curve", nlDesc: "Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.",
                 nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
@@ -595,10 +644,10 @@
                 cropTitle: "Crop Photo", cropCancel: "Cancel", cropSave: "Save"
             },
             mm: {
-                navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ",
-                langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
-                wishlistTitle: "သိမ်းဆည်းထားသော စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", btnCart: "ဝယ်ယူမည့်စာရင်း", wlTotal: "စုစုပေါင်း", btnContact: "ဝယ်ယူရန် ရှေ့ဆက်မည်",
-                quickLinks: "အမြန်လင့်ခ်များ", searchResults: "ရလဒ်များ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...",
+                navAbout: "ကျွန်ုပ်တို့အကြောင်း", navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ", navMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
+                langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "ရှာဖွေရန်...",
+                wishlistTitle: "မှာယူမည့်စာရင်း", emptyWishlist: "သင့်စာရင်းတွင် ဘာမျှမရှိသေးပါ။", removeFromWishlist: "ဖယ်ရှားမည်", btnCart: "မှာယူမည့်စာရင်း", wlTotal: "စုစုပေါင်း", btnContact: "ဝယ်ယူရန် ရှေ့ဆက်မည်",
+                quickLinks: "အမြန်လင့်ခ်များ", searchResults: "ရလဒ်များ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...", searchLoading: "ဒေတာဘေ့စ်တစ်ခုလုံးတွင် ရှာဖွေနေပါသည်...",
                 
                 ftCompanyTitle: "ကုမ္ပဏီ", ftAboutUs: "ကျွန်ုပ်တို့အကြောင်း", ftContactUs: "ဆက်သွယ်ရန်", ftUpdates: "သတင်းနှင့် အသစ်များ", ftCareers: "အလုပ်အကိုင်များ",
                 ftStoreTitle: "စတိုး", ftAddOns: "အပိုပစ္စည်းများ", ftTemplates: "ဝက်ဘ်ဆိုက်များ", ftServices: "ဝန်ဆောင်မှုများ", ftMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
@@ -606,8 +655,9 @@
                 supHelpTitle: "အကူအညီ ရယူရန်", supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ",
                 supPolicies: "မူဝါဒများ", polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
                 
-                ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။ ရန်ကုန်မြို့တွင် တည်ဆောက်သည်။",
+                ftFollow: "နောက်ဆုံးရသတင်းများ", ftFollowDesc: "ကျွန်ုပ်တို့၏ နောက်ဆုံးရ ပရောဂျက်များနှင့် နည်းပညာသတင်းများကို စောင့်ကြည့်လေ့လာပါ။", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။",
                 hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrHub: "ဗဟိုဌာန", hdrLogout: "အကောင့်ထွက်ရန်", hdrWorkplace: "လုပ်ငန်းခွင်", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
+                tradeInTitle: "ဝက်ဘ်ဆိုက် ရေးဆွဲခြင်း", newArrivals: "အကောင်းဆုံး ဒီဇိုင်းများ", bulkTitle: "SEO အဆင့်မြှင့်တင်ခြင်း",
                 
                 loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", loadingAuth: "အကောင့်စစ်ဆေးနေပါသည်...", loadingSec: "ပြင်ဆင်နေပါသည်...",
                 
@@ -679,11 +729,11 @@
                         window.location.href = '../login/';
                     } catch (e) {
                         document.body.innerHTML = `
-                            <div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-                                <i data-lucide="lock" class="h-12 w-12 text-gray-400 mb-4"></i>
-                                <h2 class="text-2xl font-bold text-gray-800 mb-2">Authentication Required</h2>
-                                <p class="text-gray-500 mb-6">You must be signed in to view your profile.</p>
-                                <a href="../login/" class="px-6 py-3 bg-blue-500 text-white rounded-full">Go to Login</a>
+                            <div class="min-h-screen flex flex-col items-center justify-center bg-[#050505] p-6 text-center">
+                                <i data-lucide="lock" class="h-12 w-12 text-gray-500 mb-4"></i>
+                                <h2 class="text-2xl font-bold text-white mb-2">Authentication Required</h2>
+                                <p class="text-gray-400 mb-6">You must be signed in to view your profile.</p>
+                                <a href="../login/" class="px-8 py-3.5 bg-white text-black font-bold uppercase tracking-widest text-[11px] rounded-full">Go to Login</a>
                             </div>
                         `;
                         lucide.createIcons();
@@ -725,55 +775,55 @@
             
             if (currentUser) {
                 const avatarIconHTML = currentUser.avatar_url 
-                    ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-gray-200" alt="Avatar">`
+                    ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10" alt="Avatar">`
                     : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>`;
                 
                 const mobileAvatarHTML = currentUser.avatar_url
-                    ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-gray-200 shadow-sm">`
-                    : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-blue"></i>`;
+                    ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-white/10 shadow-sm">`
+                    : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-accent"></i>`;
 
                 desktopAuth.innerHTML = `
                     <div class="relative" id="profileContainer">
-                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-blue group nav-icon text-myancode-black flex items-center justify-center">
+                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white flex items-center justify-center">
                             ${avatarIconHTML}
                         </button>
-                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-black">
-                            <div class="px-5 py-2 border-b border-gray-50 mb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">${currentUser.name}</div>
-                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
-                            ${currentUser.role === 'user' ? `<a href="../hub/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
-                            <button onclick="window.location.href='../profile/'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-myancode-blue transition-colors">${dict[currentLang].hdrProfile}</button>
-                            <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">${dict[currentLang].hdrLogout}</button>
+                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
+                            <div class="px-5 py-2 border-b border-white/10 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate">${currentUser.name}</div>
+                            ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
+                            ${currentUser.role === 'user' ? `<a href="../hub/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
+                            <button onclick="window.location.href='../profile/'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors">${dict[currentLang].hdrProfile}</button>
+                            <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">${dict[currentLang].hdrLogout}</button>
                         </div>
                     </div>
                 `;
                 containerMob.innerHTML = `
-                    <div class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide border-b border-gray-100 pb-6 mb-6">
-                        <span class="capitalize truncate max-w-[200px]">${currentUser.name}</span> 
+                    <div class="flex justify-between items-center w-full text-white hover:text-myancode-accent transition-colors text-base font-normal tracking-wide border-b border-white/10 pb-6 mb-6">
+                        <span class="capitalize truncate max-w-[200px] font-semibold">${currentUser.name}</span> 
                         ${mobileAvatarHTML}
                     </div>
-                    <div class="flex flex-col gap-6">
-                        ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
-                            <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-400"></i>
+                    <div class="flex flex-col gap-6 font-semibold text-white">
+                        ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="flex justify-between items-center w-full text-white hover:text-myancode-accent transition-colors">
+                            <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-500"></i>
                         </a>` : ''}
-                        ${currentUser.role === 'user' ? `<a href="../hub/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
-                            <span>${dict[currentLang].hdrHub}</span> <i data-lucide="package" class="h-5 w-5 text-gray-400"></i>
+                        ${currentUser.role === 'user' ? `<a href="../hub/" class="flex justify-between items-center w-full text-white hover:text-myancode-accent transition-colors">
+                            <span>${dict[currentLang].hdrHub}</span> <i data-lucide="package" class="h-5 w-5 text-gray-500"></i>
                         </a>` : ''}
-                        <button onclick="window.location.href='../profile/'" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-400"></i></button>
-                        <button onclick="handleLogout()" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5 text-gray-400"></i></button>
+                        <button onclick="window.location.href='../profile/'" class="flex justify-between items-center w-full text-white hover:text-myancode-accent transition-colors"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-500"></i></button>
+                        <button onclick="handleLogout()" class="flex justify-between items-center w-full text-white hover:text-myancode-accent transition-colors text-red-400"><span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5 text-red-400"></i></button>
                     </div>
                 `;
             } else {
                 desktopAuth.innerHTML = `
-                    <a href="../login/" class="text-xs sm:text-sm font-medium hover:text-myancode-blue transition-colors nav-link text-myancode-black px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
-                    <a href="../register/" class="text-xs sm:text-sm font-semibold bg-myancode-blue text-white px-5 py-2 rounded-full hover:bg-blue-600 transition-all shadow-sm btn-hover-effect whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+                    <a href="../login/" class="text-sm font-bold hover:text-myancode-accent transition-colors nav-link text-white px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
+                    <a href="../register/" class="text-sm font-bold bg-white text-black px-6 py-2.5 rounded-full hover:bg-gray-200 transition-all shadow-sm btn-hover-effect border border-transparent whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
                 
                 containerMob.innerHTML = `
-                    <div class="flex flex-col gap-6">
-                        <a href="../login/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
-                            <span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-400"></i>
+                    <div class="flex flex-col gap-6 font-semibold text-white">
+                        <a href="../login/" class="flex justify-between items-center w-full text-white hover:text-myancode-accent transition-colors text-base tracking-wide">
+                            <span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-500"></i>
                         </a>
-                        <a href="../register/" class="flex justify-between items-center w-full text-myancode-black hover:text-myancode-blue transition-colors text-base font-normal tracking-wide">
-                            <span>${dict[currentLang].hdrRegister}</span> <i data-lucide="user-plus" class="h-5 w-5 text-gray-400"></i>
+                        <a href="../register/" class="flex justify-between items-center w-full text-white hover:text-myancode-accent transition-colors text-base tracking-wide">
+                            <span>${dict[currentLang].hdrRegister}</span> <i data-lucide="user-plus" class="h-5 w-5 text-gray-500"></i>
                         </a>
                     </div>
                 `;
@@ -788,8 +838,8 @@
             document.querySelectorAll('.nav-link[data-nav-path]').forEach(link => {
                 const path = link.getAttribute('data-nav-path');
                 if (path !== '/' && currentPath.includes(path)) {
-                    link.classList.add('text-myancode-blue', 'font-bold', 'active-nav-item');
-                    link.classList.remove('hover:text-myancode-blue', 'text-white/80', 'text-white/90', 'text-myancode-black/80', 'text-myancode-black');
+                    link.classList.add('text-myancode-accent', 'font-bold', 'active-nav-item');
+                    link.classList.remove('hover:text-myancode-accent', 'text-white/80', 'text-white/90', 'text-myancode-black/80', 'text-myancode-black', 'text-white');
                 }
             });
         }
@@ -824,8 +874,8 @@
             cancelBtn.innerText = currentLang === 'en' ? 'Cancel' : 'ပယ်ဖျက်မည်';
             
             checkboxText.innerHTML = currentLang === 'en' 
-                ? 'I have read the <a href="../comming-soon/" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">Terms and Conditions</a>. I understand that all my data will be permanently deleted and this action cannot be undone.'
-                : '<a href="../comming-soon/" class="underline font-bold hover:text-red-900 transition-colors" onclick="event.stopPropagation()">စည်းမျဉ်းစည်းကမ်းများ</a>ကို ကျွန်ုပ်ဖတ်ပြီးပါပြီ။ ကျွန်ုပ်၏ အချက်အလက်များအားလုံးကို အပြီးအပိုင်ဖျက်ပစ်မည်ဖြစ်ပြီး ပြန်လည်ရယူ၍မရနိုင်ကြောင်း နားလည်သဘောပေါက်ပါသည်။';
+                ? 'I have read the <a href="../comming-soon/" class="underline font-bold hover:text-red-300 transition-colors" onclick="event.stopPropagation()">Terms and Conditions</a>. I understand that all my data will be permanently deleted and this action cannot be undone.'
+                : '<a href="../comming-soon/" class="underline font-bold hover:text-red-300 transition-colors" onclick="event.stopPropagation()">စည်းမျဉ်းစည်းကမ်းများ</a>ကို ကျွန်ုပ်ဖတ်ပြီးပါပြီ။ ကျွန်ုပ်၏ အချက်အလက်များအားလုံးကို အပြီးအပိုင်ဖျက်ပစ်မည်ဖြစ်ပြီး ပြန်လည်ရယူ၍မရနိုင်ကြောင်း နားလည်သဘောပေါက်ပါသည်။';
 
             checkbox.checked = false;
             textInput.value = '';
@@ -865,14 +915,14 @@
             validateBtn();
 
             if (type === 'danger') {
-                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6';
-                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-8 w-8 text-red-600"></i>';
-                btn.className = 'flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-red-600 hover:bg-red-700';
+                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6';
+                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-8 w-8 text-red-500"></i>';
+                btn.className = 'flex-1 px-6 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700';
                 btn.innerText = currentLang === 'en' ? 'Delete Permanently' : 'အပြီးအပိုင်ဖျက်မည်';
             } else {
-                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-6';
-                iconContainer.innerHTML = '<i data-lucide="info" class="h-8 w-8 text-myancode-blue"></i>';
-                btn.className = 'flex-1 px-6 py-3.5 rounded-full text-sm font-semibold text-white shadow-md transition-colors bg-myancode-black hover:bg-gray-800';
+                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-white/10 border border-white/20 mb-6';
+                iconContainer.innerHTML = '<i data-lucide="info" class="h-8 w-8 text-white"></i>';
+                btn.className = 'flex-1 px-6 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-black shadow-md transition-colors bg-white hover:bg-gray-200';
                 btn.innerText = currentLang === 'en' ? 'Confirm' : 'အတည်ပြုမည်';
             }
             
@@ -1013,7 +1063,7 @@
             const canvas = cropperInstance.getCroppedCanvas({
                 width: 256,
                 height: 256,
-                fillColor: '#fff' 
+                fillColor: '#0a0a0a' 
             });
             
             const base64Avatar = canvas.toDataURL('image/jpeg', 0.8);
@@ -1156,7 +1206,7 @@
                 const { error } = await supabaseInstance.auth.updateUser({
                     data: { wishlist: currentUserWishlist }
                 });
-                if (error) console.error("Error syncing wishlist:", error);
+                if (error) console.error("Error syncing bag:", error);
             }
         }
 
@@ -1181,18 +1231,18 @@
             const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal');
             let total = 0;
             if (currentUserWishlist.length === 0) {
-                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400"><i data-lucide="heart" class="h-12 w-12 mb-4 opacity-50"></i><p class="text-sm font-medium tracking-wide">${dict[currentLang].emptyWishlist}</p></div>`;
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500"><i data-lucide="shopping-bag" class="h-12 w-12 mb-4 opacity-50"></i><p class="text-sm font-medium tracking-wide">${dict[currentLang].emptyWishlist}</p></div>`;
                 totalDisplay.textContent = `0 MMK`; lucide.createIcons(); return;
             }
             container.innerHTML = currentUserWishlist.map(item => {
                 total += item.price;
                 return `
-                <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-center p-4 bg-[#111] border border-white/10 rounded-2xl shadow-sm hover:shadow-[0_4px_12px_rgba(255,255,255,0.05)] transition-shadow">
                     <div>
-                        <h4 class="font-semibold text-sm mb-1">${dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name}</h4>
-                        <span class="text-xs font-medium text-gray-500">${item.price.toLocaleString()} MMK</span>
+                        <h4 class="font-bold text-sm mb-1 text-white">${dict[currentLang][item.id === 'prod1' ? 'prod1Title' : item.id === 'prod2' ? 'prod2Title' : 'prod3Title'] || item.name}</h4>
+                        <span class="text-xs font-bold text-gray-400">${item.price.toLocaleString()} MMK</span>
                     </div>
-                    <button onclick="toggleWishlist('${item.id}', '${item.name}', ${item.price})" class="text-xs text-red-500 hover:text-red-700 font-medium tracking-wide p-2 bg-red-50 rounded-lg transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-[11px] font-bold tracking-wider text-red-400 hover:text-red-300 p-2.5 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors uppercase">${dict[currentLang].removeFromWishlist}</button>
                 </div>
             `}).join('');
             totalDisplay.textContent = `${total.toLocaleString()} MMK`;
@@ -1205,10 +1255,10 @@
             
             if (index > -1) { 
                 currentUserWishlist.splice(index, 1); 
-                showToast(currentLang === 'en' ? "Removed from wishlist" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); 
+                showToast(currentLang === 'en' ? "Removed from bag" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); 
             } else { 
                 currentUserWishlist.push({ id, name, price }); 
-                showToast(currentLang === 'en' ? "Added to wishlist" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); 
+                showToast(currentLang === 'en' ? "Added to bag" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); 
             }
             
             syncWishlistToSupabase();
@@ -1216,7 +1266,7 @@
         }
 
         async function handleLogout() {
-            showLoader('loadingAuth');
+            showLoader('loadingInit');
             if (supabaseInstance) await supabaseInstance.auth.signOut();
             try {
                 window.location.href = '../';
@@ -1252,10 +1302,10 @@
             const nav = document.getElementById('mainNav');
             const scrollThreshold = 10;
             if (window.scrollY > scrollThreshold) {
-                nav.classList.add('glass-nav');
+                nav.classList.add('glass-nav-dark');
                 nav.classList.remove('nav-transparent', 'border-transparent');
             } else {
-                nav.classList.remove('glass-nav');
+                nav.classList.remove('glass-nav-dark');
                 nav.classList.add('nav-transparent', 'border-transparent');
             }
         });
@@ -1286,7 +1336,7 @@
         function toggleSearchOverlay() {
             const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
             if(overlay.classList.contains('open')) { document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); } 
-            else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`; }, 400); }
+            else { document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint}</p>`; }, 400); }
         }
 
         function getSimilarityScore(a, b) {
@@ -1347,13 +1397,13 @@
 
             if (!query) {
                 clearTimeout(searchDebounceTimer);
-                resultsContainer.innerHTML = `<p class="text-gray-400 text-sm font-light italic">${dict[currentLang].searchHint}</p>`;
+                resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint}</p>`;
                 return;
             }
 
             resultsContainer.innerHTML = `
                 <div class="flex justify-center py-6">
-                    <i data-lucide="loader-2" class="h-6 w-6 animate-spin text-myancode-blue"></i>
+                    <i data-lucide="loader-2" class="h-6 w-6 animate-spin text-white"></i>
                 </div>`;
             lucide.createIcons();
 
@@ -1463,7 +1513,7 @@
                                             desc_en: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_en || 'Premium Website Template'}`, 
                                             desc_mm: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_mm || 'အဆင့်မြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းပုံစံ'}`,
                                             url: `../template-detail/?product=${productSlug}`, action: null,
-                                            score: 1000 - score 
+                                            score: 1000 - score
                                         });
                                     }
                                 });
@@ -1481,10 +1531,10 @@
 
                 if (combined.length === 0) {
                     resultsContainer.innerHTML = `
-                        <div class="py-8 text-center">
-                            <i data-lucide="search-x" class="h-10 w-10 text-gray-300 mx-auto mb-3"></i>
-                            <p class="text-gray-500 text-sm font-medium tracking-wide">${currentLang === 'en' ? 'No exact results found for' : 'ရလဒ်မတွေ့ပါ'} "<span class="text-black">${e.target.value}</span>"</p>
-                            <p class="text-xs text-gray-400 mt-2">Try searching for keywords like "Business", "Studio", "Policy" or "SEO"</p>
+                        <div class="py-8 text-center border border-white/10 bg-[#111] rounded-2xl">
+                            <i data-lucide="search-x" class="h-8 w-8 text-gray-500 mx-auto mb-3"></i>
+                            <p class="text-white text-sm tracking-wide font-medium mb-1">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p>
+                            <p class="text-xs text-gray-500 tracking-wide">Try searching for alternative keywords.</p>
                         </div>`;
                     lucide.createIcons();
                     return;
@@ -1512,32 +1562,32 @@
                     const items = grouped[type];
                     html += `
                     <div class="mb-8 last:mb-0 reveal active">
-                        <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            ${type} <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[9px]">${items.length}</span>
+                        <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            ${type} <span class="bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded-full text-[9px]">${items.length}</span>
                         </h4>
-                        <div class="grid grid-cols-1 gap-3">`;
+                        <div class="grid grid-cols-1 gap-2">`;
                     
                     html += items.map(item => {
                         const title = currentLang === 'en' ? item.name : item.mm;
                         const desc = currentLang === 'en' ? (item.desc_en || '') : (item.desc_mm || item.desc_en || '');
-                        const fallbackImg = 'https://placehold.co/150x150/ffffff/6e6e73?text=Image';
+                        const fallbackImg = 'https://placehold.co/150x150/111111/444444?text=IMG';
                         
                         let finalImgUrl = item.image || fallbackImg;
                         if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', '../');
 
                         const imgBlock = item.image 
-                            ? `<div class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg mr-4 overflow-hidden shadow-sm flex-shrink-0 group-hover:shadow-md transition-all group-hover:scale-105 z-10 border border-gray-100"><img src="${finalImgUrl}" class="w-full h-full object-cover" onerror="this.src='${fallbackImg}'"></div>`
-                            : `<div class="p-3 bg-white rounded-xl shadow-sm mr-4 group-hover:bg-myancode-black group-hover:text-white transition-colors duration-300 transform group-hover:scale-105 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-4 w-4 sm:h-5 sm:w-5"></i></div>`;
+                            ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>`
+                            : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-5 w-5"></i></div>`;
 
                         return `
-                        <a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 sm:p-4 bg-gray-50 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                        <a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">
                             ${imgBlock}
                             <div class="flex-1 min-w-0 z-10">
-                                <h5 class="text-sm font-bold text-myancode-black group-hover:text-myancode-blue transition-colors truncate">${title}</h5>
-                                ${desc ? `<p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${desc}</p>` : ''}
+                                <h5 class="text-sm font-bold font-display tracking-tight text-white group-hover:text-myancode-accent transition-colors truncate">${title}</h5>
+                                ${desc ? `<p class="text-[11px] font-medium text-gray-400 line-clamp-1 mt-0.5">${desc}</p>` : ''}
                             </div>
-                            <div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-myancode-blue transition-colors z-10 opacity-0 sm:opacity-100">
-                                <i data-lucide="chevron-right" class="h-4 w-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0"></i>
+                            <div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-myancode-accent transition-colors z-10 opacity-0 sm:opacity-100">
+                                <i data-lucide="arrow-right" class="h-4 w-4 ml-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i>
                             </div>
                         </a>`;
                     }).join('');
@@ -1548,7 +1598,7 @@
                 resultsContainer.innerHTML = html;
                 lucide.createIcons();
 
-            }, 300);
+            }, 300); 
         }
 
         async function handleSubscribe(e) {
@@ -1564,7 +1614,7 @@
             if (!email) return;
 
             btn.disabled = true; const originalBtnText = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`;
             lucide.createIcons();
 
             try {
