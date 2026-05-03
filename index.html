@@ -21,79 +21,112 @@ body{
 }
 
 .container{
-    max-width:640px;
+    max-width:620px;
     padding:40px;
     text-align:center;
 }
 
 .brand{
     font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    letter-spacing:1.6px;
-    opacity:.6;
+    font-size:11px;
+    letter-spacing:1.8px;
+    opacity:.5;
     margin-bottom:28px;
 }
 
 h1{
-    font-size:34px;
+    font-size:32px;
     font-weight:500;
     letter-spacing:.8px;
-    margin-bottom:18px;
+    margin-bottom:16px;
 }
 
 p{
     font-size:13px;
     font-weight:300;
     line-height:1.9;
-    opacity:.65;
+    opacity:.6;
     margin-bottom:26px;
 }
 
 .divider{
-    width:48px;
+    width:44px;
     height:1px;
     background:#fff;
-    opacity:.25;
-    margin:28px auto;
+    opacity:.2;
+    margin:26px auto;
 }
 
-.section-title{
+.countdown{
     font-family:'JetBrains Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:1.5px;
-    opacity:.5;
-    margin-bottom:10px;
+    font-size:18px;
+    letter-spacing:2px;
+    margin-top:10px;
+    opacity:.8;
 }
 
-.meta{
-    margin-top:30px;
-    font-size:12px;
-    line-height:1.8;
-    opacity:.55;
+.countdown-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:1.6px;
+    opacity:.4;
+    margin-top:6px;
 }
 
 .status{
     margin-top:22px;
     font-family:'JetBrains Mono',monospace;
     font-size:11px;
-    letter-spacing:1.5px;
+    letter-spacing:1.6px;
     opacity:.5;
 }
 
+.meta{
+    margin-top:26px;
+    font-size:11.5px;
+    line-height:1.9;
+    opacity:.5;
+}
+
+.statement{
+    margin-top:24px;
+    font-size:12.5px;
+    line-height:1.9;
+    opacity:.7;
+}
+
+.toggle{
+    margin-top:26px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:1.6px;
+    opacity:.5;
+    cursor:pointer;
+    display:inline-block;
+    border:1px solid rgba(255,255,255,0.2);
+    padding:8px 14px;
+    transition:.3s;
+}
+
+.toggle:hover{
+    opacity:.8;
+    border-color:rgba(255,255,255,0.4);
+}
+
 .dot{
-    width:4px;
-    height:4px;
+    width:3px;
+    height:3px;
     background:#fff;
     border-radius:50%;
-    margin:24px auto 0;
-    opacity:.25;
+    margin:22px auto 0;
+    opacity:.2;
     animation:fade 2s infinite;
 }
 
 .fade{
     opacity:0;
-    transform:translateY(8px);
-    animation:in .9s ease forwards;
+    transform:translateY(6px);
+    animation:in .8s ease forwards;
 }
 
 .fade.d1{animation-delay:.2s}
@@ -102,14 +135,16 @@ p{
 .fade.d4{animation-delay:.8s}
 .fade.d5{animation-delay:1s}
 .fade.d6{animation-delay:1.2s}
+.fade.d7{animation-delay:1.4s}
+.fade.d8{animation-delay:1.6s}
 
 @keyframes in{
     to{opacity:1;transform:translateY(0)}
 }
 
 @keyframes fade{
-    0%,100%{opacity:.15}
-    50%{opacity:.5}
+    0%,100%{opacity:.1}
+    50%{opacity:.4}
 }
 </style>
 </head>
@@ -120,42 +155,92 @@ p{
 
     <div class="brand fade">&lt;/&gt; MyanCode</div>
 
-    <h1 class="fade d1">Service Temporarily Unavailable</h1>
+    <h1 class="fade d1" id="title">Service Temporarily Unavailable</h1>
 
-    <p class="fade d2">
-        The system is currently undergoing scheduled maintenance and internal optimization.
-        Access has been temporarily suspended.
+    <p class="fade d2" id="desc">
+        The system is undergoing scheduled maintenance and internal optimization.
+        Access is temporarily suspended.
     </p>
 
     <div class="divider fade d3"></div>
 
-    <div class="section-title fade d4">SYSTEM NOTICE</div>
+    <div class="countdown fade d4" id="countdown">-- : -- : -- : --</div>
+    <div class="countdown-label fade d4" id="cdlabel">REMAINING UNTIL RESTORATION</div>
 
-    <p class="fade d5">
-        We regret any inconvenience caused and appreciate your patience while service is being restored.
-    </p>
+    <div class="statement fade d5" id="statement">
+        We sincerely apologize for the inconvenience. This maintenance is essential to ensure a higher standard of performance, reliability, and security.
+    </div>
 
-    <div class="status fade d6">
+    <div class="status fade d6" id="status">
         STATUS — MAINTENANCE IN PROGRESS
     </div>
 
-    <div class="meta fade d6">
+    <div class="meta fade d7" id="meta">
         Founder — Htet Zaw Paing<br>
-        contact@htetzawpaing.site<br>
-        +959456751882
+        Mail - contact@htetzawpaing.site<br>
+        Phone - +959456751882
     </div>
+
+    <div class="toggle fade d8" onclick="toggleLang()">မြန်မာ / EN</div>
 
     <div class="dot"></div>
 
 </div>
 
 <script>
-const el=document.querySelector('.status')
-let d=0
-setInterval(()=>{
-d=(d+1)%4
-el.textContent="STATUS — MAINTENANCE IN PROGRESS"+".".repeat(d)
-},600)
+const target=new Date("May 30, 2026 00:00:00").getTime()
+const el=document.getElementById("countdown")
+
+function update(){
+    const now=new Date().getTime()
+    const diff=target-now
+    if(diff<=0){
+        el.textContent="00 : 00 : 00 : 00"
+        return
+    }
+    const d=Math.floor(diff/(1000*60*60*24))
+    const h=Math.floor((diff%(1000*60*60*24))/(1000*60*60))
+    const m=Math.floor((diff%(1000*60*60))/(1000*60))
+    const s=Math.floor((diff%(1000*60))/1000)
+
+    el.textContent=
+        String(d).padStart(2,"0")+" : "+
+        String(h).padStart(2,"0")+" : "+
+        String(m).padStart(2,"0")+" : "+
+        String(s).padStart(2,"0")
+}
+setInterval(update,1000)
+update()
+
+let mm=false
+
+function toggleLang(){
+    mm=!mm
+
+    document.getElementById("title").textContent = mm
+    ? "ဝန်ဆောင်မှု ယာယီ မရရှိနိုင်ပါ"
+    : "Service Temporarily Unavailable"
+
+    document.getElementById("desc").textContent = mm
+    ? "စနစ်ကို ပြုပြင်ထိန်းသိမ်းမှုနှင့် အတွင်းပိုင်း တိုးတက်အောင် ပြုလုပ်နေပါသည်။ အသုံးပြုမှုကို ယာယီ ရပ်ဆိုင်းထားပါသည်။"
+    : "The system is undergoing scheduled maintenance and internal optimization. Access is temporarily suspended."
+
+    document.getElementById("cdlabel").textContent = mm
+    ? "ပြန်လည်ရရှိရန် ကျန်ရှိသောအချိန်"
+    : "REMAINING UNTIL RESTORATION"
+
+    document.getElementById("status").textContent = mm
+    ? "အခြေအနေ — ပြုပြင်ထိန်းသိမ်းနေသည်"
+    : "STATUS — MAINTENANCE IN PROGRESS"
+
+    document.getElementById("statement").textContent = mm
+    ? "အဆင်မပြေမှုများအတွက် စိတ်မကောင်းပါ။ စနစ်၏ စွမ်းဆောင်ရည်နှင့် လုံခြုံရေးကို မြှင့်တင်ရန် လိုအပ်သော ပြုပြင်ထိန်းသိမ်းမှု ဖြစ်ပါသည်။ — တည်ထောင်သူ"
+    : "We sincerely apologize for the inconvenience. This maintenance is essential to ensure a higher standard of performance, reliability, and security. — Founder"
+
+    document.getElementById("meta").innerHTML = mm
+    ? "Htet Zaw Paing<br>contact@htetzawpaing.site<br>+959456751882"
+    : "Htet Zaw Paing<br>contact@htetzawpaing.site<br>+959456751882"
+}
 </script>
 
 </body>
