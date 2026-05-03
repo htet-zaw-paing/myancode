@@ -612,6 +612,7 @@
                 orDivider: "OR", 
                 btnGoogleLogin: "Continue with Google",
                 btnGithubLogin: "Continue with GitHub",
+                errProviderCollision: "This email is already registered with another provider (e.g., Google or Email). Please sign in using your original method.",
                 
                 nlTitle: "Stay Ahead of the Curve", nlDesc: "Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.",
                 nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
@@ -650,6 +651,7 @@
                 orDivider: "သို့မဟုတ်", 
                 btnGoogleLogin: "Google ဖြင့် ဝင်ရောက်မည်",
                 btnGithubLogin: "GitHub ဖြင့် ဝင်ရောက်မည်",
+                errProviderCollision: "ဤအီးမေးလ်အား အခြားနည်းလမ်း (ဥပမာ- Google သို့မဟုတ် အီးမေးလ်) ဖြင့် စာရင်းသွင်းထားပြီးဖြစ်သည်။ မူလနည်းလမ်းဖြင့် ဝင်ရောက်ပါ။",
                 
                 nlTitle: "သတင်းအသစ်များ ရယူရန်", nlDesc: "နောက်ဆုံးရ နည်းပညာသတင်းများနှင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းအသစ်များကို ရယူရန် သင်၏ အီးမေးလ်ကို စာရင်းသွင်းပါ။",
                 nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", nlDisclaimer: "သင်၏ အချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။",
@@ -666,10 +668,23 @@
         const currentUrlStr = window.location.href;
         const hashStr = window.location.hash;
         
-        const isAuthFlow = currentUrlStr.includes('access_token=') || 
+        // ==========================================
+        // SYNCHRONOUS OAUTH ERROR CATCHER
+        // We must grab the hash immediately before Supabase's internal scripts 
+        // parse and strip it from the URL.
+        // ==========================================
+        let capturedOauthError = null;
+        if (hashStr.includes('error=') || currentUrlStr.includes('error=')) {
+            const hParams = new URLSearchParams(hashStr.replace('#', '?'));
+            const sParams = new URLSearchParams(window.location.search);
+            capturedOauthError = hParams.get('error_description') || sParams.get('error_description') || hParams.get('error') || sParams.get('error');
+        }
+
+        const isAuthFlow = !capturedOauthError && (
+                           currentUrlStr.includes('access_token=') || 
                            currentUrlStr.includes('type=invite') || 
                            currentUrlStr.includes('type=recovery') || 
-                           currentUrlStr.includes('code=');
+                           currentUrlStr.includes('code='));
 
         if (isAuthFlow) {
             document.addEventListener('DOMContentLoaded', () => {
@@ -678,6 +693,27 @@
                 showLoader('loadingAuth'); 
             });
         }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (capturedOauthError) {
+                let customErrorMsg = decodeURIComponent(capturedOauthError).replace(/\+/g, ' ');
+                // Match Supabase's specific collision error messages
+                if (customErrorMsg.toLowerCase().includes('already registered') || 
+                    customErrorMsg.toLowerCase().includes('different credential') || 
+                    customErrorMsg.toLowerCase().includes('database error saving new user') ||
+                    customErrorMsg.toLowerCase().includes('user exists')) {
+                    customErrorMsg = dict[currentLang].errProviderCollision;
+                }
+                
+                setTimeout(() => {
+                    hideLoader();
+                    showErrorToast(customErrorMsg);
+                    history.replaceState(null, null, window.location.pathname);
+                    const formEl = document.getElementById('loginFormContainer');
+                    if(formEl) formEl.style.display = 'block';
+                }, 500);
+            }
+        });
 
         const SUPABASE_URL = 'https://siusyyleokowlfcdiocd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpdXN5eWxlb2tvd2xmY2Rpb2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjUwOTEsImV4cCI6MjA4ODYwMTA5MX0.TUjfJhT5ED5xTjliuKiFr1asiQ9Rkh9DFw_l65Tkl9k';
@@ -692,62 +728,69 @@
                 if (isUpdatingPassword) return;
                 
                 if (session) {
-                    const userRole = session.user?.user_metadata?.role;
-
                     if (currentUrlStr.includes('type=recovery')) {
                         currentUser = {
                             name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
                             email: session.user.email,
                             id: session.user.id,
                             avatar_url: session.user.user_metadata?.avatar_url || null,
-                            role: userRole || 'user'
+                            role: 'user' // Temporary fallback until async DB call
                         };
                         updateAuthUI();
-                        hideLoader();
+                        if(!capturedOauthError) hideLoader();
                         setTimeout(() => openRecoveryModal(), 400);
                         return;
                     }
 
                     const isInvite = currentUrlStr.includes('type=invite') || hashStr.includes('type=invite');
                     const isAuthRedirect = hashStr.includes('access_token=') || hashStr.includes('provider=google') || hashStr.includes('provider=github');
-                    const destination = (userRole === 'admin' || userRole === 'super-admin') ? '../admin-dashboard/' : '../';
 
-                    if (event === 'SIGNED_IN' || isAuthRedirect || isInvite) {
-                        const formEl = document.getElementById('loginFormContainer');
-                        if(formEl) formEl.style.display = 'none';
-                        
-                        showLoader('redirectingHome');
-                        
-                        setTimeout(() => { 
-                            if (isInvite && (userRole === 'admin' || userRole === 'super-admin')) {
-                                window.location.replace(destination + '#type=invite');
+                    // ==========================================
+                    // UPDATED: FETCH REAL ROLE FROM public.users
+                    // ==========================================
+                    supabaseInstance.from('users').select('role').eq('id', session.user.id).single()
+                        .then(({data, error}) => {
+                            const realRole = data?.role || 'customer';
+                            const destination = (realRole === 'admin' || realRole === 'super-admin') ? '../admin-dashboard/' : '../';
+
+                            if (event === 'SIGNED_IN' || isAuthRedirect || isInvite) {
+                                const formEl = document.getElementById('loginFormContainer');
+                                if(formEl) formEl.style.display = 'none';
+                                
+                                if(!capturedOauthError) showLoader('redirectingHome');
+                                
+                                setTimeout(() => { 
+                                    if (isInvite && (realRole === 'admin' || realRole === 'super-admin')) {
+                                        window.location.replace(destination + '#type=invite');
+                                    } else {
+                                        window.location.replace(destination);
+                                    }
+                                }, 800);
+                                return; 
                             } else {
-                                window.location.replace(destination);
+                                currentUser = {
+                                    name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                                    email: session.user.email,
+                                    id: session.user.id,
+                                    avatar_url: session.user.user_metadata?.avatar_url || null,
+                                    role: realRole
+                                };
+                                currentUserCart = session.user.user_metadata?.wishlist || [];
+                                
+                                const formEl = document.getElementById('loginFormContainer');
+                                const loggedInState = document.getElementById('alreadyLoggedInState');
+                                
+                                if(formEl) formEl.style.display = 'none';
+                                if(loggedInState) {
+                                    if(!capturedOauthError) hideLoader();
+                                    loggedInState.classList.remove('hidden');
+                                    loggedInState.classList.add('flex');
+                                } else {
+                                    window.location.replace(destination);
+                                }
+                                updateAuthUI();
                             }
-                        }, 800);
-                        return; 
-                    } else {
-                        currentUser = {
-                            name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
-                            email: session.user.email,
-                            id: session.user.id,
-                            avatar_url: session.user.user_metadata?.avatar_url || null,
-                            role: userRole || 'user'
-                        };
-                        currentUserCart = session.user.user_metadata?.wishlist || [];
-                        
-                        const formEl = document.getElementById('loginFormContainer');
-                        const loggedInState = document.getElementById('alreadyLoggedInState');
-                        
-                        if(formEl) formEl.style.display = 'none';
-                        if(loggedInState) {
-                            hideLoader();
-                            loggedInState.classList.remove('hidden');
-                            loggedInState.classList.add('flex');
-                        } else {
-                            window.location.replace(destination);
-                        }
-                    }
+                        });
 
                 } else {
                     currentUser = null;
@@ -761,13 +804,13 @@
                             loggedInState.classList.remove('flex');
                         }
                         updateAuthUI();
-                        hideLoader();
+                        if (!capturedOauthError) hideLoader();
                     } else {
                         setTimeout(() => {
                             const formEl = document.getElementById('loginFormContainer');
                             if (formEl && formEl.style.display === 'none') {
                                 formEl.style.display = 'block';
-                                hideLoader();
+                                if (!capturedOauthError) hideLoader();
                                 showErrorToast(currentLang === 'en' ? "Session expired or invalid link." : "လင့်ခ် သက်တမ်းကုန်သွားပါပြီ။");
                             }
                         }, 4000);
@@ -824,7 +867,7 @@
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-48 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
                             <div class="px-5 py-2 border-b border-white/10 mb-1 text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate">${currentUser.name}</div>
                             ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block">${dict[currentLang].hdrWorkplace}</a>` : ''}
-                            ${currentUser.role === 'user' ? `<a href="../hub/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
+                            ${currentUser.role === 'customer' || currentUser.role === 'user' ? `<a href="../hub/" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block">${dict[currentLang].hdrHub}</a>` : ''}
                             <button onclick="window.location.href='../profile/'" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors">${dict[currentLang].hdrProfile}</button>
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors">${dict[currentLang].hdrLogout}</button>
                         </div>
@@ -839,7 +882,7 @@
                         ${currentUser.role === 'admin' || currentUser.role === 'super-admin' ? `<a href="../admin-dashboard/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors">
                             <span>${dict[currentLang].hdrWorkplace}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-500"></i>
                         </a>` : ''}
-                        ${currentUser.role === 'user' ? `<a href="../hub/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors">
+                        ${currentUser.role === 'customer' || currentUser.role === 'user' ? `<a href="../hub/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors">
                             <span>${dict[currentLang].hdrHub}</span> <i data-lucide="package" class="h-5 w-5 text-gray-500"></i>
                         </a>` : ''}
                         <button onclick="window.location.href='../profile/'" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors"><span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-500"></i></button>
@@ -1408,7 +1451,10 @@
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                        redirectTo: window.location.origin + window.location.pathname
+                        redirectTo: window.location.origin + window.location.pathname,
+                        queryParams: {
+                            prompt: 'select_account' // Forces the user to pick an account so it doesn't auto-login to a wrong one
+                        }
                     }
                 });
                 if (error) throw error;

@@ -1054,8 +1054,7 @@
                                     <option value="all" data-i18n="fltAllUsers">All Accounts</option>
                                     <option value="super-admin" data-i18n="fltSuperAdmins">Super Admins Only</option>
                                     <option value="admin" data-i18n="fltAdmins">Admins Only</option>
-                                    <option value="pending" data-i18n="fltPendingAdmins">Pending Admins</option>
-                                    <option value="customer" data-i18n="fltStandardUsers">Customers</option>
+                                    <option value="user" data-i18n="fltStandardUsers">Standard Users</option>
                                 </select>
                                 <i data-lucide="filter"
                                     class="absolute right-3 sm:right-4 top-2.5 sm:top-3.5 h-3 w-3 sm:h-4 sm:w-4 text-gray-400 pointer-events-none"></i>
@@ -2171,7 +2170,7 @@
                 thUserEmail: "Client Details", thTypeSubj: "Project Info",
                 fltAllProd: "All Templates", fltGrpStatus: "By Status", fltActive: "Active Only", fltOOS: "Out of Stock",
                 fltGrpCategories: "By Category",
-                fltAllUsers: "All Accounts", fltSuperAdmins: "Super Admins Only", fltAdmins: "Admins Only", fltPendingAdmins: "Pending Admins", fltStandardUsers: "Customers",
+                fltAllUsers: "All Accounts", fltSuperAdmins: "Super Admins Only", fltAdmins: "Admins Only", fltStandardUsers: "Standard Users",
                 errNoAccess: "Access Denied", errNoAccessDesc: "Your current security clearance does not permit access to the enterprise operations center.",
                 modalTitleAdd: "Add UI Template", modalTitleEdit: "Edit Template", modalTitleNews: "Compose Newsletter",
                 lblNameEn: "Template Name (English) *", lblNameMm: "Template Name (Myanmar)", lblSlug: "URL Slug *", lblSku: "SKU (Stock Keeping Unit)",
@@ -2228,7 +2227,7 @@
                 thUserEmail: "ဖောက်သည် အချက်အလက်များ", thTypeSubj: "ပရောဂျက် အချက်အလက်",
                 fltAllProd: "အားလုံး", fltGrpStatus: "အခြေအနေအရ", fltActive: "လွှင့်တင်ထားသော", fltOOS: "လက်ကျန်မရှိသော",
                 fltGrpCategories: "အမျိုးအစားအရ",
-                fltAllUsers: "အကောင့်အားလုံး", fltSuperAdmins: "အက်ဒမင်ချုပ်များသာ", fltAdmins: "အက်ဒမင်များသာ", fltPendingAdmins: "အတည်ပြုရန်စောင့်နေသော အက်ဒမင်များ", fltStandardUsers: "ဖောက်သည်များ",
+                fltAllUsers: "အကောင့်အားလုံး", fltSuperAdmins: "အက်ဒမင်ချုပ်များသာ", fltAdmins: "အက်ဒမင်များသာ", fltStandardUsers: "သာမန်အသုံးပြုသူ",
                 errNoAccess: "ဝင်ရောက်ခွင့် ကန့်သတ်ထားသည်", errNoAccessDesc: "သင့်အကောင့်သည် ဤစီမံခန့်ခွဲရေး နေရာသို့ ဝင်ရောက်ခွင့် မရှိပါ။",
                 modalTitleAdd: "ဝက်ဘ်ဆိုက်အသစ် ထည့်မည်", modalTitleEdit: "ဝက်ဘ်ဆိုက် ပြင်ဆင်မည်", modalTitleNews: "သတင်းလွှာ ရေးရန်",
                 lblNameEn: "အမည် (English) *", lblNameMm: "အမည် (Myanmar)", lblSlug: "လင့်ခ်အမည် *", lblSku: "SKU (ကုဒ်နံပါတ်)",
@@ -2579,10 +2578,10 @@
             let countSuperAdmins = 0; let countAdmins = 0; let countUsers = 0;
 
             allUsers.forEach(u => {
-                const role = u.role || 'customer';
+                const role = u.raw_user_meta_data?.role || 'user';
                 if (role === 'super-admin') countSuperAdmins++;
                 else if (role === 'admin') countAdmins++;
-                else countUsers++; // Includes both 'customer' and 'pending'
+                else countUsers++;
             });
 
             document.getElementById('dashSuperAdmins').innerText = countSuperAdmins;
@@ -2645,11 +2644,10 @@
         async function checkAdminStatus() {
             if (!currentUser) return;
 
-            // NEW DB Check logic
             const { data: roleData, error: roleError } = await supabaseInstance
-                .from('users')
+                .from('user_roles')
                 .select('role')
-                .eq('id', currentUser.id)
+                .eq('user_id', currentUser.id)
                 .single();
 
             if (!roleError && roleData && (roleData.role === 'admin' || roleData.role === 'super-admin')) {
@@ -3387,7 +3385,7 @@
         }
 
         function confirmDeleteProject(id) {
-            openConfirmModal("Delete Project", "Are you sure you want to permanently delete this project?", true, async () => {
+            openConfirmModal("Delete Project", "Are you sure you want to permanently delete this project record?", true, async () => {
                 showLoader('loadingData');
                 try {
                     const { error } = await supabaseInstance.from('projects_delivered').delete().eq('id', id);
@@ -3398,222 +3396,26 @@
             });
         }
 
-        /* --- PRODUCTS / TEMPLATES TAB LOGIC --- */
-        async function fetchProducts(silent = false) {
-            if (!supabaseInstance) return;
-            if (!silent) showLoader('loadingData');
-            try {
-                const { data, error } = await supabaseInstance.from('products').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                allProducts = data || [];
-                populateCategoryFilter();
-                updateOverallDashboard();
-                renderTable(document.getElementById('searchProducts')?.value || '');
-            } catch (err) {
-                console.error("Fetch error", err);
-                if (!silent) showErrorToast("Failed to load templates.");
-            } finally {
-                if (!silent) hideLoader();
-            }
-        }
-
-        function renderTable(searchQuery = '') {
-            const tbody = document.getElementById('productsTableBody');
-            let filtered = allProducts;
-
-            if (currentProductFilter !== 'all') {
-                if (currentProductFilter === 'active') filtered = filtered.filter(p => p.product_status === 'active' || !p.product_status);
-                else if (currentProductFilter === 'oos') filtered = filtered.filter(p => p.product_stock <= 0);
-                else if (currentProductFilter.startsWith('cat-')) {
-                    const cat = currentProductFilter.replace('cat-', '');
-                    filtered = filtered.filter(p => p.category_id === cat);
-                }
-            }
-
-            if (searchQuery) {
-                filtered = filtered.filter(p =>
-                    superFuzzySearch(searchQuery, p.product_name_en) ||
-                    superFuzzySearch(searchQuery, p.product_name_mm) ||
-                    superFuzzySearch(searchQuery, p.sku)
-                );
-            }
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-sm text-gray-400 font-bold tracking-wide">No templates found matching your criteria.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(p => {
-                const img = p.main_image_url || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-                const priceHtml = p.discount_price ?
-                    `<span class="text-gray-400 line-through text-[9px] sm:text-[11px] block">${parseFloat(p.regular_price).toLocaleString()} MMK</span><span class="text-red-500 font-bold">${parseFloat(p.discount_price).toLocaleString()} MMK</span>` :
-                    `<span class="font-bold">${parseFloat(p.regular_price).toLocaleString()} MMK</span>`;
-
-                return `
-                <tr class="hover:bg-gray-50/80 transition-colors border-b border-gray-50">
-                    <td class="px-2 py-2 xxs:px-3 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-3">
-                            <div class="h-10 w-14 sm:h-12 sm:w-16 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center flex-shrink-0 relative">
-                                <img src="${img}" class="${p.main_image_url ? 'h-full w-full object-cover' : 'h-5 w-5 opacity-50'}" alt="Thumb">
-                            </div>
-                            <div>
-                                <div class="font-bold text-myancode-black text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[200px]" title="${p.product_name_en}">${p.product_name_en}</div>
-                                <div class="text-[9px] sm:text-[10px] text-gray-500 mt-0.5 truncate max-w-[120px] sm:max-w-[200px]" title="${p.product_slug}">${p.product_slug}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div class="font-mono text-[9px] sm:text-[11px] font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200 inline-block mb-1">${p.sku || 'N/A'}</div>
-                        <div class="text-[9px] sm:text-[10px] text-gray-500 font-medium capitalize mt-0.5">${p.category_id || 'Uncategorized'}</div>
-                    </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-xs sm:text-sm">${priceHtml}</td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div class="flex flex-col gap-1 items-start">
-                            ${(p.product_status === 'active' || !p.product_status) ? `<span class="px-2 py-1 text-[8px] rounded-full bg-green-50 text-green-600 border border-green-100 uppercase font-bold tracking-widest">Active</span>` : `<span class="px-2 py-1 text-[8px] rounded-full bg-red-50 text-red-600 border border-red-100 uppercase font-bold tracking-widest">Inactive</span>`}
-                            <span class="text-[9px] font-bold ${p.product_stock > 10 ? 'text-green-600' : 'text-red-500'}">${p.product_stock} in stock</span>
-                        </div>
-                    </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right">
-                        ${p.demo_link ? `<a href="${p.demo_link}" target="_blank" class="p-1.5 bg-gray-100 text-gray-500 rounded-lg hover:bg-gray-200 hover:text-myancode-black mx-0.5 transition-colors inline-block"><i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>` : ''}
-                        <button onclick="openProductModal('${p.product_id}')" class="p-1.5 bg-blue-50 text-myancode-blue rounded-lg hover:bg-blue-100 mx-0.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
-                        <button onclick="confirmDeleteProduct('${p.product_id}')" class="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 mx-0.5 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                    </td>
-                </tr>`;
-            }).join('');
-            lucide.createIcons();
-        }
-
-        function openProductModal(id = null) {
-            document.getElementById('formProductId').value = id || '';
-            document.getElementById('modalTitle').innerText = id ? dict[currentLang].modalTitleEdit : dict[currentLang].modalTitleAdd;
-            const btnSave = document.getElementById('btnSaveProduct');
-            btnSave.innerHTML = `<i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4"></i> <span>${dict[currentLang].btnSave}</span>`;
-
-            if (id) {
-                const p = allProducts.find(x => x.product_id === id);
-                if (p) {
-                    document.getElementById('pNameEn').value = p.product_name_en || '';
-                    document.getElementById('pNameMm').value = p.product_name_mm || '';
-                    document.getElementById('pSlug').value = p.product_slug || '';
-                    document.getElementById('pSku').value = p.sku || '';
-                    document.getElementById('pCreator').value = p.creator_name || '';
-                    document.getElementById('pPrice').value = p.regular_price || '';
-                    document.getElementById('pDiscount').value = p.discount_price || '';
-                    document.getElementById('pCategory').value = p.category_id || '';
-                    document.getElementById('pStock').value = p.product_stock || '0';
-                    document.getElementById('pMainImg').value = p.main_image_url || '';
-                    document.getElementById('pGallery').value = p.gallery_urls ? p.gallery_urls.join(', ') : '';
-                    document.getElementById('pDescEn').value = p.description_en || '';
-                    document.getElementById('pDescMm').value = p.description_mm || '';
-                    document.getElementById('pLiveDemo').value = p.demo_link || '';
-                    updateImagePreview(p.main_image_url);
-                }
-            } else {
-                document.getElementById('productForm').reset();
-                document.getElementById('pStock').value = '99';
-                updateImagePreview('');
-            }
-            lucide.createIcons();
-            document.getElementById('productModal').classList.remove('modal-hidden');
-        }
-
-        function closeProductModal() { document.getElementById('productModal').classList.add('modal-hidden'); }
-
-        function updateImagePreview(url) {
-            const container = document.getElementById('previewMainImgContainer');
-            if (url) {
-                container.innerHTML = `<img src="${url}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentNode.innerHTML='<i data-lucide=\\'image-off\\' class=\\'w-4 h-4 sm:w-5 sm:h-5 text-red-400\\'></i>'; lucide.createIcons();">`;
-            } else {
-                container.innerHTML = `<i data-lucide="image" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>`;
-                lucide.createIcons();
-            }
-        }
-
-        async function saveProduct() {
-            const id = document.getElementById('formProductId').value;
-            const slugVal = document.getElementById('pSlug').value.trim().toLowerCase().replace(/\s+/g, '-');
-            const data = {
-                product_name_en: document.getElementById('pNameEn').value.trim(),
-                product_name_mm: document.getElementById('pNameMm').value.trim(),
-                product_slug: slugVal,
-                sku: document.getElementById('pSku').value.trim(),
-                creator_name: document.getElementById('pCreator').value.trim(),
-                regular_price: parseFloat(document.getElementById('pPrice').value) || 0,
-                discount_price: document.getElementById('pDiscount').value ? parseFloat(document.getElementById('pDiscount').value) : null,
-                category_id: document.getElementById('pCategory').value.trim().toLowerCase(),
-                product_stock: parseInt(document.getElementById('pStock').value) || 0,
-                main_image_url: document.getElementById('pMainImg').value.trim(),
-                gallery_urls: document.getElementById('pGallery').value.split(',').map(s => s.trim()).filter(Boolean),
-                description_en: document.getElementById('pDescEn').value.trim(),
-                description_mm: document.getElementById('pDescMm').value.trim(),
-                demo_link: document.getElementById('pLiveDemo').value.trim()
-            };
-
-            if (!data.product_name_en || !data.product_slug || !data.regular_price) {
-                showErrorToast(currentLang === 'en' ? "Name, Slug, and Price are mandatory." : "အမည်၊ လင့်ခ်အမည်နှင့် ဈေးနှုန်း ထည့်ရန်လိုအပ်ပါသည်။");
-                return;
-            }
-
-            const btnSave = document.getElementById('btnSaveProduct');
-            const originalBtnText = btnSave.innerHTML;
-            btnSave.disabled = true;
-            btnSave.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 sm:w-4 sm:h-4 animate-spin"></i> <span>Saving...</span>`;
-            lucide.createIcons();
-            showLoader('loadingData');
-
-            try {
-                if (id) {
-                    const { error } = await supabaseInstance.from('products').update(data).eq('product_id', id);
-                    if (error) throw error;
-                } else {
-                    const { error } = await supabaseInstance.from('products').insert([data]);
-                    if (error) throw error;
-                }
-                showToast(dict[currentLang].msgSaveSuccess);
-                closeProductModal();
-                fetchProducts(true);
-            } catch (err) {
-                console.error("Save error:", err);
-                showErrorToast(err.message || "Failed to save product.");
-            } finally {
-                btnSave.disabled = false;
-                btnSave.innerHTML = originalBtnText;
-                hideLoader();
-            }
-        }
-
-        function confirmDeleteProduct(id) {
-            openConfirmModal(dict[currentLang].confirmDeleteTitle, dict[currentLang].confirmDeleteMsg, true, async () => {
-                showLoader('loadingData');
-                try {
-                    const { error } = await supabaseInstance.from('products').delete().eq('product_id', id);
-                    if (error) throw error;
-                    showToast(dict[currentLang].msgDeleteSuccess);
-                    fetchProducts(true);
-                } catch (err) { showErrorToast(err.message || "Failed to delete."); }
-                finally { hideLoader(); }
-            });
-        }
-
-
-        /* --- PACKAGES / ESTIMATOR SETUP TAB LOGIC --- */
+        /* --- BUILDER SETUP (PACKAGES) LOGIC --- */
         async function fetchPackagesSetup(silent = false) {
             if (!supabaseInstance) return;
             if (!silent) showLoader('loadingData');
             try {
-                const [catRes, featRes] = await Promise.all([
-                    supabaseInstance.from('package_categories').select('*').order('created_at', { ascending: false }),
-                    supabaseInstance.from('package_features').select('*').order('created_at', { ascending: false })
+                const [catsRes, featsRes] = await Promise.all([
+                    supabaseInstance.from('pkg_categories').select('*').order('created_at', { ascending: false }),
+                    supabaseInstance.from('pkg_features').select('*').order('created_at', { ascending: false })
                 ]);
-                if (catRes.error && catRes.error.code !== '42P01') throw catRes.error;
-                if (featRes.error && featRes.error.code !== '42P01') throw featRes.error;
 
-                allCategories = catRes.data || [];
-                allFeatures = featRes.data || [];
+                if (catsRes.error && catsRes.error.code !== 'PGRST205') throw catsRes.error;
+                if (featsRes.error && featsRes.error.code !== 'PGRST205') throw featsRes.error;
+
+                allCategories = catsRes.data || [];
+                allFeatures = featsRes.data || [];
+
                 renderPackagesTables();
             } catch (err) {
-                console.error("Packages setup fetch error:", err);
-                if (!silent) showErrorToast("Failed to load packages setup data.");
+                console.error("Packages Fetch Error:", err);
+                if (!silent) showErrorToast("Failed to load Builder Setup data.");
             } finally {
                 if (!silent) hideLoader();
             }
@@ -3622,42 +3424,44 @@
         function renderPackagesTables() {
             const catTbody = document.getElementById('pkgCategoriesTableBody');
             if (allCategories.length === 0) {
-                catTbody.innerHTML = `<tr><td colspan="3" class="px-4 py-8 text-center text-xs text-gray-400 font-bold">No categories defined.</td></tr>`;
+                catTbody.innerHTML = `<tr><td colspan="3" class="px-4 py-8 text-center text-gray-400 italic">No categories configured.</td></tr>`;
             } else {
                 catTbody.innerHTML = allCategories.map(c => `
-                <tr class="border-b border-gray-50 hover:bg-gray-50/50">
-                    <td class="px-4 py-3 whitespace-nowrap">
-                        <div class="font-bold text-sm text-black">${c.name_en}</div>
-                        <div class="text-[10px] text-gray-500">${c.name_mm || ''}</div>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap font-mono text-sm text-myancode-blue font-bold">${parseFloat(c.base_price).toLocaleString()} MMK</td>
-                    <td class="px-4 py-3 whitespace-nowrap text-right">
-                        <button onclick="openCategoryModal('${c.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg mx-0.5"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
-                        <button onclick="confirmDeleteCategory('${c.id}')" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg mx-0.5"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
-                    </td>
-                </tr>
+                    <tr class="border-b border-gray-50 hover:bg-gray-50/80 transition-colors">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="font-bold text-black flex items-center gap-2"><i data-lucide="${c.icon || 'box'}" class="w-4 h-4 text-gray-400"></i> ${c.name_en}</div>
+                            <div class="text-[10px] text-gray-500 mt-0.5 ml-6">${c.name_mm || 'No MM trans'}</div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap font-bold">${c.base_price.toLocaleString()} MMK</td>
+                        <td class="px-4 py-3 text-right whitespace-nowrap">
+                            <span class="px-2 py-1 text-[8px] rounded-full ${c.status === 'active' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-gray-100 text-gray-500 border border-gray-200'} uppercase font-bold tracking-widest mr-2">${c.status}</span>
+                            <button onclick="openCategoryModal('${c.id}')" class="p-1.5 bg-blue-50 text-myancode-blue rounded-lg hover:bg-blue-100 mx-0.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="confirmDeleteCategory('${c.id}')" class="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 mx-0.5 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </td>
+                    </tr>
                 `).join('');
             }
 
             const featTbody = document.getElementById('pkgFeaturesTableBody');
             if (allFeatures.length === 0) {
-                featTbody.innerHTML = `<tr><td colspan="3" class="px-4 py-8 text-center text-xs text-gray-400 font-bold">No features defined.</td></tr>`;
+                featTbody.innerHTML = `<tr><td colspan="3" class="px-4 py-8 text-center text-gray-400 italic">No features configured.</td></tr>`;
             } else {
                 featTbody.innerHTML = allFeatures.map(f => `
-                <tr class="border-b border-gray-50 hover:bg-gray-50/50">
-                    <td class="px-4 py-3 whitespace-nowrap">
-                        <div class="font-bold text-sm text-black">${f.name_en}</div>
-                        <div class="text-[10px] text-gray-500 font-mono bg-gray-100 px-1 rounded inline-block mt-0.5">${f.feature_type}</div>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap">
-                        <div class="text-xs font-bold text-gray-700 capitalize">${f.calculation_logic.replace(/_/g, ' ')}</div>
-                        <div class="text-[10px] text-gray-500">Base: ${parseFloat(f.base_price).toLocaleString()} | Unit: ${parseFloat(f.unit_price).toLocaleString()}</div>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-right">
-                        <button onclick="openFeatureModal('${f.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg mx-0.5"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
-                        <button onclick="confirmDeleteFeature('${f.id}')" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg mx-0.5"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
-                    </td>
-                </tr>
+                    <tr class="border-b border-gray-50 hover:bg-gray-50/80 transition-colors">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="font-bold text-black">${f.name_en}</div>
+                            <div class="text-[9px] font-mono text-gray-500 mt-0.5 uppercase tracking-wider">${f.feature_type}</div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-[11px] font-bold text-myancode-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-100 inline-block mb-1">${f.calculation_logic}</div>
+                            <div class="text-[10px] text-gray-500 font-medium">Base: ${f.base_price.toLocaleString()} | Unit: ${f.unit_price.toLocaleString()} | Free: ${f.free_units}</div>
+                        </td>
+                        <td class="px-4 py-3 text-right whitespace-nowrap">
+                            <span class="px-2 py-1 text-[8px] rounded-full ${f.status === 'active' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-gray-100 text-gray-500 border border-gray-200'} uppercase font-bold tracking-widest mr-2">${f.status}</span>
+                            <button onclick="openFeatureModal('${f.id}')" class="p-1.5 bg-blue-50 text-myancode-blue rounded-lg hover:bg-blue-100 mx-0.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="confirmDeleteFeature('${f.id}')" class="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 mx-0.5 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </td>
+                    </tr>
                 `).join('');
             }
             lucide.createIcons();
@@ -3666,71 +3470,113 @@
         function openCategoryModal(id = null) {
             document.getElementById('cId').value = id || '';
             document.getElementById('catModalTitle').innerText = id ? 'Edit Category' : 'Add Category';
+
             if (id) {
-                const c = allCategories.find(x => x.id === id);
-                if (c) {
-                    document.getElementById('cNameEn').value = c.name_en || '';
-                    document.getElementById('cNameMm').value = c.name_mm || '';
-                    document.getElementById('cBasePrice').value = c.base_price || 0;
-                    document.getElementById('cIcon').value = c.icon_name || '';
-                    document.getElementById('cImg').value = c.bg_image_url || '';
-                    document.getElementById('cStatus').value = c.status || 'active';
+                const cat = allCategories.find(c => c.id === id);
+                if (cat) {
+                    document.getElementById('cNameEn').value = cat.name_en || '';
+                    document.getElementById('cNameMm').value = cat.name_mm || '';
+                    document.getElementById('cBasePrice').value = cat.base_price || 0;
+                    document.getElementById('cIcon').value = cat.icon || '';
+                    document.getElementById('cImg').value = cat.img || '';
+                    document.getElementById('cStatus').value = cat.status || 'active';
                 }
-            } else { document.getElementById('categoryForm').reset(); document.getElementById('cStatus').value = 'active'; }
+            } else {
+                document.getElementById('categoryForm').reset();
+                document.getElementById('cStatus').value = 'active';
+                document.getElementById('cBasePrice').value = 0;
+                document.getElementById('cImg').value = '';
+            }
             document.getElementById('categoryModal').classList.remove('modal-hidden');
         }
-        function closeCategoryModal() { document.getElementById('categoryModal').classList.add('modal-hidden'); }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.add('modal-hidden');
+        }
 
         async function saveCategory() {
             const id = document.getElementById('cId').value;
             const data = {
                 name_en: document.getElementById('cNameEn').value.trim(),
-                name_mm: document.getElementById('cNameMm').value.trim(),
+                name_mm: document.getElementById('cNameMm').value.trim() || null,
                 base_price: parseFloat(document.getElementById('cBasePrice').value) || 0,
-                icon_name: document.getElementById('cIcon').value.trim(),
-                bg_image_url: document.getElementById('cImg').value.trim(),
+                icon: document.getElementById('cIcon').value.trim() || null,
+                img: document.getElementById('cImg').value.trim() || null,
                 status: document.getElementById('cStatus').value
             };
-            if (!data.name_en) return showErrorToast("Name is required.");
+
+            if (!data.name_en) return showErrorToast("Name (En) is required.");
+
             showLoader('loadingData');
             try {
-                if (id) await supabaseInstance.from('package_categories').update(data).eq('id', id);
-                else await supabaseInstance.from('package_categories').insert([data]);
-                showToast("Category saved."); closeCategoryModal(); fetchPackagesSetup(true);
-            } catch (err) { showErrorToast(err.message); } finally { hideLoader(); }
+                if (id) {
+                    const { error } = await supabaseInstance.from('pkg_categories').update(data).eq('id', id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseInstance.from('pkg_categories').insert([data]);
+                    if (error) throw error;
+                }
+                showToast("Category saved successfully!");
+                closeCategoryModal();
+                fetchPackagesSetup(true);
+            } catch (err) {
+                showErrorToast(err.message);
+            } finally {
+                hideLoader();
+            }
         }
 
         function confirmDeleteCategory(id) {
-            openConfirmModal("Delete Category", "Are you sure you want to delete this category?", true, async () => {
-                showLoader(); try { await supabaseInstance.from('package_categories').delete().eq('id', id); fetchPackagesSetup(true); showToast("Deleted."); } catch (err) { showErrorToast(err.message); } finally { hideLoader(); }
+            openConfirmModal("Delete Category", "Are you sure you want to permanently delete this category? This might affect existing orders.", true, async () => {
+                showLoader('loadingData');
+                try {
+                    const { error } = await supabaseInstance.from('pkg_categories').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast("Category deleted.");
+                    fetchPackagesSetup(true);
+                } catch (err) {
+                    showErrorToast(err.message);
+                } finally { hideLoader(); }
             });
         }
 
         function openFeatureModal(id = null) {
             document.getElementById('fId').value = id || '';
             document.getElementById('featModalTitle').innerText = id ? 'Edit Feature' : 'Add Feature';
+
             if (id) {
-                const f = allFeatures.find(x => x.id === id);
-                if (f) {
-                    document.getElementById('fNameEn').value = f.name_en || '';
-                    document.getElementById('fNameMm').value = f.name_mm || '';
-                    document.getElementById('fType').value = f.feature_type || 'addon_flat';
-                    document.getElementById('fLogic').value = f.calculation_logic || 'flat';
-                    document.getElementById('fBasePrice').value = f.base_price || 0;
-                    document.getElementById('fUnitPrice').value = f.unit_price || 0;
-                    document.getElementById('fFreeUnits').value = f.free_units || 0;
-                    document.getElementById('fStatus').value = f.status || 'active';
+                const feat = allFeatures.find(f => f.id === id);
+                if (feat) {
+                    document.getElementById('fNameEn').value = feat.name_en || '';
+                    document.getElementById('fNameMm').value = feat.name_mm || '';
+                    document.getElementById('fType').value = feat.feature_type || 'addon_flat';
+                    document.getElementById('fLogic').value = feat.calculation_logic || 'flat';
+                    document.getElementById('fBasePrice').value = feat.base_price || 0;
+                    document.getElementById('fUnitPrice').value = feat.unit_price || 0;
+                    document.getElementById('fFreeUnits').value = feat.free_units || 0;
+                    document.getElementById('fStatus').value = feat.status || 'active';
                 }
-            } else { document.getElementById('featureForm').reset(); document.getElementById('fStatus').value = 'active'; }
+            } else {
+                document.getElementById('featureForm').reset();
+                document.getElementById('fType').value = 'addon_flat';
+                document.getElementById('fLogic').value = 'flat';
+                document.getElementById('fStatus').value = 'active';
+                document.getElementById('fBasePrice').value = 0;
+                document.getElementById('fUnitPrice').value = 0;
+                document.getElementById('fFreeUnits').value = 0;
+            }
             document.getElementById('featureModal').classList.remove('modal-hidden');
         }
-        function closeFeatureModal() { document.getElementById('featureModal').classList.add('modal-hidden'); }
+
+        function closeFeatureModal() {
+            document.getElementById('featureModal').classList.add('modal-hidden');
+        }
 
         async function saveFeature() {
             const id = document.getElementById('fId').value;
             const data = {
                 name_en: document.getElementById('fNameEn').value.trim(),
-                name_mm: document.getElementById('fNameMm').value.trim(),
+                name_mm: document.getElementById('fNameMm').value.trim() || null,
                 feature_type: document.getElementById('fType').value,
                 calculation_logic: document.getElementById('fLogic').value,
                 base_price: parseFloat(document.getElementById('fBasePrice').value) || 0,
@@ -3738,107 +3584,191 @@
                 free_units: parseInt(document.getElementById('fFreeUnits').value) || 0,
                 status: document.getElementById('fStatus').value
             };
-            if (!data.name_en) return showErrorToast("Name is required.");
+
+            if (!data.name_en) return showErrorToast("Name (En) is required.");
+
             showLoader('loadingData');
             try {
-                if (id) await supabaseInstance.from('package_features').update(data).eq('id', id);
-                else await supabaseInstance.from('package_features').insert([data]);
-                showToast("Feature saved."); closeFeatureModal(); fetchPackagesSetup(true);
-            } catch (err) { showErrorToast(err.message); } finally { hideLoader(); }
+                if (id) {
+                    const { error } = await supabaseInstance.from('pkg_features').update(data).eq('id', id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseInstance.from('pkg_features').insert([data]);
+                    if (error) throw error;
+                }
+                showToast("Feature saved successfully!");
+                closeFeatureModal();
+                fetchPackagesSetup(true);
+            } catch (err) {
+                showErrorToast(err.message);
+            } finally {
+                hideLoader();
+            }
         }
 
         function confirmDeleteFeature(id) {
-            openConfirmModal("Delete Feature", "Are you sure you want to delete this feature logic?", true, async () => {
-                showLoader(); try { await supabaseInstance.from('package_features').delete().eq('id', id); fetchPackagesSetup(true); showToast("Deleted."); } catch (err) { showErrorToast(err.message); } finally { hideLoader(); }
+            openConfirmModal("Delete Feature", "Are you sure you want to permanently delete this feature?", true, async () => {
+                showLoader('loadingData');
+                try {
+                    const { error } = await supabaseInstance.from('pkg_features').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast("Feature deleted.");
+                    fetchPackagesSetup(true);
+                } catch (err) {
+                    showErrorToast(err.message);
+                } finally { hideLoader(); }
             });
         }
 
-
-        /* --- ESTIMATOR / PACKAGE ORDERS TAB LOGIC --- */
+        /* --- PACKAGE ORDER VIEWER LOGIC --- */
         async function fetchPkgOrders(silent = false) {
             if (!supabaseInstance) return;
-            if (!silent) showLoader('loadingData');
+            const tbody = document.getElementById('pkgOrdersTableBody');
+
+            if (!silent) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 italic font-medium"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2"></i> Querying Package Orders...</td></tr>`;
+                lucide.createIcons();
+            }
+
             try {
-                const { data, error } = await supabaseInstance.from('package_estimates').select('*').order('created_at', { ascending: false });
-                if (error && error.code !== '42P01') throw error; // Ignore table missing error during init
+                // Fetch orders joined with categories AND nested order_items joined with features
+                const { data, error } = await supabaseInstance
+                    .from('pkg_orders')
+                    .select(`
+                        *,
+                        pkg_categories(name_en, name_mm),
+                        pkg_order_items(
+                            qty,
+                            pkg_features(name_en, name_mm, feature_type, calculation_logic)
+                        )
+                    `)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
                 allPkgOrders = data || [];
                 renderPkgOrdersTable(document.getElementById('searchPkgOrders')?.value || '');
             } catch (err) {
-                console.error("Pkg Orders fetch error:", err);
-                if (!silent) showErrorToast("Failed to load package orders.");
-            } finally {
-                if (!silent) hideLoader();
+                console.error("Order fetch error", err);
+                if (!silent) tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-500 font-bold">Failed to load orders.</td></tr>`;
             }
         }
 
         function renderPkgOrdersTable(searchQuery = '') {
             const tbody = document.getElementById('pkgOrdersTableBody');
-            let filtered = allPkgOrders;
+            let filteredOrders = allPkgOrders;
 
             if (searchQuery) {
-                filtered = filtered.filter(o =>
-                    superFuzzySearch(searchQuery, o.id) || superFuzzySearch(searchQuery, o.client_email) || superFuzzySearch(searchQuery, o.client_name)
+                filteredOrders = filteredOrders.filter(o =>
+                    superFuzzySearch(searchQuery, o.id) ||
+                    superFuzzySearch(searchQuery, o.customer_name || '')
                 );
             }
 
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-sm text-gray-400 font-bold">No package orders found.</td></tr>`;
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No package orders found.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filtered.map(o => {
+            tbody.innerHTML = filteredOrders.map(o => {
+                const catName = currentLang === 'en' ? (o.pkg_categories?.name_en || 'Unknown Category') : (o.pkg_categories?.name_mm || o.pkg_categories?.name_en || 'Unknown Category');
+
+                const customerName = o.customer_name || 'N/A';
+                const businessName = o.business_name || 'N/A';
+                const phoneNumber = o.phone_number || 'N/A';
+                const contactEmail = o.contact_email || 'N/A';
+                const location = o.location || 'N/A';
+
+                let itemsHtml = '<div class="text-[10px] text-gray-400 italic py-2">No additional features selected.</div>';
+                if (o.pkg_order_items && o.pkg_order_items.length > 0) {
+                    itemsHtml = `<ul class="mt-2 space-y-1.5">` + o.pkg_order_items.map(item => {
+                        const featName = currentLang === 'en' ? (item.pkg_features?.name_en || 'Unknown Feature') : (item.pkg_features?.name_mm || item.pkg_features?.name_en || 'Unknown Feature');
+                        return `<li class="flex items-center justify-between text-[11px] text-gray-600 bg-gray-50/80 px-2 py-1.5 rounded"><div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-myancode-blue"></i> <span class="font-medium truncate max-w-[150px]">${featName}</span></div> <span class="text-gray-400 font-bold bg-white px-1.5 py-0.5 border border-gray-100 rounded shadow-sm">Qty: ${item.qty}</span></li>`;
+                    }).join('') + `</ul>`;
+                }
+
+                // Status Management
+                const currentStatus = o.status || 'Pending';
                 const statusColors = {
-                    'pending': 'bg-yellow-50 text-yellow-600 border-yellow-200',
-                    'contacted': 'bg-blue-50 text-blue-600 border-blue-200',
-                    'converted': 'bg-green-50 text-green-600 border-green-200',
-                    'lost': 'bg-red-50 text-red-600 border-red-200'
+                    'Pending': 'bg-yellow-50 text-yellow-600 border-yellow-200',
+                    'Processing': 'bg-blue-50 text-blue-600 border-blue-200',
+                    'Confirmed': 'bg-green-50 text-green-600 border-green-200',
+                    'Cancelled': 'bg-red-50 text-red-600 border-red-200'
                 };
-                const sColor = statusColors[o.status || 'pending'];
-                const archs = (o.selected_categories || []).join(', ');
+                const sColor = statusColors[currentStatus] || statusColors['Pending'];
 
                 return `
-                <tr class="hover:bg-gray-50/80 transition-colors border-b border-gray-50 cursor-pointer group" onclick="togglePkgOrderDetails('${o.id}')">
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="chevron-down" id="pkgIcon-${o.id}" class="w-3 h-3 text-gray-400 transition-transform duration-300"></i>
+                <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50 cursor-pointer" onclick="toggleOrderDetails('${o.id}')">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <i data-lucide="chevron-down" id="icon-${o.id}" class="w-4 h-4 text-gray-400 transition-transform duration-300 flex-shrink-0"></i>
                             <div>
-                                <div class="font-mono text-[9px] font-bold text-myancode-black bg-gray-100 px-2 py-0.5 rounded border border-gray-200 inline-block mb-0.5">${o.id.substring(0, 8).toUpperCase()}</div>
-                                <div class="text-[9px] text-gray-500 block">${new Date(o.created_at).toLocaleString()}</div>
+                                <div class="font-mono text-[9px] sm:text-xs font-bold text-myancode-black bg-gray-100 px-2 py-1 rounded-md inline-block mb-1 border border-gray-200">${o.id.split('-')[0]}...</div>
+                                <div class="text-[8px] sm:text-[10px] text-gray-400 font-bold tracking-wide">${new Date(o.created_at).toLocaleString()}</div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div class="font-bold text-sm text-black">${o.client_name || 'Anonymous'}</div>
-                        <div class="text-[10px] text-gray-500">${o.client_email || 'No Email'}</div>
-                        ${o.client_phone ? `<div class="text-[10px] text-gray-500">${o.client_phone}</div>` : ''}
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-myancode-black text-[10px] sm:text-sm truncate max-w-[100px] sm:max-w-[150px]">${customerName}</span>
+                            <span class="text-[7px] sm:text-[9px] font-bold uppercase tracking-widest text-myancode-blue bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">${o.contact_method}</span>
+                        </div>
+                        <div class="text-[9px] sm:text-xs text-gray-500 font-medium mt-1">${phoneNumber}</div>
                     </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div class="text-xs font-bold text-gray-700 truncate max-w-[150px]">${archs || 'Custom'}</div>
-                        <div class="text-[9px] text-gray-500">${(o.selected_features || []).length} Add-ons</div>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="font-bold text-myancode-black text-[10px] sm:text-sm">${catName}</div>
+                        <div class="text-[8px] sm:text-xs text-gray-500 font-medium">${o.total_pages} Pages Configured</div>
                     </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <select onclick="event.stopPropagation()" onchange="updatePkgOrderStatus('${o.id}', this.value)" class="text-[9px] font-bold uppercase tracking-widest rounded-full px-3 py-1.5 border outline-none cursor-pointer shadow-inner-soft transition-colors ${sColor}">
-                            <option value="pending" class="text-black bg-white" ${o.status === 'pending' ? 'selected' : ''}>Pending</option>
-                            <option value="contacted" class="text-black bg-white" ${o.status === 'contacted' ? 'selected' : ''}>Contacted</option>
-                            <option value="converted" class="text-black bg-white" ${o.status === 'converted' ? 'selected' : ''}>Converted</option>
-                            <option value="lost" class="text-black bg-white" ${o.status === 'lost' ? 'selected' : ''}>Lost</option>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <select onclick="event.stopPropagation()" onchange="updateOrderStatus('${o.id}', this.value)" class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full px-3 py-1.5 border outline-none cursor-pointer shadow-inner-soft transition-colors ${sColor}">
+                            <option value="Pending" class="text-black bg-white" ${currentStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Processing" class="text-black bg-white" ${currentStatus === 'Processing' ? 'selected' : ''}>Processing</option>
+                            <option value="Confirmed" class="text-black bg-white" ${currentStatus === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                            <option value="Cancelled" class="text-black bg-white" ${currentStatus === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
                         </select>
                     </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right font-bold text-myancode-blue text-sm">
-                        ${parseFloat(o.total_estimated_price).toLocaleString()} MMK
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-right">
+                        <div class="flex flex-col items-end gap-1">
+                            <div class="text-[11px] sm:text-lg font-bold text-myancode-black">${parseFloat(o.total_price).toLocaleString()} MMK</div>
+                            <button onclick="event.stopPropagation(); confirmDeleteOrder('${o.id}')" class="p-1 sm:p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors opacity-0 group-hover:opacity-100 flex items-center gap-1 mt-0.5 sm:mt-1"><i data-lucide="trash-2" class="w-3 h-3"></i> <span class="hidden sm:inline text-[8px] uppercase tracking-widest font-bold">Delete</span></button>
+                        </div>
                     </td>
                 </tr>
-                <tr id="pkgDetails-${o.id}" class="hidden bg-gray-50/50">
-                    <td colspan="5" class="px-4 py-4 sm:px-6 border-b border-gray-100">
-                        <div class="bg-white p-4 rounded-xl shadow-inner-soft border border-gray-100">
-                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 border-b border-gray-50 pb-1">Features Requested</h4>
-                            <div class="flex flex-wrap gap-2 text-[10px] mb-4">
-                                ${(o.selected_features || []).map(f => `<span class="bg-blue-50 text-myancode-blue border border-blue-100 px-2 py-1 rounded">${f}</span>`).join('')}
+                <tr id="details-${o.id}" class="hidden bg-gray-50/50">
+                    <td colspan="5" class="px-2 py-3 sm:px-6 sm:py-4 border-b border-gray-100">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-5 bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-inner-soft">
+                            <div>
+                                <h4 class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-50 pb-2">Client Information</h4>
+                                <div class="space-y-2 text-[10px] sm:text-xs mb-5 border-b border-gray-50 pb-4">
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Name:</span> <span class="text-black font-bold">${customerName}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Email:</span> <span class="text-black font-medium">${contactEmail}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Phone:</span> <span class="text-black font-medium">${phoneNumber}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Business:</span> <span class="text-black font-medium">${businessName}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Location:</span> <span class="text-black font-medium truncate max-w-[150px] sm:max-w-[200px]" title="${location}">${location}</span></div>
+                                </div>
+
+                                <h4 class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-50 pb-2">Order Information</h4>
+                                <div class="space-y-2 text-[10px] sm:text-xs">
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Order ID:</span> <span class="font-mono text-black font-medium text-[9px] sm:text-xs">${o.id}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Date:</span> <span class="text-black font-medium">${new Date(o.created_at).toLocaleString()}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Contact Method:</span> <span class="text-black font-medium px-2 py-0.5 bg-gray-100 rounded">${o.contact_method}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Contact Handle:</span> <span class="text-myancode-blue font-bold">${o.contact_handle}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Base Architecture:</span> <span class="text-black font-medium">${catName}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-gray-500">Total Pages:</span> <span class="text-black font-bold">${o.total_pages}</span></div>
+                                </div>
                             </div>
-                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 border-b border-gray-50 pb-1">Client Brief</h4>
-                            <p class="text-xs text-gray-700 whitespace-pre-wrap">${o.project_brief || 'No additional details provided by client.'}</p>
-                            <div class="mt-4 flex justify-end">
-                                <button onclick="confirmDeletePkgOrder('${o.id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors flex items-center gap-2"><i data-lucide="trash-2" class="w-3 h-3"></i> Delete Lead</button>
+                            <div class="flex flex-col h-full">
+                                <h4 class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-50 pb-2">Configured Features</h4>
+                                <div class="flex-1 overflow-y-auto pr-1 no-scrollbar max-h-48 sm:max-h-[300px]">
+                                    ${itemsHtml}
+                                </div>
+                                <div class="mt-3 sm:mt-4 pt-3 border-t border-gray-100 flex justify-between items-end">
+                                    <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-500">Final Total</span>
+                                    <div class="text-right">
+                                        <span class="text-sm sm:text-lg font-bold text-myancode-blue leading-none">${parseFloat(o.total_price).toLocaleString()} MMK</span>
+                                        <span class="block text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-green-500 mt-0.5"><i data-lucide="shield-check" class="w-2.5 h-2.5 inline-block mr-0.5 align-middle"></i> Verified Engine Cost</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </td>
@@ -3848,389 +3778,587 @@
             lucide.createIcons();
         }
 
-        function togglePkgOrderDetails(id) {
-            const detailsRow = document.getElementById(`pkgDetails-${id}`);
-            const icon = document.getElementById(`pkgIcon-${id}`);
-            if (detailsRow.classList.contains('hidden')) { detailsRow.classList.remove('hidden'); icon.classList.add('-rotate-180'); }
-            else { detailsRow.classList.add('hidden'); icon.classList.remove('-rotate-180'); }
-        }
-
-        async function updatePkgOrderStatus(id, newStatus) {
+        async function updateOrderStatus(orderId, newStatus) {
             showLoader('loadingData');
             try {
-                const { error } = await supabaseInstance.from('package_estimates').update({ status: newStatus }).eq('id', id);
+                const { error } = await supabaseInstance.from('pkg_orders').update({ status: newStatus }).eq('id', orderId);
                 if (error) throw error;
-                const req = allPkgOrders.find(r => r.id === id);
-                if (req) req.status = newStatus;
+
+                const order = allPkgOrders.find(o => o.id === orderId);
+                if (order) order.status = newStatus;
                 renderPkgOrdersTable(document.getElementById('searchPkgOrders')?.value || '');
-                showToast("Status updated.");
-            } catch (err) { showErrorToast(err.message); } finally { hideLoader(); }
+
+                showToast("Status updated successfully.");
+            } catch (err) {
+                showErrorToast(err.message);
+                renderPkgOrdersTable(document.getElementById('searchPkgOrders')?.value || '');
+            } finally {
+                hideLoader();
+            }
         }
 
-        function confirmDeletePkgOrder(id) {
-            openConfirmModal("Delete Lead", "Are you sure you want to permanently delete this package estimate request?", true, async () => {
+        function toggleOrderDetails(orderId) {
+            const detailsRow = document.getElementById(`details-${orderId}`);
+            const icon = document.getElementById(`icon-${orderId}`);
+            if (detailsRow.classList.contains('hidden')) {
+                detailsRow.classList.remove('hidden');
+                icon.classList.add('-rotate-180');
+            } else {
+                detailsRow.classList.add('hidden');
+                icon.classList.remove('-rotate-180');
+            }
+        }
+
+        function confirmDeleteOrder(id) {
+            openConfirmModal("Delete Order", "Are you sure you want to permanently delete this order?", true, async () => {
                 showLoader('loadingData');
                 try {
-                    const { error } = await supabaseInstance.from('package_estimates').delete().eq('id', id);
+                    const { error } = await supabaseInstance.from('pkg_orders').delete().eq('id', id);
                     if (error) throw error;
-                    showToast("Deleted successfully.");
+                    showToast("Order deleted successfully.");
                     fetchPkgOrders(true);
-                } catch (err) { showErrorToast(err.message); } finally { hideLoader(); }
+                } catch (err) {
+                    showErrorToast(err.message);
+                } finally { hideLoader(); }
             });
         }
 
-
-        /* --- USERS TAB LOGIC (NEW DB STRUCTURE VIA RPC) --- */
-        async function fetchUsers(silent = false) {
-            if (!supabaseInstance) return;
+        async function fetchProducts(silent = false) {
             if (!silent) showLoader('loadingData');
             try {
-                // Fetch using the RPC created in the migration script to securely join auth data and roles
+                const { data, error } = await supabaseInstance.from('products').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                allProducts = data || [];
+
+                populateCategoryFilter();
+                updateOverallDashboard();
+                renderTable(document.getElementById('searchProducts').value);
+            } catch (err) {
+                if (!silent) showErrorToast(err.message);
+                document.getElementById('productsTableBody').innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load secure data.</td></tr>`;
+            } finally { if (!silent) hideLoader(); }
+        }
+
+        function renderTable(searchQuery = '') {
+            const tbody = document.getElementById('productsTableBody');
+            let filteredProducts = allProducts;
+
+            if (searchQuery) {
+                filteredProducts = filteredProducts.filter(p =>
+                    superFuzzySearch(searchQuery, p.product_name_en) || superFuzzySearch(searchQuery, p.product_name_mm) ||
+                    superFuzzySearch(searchQuery, p.product_slug) || superFuzzySearch(searchQuery, p.product_sku) || superFuzzySearch(searchQuery, p.category_id)
+                );
+            }
+
+            if (currentProductFilter === 'active') {
+                filteredProducts = filteredProducts.filter(p => p.product_status === 'active' || !p.product_status);
+            } else if (currentProductFilter === 'oos') {
+                filteredProducts = filteredProducts.filter(p => p.product_stock <= 0);
+            } else if (currentProductFilter.startsWith('cat-')) {
+                const targetCat = currentProductFilter.replace('cat-', '');
+                filteredProducts = filteredProducts.filter(p => p.category_id === targetCat);
+            }
+
+            if (filteredProducts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 sm:px-6 sm:py-16 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No entries found matching filters.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredProducts.map(p => {
+                const name = currentLang === 'en' ? (p.product_name_en || p.product_name_mm) : (p.product_name_mm || p.product_name_en);
+                const price = p.product_discount_price ? p.product_discount_price : p.product_price;
+                const img = p.product_image || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                const sku = p.product_sku || 'N/A';
+
+                return `
+                <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="h-8 w-12 xxs:h-10 xxs:w-14 sm:h-14 sm:w-20 rounded-lg sm:rounded-xl bg-gray-100 overflow-hidden border border-gray-200 shadow-sm flex items-center justify-center relative">
+                            <img src="${img}" class="${p.product_image ? 'h-full w-full object-cover' : 'h-4 w-4 sm:h-6 sm:w-6 opacity-50'}" alt="${name}">
+                        </div>
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="font-bold text-myancode-black truncate max-w-[120px] xxs:max-w-[150px] sm:max-w-[300px] text-[10px] xxs:text-[11px] sm:text-[15px]">${name}</div>
+                        <div class="text-[8px] xxs:text-[9px] sm:text-[11px] text-gray-400 font-mono mt-0.5 sm:mt-1 truncate max-w-[120px] xxs:max-w-[150px] sm:max-w-[300px]">${p.product_slug}</div>
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="font-bold text-myancode-black text-[10px] sm:text-sm">${price.toLocaleString()} ${p.currency || 'MMK'}</div>
+                        ${p.product_discount_price ? `<div class="text-[8px] sm:text-[10px] text-gray-400 line-through font-semibold">${p.product_price.toLocaleString()} ${p.currency || 'MMK'}</div>` : ''}
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap">
+                        <div class="flex flex-col gap-0.5 sm:gap-1 items-start">
+                            ${p.product_stock > 0
+                        ? `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[9px] leading-[10px] sm:leading-5 font-bold rounded-full bg-green-50 text-green-600 border border-green-100 uppercase tracking-widest shadow-inner-soft">In Stock (${p.product_stock})</span>`
+                        : `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[9px] leading-[10px] sm:leading-5 font-bold rounded-full bg-red-50 text-red-600 border border-red-100 uppercase tracking-widest shadow-inner-soft">Out of Stock</span>`
+                    }
+                            <span class="text-[8px] sm:text-[10px] text-gray-500 font-mono font-bold ml-1">${sku}</span>
+                        </div>
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                        <div class="flex items-center justify-end opacity-100 sm:opacity-40 group-hover:opacity-100 transition-opacity">
+                            <a href="../website-detail/?id=${p.product_id}" target="_blank" class="text-gray-500 hover:text-myancode-black mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-gray-100 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="View Detail Page"><i data-lucide="external-link" class="w-3 h-3 sm:w-4 sm:h-4"></i></a>
+                            <button onclick="openProductModal('${p.product_id}')" class="text-myancode-blue hover:text-blue-700 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-blue-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="Edit"><i data-lucide="edit-3" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>
+                            <button onclick="confirmDeleteProduct('${p.product_id}')" class="text-red-500 hover:text-red-700 p-1.5 sm:p-2 bg-red-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105 mx-0.5 sm:mx-1" title="Delete"><i data-lucide="trash-2" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function updateImagePreview(val) {
+            const container = document.getElementById('previewMainImgContainer');
+            if (val) { container.innerHTML = `<img src="${val}" class="w-full h-full object-cover">`; }
+            else { container.innerHTML = `<i data-lucide="image" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>`; lucide.createIcons(); }
+        }
+
+        function openProductModal(productId = null) {
+            document.getElementById('formProductId').value = productId || '';
+            document.getElementById('modalTitle').innerText = productId ? 'Edit Template' : 'Add Template';
+
+            if (productId) {
+                const p = allProducts.find(item => item.product_id === productId);
+                if (p) {
+                    document.getElementById('pNameEn').value = p.product_name_en || '';
+                    document.getElementById('pNameMm').value = p.product_name_mm || '';
+                    document.getElementById('pSlug').value = p.product_slug || '';
+                    document.getElementById('pSku').value = p.product_sku || '';
+
+                    // Populate New Fields
+                    document.getElementById('pCreator').value = p.product_creator || '';
+                    document.getElementById('pLiveDemo').value = p.live_demo_url || '';
+
+                    document.getElementById('pPrice').value = p.product_price || '';
+                    document.getElementById('pDiscount').value = p.product_discount_price || '';
+                    document.getElementById('pCategory').value = p.category_id || '';
+                    document.getElementById('pStock').value = p.product_stock || 0;
+                    document.getElementById('pMainImg').value = p.product_image || '';
+                    updateImagePreview(p.product_image || '');
+                    document.getElementById('pGallery').value = p.product_gallery ? p.product_gallery.join(', ') : '';
+                    document.getElementById('pDescEn').value = p.product_description_en || '';
+                    document.getElementById('pDescMm').value = p.product_description_mm || '';
+                }
+            } else {
+                document.getElementById('productForm').reset();
+                document.getElementById('pStock').value = '99';
+                updateImagePreview('');
+            }
+            document.getElementById('productModal').classList.remove('modal-hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('modal-hidden');
+        }
+
+        async function saveProduct() {
+            const btn = document.getElementById('btnSaveProduct'); btn.disabled = true;
+
+            try {
+                const id = document.getElementById('formProductId').value;
+                const nameEn = document.getElementById('pNameEn').value.trim();
+                const slug = document.getElementById('pSlug').value.trim().toLowerCase().replace(/\s+/g, '-');
+                const price = parseFloat(document.getElementById('pPrice').value);
+
+                // Get New Fields
+                const creator = document.getElementById('pCreator').value.trim();
+                const liveDemoUrl = document.getElementById('pLiveDemo').value.trim();
+
+                if (!nameEn || !slug || isNaN(price)) { showErrorToast("Please fill required fields (Name, Slug, Price)."); btn.disabled = false; return; }
+
+                // URL Validation logic
+                if (liveDemoUrl) {
+                    try {
+                        new URL(liveDemoUrl);
+                    } catch (_) {
+                        showErrorToast(currentLang === 'en' ? "Please enter a valid Live Demo URL (e.g., https://example.com)." : "မှန်ကန်သော Live Demo လင့်ခ် ထည့်ပါ။");
+                        btn.disabled = false;
+                        return;
+                    }
+                }
+
+                const galleryRaw = document.getElementById('pGallery').value; const galleryArray = galleryRaw ? galleryRaw.split(',').map(s => s.trim()).filter(s => s) : [];
+                const discountPrice = document.getElementById('pDiscount').value ? parseFloat(document.getElementById('pDiscount').value) : null;
+
+                const productData = {
+                    product_name_en: nameEn, product_name_mm: document.getElementById('pNameMm').value.trim() || null, product_slug: slug,
+                    product_sku: document.getElementById('pSku').value.trim() || null, product_price: price, product_discount_price: discountPrice,
+                    category_id: document.getElementById('pCategory').value.trim() || null, product_stock: parseInt(document.getElementById('pStock').value) || 0,
+                    product_image: document.getElementById('pMainImg').value.trim() || null, product_gallery: galleryArray,
+                    product_description_en: document.getElementById('pDescEn').value.trim() || null, product_description_mm: document.getElementById('pDescMm').value.trim() || null,
+
+                    // Apply New Fields
+                    product_creator: creator || null,
+                    live_demo_url: liveDemoUrl || null,
+
+                    updated_at: new Date().toISOString()
+                };
+
+                showLoader('loadingData');
+                if (id) { const { error } = await supabaseInstance.from('products').update(productData).eq('product_id', id); if (error) throw error; }
+                else { const { error } = await supabaseInstance.from('products').insert([productData]); if (error) throw error; }
+
+                closeProductModal(); showToast("Database entry saved successfully."); fetchProducts();
+            } catch (err) { hideLoader(); showErrorToast(err.message); } finally { btn.disabled = false; }
+        }
+
+        function confirmDeleteProduct(id) {
+            openConfirmModal("Delete Entry", "Are you sure you want to permanently delete this from the database?", true, async () => {
+                try { showLoader('loadingData'); const { error } = await supabaseInstance.from('products').delete().eq('product_id', id); if (error) throw error; showToast("Entry securely deleted."); fetchProducts(true); } catch (err) { hideLoader(); showErrorToast(err.message); }
+            });
+        }
+
+        async function fetchUsers(silent = false) {
+            try {
                 const { data, error } = await supabaseInstance.rpc('admin_get_users');
-                
                 if (error) throw error;
                 allUsers = data || [];
                 updateOverallDashboard();
-                renderUsersTable(document.getElementById('searchUsers')?.value || '');
+                renderUsersTable(document.getElementById('searchUsers').value);
             } catch (err) {
-                console.error("Users fetch error:", err);
-                if (!silent) showErrorToast("Failed to load user protocols.");
-            } finally {
-                if (!silent) hideLoader();
+                console.error("Failed to load users via RPC:", err);
+                if (!silent) showErrorToast("Failed to load user directory. Please check RPC functions.");
+                document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load users via RPC.</td></tr>`;
             }
         }
 
         function renderUsersTable(searchQuery = '') {
             const tbody = document.getElementById('usersTableBody');
-            let filtered = allUsers;
-
-            if (currentUserFilter !== 'all') {
-                filtered = filtered.filter(u => (u.role || 'customer') === currentUserFilter);
-            }
+            let filteredUsers = allUsers;
+            const myCurrentRole = currentUser?.user_metadata?.role || 'user';
 
             if (searchQuery) {
-                filtered = filtered.filter(u =>
-                    superFuzzySearch(searchQuery, u.email) ||
-                    (u.raw_user_meta_data?.full_name && superFuzzySearch(searchQuery, u.raw_user_meta_data.full_name))
-                );
+                filteredUsers = filteredUsers.filter(u => {
+                    const meta = u.raw_user_meta_data || {};
+                    return superFuzzySearch(searchQuery, meta.full_name) || superFuzzySearch(searchQuery, u.email);
+                });
             }
 
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No accounts found matching your security criteria.</td></tr>`;
+            if (currentUserFilter !== 'all') {
+                filteredUsers = filteredUsers.filter(u => {
+                    const role = u.raw_user_meta_data?.role || 'user';
+                    return role === currentUserFilter;
+                });
+            }
+
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 sm:px-6 sm:py-16 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No accounts found matching filters.</td></tr>`;
                 return;
             }
 
-            // Current logged in user is admin/super-admin. Determine if current user is super-admin.
-            const isSuperAdmin = currentUser && allUsers.find(u => u.id === currentUser.id)?.role === 'super-admin';
+            tbody.innerHTML = filteredUsers.map(u => {
+                const meta = u.raw_user_meta_data || {};
+                const name = meta.full_name || u.email.split('@')[0];
+                const role = meta.role || 'user';
+                const isSuperAdmin = role === 'super-admin';
+                const isMe = currentUser && u.id === currentUser.id;
 
-            tbody.innerHTML = filtered.map(u => {
-                const name = u.raw_user_meta_data?.full_name || 'No Name Set';
-                const date = new Date(u.created_at).toLocaleDateString();
-                const avatar = u.raw_user_meta_data?.avatar_url;
-                const isSelf = currentUser && u.id === currentUser.id;
+                const avatar = meta.avatar_url
+                    ? `<img src="${meta.avatar_url}" class="h-8 w-8 sm:h-12 sm:w-12 rounded-full object-cover border border-gray-200 shadow-sm">`
+                    : `<div class="h-8 w-8 sm:h-12 sm:w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 border border-gray-100 shadow-sm"><i data-lucide="user" class="w-3 h-3 sm:w-5 sm:h-5"></i></div>`;
 
-                const role = u.role || 'customer';
-                let roleHtml = '';
-                let clearanceHtml = '';
-
-                if (role === 'super-admin') {
-                    roleHtml = `<span class="bg-yellow-100 text-yellow-800 border border-yellow-200 px-2 py-1 rounded-full text-[8px] sm:text-[10px] uppercase font-bold tracking-widest flex items-center gap-1 w-max"><i data-lucide="crown" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i> Super Admin</span>`;
-                    clearanceHtml = `<span class="text-[9px] sm:text-[10px] text-gray-500 font-medium block mt-1"><i data-lucide="shield" class="w-3 h-3 inline"></i> ${dict[currentLang].lblProtected}</span>`;
+                let badgeHtml = '';
+                if (isSuperAdmin) {
+                    badgeHtml = `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-yellow-50 text-yellow-600 border border-yellow-200 uppercase tracking-widest shadow-inner-soft"><i data-lucide="crown" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 mt-0.5"></i> Super Admin</span>`;
                 } else if (role === 'admin') {
-                    roleHtml = `<span class="bg-purple-100 text-purple-800 border border-purple-200 px-2 py-1 rounded-full text-[8px] sm:text-[10px] uppercase font-bold tracking-widest flex items-center gap-1 w-max"><i data-lucide="shield-check" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i> Administrator</span>`;
-                    clearanceHtml = `<span class="text-[9px] sm:text-[10px] text-gray-500 font-medium block mt-1"><i data-lucide="lock" class="w-3 h-3 inline"></i> ${dict[currentLang].lblRestricted}</span>`;
-                } else if (role === 'pending') {
-                    roleHtml = `<span class="bg-orange-100 text-orange-800 border border-orange-200 px-2 py-1 rounded-full text-[8px] sm:text-[10px] uppercase font-bold tracking-widest flex items-center gap-1 w-max"><i data-lucide="clock" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i> Pending Invite</span>`;
+                    badgeHtml = `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-widest shadow-inner-soft"><i data-lucide="shield" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 mt-0.5"></i> Admin</span>`;
                 } else {
-                    roleHtml = `<span class="bg-blue-50 text-blue-600 border border-blue-100 px-2 py-1 rounded-full text-[8px] sm:text-[10px] uppercase font-bold tracking-widest flex items-center gap-1 w-max"><i data-lucide="user" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i> Customer</span>`;
+                    badgeHtml = `<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-gray-100 text-gray-600 border border-gray-200 uppercase tracking-widest shadow-inner-soft">User</span>`;
                 }
 
                 let actionsHtml = '';
-                if (isSuperAdmin && !isSelf) {
-                    actionsHtml = `
-                    <div class="relative group inline-block">
-                        <button class="p-1.5 sm:p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors mx-0.5 btn-hover-effect"><i data-lucide="more-vertical" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i></button>
-                        <div class="absolute right-0 mt-1 w-40 sm:w-48 bg-white border border-gray-100 rounded-xl shadow-premium opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden transform origin-top-right">
-                            <div class="p-1 text-[8px] sm:text-[10px] uppercase font-bold text-gray-400 tracking-widest border-b border-gray-50 px-3">Modify Clearance</div>
-                            ${role !== 'super-admin' ? `<button onclick="updateUserRole('${u.id}', 'super-admin')" class="w-full text-left px-3 py-2 sm:px-4 sm:py-2.5 text-[10px] sm:text-xs font-bold text-yellow-600 hover:bg-yellow-50 transition-colors flex items-center gap-2"><i data-lucide="crown" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> ${dict[currentLang].btnMakeSuperAdmin}</button>` : ''}
-                            ${role !== 'admin' ? `<button onclick="updateUserRole('${u.id}', 'admin')" class="w-full text-left px-3 py-2 sm:px-4 sm:py-2.5 text-[10px] sm:text-xs font-bold text-purple-600 hover:bg-purple-50 transition-colors flex items-center gap-2 border-t border-gray-50"><i data-lucide="shield-check" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> ${dict[currentLang].btnMakeAdmin}</button>` : ''}
-                            ${(role !== 'customer' && role !== 'pending') ? `<button onclick="updateUserRole('${u.id}', 'customer')" class="w-full text-left px-3 py-2 sm:px-4 sm:py-2.5 text-[10px] sm:text-xs font-bold text-blue-600 hover:bg-blue-50 transition-colors flex items-center gap-2 border-t border-gray-50"><i data-lucide="user-minus" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> ${dict[currentLang].btnMakeUser}</button>` : ''}
-                            
-                            <div class="p-1 text-[8px] sm:text-[10px] uppercase font-bold text-gray-400 tracking-widest border-b border-t border-gray-50 px-3 mt-1 pt-2">Security Override</div>
-                            <button onclick="forceResetUserPassword('${u.id}')" class="w-full text-left px-3 py-2 sm:px-4 sm:py-2.5 text-[10px] sm:text-xs font-bold text-orange-600 hover:bg-orange-50 transition-colors flex items-center gap-2"><i data-lucide="key-round" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> Force Reset PWD</button>
-                            <button onclick="confirmDeleteUser('${u.id}')" class="w-full text-left px-3 py-2 sm:px-4 sm:py-2.5 text-[10px] sm:text-xs font-bold text-white bg-red-500 hover:bg-red-600 transition-colors flex items-center gap-2"><i data-lucide="user-x" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> Terminate Account</button>
-                        </div>
-                    </div>
-                    `;
-                } else if (!isSuperAdmin && role === 'super-admin') {
-                     actionsHtml = `<span class="text-[9px] sm:text-xs font-bold text-gray-400 tracking-widest uppercase"><i data-lucide="lock" class="w-3 h-3 inline align-text-bottom"></i> Classified</span>`;
-                } else if (isSelf) {
-                    actionsHtml = `<span class="text-[9px] sm:text-xs font-bold text-gray-400 tracking-widest uppercase">Current Session</span>`;
+                if (isMe) {
+                    actionsHtml = `<span class="text-[8px] sm:text-[10px] text-gray-300 uppercase tracking-widest font-bold ml-1 sm:ml-2">Protected</span>`;
+                } else if (isSuperAdmin && myCurrentRole !== 'super-admin') {
+                    actionsHtml = `<span class="text-[8px] sm:text-[10px] text-red-300 uppercase tracking-widest font-bold ml-1 sm:ml-2">Restricted</span>`;
+                } else {
+                    actionsHtml += `<button onclick="confirmForceResetPassword('${u.id}', '${u.email}')" class="text-green-600 hover:text-green-800 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-green-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="Force Reset Password"><i data-lucide="key" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
+
+                    if (role === 'super-admin') {
+                        if (myCurrentRole === 'super-admin') {
+                            actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-orange-500 hover:text-orange-700 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-orange-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="Demote User"><i data-lucide="arrow-down" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
+                        }
+                    } else if (role === 'admin') {
+                        if (myCurrentRole === 'super-admin') {
+                            actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'super-admin')" class="text-yellow-600 hover:text-yellow-800 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-yellow-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="Promote Super Admin"><i data-lucide="crown" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
+                        }
+                        actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'user')" class="text-orange-500 hover:text-orange-700 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-orange-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="Demote User"><i data-lucide="user-minus" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
+                    } else {
+                        actionsHtml += `<button onclick="confirmChangeUserRole('${u.id}', 'admin')" class="text-purple-500 hover:text-purple-700 mx-0.5 sm:mx-1 p-1.5 sm:p-2 bg-purple-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105" title="Promote Admin"><i data-lucide="shield" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
+                    }
+                    actionsHtml += `<button onclick="confirmDeleteUser('${u.id}')" class="text-red-500 hover:text-red-700 p-1.5 sm:p-2 bg-red-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105 mx-0.5 sm:mx-1" title="Delete"><i data-lucide="trash-2" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>`;
                 }
 
                 return `
-                <tr class="hover:bg-gray-50/80 transition-colors border-b border-gray-50">
-                    <td class="px-2 py-2 xxs:px-3 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2 sm:gap-3">
-                            <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
-                                ${avatar ? `<img src="${avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>`}
-                            </div>
+                <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-2 sm:gap-4">
+                            ${avatar}
                             <div>
-                                <div class="font-bold text-myancode-black text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[200px]" title="${name}">${name} ${isSelf ? ' <span class="text-[8px] sm:text-[9px] text-green-500 font-bold ml-1">(You)</span>' : ''}</div>
-                                <div class="text-[9px] sm:text-[11px] text-gray-500 font-medium truncate max-w-[120px] sm:max-w-[200px]" title="${u.email}">${u.email}</div>
-                                <div class="text-[8px] sm:text-[9px] text-gray-400 font-mono mt-0.5 truncate max-w-[120px] sm:max-w-[150px]" title="ID: ${u.id}">ID: ${u.id.substring(0, 8)}...</div>
+                                <div class="font-bold text-myancode-black capitalize text-[10px] xxs:text-[11px] sm:text-[15px]">${name} ${isMe ? '<span class="text-[7px] sm:text-[9px] bg-blue-100 text-blue-600 px-1.5 sm:px-2 py-0.5 rounded-full ml-1 sm:ml-2 uppercase tracking-widest align-middle border border-blue-200 shadow-inner-soft">You</span>' : ''}</div>
+                                <div class="text-[8px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1 font-mono">${u.email}</div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">
-                        ${roleHtml}
-                        ${clearanceHtml}
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        ${badgeHtml}
                     </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-[10px] sm:text-xs font-medium text-gray-600">${date}</td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right relative overflow-visible">
-                        ${actionsHtml}
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-[9px] sm:text-xs text-gray-500 font-bold tracking-wide font-mono">
+                        ${new Date(u.created_at).toLocaleDateString()}
                     </td>
-                </tr>`;
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                        <div class="flex items-center justify-end opacity-100 sm:opacity-40 group-hover:opacity-100 transition-opacity">
+                            ${actionsHtml}
+                        </div>
+                    </td>
+                </tr>
+                `;
             }).join('');
             lucide.createIcons();
         }
 
-        async function updateUserRole(userId, newRole) {
-            openConfirmModal(dict[currentLang].confirmRoleTitle, dict[currentLang].confirmRoleMsg, false, async () => {
-                showLoader('loadingData');
-                try {
-                    // Call the RPC defined in our SQL migration script
-                    const { error } = await supabaseInstance.rpc('admin_set_role', { target_user_id: userId, new_role: newRole });
-                    
-                    if (error) throw error;
-                    
-                    showToast(dict[currentLang].msgRoleUpdated);
-                    fetchUsers(true);
-                } catch (err) {
-                    console.error("Role update error:", err);
-                    showErrorToast(err.message || "Failed to update security clearance.");
-                } finally {
-                    hideLoader();
-                }
-            });
-        }
-
-        function confirmDeleteUser(userId) {
-            openConfirmModal(dict[currentLang].confirmUserDeleteTitle, dict[currentLang].confirmUserDeleteMsg, true, async () => {
-                showLoader('loadingData');
-                try {
-                    // Call the RPC defined in our SQL migration script
-                    const { error } = await supabaseInstance.rpc('admin_delete_user', { target_user_id: userId });
-                    
-                    if (error) throw error;
-                    
-                    showToast(dict[currentLang].msgDeleteSuccess);
-                    fetchUsers(true);
-                } catch (err) {
-                    console.error("User deletion error:", err);
-                    showErrorToast(err.message || "Failed to terminate account.");
-                } finally { hideLoader(); }
-            });
-        }
-
-        function forceResetUserPassword(userId) {
-            openConfirmModal(dict[currentLang].confirmResetTitle, dict[currentLang].confirmResetMsg, true, async () => {
-                showLoader('loadingData');
-                try {
-                    // Requires Service Role Key to bypass Auth limits for password changes without old password
-                    const adminAuthClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
-                    
-                    const newTempPassword = "My0\"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03";
-                    const { data, error } = await adminAuthClient.auth.admin.updateUserById(userId, { password: newTempPassword });
-                    
-                    if (error) throw error;
-                    
-                    showToast(dict[currentLang].msgPassReset);
-                    
-                    // Show success modal to copy the email template to send to user
-                    document.getElementById('pwdResetSuccessModal').classList.remove('hidden');
-                    document.getElementById('pwdResetSuccessModal').classList.add('flex');
-                    setTimeout(() => {
-                        document.getElementById('pwdResetSuccessModal').classList.remove('opacity-0');
-                        document.getElementById('pwdResetSuccessModal').querySelector('.modal-content').classList.remove('scale-95');
-                    }, 10);
-                } catch (err) {
-                    console.error("Reset error:", err);
-                    showErrorToast(err.message || "Failed to reset password.");
-                } finally {
-                    hideLoader();
-                }
-            });
-        }
-
-        function copyHtmlEmailTemplate() {
-            const htmlContent = `Hello,<br><br>You are verified as an owner by our organization. Your account password has been successfully recovered and reset.<br><br><b>Temporary Password:</b><br>My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03<br><br>Please log in and update your security settings immediately.`;
-            navigator.clipboard.writeText(htmlContent).then(() => {
-                showToast("HTML Template Copied to Clipboard!");
-            }).catch(err => {
-                showErrorToast("Failed to copy text.");
-            });
-        }
-
-        function sendNowEmail() { window.location.href = "mailto:?subject=Important: Organization Account Recovery Initiated"; }
-
-        function closePwdResetModal() {
-            const modal = document.getElementById('pwdResetSuccessModal');
-            modal.classList.add('opacity-0');
-            modal.querySelector('.modal-content').classList.add('scale-95');
-            setTimeout(() => { modal.classList.remove('flex'); modal.classList.add('hidden'); }, 300);
-        }
-
-        function openForcePasswordModal(isRequiredBySystem) {
-            document.getElementById('newSecurePassword').value = '';
-            document.getElementById('forcePasswordModal').classList.remove('modal-hidden');
-            if (isRequiredBySystem) {
-                document.getElementById('closePwdBtn').classList.add('hidden'); // Cannot close if forced by system
-                document.getElementById('forcePasswordModal').querySelector('.modal-overlay').onclick = null;
-            } else {
-                document.getElementById('closePwdBtn').classList.remove('hidden');
-                document.getElementById('forcePasswordModal').querySelector('.modal-overlay').onclick = closeForcePasswordModal;
-            }
-        }
-        function closeForcePasswordModal() { document.getElementById('forcePasswordModal').classList.add('modal-hidden'); }
-
-        async function saveNewPassword() {
-            const pwd = document.getElementById('newSecurePassword').value;
-            if (pwd.length < 8) return showErrorToast("Password must be at least 8 characters long.");
-
-            const btnSave = document.getElementById('btnSaveNewPwd');
-            const originalBtnText = btnSave.innerHTML;
-            btnSave.disabled = true;
-            btnSave.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 sm:w-4 sm:h-4 animate-spin"></i> <span>Securing...</span>`;
-            lucide.createIcons();
-            showLoader('loadingData');
-
-            try {
-                const { error } = await supabaseInstance.auth.updateUser({ password: pwd });
-                if (error) throw error;
-                showToast(dict[currentLang].msgPwdSaved || "Password updated!");
-                closeForcePasswordModal();
-            } catch (err) { showErrorToast(err.message); }
-            finally { btnSave.disabled = false; btnSave.innerHTML = originalBtnText; hideLoader(); }
-        }
+        function confirmChangeUserRole(id, newRole) { openConfirmModal("Update Clearance", "Are you sure you want to modify this user's security clearance level?", false, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_set_role', { target_user_id: id, new_role: newRole }); if (error) throw error; showToast("Security role updated."); fetchUsers(); hideLoader(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
+        function confirmDeleteUser(id) { openConfirmModal("Terminate Account", "Are you sure you want to completely erase this user account?", true, async () => { showLoader('loadingData'); try { const { error } = await supabaseInstance.rpc('admin_delete_user', { target_user_id: id }); if (error) throw error; showToast("Entry securely deleted."); fetchUsers(); hideLoader(); } catch (err) { showErrorToast(err.message); hideLoader(); } }); }
 
         function openInviteAdminModal() {
             document.getElementById('inviteEmail').value = '';
             document.getElementById('inviteAdminModal').classList.remove('modal-hidden');
         }
-        function closeInviteAdminModal() { document.getElementById('inviteAdminModal').classList.add('modal-hidden'); }
-        function closeInviteSuccessModal() {
-            const modal = document.getElementById('inviteSuccessModal');
-            modal.classList.add('opacity-0');
-            modal.querySelector('.modal-content').classList.add('scale-95');
-            setTimeout(() => { modal.classList.remove('flex'); modal.classList.add('hidden'); }, 300);
+
+        function closeInviteAdminModal() {
+            document.getElementById('inviteAdminModal').classList.add('modal-hidden');
         }
 
         async function submitInviteAdmin() {
             const email = document.getElementById('inviteEmail').value.trim();
-            if (!email) return showErrorToast("Email is required.");
+            if (!email) { showErrorToast("Please provide an email address."); return; }
+            const btn = document.getElementById('btnSubmitInvite'); btn.disabled = true; showLoader('loadingData');
 
-            const btnSave = document.getElementById('btnSubmitInvite');
-            const originalBtnText = btnSave.innerHTML;
-            btnSave.disabled = true;
-            btnSave.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 sm:w-4 sm:h-4 animate-spin"></i> <span>Sending...</span>`;
-            lucide.createIcons();
+            try {
+                const adminSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+                const exactDashboardUrl = window.location.href.split(/[?#]/)[0];
+                const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(email, { data: { role: 'admin' }, redirectTo: exactDashboardUrl });
+                if (inviteError) throw inviteError;
+
+                if (inviteData && inviteData.user && inviteData.user.id) {
+                    const { error: assignRoleError } = await supabaseInstance
+                        .from('user_roles')
+                        .upsert({ user_id: inviteData.user.id, role: 'admin' });
+
+                    if (assignRoleError) {
+                        showErrorToast("Failed to assign admin role: " + assignRoleError.message);
+                    }
+                }
+
+                finishInviteProcess(email); fetchUsers();
+            } catch (err) {
+                showErrorToast(err.message || "Failed to send invite.");
+            } finally { btn.disabled = false; hideLoader(); }
+        }
+
+        function finishInviteProcess(email) {
+            closeInviteAdminModal();
+            document.getElementById('displayInviteEmail').innerText = email;
+            const modal = document.getElementById('inviteSuccessModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.modal-content').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeInviteSuccessModal() {
+            const modal = document.getElementById('inviteSuccessModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        let currentResetEmail = '';
+        function confirmForceResetPassword(id, email) {
+            currentResetEmail = email;
+            openConfirmModal(
+                "Force Reset Password", "Reset this user's password to the organizational default? A UI template to copy the email notification will open upon success.", false,
+                async () => {
+                    showLoader('loadingData');
+                    try {
+                        const adminSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+                        const { error } = await adminSupabase.auth.admin.updateUserById(id, {
+                            password: 'My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03'
+                        });
+                        if (error) throw error;
+                        hideLoader();
+                        const modal = document.getElementById('pwdResetSuccessModal');
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                        setTimeout(() => {
+                            modal.classList.remove('opacity-0');
+                            modal.querySelector('.modal-content').classList.remove('scale-95');
+                        }, 10);
+                    } catch (err) { showErrorToast(err.message); hideLoader(); }
+                }
+            );
+        }
+
+        function closePwdResetModal() {
+            const modal = document.getElementById('pwdResetSuccessModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        /* --- FORCE PASSWORD CHANGE LOGIC --- */
+        function openForcePasswordModal(isForce = false) {
+            document.getElementById('newSecurePassword').value = '';
+            const closeBtn = document.getElementById('closePwdBtn');
+            if (isForce) { closeBtn.classList.add('hidden'); }
+            else { closeBtn.classList.remove('hidden'); }
+
+            document.getElementById('forcePasswordModal').classList.remove('modal-hidden');
+        }
+
+        function closeForcePasswordModal() {
+            document.getElementById('forcePasswordModal').classList.add('modal-hidden');
+        }
+
+        async function saveNewPassword() {
+            const newPwd = document.getElementById('newSecurePassword').value;
+            if (!newPwd || newPwd.length < 6) {
+                showErrorToast("Password must be at least 6 characters.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSaveNewPwd');
+            btn.disabled = true;
             showLoader('loadingData');
 
             try {
-                // Must use Service Role Key for inviting users on behalf of admin
-                const adminAuthClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
-                
-                const { data, error } = await adminAuthClient.auth.admin.inviteUserByEmail(email);
-                
+                const { error } = await supabaseInstance.auth.updateUser({ password: newPwd });
                 if (error) throw error;
 
-                // User successfully invited. The SQL trigger automatically creates their public.users row with role='pending'.
-                
-                closeInviteAdminModal();
-                document.getElementById('displayInviteEmail').innerText = email;
-                document.getElementById('inviteSuccessModal').classList.remove('hidden');
-                document.getElementById('inviteSuccessModal').classList.add('flex');
-                setTimeout(() => {
-                    document.getElementById('inviteSuccessModal').classList.remove('opacity-0');
-                    document.getElementById('inviteSuccessModal').querySelector('.modal-content').classList.remove('scale-95');
-                }, 10);
+                showToast("Password successfully updated!");
+                closeForcePasswordModal();
 
-                fetchUsers(true);
+                document.getElementById('newSecurePassword').value = '';
             } catch (err) {
-                console.error("Invite error:", err);
-                showErrorToast(err.message || "Failed to send invitation.");
+                showErrorToast(err.message);
             } finally {
-                btnSave.disabled = false;
-                btnSave.innerHTML = originalBtnText;
+                btn.disabled = false;
                 hideLoader();
             }
         }
 
+        function copyHtmlEmailTemplate(silent = false) {
+            const path = window.location.pathname.replace('/admin-dashboard/', '/login/');
+            const fullUrl = window.location.origin + path;
+            const htmlContent = `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px; background-color: #fbfbfd; color: #111111;">
+                <div style="max-w: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; border: 1px solid #eaeaea;">
+                    <h2 style="margin-top: 0; color: #111111; letter-spacing: -0.5px;">Account Recovery Initiated</h2>
+                    <p style="color: #6e6e73; line-height: 1.6;">Hello,</p>
+                    <p style="color: #6e6e73; line-height: 1.6;">
+                        You are verified as an owner by our organization. Your account password has been successfully recovered and reset.
+                    </p>
+                    <div style="background-color: #f5f5f7; padding: 16px; border-radius: 8px; margin: 24px 0; border: 1px solid #eaeaea;">
+                        <p style="margin: 0; font-size: 12px; color: #6e6e73; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; margin-bottom: 8px;">Your New Temporary Password</p>
+                        <p style="margin: 0; font-family: monospace; font-size: 16px; font-weight: bold; word-break: break-all;">My0"=An-C/o+d!=E_DeFaULT*$%password-//:20-26/03>03</p>
+                    </div>
+                    <p style="color: #6e6e73; line-height: 1.6; font-size: 14px;">
+                        <strong>Immediate Action Required:</strong> Please log in and immediately change this password to your own private password for your security.
+                    </p>
+                    <a href="${fullUrl}" style="display: inline-block; background-color: #111111; color: white; padding: 14px 24px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 14px; margin-top: 10px;">Proceed to Login</a>
+                    <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+                    <p style="color: #a1a1aa; font-size: 12px; margin: 0;">Best regards,<br>MyanCode Administration Team</p>
+                </div>
+            </div>
+            `;
+            const container = document.createElement('div'); container.innerHTML = htmlContent; container.style.position = 'fixed'; container.style.pointerEvents = 'none'; container.style.opacity = '0'; document.body.appendChild(container);
+            const selection = window.getSelection(); const range = document.createRange(); range.selectNodeContents(container); selection.removeAllRanges(); selection.addRange(range);
+            let success = false;
+            try { success = document.execCommand('copy'); if (!silent && success) showToast("Email UI copied! Paste in Gmail/Outlook."); } catch (e) { if (!silent) showErrorToast("Copy failed."); }
+            selection.removeAllRanges(); document.body.removeChild(container); return success;
+        }
 
-        /* --- NEWSLETTER TAB LOGIC --- */
+        function sendNowEmail() {
+            const copied = copyHtmlEmailTemplate(true);
+            if (copied) showToast("Template copied! Paste (Ctrl+V) into the email body.");
+            window.location.href = `mailto:${currentResetEmail}?subject=${encodeURIComponent("Default Password Set - Action Required")}`;
+        }
+
+
+        /* --- NEWSLETTER SUBSCRIPTION LOGIC --- */
         async function fetchSubscribers(silent = false) {
-            if (!supabaseInstance) return;
-            if (!silent) showLoader('loadingData');
             try {
-                const { data, error } = await supabaseInstance.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
+                const { data, error } = await supabaseInstance.from('subscribers').select('*').order('subscribed_at', { ascending: false });
                 if (error) throw error;
                 allSubscribers = data || [];
                 renderSubscribersTable();
             } catch (err) {
-                console.error("Subscribers fetch error", err);
+                console.error("Failed to load subscribers:", err);
                 if (!silent) showErrorToast("Failed to load subscribers.");
-            } finally {
-                if (!silent) hideLoader();
+                document.getElementById('subscribersTableBody').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500 font-bold">Failed to load subscribers.</td></tr>`;
             }
         }
 
         function renderSubscribersTable() {
             const tbody = document.getElementById('subscribersTableBody');
             if (allSubscribers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No active subscribers found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 sm:px-6 sm:py-16 text-center text-[10px] sm:text-sm text-gray-400 font-bold tracking-wide">No active subscribers found.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = allSubscribers.map(s => {
-                const date = new Date(s.created_at).toLocaleDateString();
-                const isActive = s.status === 'subscribed';
-                const statusHtml = isActive
-                    ? `<span class="px-2 py-1 text-[8px] rounded-full bg-green-50 text-green-600 border border-green-100 uppercase font-bold tracking-widest"><i data-lucide="check-circle-2" class="w-2.5 h-2.5 inline align-text-bottom"></i> Active</span>`
-                    : `<span class="px-2 py-1 text-[8px] rounded-full bg-gray-50 text-gray-600 border border-gray-200 uppercase font-bold tracking-widest">Unsubscribed</span>`;
+            tbody.innerHTML = allSubscribers.map(sub => {
+                const statusHtml = sub.confirmed
+                    ? '<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-green-50 text-green-600 border border-green-100 uppercase tracking-widest shadow-inner-soft">Active</span>'
+                    : '<span class="px-2 py-0.5 sm:px-3 sm:py-1 inline-flex text-[7px] sm:text-[10px] leading-[10px] sm:leading-5 font-bold rounded-full bg-gray-100 text-gray-500 border border-gray-200 uppercase tracking-widest shadow-inner-soft">Pending</span>';
 
                 return `
-                <tr class="hover:bg-gray-50/80 transition-colors border-b border-gray-50">
-                    <td class="px-2 py-2 xxs:px-3 sm:px-6 sm:py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2 sm:gap-3">
-                            <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 flex-shrink-0">
-                                <i data-lucide="mail" class="w-4 h-4 sm:w-5 sm:h-5 text-myancode-blue"></i>
-                            </div>
+                <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-50">
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        <div class="flex items-center gap-2 sm:gap-4">
+                            <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 border border-gray-100 shadow-sm"><i data-lucide="mail" class="w-3 h-3 sm:w-4 sm:h-4"></i></div>
                             <div>
-                                <div class="font-bold text-myancode-black text-xs sm:text-sm truncate max-w-[150px] sm:max-w-[250px]" title="${s.email}">${s.email}</div>
+                                <div class="font-bold text-myancode-black text-[10px] xxs:text-[11px] sm:text-sm">${sub.email}</div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-[10px] sm:text-xs font-medium text-gray-600">${date}</td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap">${statusHtml}</td>
-                    <td class="px-2 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right">
-                        <button onclick="confirmDeleteSubscriber('${s.id}')" class="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 mx-0.5 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-[9px] sm:text-xs text-gray-500 font-bold tracking-wide font-mono">
+                        ${new Date(sub.subscribed_at).toLocaleDateString()}
                     </td>
-                </tr>`;
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap">
+                        ${statusHtml}
+                    </td>
+                    <td class="px-2 py-2 xxs:px-3 xxs:py-3 sm:px-6 sm:py-5 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                        <div class="flex items-center justify-end opacity-100 sm:opacity-40 group-hover:opacity-100 transition-opacity">
+                            <button onclick="confirmDeleteSubscriber('${sub.id}')" class="text-red-500 hover:text-red-700 p-1.5 sm:p-2 bg-red-50 rounded-lg sm:rounded-xl transition-transform hover:scale-105 mx-0.5 sm:mx-1" title="Delete"><i data-lucide="trash-2" class="w-3 h-3 sm:w-4 sm:h-4"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                `;
             }).join('');
             lucide.createIcons();
         }
 
         function confirmDeleteSubscriber(id) {
-            openConfirmModal(dict[currentLang].confirmSubDeleteTitle, dict[currentLang].confirmSubDeleteMsg, true, async () => {
+            openConfirmModal("Delete Subscriber", "Are you sure you want to permanently remove this email from your mailing list?", true, async () => {
                 showLoader('loadingData');
                 try {
-                    const { error } = await supabaseInstance.from('newsletter_subscribers').delete().eq('id', id);
+                    const { error } = await supabaseInstance.from('subscribers').delete().eq('id', id);
                     if (error) throw error;
-                    showToast(dict[currentLang].msgSubDeleteSuccess);
+                    showToast("Subscriber removed successfully.");
                     fetchSubscribers(true);
-                } catch (err) { showErrorToast(err.message || "Failed to delete."); }
-                finally { hideLoader(); }
+                } catch (err) {
+                    showErrorToast(err.message);
+                } finally {
+                    hideLoader();
+                }
             });
         }
 
@@ -4238,40 +4366,51 @@
             document.getElementById('newsletterComposeForm').reset();
             document.getElementById('newsletterModal').classList.remove('modal-hidden');
         }
-        function closeNewsletterModal() { document.getElementById('newsletterModal').classList.add('modal-hidden'); }
+
+        function closeNewsletterModal() {
+            document.getElementById('newsletterModal').classList.add('modal-hidden');
+        }
 
         async function sendNewsletter() {
             const subject = document.getElementById('newsSubject').value.trim();
             const htmlContent = document.getElementById('newsHtml').value.trim();
 
-            if (!subject || !htmlContent) return showErrorToast("Subject and HTML Content are required.");
+            if (!subject || !htmlContent) {
+                showErrorToast("Please fill out both subject and content.");
+                return;
+            }
 
             const btn = document.getElementById('btnSendNewsletter');
-            const originalBtnText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 sm:w-4 sm:h-4 animate-spin"></i> <span>Sending...</span>`;
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span>Sending...</span>';
             lucide.createIcons();
 
             showLoader('loadingData');
 
             try {
-                // Ensure active session context
+                // Explicitly grab the active session
                 const { data: { session } } = await supabaseInstance.auth.getSession();
                 
-                // Assuming you have an Edge Function deployed named 'send-newsletter' for processing Resend broadcasts
+                // Force the token into the headers
                 const { data, error } = await supabaseInstance.functions.invoke('send-newsletter', {
-                    body: { email_subject: subject, html_content: htmlContent },
-                    headers: { Authorization: `Bearer ${session?.access_token}` }
+                    body: {
+                        email_subject: subject,
+                        html_content: htmlContent
+                    },
+                    headers: {
+                        Authorization: `Bearer ${session?.access_token}`
+                    }
                 });
 
                 if (error) throw error;
                 if (data && data.error) throw new Error(data.error);
 
-                showToast(dict[currentLang].msgNewsSent || "Newsletter dispatched successfully!");
+                showToast("Newsletter dispatched successfully to all subscribers!");
                 closeNewsletterModal();
             } catch (err) {
                 console.error("Newsletter error:", err);
-                showErrorToast(err.message || "Failed to execute mass broadcast. Check logs.");
+                showErrorToast(err.message || "Failed to send newsletter.");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalBtnText;
