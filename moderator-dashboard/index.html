@@ -180,7 +180,6 @@
 
         <div class="flex-1 overflow-y-auto custom-scroll relative z-10 p-6 sm:p-12" id="mainContentArea">
             
-            <!-- Overview -->
             <div id="view-overview" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full items-center justify-center min-h-[60vh]">
                 <div class="glass-panel p-12 rounded-[2rem] text-center max-w-lg w-full flex flex-col items-center shadow-2xl border border-white/5 reveal active">
                     <div class="w-20 h-20 bg-myancode-accent/10 border border-myancode-accent/20 rounded-full flex items-center justify-center mb-6">
@@ -191,7 +190,6 @@
                 </div>
             </div>
 
-            <!-- Settings -->
             <div id="view-settings" class="view-section hidden flex-col gap-8 max-w-4xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="user-circle" class="h-7 w-7 text-myancode-accent"></i> <span data-i18n="profPublic">Public Profile</span></h3>
@@ -394,7 +392,7 @@
             const { data: profile, error } = await supabaseInstance.from('profiles').select('*').eq('id', session.user.id).single();
             if (error || !profile) { window.location.replace('../login/'); return; }
 
-            if (profile.requires_password_change) {
+            if (profile.requires_password_change || session.user.user_metadata?.is_invite) {
                 currentSessionTemp = session;
                 currentProfileTemp = profile;
                 const modal = document.getElementById('forcePasswordModal');
@@ -453,16 +451,24 @@
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-white"></i>`; lucide.createIcons();
 
             try {
-                const { error } = await supabaseInstance.auth.updateUser({ password: pass });
+                const { error } = await supabaseInstance.auth.updateUser({ password: pass, data: { is_invite: false } });
                 if(error) throw error;
 
                 const { error: dbError } = await supabaseInstance.from('profiles').update({ requires_password_change: false }).eq('id', currentSessionTemp.user.id);
-                if(dbError) throw dbError;
+                if(dbError && dbError.code !== 'PGRST116') console.warn(dbError);
 
                 showToast("Password secured.");
                 const modal = document.getElementById('forcePasswordModal');
                 modal.classList.add('opacity-0');
                 document.getElementById('forcePasswordModalContent').classList.add('scale-95');
+                
+                if (currentSessionTemp.user.user_metadata) {
+                     currentSessionTemp.user.user_metadata.is_invite = false;
+                }
+                if (currentProfileTemp) {
+                     currentProfileTemp.requires_password_change = false;
+                }
+
                 setTimeout(() => {
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
