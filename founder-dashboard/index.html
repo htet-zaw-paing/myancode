@@ -103,6 +103,7 @@
         #sidebar.collapsed .px-6 { padding-left: 0; padding-right: 0; justify-content: center; }
         #sidebar.collapsed .px-4 { padding-left: 0.5rem; padding-right: 0.5rem; }
         #sidebar.collapsed .logo-container { justify-content: center; padding: 0; }
+        #sidebar.collapsed .logo-container-inner { justify-content: center; }
         #sidebar.collapsed .logo-img { margin-right: 0; }
         #sidebar.collapsed .menu-item-btn { justify-content: center; padding-left: 0; padding-right: 0; }
 
@@ -193,7 +194,7 @@
     <main class="flex-1 flex flex-col h-screen overflow-hidden bg-[#050505] relative w-full">
         <div class="absolute inset-0 bg-grid-dark pointer-events-none z-0 opacity-60"></div>
         
-        <header class="glass-header h-20 flex items-center justify-between px-6 sm:px-12 relative z-10 flex-shrink-0">
+        <header class="glass-header h-20 flex items-center justify-between px-6 sm:px-12 relative z-[70] flex-shrink-0">
             <div class="flex items-center gap-5">
                 <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white transition-colors lg:hidden"><i data-lucide="menu" class="w-6 h-6"></i></button>
                 <button onclick="toggleSidebarDesktop()" class="text-gray-400 hover:text-white transition-colors hidden lg:block"><i data-lucide="align-left" class="w-6 h-6"></i></button>
@@ -394,6 +395,10 @@
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active border-t border-white/10">
                     <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="shield" class="h-7 w-7 text-green-400"></i> <span data-i18n="profSecurity">Security & Access</span></h3>
                     <div class="space-y-6 max-w-lg">
+                        <div>
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="profOldPass">Current Password</label>
+                            <input type="password" id="profileOldPassInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-all shadow-inner">
+                        </div>
                         <div>
                             <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="profPass">New Password</label>
                             <input type="password" id="profilePassInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-all shadow-inner">
@@ -1243,15 +1248,32 @@
         }
 
         async function updatePassword() {
-            const pass1 = document.getElementById('profilePassInput').value;
-            if (!pass1 || pass1.length < 6) { showErrorToast('Password must be at least 6 characters'); return; }
+            const oldPass = document.getElementById('profileOldPassInput').value;
+            const newPass = document.getElementById('profilePassInput').value;
+            
+            if (!oldPass) { showErrorToast(currentLang === 'en' ? 'Please enter current password' : 'လက်ရှိ စကားဝှက်ကို ထည့်ပါ'); return; }
+            if (!newPass || newPass.length < 6) { showErrorToast(currentLang === 'en' ? 'New password must be at least 6 characters' : 'စကားဝှက် အနည်းဆုံး ၆ လုံး ရှိရပါမည်'); return; }
+            
             showLoader();
             try {
-                const { error } = await supabaseInstance.auth.updateUser({ password: pass1 });
+                const { error: signInError } = await supabaseInstance.auth.signInWithPassword({
+                    email: currentUser.email,
+                    password: oldPass
+                });
+                
+                if (signInError) throw new Error(currentLang === 'en' ? "Current password is incorrect." : "လက်ရှိ စကားဝှက် မှားယွင်းနေပါသည်။");
+
+                const { error } = await supabaseInstance.auth.updateUser({ password: newPass });
                 if (error) throw error;
+                
+                document.getElementById('profileOldPassInput').value = '';
                 document.getElementById('profilePassInput').value = '';
-                showToast('Password updated');
-            } catch(err) { showErrorToast(err.message); } finally { hideLoader(); }
+                showToast(currentLang === 'en' ? 'Password updated successfully' : 'စကားဝှက် ပြောင်းလဲခြင်း အောင်မြင်ပါသည်');
+            } catch(err) { 
+                showErrorToast(err.message); 
+            } finally { 
+                hideLoader(); 
+            }
         }
 
         function toggleHeaderProfile(e) {

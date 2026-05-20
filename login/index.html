@@ -430,6 +430,17 @@
                     </svg>
                     <span data-i18n="btnGithubLogin">Sign in with GitHub</span>
                 </button>
+                
+                <div class="mt-2 mb-2 flex items-center justify-between w-full">
+                    <span class="border-b border-white/10 w-full"></span>
+                    <span class="text-[10px] text-gray-600 font-bold font-mono px-4 uppercase tracking-widest" data-i18n="orDivider">OR</span>
+                    <span class="border-b border-white/10 w-full"></span>
+                </div>
+                
+                <button type="button" onclick="openMagicLinkModal()" class="w-full btn-hover-effect bg-myancode-accent/10 border border-myancode-accent/30 text-myancode-accent py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-myancode-accent/20 transition shadow-sm flex justify-center items-center gap-3">
+                    <i data-lucide="zap" class="h-5 w-5"></i>
+                    <span data-i18n="btnMagicLink">Sign in with MyanCode Pass</span>
+                </button>
             </div>
             
             <p class="text-center text-xs text-gray-400 mt-8 font-medium border-t border-white/5 pt-6">
@@ -485,7 +496,7 @@
     </main>
 
     <div id="forgotPasswordModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeForgotModal()">
-        <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-300 text-center relative" id="forgotModalContent" onclick="event.stopPropagation()">
+        <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-300 text-center relative bg-[#111]" id="forgotModalContent" onclick="event.stopPropagation()">
             <button onclick="closeForgotModal()" class="absolute top-6 right-6 p-2.5 bg-[#111] rounded-full border border-white/10 transition-all text-gray-400 hover:text-white hover:bg-white/10 shadow-sm"><i data-lucide="x" class="h-4 w-4"></i></button>
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
                 <i data-lucide="key" class="h-8 w-8 text-myancode-accent"></i>
@@ -496,10 +507,31 @@
             <div class="space-y-6 text-left">
                 <div>
                     <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblEmail">Email Address</label>
-                    <input type="email" id="forgotEmailInput" required autocomplete="off" class="w-full px-5 py-3.5 bg-[#0a0a0a] border border-white/10 rounded-xl focus:outline-none focus:border-myancode-accent focus:bg-[#050505] transition-all text-sm font-medium text-white placeholder-gray-600 shadow-inner">
+                    <input type="email" id="forgotEmailInput" required autocomplete="email" class="w-full px-5 py-3.5 bg-[#0a0a0a] border border-white/10 rounded-xl focus:outline-none focus:border-myancode-accent focus:bg-[#050505] transition-all text-sm font-medium text-white placeholder-gray-600 shadow-inner">
                 </div>
                 <button onclick="submitForgotPass()" id="btnSubmitForgot" class="w-full btn-hover-effect bg-white text-black py-4 rounded-full text-sm font-bold tracking-wide hover:bg-gray-200 transition shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-4 flex justify-center items-center gap-2">
                     <span data-i18n="btnSendReset">Send Recovery Link</span> <i data-lucide="send" class="w-4 h-4 ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="magicLinkModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeMagicLinkModal()">
+        <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-300 text-center relative bg-[#111]" id="magicModalContent" onclick="event.stopPropagation()">
+            <button onclick="closeMagicLinkModal()" class="absolute top-6 right-6 p-2.5 bg-[#111] rounded-full border border-white/10 transition-all text-gray-400 hover:text-white hover:bg-white/10 shadow-sm"><i data-lucide="x" class="h-4 w-4"></i></button>
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
+                <i data-lucide="zap" class="h-8 w-8 text-myancode-accent"></i>
+            </div>
+            <h3 class="text-2xl font-bold font-display tracking-tight text-white mb-3" data-i18n="magicTitle">Passwordless Login</h3>
+            <p class="text-[13px] font-medium text-gray-400 mb-8 leading-relaxed" data-i18n="magicDesc">Enter your email to receive a secure, one-time login link.</p>
+
+            <div class="space-y-6 text-left">
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblEmail">Email Address</label>
+                    <input type="email" id="magicEmailInput" required autocomplete="email" class="w-full px-5 py-3.5 bg-[#0a0a0a] border border-white/10 rounded-xl focus:outline-none focus:border-myancode-accent focus:bg-[#050505] transition-all text-sm font-medium text-white placeholder-gray-600 shadow-inner">
+                </div>
+                <button onclick="submitMagicLink()" id="btnSubmitMagic" class="w-full btn-hover-effect bg-myancode-accent text-white py-4 rounded-full text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-[0_0_20px_rgba(41,151,255,0.3)] mt-4 flex justify-center items-center gap-2">
+                    <span data-i18n="btnSendMagic">Send Login Link</span> <i data-lucide="send" class="w-4 h-4 ml-1"></i>
                 </button>
             </div>
         </div>
@@ -710,6 +742,9 @@
                 btnGoogleLogin: "Sign in with Google",
                 btnGithubLogin: "Sign in with GitHub",
                 
+                btnMagicLink: "Sign in with MyanCode Pass",
+                magicTitle: "Passwordless Login", magicDesc: "Enter your email to receive a secure, one-time login link.", btnSendMagic: "Send Login Link",
+
                 alreadyAuthTitle: "Authenticated Session",
                 alreadyAuthDesc: "You are securely connected to the MyanCode network. To access a different account, please sign out first.",
                 btnHome: "Home Page",
@@ -776,6 +811,9 @@
                 btnGoogleLogin: "Google ဖြင့် ဝင်ရောက်မည်",
                 btnGithubLogin: "GitHub ဖြင့် ဝင်ရောက်မည်",
                 
+                btnMagicLink: "MyanCode Pass ဖြင့် ဝင်ရောက်မည်",
+                magicTitle: "စကားဝှက်မပါဘဲ ဝင်ရောက်မည်", magicDesc: "လုံခြုံသော တစ်ကြိမ်သုံး ဝင်ရောက်ရန် လင့်ခ်ကို ရယူရန် သင့်အီးမေးလ်ကို ထည့်ပါ။", btnSendMagic: "လင့်ခ် ပေးပို့မည်",
+
                 alreadyAuthTitle: "အကောင့်ဝင်ရောက်ပြီးဖြစ်ပါသည်",
                 alreadyAuthDesc: "သင်သည် MyanCode သို့ လုံခြုံစွာ ဝင်ရောက်ထားပြီး ဖြစ်ပါသည်။ အခြားအကောင့်ဖြင့် ဝင်လိုပါက ကျေးဇူးပြု၍ အကောင့်အရင်ထွက်ပါ။",
                 btnHome: "ပင်မစာမျက်နှာ",
@@ -1729,6 +1767,66 @@
                 btn.innerHTML = originalHTML;
             }
         }
+        
+        function openMagicLinkModal() {
+            const loginEmail = document.getElementById('loginEmail').value.trim();
+            const magicEmail = document.getElementById('magicEmailInput');
+            if (loginEmail) magicEmail.value = loginEmail;
+            
+            const modal = document.getElementById('magicLinkModal');
+            const content = document.getElementById('magicModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth; 
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeMagicLinkModal() {
+            const modal = document.getElementById('magicLinkModal');
+            const content = document.getElementById('magicModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+        
+        async function submitMagicLink() {
+            const email = document.getElementById('magicEmailInput').value.trim();
+            const btn = document.getElementById('btnSubmitMagic');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+
+            if (!email.match(emailRegex)) {
+                showErrorToast(dict[currentLang].errInvalidEmail);
+                return;
+            }
+
+            btn.disabled = true;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-white"></i>`;
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            try {
+                const { error } = await supabaseInstance.auth.signInWithOtp({
+                    email: email,
+                    options: {
+                        emailRedirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+
+                if (error) throw error;
+
+                showToast(currentLang === 'en' ? "Magic link sent successfully. Please check your inbox." : "ဝင်ရောက်ရန်လင့်ခ် ပေးပို့ပြီးပါပြီ။ သင်၏ အီးမေးလ်ကို စစ်ဆေးပါ။");
+                closeMagicLinkModal();
+            } catch (err) {
+                showErrorToast(err.message || "Failed to send login link.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        }
 
         async function submitNewPassword() {
             const pass1 = document.getElementById('updatePassInput').value;
@@ -1886,6 +1984,10 @@
             const forgotModal = document.getElementById('forgotPasswordModal');
             if (e.key === 'Escape' && forgotModal && !forgotModal.classList.contains('hidden')) {
                 closeForgotModal();
+            }
+            const magicModal = document.getElementById('magicLinkModal');
+            if (e.key === 'Escape' && magicModal && !magicModal.classList.contains('hidden')) {
+                closeMagicLinkModal();
             }
         });
 
