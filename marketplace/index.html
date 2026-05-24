@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Marketplace & Community | MyanCode</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="../imgs/web-banners/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '400px', 'sm': '640px', 'md': '768px', 'lg': '1024px', 'xl': '1280px', '2xl': '1536px',
+                },
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', '"Noto Sans Myanmar"', 'sans-serif'],
+                        display: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        myancode: {
+                            black: '#050505', gray: '#111111', darkgray: '#222222', blue: '#0066CC', accent: '#2997ff',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #050505; color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body.no-scroll { overflow: hidden !important; touch-action: none; }
+        
+        html[lang="mm"] body { font-family: 'Inter', 'Noto Sans Myanmar', sans-serif; font-size: 14px; line-height: 2.2; }
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 { font-family: 'Jost', 'Noto Sans Myanmar', sans-serif; }
+        
+        .layout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
+        .bg-grid-dark { background-size: 50px 50px; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px); }
+
+        #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; }
+        .glass-nav-dark { background: rgba(5, 5, 5, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(255,255,255,0.08) !important; }
+        .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
+        .hover-underline { position: relative; }
+        .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+        .btn-hover-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(41,151,255,0.15); }
+        .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
+        .search-overlay { clip-path: circle(0% at 85% 5%); opacity: 0; pointer-events: none; transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease; }
+        .search-overlay.open { clip-path: circle(150% at 85% 5%); opacity: 1; pointer-events: auto; }
+        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .drawer-left { transform: translateX(-100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-left.open { transform: translateX(0); }
+        .drawer-right { transform: translateX(100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-right.open { transform: translateX(0); }
+        .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.96); pointer-events: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .user-avatar-global { transition: all 0.3s ease; }
+        .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
+
+        .editor-content { min-height: 100px; outline: none; padding: 16px; font-size: 15px; line-height: 1.6; }
+        .editor-content:empty:before { content: attr(data-placeholder); color: #52525b; pointer-events: none; display: block; }
+        .editor-content ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .editor-content a { color: #2997ff; text-decoration: underline; }
+        .editor-content b, .editor-content strong { font-weight: 700; color: #fff; }
+        .editor-content i, .editor-content em { font-style: italic; }
+        
+        .post-content-render ul { list-style-type: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
+        .post-content-render a { color: #2997ff; text-decoration: none; transition: all 0.2s; }
+        .post-content-render a:hover { text-decoration: underline; }
+        .post-content-render b, .post-content-render strong { font-weight: 700; color: #fff; }
+        .post-content-render p { margin-bottom: 0.5rem; }
+        .post-content-render p:last-child { margin-bottom: 0; }
+        
+        .img-grid-1 { display: grid; grid-template-columns: 1fr; border-radius: 12px; overflow: hidden; gap: 2px; }
+        .img-grid-2 { display: grid; grid-template-columns: 1fr 1fr; border-radius: 12px; overflow: hidden; gap: 2px; }
+        .img-grid-3 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 12px; overflow: hidden; gap: 2px; }
+        .img-grid-3 img:first-child { grid-column: 1 / -1; }
+        .img-grid-4 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 12px; overflow: hidden; gap: 2px; }
+        .img-grid-5 { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 12px; overflow: hidden; gap: 2px; }
+        .img-grid-5 img:nth-child(1), .img-grid-5 img:nth-child(2) { grid-column: span 1.5; }
+        .grid-img-cell { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; transition: filter 0.3s; cursor: pointer; }
+        .grid-img-cell:hover { filter: brightness(1.1); }
+        .grid-img-cell.tall { aspect-ratio: 16/10; }
+        
+        .tag-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; background: rgba(41,151,255,0.08); color: #2997ff; font-size: 12px; font-weight: 600; margin-right: 6px; margin-bottom: 6px; border: 1px solid rgba(41,151,255,0.2); cursor: pointer;}
+
+        .image-preview-item { position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .image-preview-remove { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border-radius: 50%; padding: 2px; cursor: pointer; color: white; }
+        .image-preview-remove:hover { background: #e11d48; }
+
+        .spinner { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .skeleton { background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 4px; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .mp-nav-btn.active { background: rgba(255,255,255,0.1); color: white; }
+        .mp-nav-btn:not(.active) { color: #9ca3af; }
+        .mp-nav-btn:not(.active):hover { background: rgba(255,255,255,0.05); color: white; }
+        
+        .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-overlay.open .modal-content { transform: scale(1); opacity: 1; }
+    </style>
+</head>
+<body class="font-sans selection:bg-myancode-accent selection:text-white bg-[#050505] flex flex-col min-h-screen">
+
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center opacity-100 visibility-visible transition-opacity duration-500">
+        <div class="relative w-16 h-16 mb-8 flex items-center justify-center">
+            <i data-lucide="code-2" class="h-8 w-8 text-white absolute animate-pulse"></i>
+        </div>
+        <div class="mt-6 flex flex-col items-center gap-1 font-mono">
+            <span id="loaderText" class="text-[11px] font-bold tracking-[0.2em] text-gray-400 uppercase" data-i18n="loadingInit">Loading Marketplace...</span>
+        </div>
+    </div>
+
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
+        <div class="layout-width">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <div class="flex items-center h-full">
+                    <button class="xl:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-white" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="h-5 w-5"></i>
+                    </button>
+                    <a href="../" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-7 sm:h-8 w-auto transition-transform duration-500 group-hover:scale-105" onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
+                    </a>
+                </div>
+                
+                <div class="hidden xl:flex space-x-6 2xl:space-x-8 text-[12px] capitalize tracking-wide font-bold items-center h-full">
+                    <a href="../studio/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="../services/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    <a href="../templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../marketplace/" class="text-myancode-accent font-bold active-nav-item nav-link" data-nav-path="/marketplace/" data-i18n="navMarketplace">Marketplace</a>
+                    <a href="../developers/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/developers/" data-i18n="navDevelopers">Developers</a>
+                    <a href="../pricing/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/pricing/" data-i18n="navPricing">Pricing</a>
+                    <a href="../portfolio/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/portfolio/" data-i18n="navPortfolio">Portfolio</a>
+                    <a href="../about-us/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/about-us/" data-i18n="navAbout">About</a>
+                    
+                    <div class="relative group h-full flex items-center">
+                        <button class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link flex items-center gap-1 cursor-pointer text-white/90" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
+                        <div class="absolute top-[80%] left-0 w-full h-8"></div>
+                        <div class="fixed top-[64px] sm:top-[80px] left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] border-b border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
+                            <div class="layout-width py-12 flex gap-8 md:gap-16 lg:gap-24 text-white">
+                                <div class="flex-[1.2]">
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                                    <div class="flex flex-col gap-4 font-display">
+                                        <a href="../guides/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supGuides">Guides</a>
+                                        <a href="../help/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                        <a href="../faq/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supFaq">FAQs</a>
+                                        <a href="../contact-us/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                        <a href="../legal/#studio-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
+                                        <a href="../legal/#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                        <a href="../legal/#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                        <a href="../legal/#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                        <a href="../legal/#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                        <a href="../privacy-policy/" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="../legal/#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3 sm:space-x-5">
+                    <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
+                        <i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                    </button>
+                    
+                    <button onclick="toggleCartDrawer()" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
+                        <i data-lucide="shopping-bag" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="cart-count" class="absolute -top-1.5 -right-2 bg-white text-black text-[9px] font-bold font-mono h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    </button>
+
+                    <div class="relative hidden sm:block" id="langContainer">
+                        <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
+                            <div class="px-4 pb-2 mb-2 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-bold font-mono" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
+
+                    <a href="../contact-us/" class="hidden md:flex items-center justify-center px-5 py-2 bg-myancode-accent text-white text-[11px] uppercase tracking-wider font-bold rounded-full hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:shadow-[0_0_20px_rgba(41,151,255,0.5)] transform hover:-translate-y-0.5" data-i18n="btnHireUs">
+                        Hire Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-[#0a0a0a]/95 backdrop-blur-3xl search-overlay overflow-y-auto pb-20">
+        <div class="layout-width pt-10">
+            <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-400 hover:text-white transition-colors rounded-full bg-white/5 border border-white/10 hover:bg-white/10"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+            <div class="mt-8 sm:mt-16 max-w-4xl mx-auto">
+                <div class="relative w-full border-b border-gray-700 focus-within:border-myancode-accent transition-colors pb-4 flex items-center">
+                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-500 mr-4"></i>
+                    <input type="text" id="megaSearchInput" autocomplete="off" class="w-full text-3xl sm:text-4xl font-display font-semibold text-white bg-transparent border-none outline-none placeholder-gray-600" placeholder="Search Marketplace..." data-i18n-placeholder="searchMpPlaceholder">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#050505] z-[80] drawer-left flex flex-col overflow-hidden text-white border-r border-white/10">
+        <div class="px-6 py-6 flex items-center justify-between flex-shrink-0 border-b border-white/10">
+            <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-6 w-auto" onerror="this.onerror=null; this.src='https://placehold.co/30x30/050505/ffffff?text=MC';">
+            <button onclick="toggleMobileMenu()" class="p-2.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors text-gray-300"><i data-lucide="x" class="h-5 w-5"></i></button>
+        </div>
+        <div class="flex-1 px-8 py-6 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
+            <div class="space-y-6 text-base font-semibold text-white tracking-wide flex-1">
+                <a href="../studio/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../marketplace/" class="flex justify-between items-center text-myancode-accent transition-colors"><span data-i18n="navMarketplace">Marketplace</span> <i data-lucide="chevron-right" class="h-4 w-4 text-myancode-accent"></i></a>
+                <a href="../services/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../templates/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <div class="pt-4 border-t border-white/10">
+                    <button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
+                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-5 w-5 text-gray-500"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
+                <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cartOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleCartDrawer()"></div>
+    <div id="cartDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-[#0a0a0a] text-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-white/10">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-white/10 bg-white/5">
+            <h3 class="font-bold text-lg font-display tracking-tight flex items-center gap-2"><i data-lucide="shopping-bag" class="h-5 w-5 text-white"></i> <span data-i18n="cartTitle">Active Cart</span></h3>
+            <button onclick="toggleCartDrawer()" class="p-2 bg-[#111] rounded-full border border-white/10 transition-all text-gray-400 hover:text-white hover:bg-white/10"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div id="cartItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
+        <div class="p-6 border-t border-white/10 bg-white/5">
+            <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest" data-i18n="wlTotal">Est. Total</span><span class="text-xl font-bold font-display text-white" id="cartTotal">0 MMK</span></div>
+            <button onclick="proceedToCheckout()" class="w-full bg-white text-black py-4 rounded-xl text-sm font-bold tracking-wide hover:bg-gray-200 transition flex items-center justify-center gap-2 btn-hover-effect" data-i18n="btnCheckout">Proceed to Checkout <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+        </div>
+    </div>
+
+    <main class="flex-grow pt-28 pb-24 w-full relative z-10 text-white min-h-screen">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/95 via-[#050505]/80 to-[#050505] z-0 pointer-events-none"></div>
+        <div class="absolute inset-0 bg-grid-dark pointer-events-none z-0 opacity-30"></div>
+
+        <div class="layout-width relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div class="hidden lg:block lg:col-span-3">
+                <div class="sticky top-28 bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-lg">
+                    <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4" data-i18n="mpMenu">Community Hub</h3>
+                    <nav class="space-y-2">
+                        <button onclick="filterFeed('all')" data-filter="all" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors mp-nav-btn active">
+                            <i data-lucide="radio" class="w-5 h-5 text-myancode-accent"></i> <span data-i18n="mpFeed">Live Feed</span>
+                        </button>
+                        <button onclick="filterFeed('saved')" data-filter="saved" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors mp-nav-btn">
+                            <i data-lucide="bookmark" class="w-5 h-5"></i> <span data-i18n="mpSaved">Saved Posts</span>
+                        </button>
+                        <button onclick="filterFeed('mine')" data-filter="mine" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors mp-nav-btn">
+                            <i data-lucide="user" class="w-5 h-5"></i> <span data-i18n="mpMyPosts">My Posts</span>
+                        </button>
+                        <a href="../rules/" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-xl text-sm font-semibold transition-colors">
+                            <i data-lucide="shield-alert" class="w-5 h-5"></i> <span data-i18n="mpRules">Community Rules</span>
+                        </a>
+                    </nav>
+
+                    <div class="mt-8 border-t border-white/10 pt-6">
+                        <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4" data-i18n="mpTrending">Trending Tags</h3>
+                        <div class="flex flex-wrap" id="trendingTagsContainer">
+                            <div class="w-full space-y-2">
+                                <div class="h-6 skeleton w-1/2"></div>
+                                <div class="h-6 skeleton w-3/4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-span-1 lg:col-span-6 space-y-6">
+                
+                <div class="flex lg:hidden overflow-x-auto no-scrollbar gap-2 pb-2">
+                    <button onclick="filterFeed('all')" data-filter="all" class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors mp-nav-btn active border border-white/10" data-i18n="mpFeed">Live Feed</button>
+                    <button onclick="filterFeed('saved')" data-filter="saved" class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors mp-nav-btn border border-white/10" data-i18n="mpSaved">Saved Posts</button>
+                    <button onclick="filterFeed('mine')" data-filter="mine" class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors mp-nav-btn border border-white/10" data-i18n="mpMyPosts">My Posts</button>
+                </div>
+
+                <div class="block lg:hidden bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2 relative flex items-center mb-4">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-500 ml-3"></i>
+                    <input type="text" id="mobileSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-sm text-white px-3 py-2 focus:outline-none placeholder-gray-600" placeholder="Search posts, tags, users...">
+                </div>
+
+                <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl overflow-hidden relative" id="composerContainer">
+                    <div id="composerOverlay" class="absolute inset-0 bg-[#0a0a0a]/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center hidden">
+                        <i data-lucide="lock" class="w-8 h-8 text-gray-400 mb-3"></i>
+                        <h4 class="font-display font-bold text-lg mb-2" data-i18n="mpLoginToPost">Join the Community</h4>
+                        <button onclick="showLoginModal()" class="bg-myancode-accent text-white px-6 py-2 rounded-full text-sm font-bold btn-hover-effect" data-i18n="hdrLogin">Login to Post</button>
+                    </div>
+
+                    <div class="p-4 sm:p-5 border-b border-white/10 flex items-start gap-4">
+                        <div id="composerAvatar" class="w-10 h-10 rounded-full bg-[#222] border border-white/10 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                            <i data-lucide="user" class="w-5 h-5 text-gray-500"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div id="postEditor" class="editor-content w-full bg-transparent resize-none text-white focus:outline-none" contenteditable="true" data-placeholder="Share an update, snippet, or ask a question..."></div>
+                            <div id="imagePreviewContainer" class="flex flex-wrap gap-3 mt-3 hidden"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-3 bg-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-1 sm:gap-2 text-gray-400">
+                            <button onclick="formatDoc('bold')" class="p-2 hover:bg-white/10 rounded-lg transition-colors tooltip" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
+                            <button onclick="formatDoc('italic')" class="p-2 hover:bg-white/10 rounded-lg transition-colors tooltip" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
+                            <button onclick="formatDoc('insertUnorderedList')" class="p-2 hover:bg-white/10 rounded-lg transition-colors tooltip" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
+                            <button onclick="addLink()" class="p-2 hover:bg-white/10 rounded-lg transition-colors tooltip" title="Add Link"><i data-lucide="link" class="w-4 h-4"></i></button>
+                            <div class="w-px h-6 bg-white/10 mx-1"></div>
+                            
+                            <label class="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer flex items-center gap-2 relative">
+                                <i data-lucide="image" class="w-4 h-4 text-myancode-accent"></i>
+                                <span class="text-xs font-semibold hidden sm:inline" id="imageCountText">0/5</span>
+                                <input type="file" id="imageUploadInput" multiple accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+                            </label>
+                        </div>
+                        
+                        <button id="btnPublishPost" onclick="publishPost()" class="bg-myancode-accent text-white px-6 py-2 rounded-full text-sm font-bold tracking-wide hover:bg-blue-600 transition-colors btn-hover-effect flex items-center gap-2 disabled:opacity-50">
+                            <span data-i18n="mpPostBtn">Post</span> <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="feedContainer" class="space-y-6">
+                    <div class="bg-[#111]/80 border border-white/10 rounded-2xl p-5">
+                        <div class="flex gap-3 mb-4"><div class="w-10 h-10 rounded-full skeleton"></div><div class="space-y-2 flex-1"><div class="h-4 skeleton w-1/4"></div><div class="h-3 skeleton w-1/5"></div></div></div>
+                        <div class="space-y-2 mb-4"><div class="h-4 skeleton w-full"></div><div class="h-4 skeleton w-5/6"></div><div class="h-4 skeleton w-4/6"></div></div>
+                        <div class="h-48 skeleton w-full rounded-xl"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="hidden lg:block lg:col-span-3">
+                <div class="sticky top-28 space-y-6">
+                    <div class="bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2 relative flex items-center">
+                        <i data-lucide="search" class="w-5 h-5 text-gray-500 ml-3"></i>
+                        <input type="text" id="localSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-sm text-white px-3 py-2 focus:outline-none placeholder-gray-600" placeholder="Search posts, tags, users...">
+                    </div>
+
+                    <div class="bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-lg">
+                        <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4" data-i18n="mpTopUsers">Top Contributors</h3>
+                        <div class="space-y-4" id="topContributorsContainer">
+                            <div class="w-full space-y-4">
+                                <div class="flex gap-3 items-center"><div class="w-8 h-8 rounded-full skeleton"></div><div class="space-y-2 flex-1"><div class="h-3 skeleton w-1/2"></div><div class="h-2 skeleton w-1/3"></div></div></div>
+                                <div class="flex gap-3 items-center"><div class="w-8 h-8 rounded-full skeleton"></div><div class="space-y-2 flex-1"><div class="h-3 skeleton w-1/2"></div><div class="h-2 skeleton w-1/3"></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-[#050505] pt-20 pb-10 border-t border-white/5 relative z-10 mt-auto font-sans">
+        <div class="layout-width relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
+                <div class="lg:col-span-4 pr-4">
+                    <a href="../" class="flex items-center cursor-pointer group mb-6">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-8 w-auto mr-3 transition-transform duration-500 group-hover:scale-105">
+                        <span class="font-display font-bold text-2xl tracking-tight text-white group-hover:text-myancode-accent transition-colors">MyanCode</span>
+                    </a>
+                    <p class="text-[13px] text-gray-400 font-medium leading-relaxed mb-8 max-w-sm">
+                        MyanCode provides all-in-one enterprise website solutions including advanced architecture, maintenance, SEO, and a premium templates marketplace.
+                    </p>
+                    <div class="flex space-x-6">
+                        <a href="https://facebook.com/myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1"><img src="../imgs/web-banners/facebook.png" class="h-6 w-6 object-contain" alt="Facebook"></a>
+                        <a href="https://tiktok.com/@myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1"><img src="../imgs/web-banners/tiktok.png" class="h-6 w-6 object-contain" alt="Tik Tok"></a>
+                        <a href="https://linkedin.com/company/myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1"><img src="../imgs/web-banners/linkedin.png" class="h-6 w-6 object-contain" alt="LinkedIn"></a>
+                        <a href="https://github.com/myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1"><img src="../imgs/web-banners/github.png" class="h-6 w-6 object-contain" alt="GitHub"></a>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftStoreTitle">Store</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../studio/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Studio</a></li>
+                        <li><a href="../templates/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Templates</a></li>
+                        <li><a href="../services/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Services</a></li>
+                    </ul>
+                </div>
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftCompanyTitle">Company</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../about-us/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="../portfolio/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Portfolio</a></li>
+                        <li><a href="../contact-us/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftSupportTitle">Support</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../help/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="../guides/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Guides</a></li>
+                    </ul>
+                </div>
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono">Legal</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../privacy-policy/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="../legal/#terms-of-service" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-gray-400 font-medium border-t border-white/10 pt-8">
+                <div>&copy; 2026 MyanCode Inc. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i><span id="toast-msg">Success!</span>
+    </div>
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-red-500"></i><span id="error-toast-msg">Error!</span>
+    </div>
+
+    <!-- Login Required Modal -->
+    <div id="loginModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center modal-overlay" onclick="closeLoginModal()">
+        <div class="glass-panel p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-md shadow-2xl modal-content text-center relative" onclick="event.stopPropagation()">
+            <button onclick="closeLoginModal()" class="absolute top-6 right-6 p-2 bg-[#111] rounded-full border border-white/10 text-gray-400 hover:text-white hover:bg-white/10"><i data-lucide="x" class="h-4 w-4"></i></button>
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
+                <i data-lucide="lock" class="h-8 w-8 text-myancode-accent"></i>
+            </div>
+            <h3 class="text-2xl font-bold font-display tracking-tight text-white mb-3" data-i18n="modalLoginTitle">Authentication Required</h3>
+            <p class="text-[13px] font-medium text-gray-400 mb-8 leading-relaxed" data-i18n="modalLoginDesc">You must be securely authenticated to interact with the marketplace, post comments, or save content.</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="window.location.href='../login/'" class="w-full bg-myancode-accent text-white py-3.5 rounded-full text-sm font-bold btn-hover-effect" data-i18n="hdrLogin">Login</button>
+                <button onclick="window.location.href='../register/'" class="w-full bg-white/5 border border-white/10 text-white py-3.5 rounded-full text-sm font-bold hover:bg-white/10 transition-colors" data-i18n="hdrRegister">Create Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center modal-overlay" onclick="closeReportModal()">
+        <div class="glass-panel p-8 sm:p-10 rounded-[2.5rem] w-[95%] max-w-md shadow-2xl modal-content relative" onclick="event.stopPropagation()">
+            <button onclick="closeReportModal()" class="absolute top-6 right-6 p-2 bg-[#111] rounded-full border border-white/10 text-gray-400 hover:text-white hover:bg-white/10"><i data-lucide="x" class="h-4 w-4"></i></button>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-10 w-10 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400"><i data-lucide="flag" class="h-5 w-5"></i></div>
+                <h3 class="text-xl font-bold font-display tracking-tight text-white">Report Content</h3>
+            </div>
+            <input type="hidden" id="reportPostId">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Reason for reporting</label>
+                    <textarea id="reportReason" rows="3" class="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl focus:outline-none focus:border-orange-400 focus:bg-[#050505] transition-all text-sm font-medium text-white placeholder-gray-600 resize-none" placeholder="Please describe why this content violates community guidelines..."></textarea>
+                </div>
+                <button onclick="submitReport()" id="btnSubmitReport" class="w-full bg-orange-500 text-white py-3.5 rounded-xl text-sm font-bold btn-hover-effect flex justify-center items-center gap-2">
+                    Submit Report <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SCRIPTS -->
+    <!-- ========================================== -->
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        const dict = {
+            en: {
+                navAbout: "About", navStudio: "Studio", navWebsites: "Templates", navServices: "Services", navSupport: "Support", 
+                navMarketplace: "Marketplace", navDevelopers: "Developers", navPricing: "Pricing", navPortfolio: "Portfolio", 
+                langSelect: "Language", langToggle: "Switch Language",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrLogout: "Sign Out",
+                loadingInit: "Loading Marketplace...", msgLoggedOut: "Signed out securely.",
+                mpMenu: "Community Hub", mpFeed: "Live Feed", mpSaved: "Saved Posts", mpMyPosts: "My Posts", mpRules: "Community Rules",
+                mpTrending: "Trending Tags", mpLoginToPost: "Join the Community", mpPostBtn: "Post",
+                mpPlaceholder: "Share an update, snippet, or ask a question...", mpTopUsers: "Top Contributors",
+                searchMpPlaceholder: "Search posts, tags, users...",
+                modalLoginTitle: "Authentication Required", modalLoginDesc: "You must be securely authenticated to interact with the marketplace, post comments, or save content."
+            },
+            mm: {
+                navAbout: "ကျွန်ုပ်တို့အကြောင်း", navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ", 
+                navMarketplace: "ဈေးကွက်", navDevelopers: "ရေးသားသူများ", navPricing: "ဈေးနှုန်းများ", navPortfolio: "မှတ်တမ်းများ", 
+                langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrLogout: "အကောင့်ထွက်ရန်",
+                loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
+                mpMenu: "အသိုက်အဝန်း", mpFeed: "နောက်ဆုံးရ ပို့စ်များ", mpSaved: "သိမ်းထားသော ပို့စ်များ", mpMyPosts: "ကျွန်ုပ်၏ ပို့စ်များ", mpRules: "စည်းမျဉ်းများ",
+                mpTrending: "ရေပန်းစားသော ခေါင်းစဉ်များ", mpLoginToPost: "ပါဝင်ဆွေးနွေးရန် အကောင့်ဝင်ပါ", mpPostBtn: "တင်မည်",
+                mpPlaceholder: "သင့်အကြံဉာဏ်များ၊ မေးခွန်းများကို မျှဝေပါ...", mpTopUsers: "ထိပ်တန်း ပါဝင်သူများ",
+                searchMpPlaceholder: "ပို့စ်များ၊ အမည်များ ရှာဖွေရန်...",
+                modalLoginTitle: "အကောင့်ဝင်ရန် လိုအပ်ပါသည်", modalLoginDesc: "ပို့စ်တင်ရန်၊ မှတ်ချက်ပေးရန် သို့မဟုတ် သိမ်းဆည်းရန်အတွက် ကျေးဇူးပြု၍ အကောင့်အရင်ဝင်ပါ။"
+            }
+        };
+
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+        
+        function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; t.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const t = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; t.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 4000); }
+        function toggleMobileMenu() { const d = document.getElementById('mobileDrawer'); d.classList.toggle('open'); document.body.classList.toggle('no-scroll', d.classList.contains('open')); }
+        function toggleCartDrawer() { const d = document.getElementById('cartDrawer'); const o = document.getElementById('cartOverlay'); d.classList.toggle('open'); o.classList.toggle('open'); document.body.classList.toggle('no-scroll', d.classList.contains('open')); }
+        function toggleSearchOverlay() { const o = document.getElementById('searchOverlay'); o.classList.toggle('open'); document.body.classList.toggle('no-scroll', o.classList.contains('open')); }
+
+        function renderLanguage() {
+            document.documentElement.lang = currentLang; 
+            document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (dict[currentLang][k]) el.innerHTML = dict[currentLang][k]; });
+            const editor = document.getElementById('postEditor');
+            if(editor) editor.setAttribute('data-placeholder', dict[currentLang].mpPlaceholder);
+            const ls1 = document.getElementById('localSearchInput');
+            const ls2 = document.getElementById('mobileSearchInput');
+            if(ls1) ls1.placeholder = dict[currentLang].searchMpPlaceholder;
+            if(ls2) ls2.placeholder = dict[currentLang].searchMpPlaceholder;
+        }
+
+        const roleBadges = {
+            'founder': '../imgs/web-banners/founder-badge.png', 'admin': '../imgs/web-banners/admin-badge.png', 'moderator': '../imgs/web-banners/moderator-badge.png',
+            'partner': '../imgs/web-banners/partner-badge.png', 'developer': '../imgs/web-banners/developer-badge.png', 'client': '' 
+        };
+
+        function getRoleBadge(role) {
+            const cleanRole = (role || 'client').toLowerCase();
+            const badgeSrc = roleBadges[cleanRole];
+            if(!badgeSrc) return '';
+            const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
+            return `<img src="${badgeSrc}" class="w-[16px] h-[16px] inline-block ml-1.5 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" alt="${cleanRole}" onerror="this.onerror=null; this.src='${fallbackBadge}';">`;
+        }
+
+        function timeAgo(dateParam) {
+            if (!dateParam) return null;
+            const date = typeof dateParam === 'object' ? dateParam : new Date(dateParam);
+            const today = new Date(); const seconds = Math.round((today - date) / 1000); const minutes = Math.round(seconds / 60);
+            const isItToday = today.toDateString() === date.toDateString();
+            if (seconds < 5) return 'Just now'; else if (seconds < 60) return `${ seconds }s ago`; else if (seconds < 90) return 'A min ago'; else if (minutes < 60) return `${ minutes }m ago`; else if (isItToday) return `${ Math.floor(minutes / 60) }h ago`;
+            return date.toLocaleDateString(currentLang === 'en' ? 'en-US' : 'my-MM', { month: 'short', day: 'numeric' });
+        }
+
+        function showLoginModal() { const m = document.getElementById('loginModal'); m.classList.remove('hidden'); m.classList.add('flex'); void m.offsetWidth; m.classList.add('open'); }
+        function closeLoginModal() { const m = document.getElementById('loginModal'); m.classList.remove('open'); setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300); }
+        
+        function openReportModal(postId) { if(!currentUser) { showLoginModal(); return; } document.getElementById('reportPostId').value = postId; const m = document.getElementById('reportModal'); m.classList.remove('hidden'); m.classList.add('flex'); void m.offsetWidth; m.classList.add('open'); }
+        function closeReportModal() { const m = document.getElementById('reportModal'); m.classList.remove('open'); setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); document.getElementById('reportReason').value = ''; }, 300); }
+
+        const SUPABASE_URL = 'https://dnretdraqjwdiwxccmpd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucmV0ZHJhcWp3ZGl3eGNjbXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Mjk1OTgsImV4cCI6MjA5NDUwNTU5OH0.gmXci7KsgPRFvVtRzY2F--qV5TshCPejf580JTJpl20';
+        let supabaseInstance = null; let currentUser = null;
+        if (window.supabase) supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const token = process.env.GITHUB_TOKEN;
+        const GITHUB_OWNER = 'myancode';
+        const GITHUB_REPO = 'myancode_marketplace';
+
+        let selectedImages = []; let allMarketplacePosts = []; let currentFilter = 'all';
+
+        async function initMarketplace() {
+            if(supabaseInstance) {
+                const { data: { session } } = await supabaseInstance.auth.getSession();
+                if (session) {
+                    let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
+                    try { const { data: profile } = await supabaseInstance.from('profiles').select('role').eq('id', session.user.id).single(); if (profile && profile.role) profileRole = profile.role; } catch (err) {}
+                    currentUser = { id: session.user.id, name: session.user.user_metadata?.full_name || 'User', avatar: session.user.user_metadata?.avatar_url, role: profileRole.toLowerCase() };
+                    document.getElementById('composerOverlay').classList.add('hidden');
+                    if(currentUser.avatar) document.getElementById('composerAvatar').innerHTML = `<img src="${currentUser.avatar}" class="w-full h-full object-cover">`;
+                } else {
+                    document.getElementById('composerOverlay').classList.remove('hidden');
+                }
+            }
+            renderLanguage();
+            await fetchPosts();
+            const loader = document.getElementById('globalLoader'); loader.classList.add('opacity-0', 'pointer-events-none'); setTimeout(() => loader.classList.add('hidden'), 500); document.body.classList.remove('no-scroll');
+        }
+
+        function formatDoc(cmd, value=null) { document.execCommand(cmd, false, value); document.getElementById('postEditor').focus(); }
+        function addLink() { const url = prompt('Enter the link URL:'); if (url) formatDoc('createLink', url); }
+        
+        function handleImageSelection(e) {
+            const files = Array.from(e.target.files);
+            if (selectedImages.length + files.length > 5) { showErrorToast("Maximum 5 images allowed per post."); return; }
+            files.forEach(file => { if(file.type.startsWith('image/')) selectedImages.push(file); });
+            updateImagePreview(); e.target.value = '';
+        }
+
+        function removeImage(index) { selectedImages.splice(index, 1); updateImagePreview(); }
+
+        function updateImagePreview() {
+            const container = document.getElementById('imagePreviewContainer'); const countText = document.getElementById('imageCountText'); countText.innerText = `${selectedImages.length}/5`;
+            if (selectedImages.length === 0) { container.classList.add('hidden'); container.innerHTML = ''; return; }
+            container.classList.remove('hidden');
+            container.innerHTML = selectedImages.map((file, idx) => `<div class="image-preview-item"><img src="${URL.createObjectURL(file)}"><div class="image-preview-remove" onclick="removeImage(${idx})"><i data-lucide="x" class="w-3 h-3"></i></div></div>`).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        async function uploadImagesToGitHub() {
+            if(selectedImages.length === 0) return [];
+            const uploadedUrls = [];
+            for(let i=0; i<selectedImages.length; i++) {
+                const file = selectedImages[i];
+                const base64Content = await new Promise(resolve => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result.split(',')[1]); });
+                const ext = file.name.split('.').pop() || 'png'; const fileName = `post_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`; const path = `uploads/${fileName}`;
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Auto-upload image ${fileName}`, content: base64Content }) });
+                if(!response.ok) { console.error(`GitHub Upload Failed: ${response.statusText}`); continue; }
+                const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${path}`; uploadedUrls.push(rawUrl);
+            }
+            return uploadedUrls;
+        }
+
+        function extractHashtags(htmlStr) {
+            const tempDiv = document.createElement('div'); tempDiv.innerHTML = htmlStr; const textContent = tempDiv.textContent || tempDiv.innerText || "";
+            const matches = textContent.match(/#[\w]+/g); return matches ? matches.map(m => m.trim()) : [];
+        }
+
+        async function publishPost() {
+            if(!currentUser || !supabaseInstance) return;
+            const editor = document.getElementById('postEditor'); let rawContent = editor.innerHTML.trim();
+            if (rawContent === '' || rawContent === '<br>') { showErrorToast("Post cannot be empty."); return; }
+            
+            let safeContent = rawContent;
+            if(window.DOMPurify) safeContent = DOMPurify.sanitize(rawContent, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span'], ALLOWED_ATTR: ['href', 'target', 'rel'] });
+            else safeContent = rawContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+
+            const btn = document.getElementById('btnPublishPost'); btn.disabled = true; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 spinner"></i>`; if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            try {
+                const imageUrls = await uploadImagesToGitHub();
+                const tags = extractHashtags(safeContent);
+                const postData = { user_id: currentUser.id, author_name: currentUser.name, author_avatar: currentUser.avatar, author_role: currentUser.role, content: safeContent, images: imageUrls, hashtags: tags };
+                const { error } = await supabaseInstance.from('marketplace_posts').insert([postData]);
+                if (error) throw error;
+                editor.innerHTML = ''; selectedImages = []; updateImagePreview(); showToast("Post published successfully!");
+                await fetchPosts();
+            } catch(err) { console.error(err); showErrorToast(err.message || "Failed to publish post."); } 
+            finally { btn.disabled = false; btn.innerHTML = `<span data-i18n="mpPostBtn">${dict[currentLang].mpPostBtn}</span> <i data-lucide="send" class="w-3.5 h-3.5"></i>`; if(typeof lucide !== 'undefined') lucide.createIcons(); }
+        }
+
+        async function fetchPosts() {
+            if(!supabaseInstance) return;
+            try {
+                let query = supabaseInstance.from('marketplace_posts').select(`*, marketplace_comments(count), marketplace_saves(user_id)`).order('created_at', { ascending: false });
+                const { data, error } = await query;
+                if(error) throw error;
+                allMarketplacePosts = data || [];
+                extractTrendingTags(allMarketplacePosts); extractTopContributors(allMarketplacePosts); renderFeed();
+            } catch(err) { console.error(err); document.getElementById('feedContainer').innerHTML = `<p class="text-red-400 text-center py-10">Failed to load marketplace data.</p>`; }
+        }
+
+        function extractTrendingTags(posts) {
+            const tagCounts = {};
+            posts.forEach(p => { if(p.hashtags && Array.isArray(p.hashtags)) { p.hashtags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }); } });
+            const sortedTags = Object.keys(tagCounts).sort((a,b) => tagCounts[b] - tagCounts[a]).slice(0, 10);
+            const container = document.getElementById('trendingTagsContainer');
+            if(sortedTags.length === 0) container.innerHTML = `<span class="text-xs text-gray-500 italic">No trending tags yet.</span>`;
+            else container.innerHTML = sortedTags.map(tag => `<span class="tag-pill" onclick="searchByTag('${tag}')">${tag}</span>`).join('');
+        }
+
+        function extractTopContributors(posts) {
+            const userCounts = {};
+            posts.forEach(p => { if(!userCounts[p.user_id]) { userCounts[p.user_id] = { count: 0, name: p.author_name, avatar: p.author_avatar, role: p.author_role }; } userCounts[p.user_id].count++; });
+            const sortedUsers = Object.values(userCounts).sort((a,b) => b.count - a.count).slice(0, 5);
+            const container = document.getElementById('topContributorsContainer');
+            if(sortedUsers.length === 0) { container.innerHTML = `<span class="text-xs text-gray-500 italic">No contributors yet.</span>`; return; }
+            container.innerHTML = sortedUsers.map(u => {
+                const avatar = u.avatar ? `<img src="${u.avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1.5 text-gray-500"></i>`;
+                const badge = getRoleBadge(u.role); const roleStr = (u.role||'').charAt(0).toUpperCase() + (u.role||'').slice(1);
+                return `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-[#222] border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">${avatar}</div><div><h4 class="text-sm font-bold text-white leading-tight flex items-center">${u.name} ${badge}</h4><p class="text-xs text-gray-500">${roleStr} • ${u.count} posts</p></div></div>`;
+            }).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function filterFeed(type) {
+            currentFilter = type;
+            document.querySelectorAll('.mp-nav-btn').forEach(btn => { 
+                btn.classList.remove('bg-white/10', 'text-white', 'active'); 
+                btn.classList.add('text-gray-400'); 
+                if(btn.tagName === 'BUTTON' && !btn.classList.contains('border')) btn.classList.add('hover:bg-white/5'); 
+            });
+            document.querySelectorAll(`.mp-nav-btn[data-filter="${type}"]`).forEach(btn => {
+                if(btn.classList.contains('border')) btn.classList.add('bg-white/10', 'text-white', 'active');
+                else { btn.classList.add('bg-white/10', 'text-white', 'active'); btn.classList.remove('hover:bg-white/5', 'text-gray-400'); }
+            });
+            renderFeed();
+        }
+
+        function searchByTag(tag) {
+            document.getElementById('localSearchInput').value = tag;
+            const mobileInput = document.getElementById('mobileSearchInput'); if(mobileInput) mobileInput.value = tag;
+            handleLocalSearch({target: document.getElementById('localSearchInput')});
+        }
+
+        let searchTimeout;
+        function handleLocalSearch(e) { const query = e.target.value.toLowerCase().trim(); clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { renderFeed(query); }, 300); }
+
+        function renderFeed(searchQuery = '') {
+            const container = document.getElementById('feedContainer');
+            if(!allMarketplacePosts || allMarketplacePosts.length === 0) { container.innerHTML = `<div class="text-center py-12 bg-[#111]/80 rounded-2xl border border-white/10"><i data-lucide="message-square" class="w-12 h-12 text-gray-600 mx-auto mb-4"></i><p class="text-gray-400 font-medium">No posts found. Be the first to start the discussion!</p></div>`; if(typeof lucide !== 'undefined') lucide.createIcons(); return; }
+
+            let filtered = allMarketplacePosts;
+            if(currentFilter === 'mine' && currentUser) filtered = filtered.filter(p => p.user_id === currentUser.id);
+            else if (currentFilter === 'saved' && currentUser) filtered = filtered.filter(p => p.marketplace_saves && p.marketplace_saves.some(s => s.user_id === currentUser.id));
+
+            if(searchQuery !== '') {
+                filtered = filtered.filter(p => (p.content && p.content.toLowerCase().includes(searchQuery)) || (p.author_name && p.author_name.toLowerCase().includes(searchQuery)) || (p.hashtags && p.hashtags.some(tag => tag.toLowerCase().includes(searchQuery))) );
+            }
+
+            if(filtered.length === 0) { container.innerHTML = `<p class="text-center py-10 text-gray-500 font-medium">No posts match your criteria.</p>`; return; }
+            container.innerHTML = filtered.map(post => buildPostHTML(post)).join(''); if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function buildPostHTML(post) {
+            const dateStr = timeAgo(post.created_at);
+            const avatar = post.author_avatar ? `<img src="${post.author_avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-500"></i>`;
+            const roleBadgeHTML = getRoleBadge(post.author_role);
+            
+            const isOwner = currentUser && currentUser.id === post.user_id;
+            const isSaved = currentUser && post.marketplace_saves && post.marketplace_saves.some(s => s.user_id === currentUser.id);
+            const commentCount = post.marketplace_comments?.[0]?.count || 0;
+
+            let safeContent = post.content; if(window.DOMPurify) safeContent = DOMPurify.sanitize(post.content, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span'], ALLOWED_ATTR: ['href', 'target', 'rel'] });
+
+            let imageGridHTML = '';
+            if(post.images && post.images.length > 0) {
+                const count = Math.min(post.images.length, 5); const gridClass = `img-grid-${count}`;
+                imageGridHTML = `<div class="${gridClass} mt-4 mb-2">`;
+                post.images.slice(0, 5).forEach((imgUrl, idx) => { imageGridHTML += `<img src="${imgUrl}" class="grid-img-cell ${count===3 && idx===0 ? 'tall' : ''}" loading="lazy" onclick="window.open('${imgUrl}', '_blank')">`; });
+                imageGridHTML += `</div>`;
+            }
+
+            return `
+                <div class="bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-lg relative group transition-all hover:border-white/20">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[#222] border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">${avatar}</div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white flex items-center">${post.author_name} ${roleBadgeHTML}</h4>
+                                <p class="text-[11px] text-gray-500 font-medium">${dateStr}</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <button onclick="togglePostOptions('${post.id}')" class="p-2 text-gray-500 hover:text-white transition-colors rounded-full hover:bg-white/5"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+                            <div id="opts-${post.id}" class="hidden absolute right-0 mt-2 w-40 bg-[#151515] border border-white/10 rounded-xl shadow-xl z-30 py-1 overflow-hidden">
+                                ${isOwner ? `<button onclick="deletePost('${post.id}')" class="w-full text-left px-4 py-2 text-xs font-semibold text-red-400 hover:bg-white/5 flex items-center gap-2"><i data-lucide="trash" class="w-3.5 h-3.5"></i> Delete Post</button>` : ''}
+                                <button onclick="openReportModal('${post.id}')" class="w-full text-left px-4 py-2 text-xs font-semibold text-orange-400 hover:bg-white/5 flex items-center gap-2"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Report to Mods</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content-render text-[15px] text-gray-200 break-words mb-2 leading-relaxed">${safeContent}</div>
+                    ${imageGridHTML}
+                    <div class="mt-4 pt-4 border-t border-white/10 flex items-center justify-between text-gray-400">
+                        <button class="flex items-center gap-2 hover:text-white transition-colors text-xs font-semibold" onclick="toggleComments('${post.id}')">
+                            <i data-lucide="message-square" class="w-4 h-4"></i> <span id="comment-count-label-${post.id}">${commentCount}</span> Comments
+                        </button>
+                        <button class="flex items-center gap-2 transition-colors text-xs font-semibold ${isSaved ? 'text-myancode-accent' : 'hover:text-myancode-accent'}" onclick="toggleSavePost('${post.id}')">
+                            <i data-lucide="bookmark" class="w-4 h-4 ${isSaved ? 'fill-current' : ''}"></i> <span class="save-label">${isSaved ? 'Saved' : 'Save'}</span>
+                        </button>
+                    </div>
+                    <div id="comments-${post.id}" class="hidden mt-4 pt-4 border-t border-white/10">
+                        <div class="flex gap-3 mb-4">
+                            <input type="text" id="comment-input-${post.id}" class="flex-1 bg-black/50 border border-white/10 rounded-full px-4 py-2 text-xs text-white focus:outline-none focus:border-myancode-accent" placeholder="Write a comment..." onkeypress="if(event.key==='Enter') postComment('${post.id}')">
+                            <button onclick="postComment('${post.id}')" class="bg-white text-black rounded-full px-4 text-xs font-bold hover:bg-gray-200 transition-colors">Reply</button>
+                        </div>
+                        <div id="comments-list-${post.id}" class="space-y-3"><div class="py-4 text-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin text-gray-500 mx-auto"></i></div></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function togglePostOptions(id) { document.getElementById(`opts-${id}`).classList.toggle('hidden'); }
+        document.addEventListener('click', (e) => { if(!e.target.closest('.relative')) document.querySelectorAll('[id^="opts-"]').forEach(m => m.classList.add('hidden')); });
+
+        async function toggleSavePost(postId) {
+            if(!currentUser) { showLoginModal(); return; }
+            const post = allMarketplacePosts.find(p => p.id === postId);
+            if(!post) return;
+            
+            const isSavedIndex = post.marketplace_saves ? post.marketplace_saves.findIndex(s => s.user_id === currentUser.id) : -1;
+            const isSaved = isSavedIndex > -1;
+
+            if(isSaved) post.marketplace_saves.splice(isSavedIndex, 1);
+            else { if(!post.marketplace_saves) post.marketplace_saves = []; post.marketplace_saves.push({user_id: currentUser.id}); }
+            
+            renderFeed(); 
+
+            try {
+                if(isSaved) await supabaseInstance.from('marketplace_saves').delete().match({ post_id: postId, user_id: currentUser.id });
+                else await supabaseInstance.from('marketplace_saves').insert([{ post_id: postId, user_id: currentUser.id }]);
+            } catch(e) { 
+                if(isSaved) post.marketplace_saves.push({user_id: currentUser.id});
+                else post.marketplace_saves.splice(post.marketplace_saves.findIndex(s => s.user_id === currentUser.id), 1);
+                renderFeed(); showErrorToast("Failed to save post."); 
+            }
+        }
+
+        async function deletePost(postId) {
+            if(!confirm("Are you sure you want to delete this post?")) return;
+            try { await supabaseInstance.from('marketplace_posts').delete().eq('id', postId); showToast("Post deleted."); allMarketplacePosts = allMarketplacePosts.filter(p => p.id !== postId); renderFeed(); } catch(e) { showErrorToast("Failed to delete post."); }
+        }
+
+        async function submitReport() {
+            if(!currentUser) { showLoginModal(); return; }
+            const postId = document.getElementById('reportPostId').value;
+            const reason = document.getElementById('reportReason').value.trim();
+            if(!reason) { showErrorToast("Please enter a reason."); return; }
+            
+            const btn = document.getElementById('btnSubmitReport'); btn.disabled = true; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 spinner"></i>`; if(typeof lucide !== 'undefined') lucide.createIcons();
+            
+            try {
+                await supabaseInstance.from('marketplace_reports').insert([{ post_id: postId, reporter_id: currentUser.id, reason: reason }]);
+                showToast("Report submitted to moderators."); closeReportModal();
+            } catch(e) { showErrorToast("Failed to submit report."); }
+            finally { btn.disabled = false; btn.innerHTML = `Submit Report <i data-lucide="send" class="w-4 h-4"></i>`; if(typeof lucide !== 'undefined') lucide.createIcons(); }
+        }
+
+        async function toggleComments(postId) {
+            const sec = document.getElementById(`comments-${postId}`); sec.classList.toggle('hidden');
+            if(!sec.classList.contains('hidden')) loadComments(postId);
+        }
+
+        async function loadComments(postId) {
+            const listEl = document.getElementById(`comments-list-${postId}`);
+            try {
+                const { data, error } = await supabaseInstance.from('marketplace_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+                if(error) throw error;
+                if(data.length === 0) { listEl.innerHTML = `<p class="text-xs text-gray-500 text-center py-2">No comments yet. Start the conversation!</p>`; return; }
+                listEl.innerHTML = data.map(c => {
+                    const avatar = c.author_avatar ? `<img src="${c.author_avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1 text-gray-500"></i>`;
+                    const dateStr = timeAgo(c.created_at);
+                    let safeContent = c.content; if(window.DOMPurify) safeContent = DOMPurify.sanitize(c.content);
+                    return `<div class="flex gap-3 text-sm"><div class="w-6 h-6 rounded-full bg-[#222] border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">${avatar}</div><div class="bg-[#1a1a1a] rounded-xl px-3 py-2 border border-white/5 inline-block max-w-[85%] relative group/cmt"><span class="font-bold text-white text-[11px] block mb-0.5">${c.author_name} <span class="text-gray-500 font-normal ml-1">${dateStr}</span></span><span class="text-gray-300 text-[13px] leading-snug">${safeContent}</span>${currentUser && currentUser.id === c.user_id ? `<button onclick="deleteComment('${c.id}', '${postId}')" class="absolute -right-6 top-2 text-gray-600 hover:text-red-400 opacity-0 group-hover/cmt:opacity-100 transition-opacity"><i data-lucide="trash" class="w-3 h-3"></i></button>` : ''}</div></div>`;
+                }).join('');
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            } catch(e) { listEl.innerHTML = `<p class="text-xs text-red-400">Failed to load comments.</p>`; }
+        }
+
+        async function postComment(postId) {
+            if(!currentUser) { showLoginModal(); return; }
+            const input = document.getElementById(`comment-input-${postId}`); const content = input.value.trim();
+            if(!content) return;
+            input.disabled = true;
+            try {
+                await supabaseInstance.from('marketplace_comments').insert([{ post_id: postId, user_id: currentUser.id, author_name: currentUser.name, author_avatar: currentUser.avatar, content: content }]);
+                input.value = '';
+                const post = allMarketplacePosts.find(p=>p.id===postId);
+                if(post) { if(!post.marketplace_comments) post.marketplace_comments=[{count:0}]; post.marketplace_comments[0].count++; const label = document.getElementById(`comment-count-label-${postId}`); if(label) label.innerText = post.marketplace_comments[0].count; }
+                loadComments(postId);
+            } catch(e) { showErrorToast("Failed to post comment."); } 
+            finally { input.disabled = false; input.focus(); }
+        }
+
+        async function deleteComment(commentId, postId) {
+            if(!confirm("Delete your comment?")) return;
+            try {
+                await supabaseInstance.from('marketplace_comments').delete().eq('id', commentId);
+                const post = allMarketplacePosts.find(p=>p.id===postId);
+                if(post && post.marketplace_comments && post.marketplace_comments[0].count > 0) { post.marketplace_comments[0].count--; const label = document.getElementById(`comment-count-label-${postId}`); if(label) label.innerText = post.marketplace_comments[0].count; }
+                loadComments(postId);
+            } catch(e) { showErrorToast("Failed to delete comment"); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { initMarketplace(); });
+    </script>
+</body>
+</html>
