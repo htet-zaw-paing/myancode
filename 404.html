@@ -232,7 +232,7 @@
 </head>
 <body class="font-sans selection:bg-white selection:text-black bg-[#050505] flex flex-col min-h-screen">
 
-    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center opacity-100 visibility-visible">
+    <div id="globalLoader" class="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center opacity-100 transition-opacity duration-500">
         <div class="relative w-16 h-16 mb-8 flex items-center justify-center">
             <i data-lucide="code-2" class="h-8 w-8 text-white absolute animate-pulse"></i>
         </div>
@@ -707,17 +707,17 @@
         function showLoader(i18nKey = 'loadingInit') {
             loaderText.setAttribute('data-i18n', i18nKey);
             loaderText.innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit'];
-            globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden');
-            globalLoader.classList.add('opacity-100', 'visibility-visible');
+            globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
+            globalLoader.classList.add('opacity-100');
             document.body.classList.add('no-scroll');
         }
 
         function hideLoader() {
             if (!globalLoader) return;
-            globalLoader.classList.remove('opacity-100', 'visibility-visible');
+            globalLoader.classList.remove('opacity-100');
             globalLoader.classList.add('opacity-0', 'pointer-events-none');
             document.body.classList.remove('no-scroll');
-            setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600);
+            setTimeout(() => globalLoader.classList.add('hidden'), 500);
         }
 
         const SUPABASE_URL = 'https://dnretdraqjwdiwxccmpd.supabase.co';
@@ -731,9 +731,12 @@
         let currentUser = null;
         let currentUserCart = []; 
 
-        if (supabaseInstance) {
-            supabaseInstance.auth.onAuthStateChange(async (event, session) => {
+        async function initPage() {
+            if (supabaseInstance) {
                 try {
+                    // Explicitly await the session first instead of relying solely on the listener
+                    const { data: { session } } = await supabaseInstance.auth.getSession();
+                    
                     if (session && session.user) {
                         let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
                         
@@ -752,18 +755,28 @@
                             role: trueRole
                         };
                         currentUserCart = session.user.user_metadata?.wishlist || []; 
-                    } else {
-                        currentUser = null;
-                        currentUserCart = [];
                     }
-                    updateAuthUI();
-                    hideLoader();
+                    
+                    // Attach listener for future state changes
+                    supabaseInstance.auth.onAuthStateChange((event, session) => {
+                        if (event === 'SIGNED_OUT') {
+                            currentUser = null;
+                            currentUserCart = [];
+                            updateAuthUI();
+                        } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+                            // Automatically handled by session object if page refreshes
+                        }
+                    });
+
                 } catch (generalErr) {
-                    hideLoader();
+                    console.error("Authentication init error:", generalErr);
                 }
-            });
-        } else {
+            }
+            
+            // Unconditionally setup UI and hide loader
             updateAuthUI();
+            setActiveNavLinks();
+            renderLanguage();
             hideLoader();
         }
 
@@ -1421,8 +1434,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            setActiveNavLinks();
-            renderLanguage(); 
+            initPage(); 
         });
 
     </script>
