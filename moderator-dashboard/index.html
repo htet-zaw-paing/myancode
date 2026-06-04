@@ -113,6 +113,11 @@
                 <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOverview">Overview</span>
             </button>
+
+            <button onclick="switchTab('community')" id="nav-community" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="flag" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabCommunity">Community Management</span>
+            </button>
             
             <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
@@ -129,7 +134,7 @@
                     <div class="flex flex-col overflow-hidden sidebar-text">
                         <div class="flex items-center gap-1.5">
                             <span id="sbName" class="text-sm font-bold text-white truncate">Moderator</span>
-                            <img src="../imgs/web-banners/moderator-badge.png" class="w-4 h-4 flex-shrink-0 drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" onerror="this.style.display='none';">
+                            <img src="../imgs/web-banners/verified-moderator.png" class="w-4 h-4 flex-shrink-0 drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" onerror="this.style.display='none';">
                         </div>
                         <span id="sbEmail" class="text-[11px] text-gray-500 font-mono truncate mt-0.5">user@myancode.com</span>
                     </div>
@@ -165,7 +170,7 @@
                     <div id="headerProfileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-56 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
                         <div class="px-5 py-3 border-b border-white/10 mb-1 text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center">
                             <span class="truncate" id="hdrDropName">Moderator</span>
-                            <img src="../imgs/web-banners/moderator-badge.png" class="w-3.5 h-3.5 ml-2 drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" onerror="this.style.display='none';">
+                            <img src="../imgs/web-banners/verified-moderator.png" class="w-3.5 h-3.5 ml-2 drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" onerror="this.style.display='none';">
                         </div>
                         <button onclick="switchTab('settings'); document.getElementById('headerProfileDropdown').classList.add('dropdown-hidden');" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
                             My Profile <i data-lucide="user" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i>
@@ -187,6 +192,37 @@
                     </div>
                     <h3 class="text-2xl font-bold font-display text-white mb-3" data-i18n="overviewTitle">Overview Coming Soon</h3>
                     <p class="text-gray-400 text-sm font-medium" data-i18n="overviewDesc">We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.</p>
+                </div>
+            </div>
+
+            <!-- Community Management View -->
+            <div id="view-community" class="view-section hidden flex-col gap-8 max-w-6xl mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
+                    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display"><i data-lucide="flag" class="h-7 w-7 text-orange-400"></i> Reported Posts</h3>
+                        <button onclick="fetchReportedPosts()" class="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-gray-300 transition-colors"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh</button>
+                    </div>
+                    
+                    <div class="overflow-x-auto custom-scroll border border-white/5 rounded-2xl bg-[#0a0a0a]">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
+                            <thead>
+                                <tr class="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-mono bg-white/5">
+                                    <th class="py-4 px-6 font-bold">Report Details</th>
+                                    <th class="py-4 px-6 font-bold">Post Content</th>
+                                    <th class="py-4 px-6 font-bold">Reporter ID</th>
+                                    <th class="py-4 px-6 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportedPostsTableBody" class="divide-y divide-white/5 text-sm">
+                                <tr>
+                                    <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3 text-gray-400"></i>
+                                        Loading reports...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -256,6 +292,7 @@
         </div>
     </div>
 
+    <!-- The Confirmation Modal (FIXED) -->
     <div id="confirmModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeConfirmModal()">
         <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent" onclick="event.stopPropagation()">
             <div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6">
@@ -267,6 +304,17 @@
             <div class="flex space-x-4 w-full">
                 <button onclick="closeConfirmModal()" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors" id="confirmModalCancelBtn">Cancel</button>
                 <button id="confirmModalBtn" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700 btn-hover-effect">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="postPreviewModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closePostPreviewModal()">
+        <div class="glass-panel border border-white/10 rounded-[2.5rem] w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-[2.5rem]">
+                <h3 class="text-xl font-bold font-display tracking-tight text-white flex items-center gap-3"><i data-lucide="eye" class="h-6 w-6 text-myancode-accent"></i> Post Preview</h3>
+                <button onclick="closePostPreviewModal()" class="p-2 text-gray-400 hover:text-white bg-black/50 hover:bg-white/10 border border-white/10 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scroll flex-1 text-gray-300" id="postPreviewContent">
             </div>
         </div>
     </div>
@@ -311,7 +359,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings",
+                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabCommunity: "Community Management",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
@@ -323,7 +371,7 @@
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabCommunity: "အသိုက်အဝန်း စီမံခန့်ခွဲမှု",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
@@ -439,7 +487,23 @@
             populateSidebar();
             populateProfileData();
             switchTab('overview');
+            initRealtime();
             hideLoader();
+        }
+
+        function initRealtime() {
+            if (!supabaseInstance) return;
+            
+            // Listen to any changes in the marketplace reports table
+            supabaseInstance.channel('moderator_reports')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'marketplace_reports' }, payload => {
+                    const activeView = document.getElementById('view-community');
+                    // Only refresh if the moderator is currently on the Community tab
+                    if (activeView && !activeView.classList.contains('hidden')) {
+                        fetchReportedPosts(true); 
+                    }
+                })
+                .subscribe();
         }
 
         async function submitForcePassword() {
@@ -589,17 +653,265 @@
             });
             
             const activeView = document.getElementById(`view-${tabId}`);
-            activeView.classList.remove('hidden');
-            activeView.classList.add('flex');
+            if(activeView) {
+                activeView.classList.remove('hidden');
+                activeView.classList.add('flex');
+            }
             
             const activeBtn = document.getElementById(`nav-${tabId}`);
-            activeBtn.classList.remove('text-gray-400', 'hover:bg-white/5');
-            activeBtn.classList.add('bg-white/10', 'text-white');
+            if(activeBtn) {
+                activeBtn.classList.remove('text-gray-400', 'hover:bg-white/5');
+                activeBtn.classList.add('bg-white/10', 'text-white');
+            }
 
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings' };
+            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'community': 'Community Management' };
             document.getElementById('headerTitle').innerText = titleMap[tabId] || 'Dashboard';
             
+            if (tabId === 'community') {
+                fetchReportedPosts();
+            }
+
             if(window.innerWidth < 1024 && sidebarOpen) toggleMobileMenu();
+        }
+
+        async function fetchReportedPosts(isSilent = false) {
+            if(!supabaseInstance) return;
+            const tbody = document.getElementById('reportedPostsTableBody');
+            
+            // If it's a background realtime sync, don't show the flashing loader
+            if (!isSilent) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading reports...</td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+            
+            try {
+                // We use the specific named constraint to prevent ambiguity
+                const { data, error } = await supabaseInstance.from('marketplace_reports').select(`
+                    id, 
+                    reason, 
+                    status,
+                    created_at,
+                    post_id,
+                    reporter_id,
+                    marketplace_posts!fk_marketplace_reports_post_id ( content, author_name )
+                `).eq('status', 'pending').order('created_at', { ascending: false });
+
+                if (error) {
+                    throw new Error(error.message || "Failed to load reports");
+                }
+                
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="check" class="w-6 h-6 text-green-400"></i></div><p class="font-medium">No pending reports.</p><p class="text-xs mt-1 opacity-70">The community is clean.</p></td></tr>';
+                    if(typeof lucide !== 'undefined') lucide.createIcons();
+                    return;
+                }
+
+                tbody.innerHTML = data.map(report => {
+                    const hasPost = !!report.marketplace_posts;
+                    let contentSnippet = '<span class="text-red-400 italic text-xs">Post already deleted</span>';
+                    let author = 'Unknown';
+                    
+                    if (hasPost) {
+                        contentSnippet = report.marketplace_posts.content.replace(/<[^>]*>?/gm, '').trim();
+                        if(contentSnippet.length > 80) contentSnippet = contentSnippet.substring(0, 80) + '...';
+                        author = report.marketplace_posts.author_name;
+                    }
+
+                    const dateObj = new Date(report.created_at);
+                    const formattedDate = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    return `
+                        <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                            <td class="px-6 py-4 align-top w-1/4">
+                                <div class="font-bold text-white mb-1 capitalize">${report.reason || 'Reported'}</div>
+                                <div class="text-[11px] text-gray-500 font-mono">${formattedDate}</div>
+                            </td>
+                            <td class="px-6 py-4 align-top w-2/4">
+                                <div class="text-sm text-gray-300 mb-1 break-words">${contentSnippet}</div>
+                                ${hasPost ? `<div class="text-xs text-gray-500 font-medium">By <span class="text-gray-400 font-bold">${author}</span></div>` : ''}
+                            </td>
+                            <td class="px-6 py-4 align-top text-xs font-mono text-gray-400 truncate max-w-[120px]" title="${report.reporter_id}">
+                                ${report.reporter_id.substring(0, 8)}...
+                            </td>
+                            <td class="px-6 py-4 align-top text-right">
+                                <div class="flex justify-end gap-2 opacity-100 sm:opacity-50 sm:group-hover:opacity-100 transition-opacity">
+                                    ${hasPost ? `
+                                    <button onclick="viewReportedPost('${report.post_id}')" class="h-9 w-9 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="View Full Post">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </button>
+                                    ` : ''}
+                                    <button onclick="deleteReportedPost('${report.post_id}', '${report.id}', ${!hasPost})" class="h-9 w-9 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="${hasPost ? 'Delete Post & Report' : 'Dismiss Deleted Post'}">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="dismissReport('${report.id}')" class="h-9 w-9 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Ignore Report">
+                                        <i data-lucide="check" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p><p class="text-xs text-gray-500 mt-4">Please paste this error back to the AI.</p></td></tr>`;
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+
+        async function deleteReportedPost(postId, reportId, isPostAlreadyDeleted) {
+            const actionText = isPostAlreadyDeleted ? "dismiss this report (post is already deleted)" : "permanently delete this post from the marketplace";
+            
+            showConfirmModal("Delete Post", `Are you sure you want to ${actionText}? This action cannot be undone.`, "danger", async () => {
+                showLoader("Processing deletion...");
+                try {
+                    // 1. Delete the actual post from marketplace_posts (if it hasn't been deleted yet)
+                    if (!isPostAlreadyDeleted && postId && postId !== 'undefined' && postId !== 'null') {
+                        const { error: deleteError } = await supabaseInstance
+                            .from('marketplace_posts')
+                            .delete()
+                            .eq('id', postId);
+                            
+                        if (deleteError) throw deleteError;
+                    }
+                    
+                    // 2. Mark the report as deleted so it leaves the pending queue
+                    const { error: reportError } = await supabaseInstance
+                        .from('marketplace_reports')
+                        .update({ status: 'deleted' })
+                        .eq('id', reportId);
+                        
+                    if (reportError) throw reportError;
+                    
+                    showToast(isPostAlreadyDeleted ? "Report cleared." : "Post permanently deleted from marketplace.");
+                    fetchReportedPosts(); 
+                } catch(e) {
+                    showErrorToast("Error: " + (e.message || "Failed to delete post."));
+                } finally {
+                    hideLoader();
+                }
+            });
+        }
+
+        function dismissReport(reportId) {
+            showConfirmModal("Ignore Report", "Are you sure you want to ignore this report? The post will remain visible in the marketplace.", "warning", async () => {
+                showLoader();
+                try {
+                    const {error} = await supabaseInstance.from('marketplace_reports').update({ status: 'ignored' }).eq('id', reportId);
+                    if (error) throw error;
+                    
+                    showToast("Report ignored.");
+                    fetchReportedPosts(); 
+                } catch(e) {
+                    showErrorToast(e.message || "Failed to ignore report.");
+                } finally {
+                    hideLoader();
+                }
+            });
+        }
+
+        async function viewReportedPost(postId) {
+            if (!postId || postId === 'undefined' || postId === 'null') {
+                showErrorToast("This post has already been deleted by the user.");
+                return;
+            }
+            
+            showLoader("Fetching full post data...");
+            try {
+                const { data: post, error } = await supabaseInstance.from('marketplace_posts')
+                    .select('*, marketplace_comments(*)')
+                    .eq('id', postId)
+                    .single();
+                
+                if (error) throw error;
+                if (!post) {
+                    showErrorToast("Post not found in database. It may have been permanently deleted.");
+                    hideLoader();
+                    return;
+                }
+
+                let imagesHtml = '';
+                if (post.images && post.images.length > 0) {
+                    imagesHtml = `<div class="grid grid-cols-2 gap-3 mt-6">` + 
+                        post.images.map(img => `<img src="${img}" class="w-full h-48 object-cover rounded-xl border border-white/10 shadow-sm hover:brightness-110 transition-all cursor-pointer" onclick="window.open('${img}', '_blank')">`).join('') + 
+                    `</div>`;
+                }
+
+                let commentsHtml = '<div class="text-[13px] text-gray-500 italic mt-4 px-4">No comments found on this post.</div>';
+                if (post.marketplace_comments && post.marketplace_comments.length > 0) {
+                    const sortedComments = post.marketplace_comments.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                    
+                    commentsHtml = sortedComments.map(c => `
+                        <div class="bg-[#0a0a0a]/50 p-4 rounded-2xl border border-white/5 mt-3 shadow-inner flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#222] flex-shrink-0 overflow-hidden border border-white/10">
+                                ${c.author_avatar ? `<img src="${c.author_avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1.5 text-gray-500"></i>`}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <span class="font-bold text-white text-[13px]">${c.author_name}</span>
+                                    <span class="text-[10px] text-gray-500 font-mono">${new Date(c.created_at).toLocaleDateString()} ${new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                </div>
+                                <div class="text-[13px] text-gray-300 break-words leading-relaxed">${c.content}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                const postHtml = `
+                    <div class="flex items-center gap-4 mb-6 pb-6 border-b border-white/10">
+                        <div class="w-14 h-14 rounded-full bg-[#222] border-2 border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-lg">
+                            ${post.author_avatar ? `<img src="${post.author_avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-6 h-6 text-gray-500"></i>`}
+                        </div>
+                        <div>
+                            <div class="font-bold text-white text-lg tracking-tight flex items-center gap-2">${post.author_name}</div>
+                            <div class="text-xs text-gray-500 font-mono mt-0.5">Posted on: ${new Date(post.created_at).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-[15px] text-gray-200 leading-relaxed mb-6 p-6 bg-[#050505] border border-white/5 rounded-2xl shadow-inner break-words">
+                        ${post.content}
+                    </div>
+                    
+                    ${imagesHtml}
+                    
+                    <div class="mt-8 pt-8 border-t border-white/10">
+                        <h4 class="text-lg font-bold font-display text-white mb-4 flex items-center gap-2">
+                            <i data-lucide="message-square" class="w-5 h-5 text-myancode-accent"></i> 
+                            Discussion (${post.marketplace_comments ? post.marketplace_comments.length : 0})
+                        </h4>
+                        <div class="bg-[#111] border border-white/5 rounded-2xl p-4 max-h-[300px] overflow-y-auto custom-scroll">
+                            ${commentsHtml}
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('postPreviewContent').innerHTML = postHtml;
+                lucide.createIcons();
+
+                const modal = document.getElementById('postPreviewModal');
+                const content = modal.querySelector('div');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                void modal.offsetWidth; 
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+
+            } catch (err) {
+                showErrorToast("Database Error: " + (err.message || "Failed to load post"));
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function closePostPreviewModal() {
+            const modal = document.getElementById('postPreviewModal');
+            const content = modal.querySelector('div');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
         }
 
         let confirmActionCallback = null;
@@ -645,6 +957,7 @@
             };
         }
 
+        // ADDED MISSING FUNCTION HERE
         function closeConfirmModal() {
             const modal = document.getElementById('confirmModal');
             const content = document.getElementById('confirmModalContent');
@@ -784,10 +1097,12 @@
             document.addEventListener('keydown', (e) => {
                 const cropperModal = document.getElementById('cropperModal');
                 const confirmModal = document.getElementById('confirmModal');
+                const postPreviewModal = document.getElementById('postPreviewModal');
                 
                 if (e.key === 'Escape') {
                     if (!cropperModal.classList.contains('hidden')) cancelCrop();
                     if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
+                    if (!postPreviewModal.classList.contains('hidden')) closePostPreviewModal();
                 }
             });
         });
