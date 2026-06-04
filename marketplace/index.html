@@ -35,7 +35,7 @@ black: '#050505', gray: '#111111', darkgray: '#222222', blue: '#0066CC', accent:
 }
 </script>
 <style>
-html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #050505; color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html, body { width: 100%; position: relative; background-color: #050505; color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 body.no-scroll { overflow: hidden !important; touch-action: none; }
 html[lang="mm"] body { font-family: 'Inter', 'Noto Sans Myanmar', sans-serif; font-size: 14px; line-height: 2.2; }
 html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 { font-family: 'Jost', 'Noto Sans Myanmar', sans-serif; }
@@ -245,7 +245,7 @@ Hire Us
 <div class="absolute inset-0 bg-grid-dark pointer-events-none z-0 opacity-30"></div>
 <div class="layout-width relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
 <div class="hidden lg:block lg:col-span-3">
-<div class="sticky top-28 bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-lg">
+<div class="sticky top-28 bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-lg max-h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar h-fit">
 <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4" data-i18n="mpMenu">Community Hub</h3>
 <nav class="space-y-2">
 <button onclick="filterFeed('all')" class="w-full flex items-center gap-3 px-4 py-3 bg-white/10 text-white rounded-xl text-sm font-semibold transition-colors mp-nav-btn" id="nav-all">
@@ -321,7 +321,7 @@ Hire Us
 </div>
 </div>
 <div class="hidden lg:block lg:col-span-3">
-<div class="sticky top-28 space-y-6">
+<div class="sticky top-28 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar h-fit">
 <div class="bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2 relative flex items-center">
 <i data-lucide="search" class="w-5 h-5 text-gray-500 ml-3"></i>
 <input type="text" id="localSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-sm text-white px-3 py-2 focus:outline-none placeholder-gray-600" placeholder="Search posts, tags, users...">
@@ -491,7 +491,6 @@ searchMpPlaceholder: "ပို့စ်များ၊ အမည်များ
 };
 let currentLang = localStorage.getItem('myancode_lang') || 'en';
 
-let lastScrollY = window.scrollY;
 let ticking = false;
 window.addEventListener('scroll', () => {
     if (!ticking) {
@@ -505,12 +504,6 @@ window.addEventListener('scroll', () => {
                 nav.classList.add('nav-transparent', 'border-transparent');
                 nav.classList.remove('glass-nav-dark');
             }
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                nav.style.transform = 'translateY(-100%)';
-            } else {
-                nav.style.transform = 'translateY(0)';
-            }
-            lastScrollY = currentScrollY;
             ticking = false;
         });
         ticking = true;
@@ -897,7 +890,12 @@ renderFeed();
 
 function extractTrendingTags(posts) {
 const tagCounts = {};
-posts.forEach(p => { if(p.hashtags && Array.isArray(p.hashtags)) { p.hashtags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }); } });
+posts.forEach(p => { 
+if(p.hashtags && Array.isArray(p.hashtags)) { 
+const uniqueTags = [...new Set(p.hashtags)];
+uniqueTags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }); 
+} 
+});
 const sortedTags = Object.keys(tagCounts).sort((a,b) => tagCounts[b] - tagCounts[a]).slice(0, 10);
 const container = document.getElementById('trendingTagsContainer');
 if(sortedTags.length === 0) container.innerHTML = `<span class="text-xs text-gray-500 italic">No trending tags yet.</span>`;
@@ -1175,7 +1173,6 @@ if(typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function showMoreReplies(postId, parentId) {
-// Increase chunk by 3 and instantly re-render the whole tree state to keep event bindings clean
 window.expandedRepliesCount[parentId] = (window.expandedRepliesCount[parentId] || 3) + 3;
 const treeContainer = document.getElementById(`modal-comments-tree-${postId}`);
 treeContainer.innerHTML = renderCommentTree(window.currentPostComments, postId);
@@ -1189,7 +1186,7 @@ if(typeof lucide !== 'undefined') lucide.createIcons();
 try {
 const { data, error } = await supabaseInstance.from('marketplace_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
 if(error) throw error;
-window.currentPostComments = data; // Keep in memory for instant UX
+window.currentPostComments = data; 
 if(data.length === 0) { treeContainer.innerHTML = `<p class="text-sm text-gray-500 text-center py-10">No comments yet. Be the first to start the conversation!</p>`; return; }
 treeContainer.innerHTML = renderCommentTree(window.currentPostComments, postId);
 if(typeof lucide !== 'undefined') lucide.createIcons();
@@ -1214,7 +1211,6 @@ const rootHtml = renderSingleComment(c, postId, c.id, false);
 let repliesHtml = '';
 
 if (replies.length > 0) {
-// Load limits strictly by 3, default is 3
 let visibleCount = window.expandedRepliesCount[c.id] || 3;
 let visibleHtml = replies.slice(0, visibleCount).map(r => renderSingleComment(r, postId, c.id, true)).join('');
 let remaining = replies.length - visibleCount;
@@ -1240,7 +1236,6 @@ const avatarSize = isReply ? "w-6 h-6 sm:w-7 sm:h-7" : "w-8 h-8 sm:w-10 sm:h-10"
 const textSize = isReply ? "text-[12px] sm:text-[13px]" : "text-[13px] sm:text-[14px]";
 const bgClass = isReply ? "bg-[#151515]" : "bg-[#1a1a1a]";
 
-// Fixed, explicit delete button - no hover tricks, clear colors
 const deleteBtnHtml = currentUser && currentUser.id === c.user_id 
     ? `<button onclick="deleteComment('${c.id}', '${postId}', ${isReply})" class="text-red-500/90 hover:text-red-400 transition-colors flex items-center gap-1"><i data-lucide="trash" class="w-3.5 h-3.5"></i> Delete</button>` 
     : '';
@@ -1264,7 +1259,7 @@ ${deleteBtnHtml}
 
 function setReplyTarget(postId, commentId, authorName, rootId = null) {
 activeReplyAuthor[postId] = authorName;
-activeReplyParentId[postId] = rootId || commentId; // Always strictly points back to the top-level parent
+activeReplyParentId[postId] = rootId || commentId; 
 const indicator = document.getElementById(`reply-indicator-modal-${postId}`);
 if(indicator) {
 indicator.innerHTML = `<div class="text-xs text-myancode-accent mb-2 flex items-center justify-between bg-myancode-accent/10 py-1.5 px-3 rounded-md border border-myancode-accent/20">Replying to @${authorName} <button onclick="clearReplyTarget('${postId}')" class="hover:text-white p-1"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></div>`;
@@ -1288,7 +1283,6 @@ const labelEl = btnEl.querySelector('.cmt-like-label');
 const isLiked = btnEl.classList.contains('text-red-500');
 let count = parseInt(labelEl.innerText) || 0;
 
-// Optimistic instant toggle
 if(isLiked) {
 btnEl.classList.remove('text-red-500'); btnEl.classList.add('hover:text-white');
 if(iconEl) iconEl.classList.remove('fill-current'); labelEl.innerText = Math.max(0, count - 1);
@@ -1297,7 +1291,6 @@ btnEl.classList.add('text-red-500'); btnEl.classList.remove('hover:text-white');
 if(iconEl) iconEl.classList.add('fill-current'); labelEl.innerText = count + 1;
 }
 
-// Memory sync to prevent reset on re-render
 if(window.currentPostComments) {
     const cIdx = window.currentPostComments.findIndex(c => c.id === commentId);
     if(cIdx > -1) {
@@ -1328,7 +1321,6 @@ if (activeReplyAuthor[postId]) {
 content = `<span class="text-myancode-accent font-semibold">@${activeReplyAuthor[postId]}</span> ` + content;
 }
 
-// 1. Instant Optimistic UI Append
 const tempId = 'temp-' + Date.now();
 const optimisticComment = {
     id: tempId,
@@ -1338,18 +1330,15 @@ const optimisticComment = {
     created_at: new Date().toISOString(), marketplace_comment_likes: []
 };
 
-// Auto Expand Parent tree explicitly if they replied to someone deeply
 if(savedParentId) window.expandedRepliesCount[savedParentId] = 9999;
 
 if(isModal && window.currentPostComments) {
     window.currentPostComments.push(optimisticComment);
     document.getElementById(`modal-comments-tree-${postId}`).innerHTML = renderCommentTree(window.currentPostComments, postId);
     if(typeof lucide !== 'undefined') lucide.createIcons();
-    // Scroll to bottom smoothly to see the active new comment instantly
     setTimeout(() => { const ca = document.getElementById('postDetailContent'); ca.scrollTop = ca.scrollHeight; }, 10);
 }
 
-// Optimistic count update
 const post = allMarketplacePosts.find(p=>p.id===postId);
 if(post) { 
     if(!post.marketplace_comments) post.marketplace_comments=[{count:0}]; 
@@ -1360,12 +1349,10 @@ if(post) {
     if(label2) label2.innerText = post.marketplace_comments[0].count;
 }
 
-// Cleanup UI 
 input.value = '';
 clearReplyTarget(postId);
-if (!isModal) loadCommentsForFeed(postId, true); // silent reload for feed
+if (!isModal) loadCommentsForFeed(postId, true); 
 
-// 2. Background Sync
 try {
 const payload = {
     post_id: postId, user_id: currentUser.id, author_name: currentUser.name,
@@ -1375,17 +1362,14 @@ const payload = {
 const { data, error } = await supabaseInstance.from('marketplace_comments').insert([payload]).select('*').single();
 if (error) throw error;
 
-// Swap temporary ID with DB ID implicitly
 if(isModal && window.currentPostComments) {
     const idx = window.currentPostComments.findIndex(c => c.id === tempId);
     if(idx > -1) window.currentPostComments[idx] = data;
-    // Silent re-render to bind accurate Delete ID behind the scenes
     document.getElementById(`modal-comments-tree-${postId}`).innerHTML = renderCommentTree(window.currentPostComments, postId);
     if(typeof lucide !== 'undefined') lucide.createIcons();
 }
 } catch(e) { 
 showErrorToast(e.message || "Failed to post comment. Reverting."); 
-// Revert
 if(post) { post.marketplace_comments[0].count--; }
 if(isModal && window.currentPostComments) {
     window.currentPostComments = window.currentPostComments.filter(c => c.id !== tempId);
@@ -1399,11 +1383,9 @@ async function deleteComment(commentId, postId, isReply = false) {
 const confirmed = await customConfirm("Delete your comment?", "Delete Comment");
 if(!confirmed) return;
 
-// 1. Instant Optimistic UI Removal
 let backupComments = [];
 if(window.currentPostComments) {
     backupComments = [...window.currentPostComments];
-    // Remove the comment AND strictly any children connected to it instantly
     window.currentPostComments = window.currentPostComments.filter(c => c.id !== commentId && c.parent_id !== commentId);
     document.getElementById(`modal-comments-tree-${postId}`).innerHTML = renderCommentTree(window.currentPostComments, postId);
     if(typeof lucide !== 'undefined') lucide.createIcons();
@@ -1418,14 +1400,12 @@ if(post && post.marketplace_comments && post.marketplace_comments[0].count > 0) 
     if(label2) label2.innerText = post.marketplace_comments[0].count;
 }
 
-// 2. Background Sync
 try {
 const { error } = await supabaseInstance.from('marketplace_comments').delete().eq('id', commentId);
 if (error) throw error;
-loadCommentsForFeed(postId, true); // Update inline silently
+loadCommentsForFeed(postId, true); 
 } catch(e) { 
     showErrorToast("Failed to delete comment"); 
-    // Revert state
     if(window.currentPostComments) {
         window.currentPostComments = backupComments;
         document.getElementById(`modal-comments-tree-${postId}`).innerHTML = renderCommentTree(window.currentPostComments, postId);
