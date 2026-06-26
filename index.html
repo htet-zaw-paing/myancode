@@ -139,8 +139,10 @@
         .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
         .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
 
-        .btn-hover-effect { transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s ease; transform: translateZ(0); }
-        .btn-hover-effect:hover { transform: scale(1.02); }
+        .btn-hover-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateZ(0); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(255, 255, 255, 0.1); }
+        .btn-hover-effect:active:not(:disabled) { transform: translateY(1px); }
+        .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .glass-panel-apple {
             background: rgba(17, 17, 17, 0.8);
@@ -161,7 +163,7 @@
         .slider-img { transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.25, 1, 0.5, 1); opacity: 0; transform: scale(1.03); pointer-events: none; will-change: opacity, transform; }
         .slider-img.active { opacity: 1; transform: scale(1); transition: opacity 1.2s ease, transform 25s linear; pointer-events: auto; }
 
-        .search-overlay { clip-path: circle(0% at 85% 5%); opacity: 0; pointer-events: none; transition: clip-path 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease; transform: translateZ(0); }
+        .search-overlay { clip-path: circle(0% at 85% 5%); opacity: 0; pointer-events: none; transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease; }
         .search-overlay.open { clip-path: circle(150% at 85% 5%); opacity: 1; pointer-events: auto; }
         @media (max-width: 640px) {
             .search-overlay { clip-path: circle(0px at calc(100% - 80px) 30px); }
@@ -179,7 +181,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .layout-width { width: 90%; max-width: 1400px; margin-left: auto; margin-right: auto; }
+        .layout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
 
         .user-avatar-global { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease; }
         .group:hover .user-avatar-global { transform: scale(1.1); border-color: #2997ff; box-shadow: 0 8px 24px rgba(41, 151, 255, 0.4); }
@@ -192,26 +194,25 @@
             pointer-events: none !important;
             color: transparent !important;
             -webkit-text-fill-color: transparent !important;
-            background: #111111 !important;
+            background-color: #111111 !important;
+            background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent) !important;
+            background-size: 300px 100% !important;
+            background-repeat: no-repeat !important;
+            background-clip: border-box !important;
+            -webkit-background-clip: border-box !important;
             border-color: transparent !important;
             box-shadow: none !important;
             overflow: hidden !important;
+            animation: skeleton-load 1.5s infinite ease-in-out !important;
         }
         h1.skeleton, h2.skeleton, p.skeleton, span.skeleton, div.skeleton, a.skeleton {
             border-radius: 0.5rem !important;
         }
         .skeleton * { opacity: 0 !important; }
-        .skeleton::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-            z-index: 10;
-            animation: skeleton-load 1.5s infinite ease-in-out;
-        }
+        
         @keyframes skeleton-load { 
-            0% { transform: translateX(-100%); } 
-            100% { transform: translateX(100%); } 
+            0% { background-position: -300px 0; } 
+            100% { background-position: calc(100% + 300px) 0; } 
         }
 
         @media (max-width: 350px) {
@@ -220,63 +221,115 @@
         }
     </style>
 </head>
-<body class="font-sans selection:bg-white selection:text-black bg-[#050505]">
+<body class="font-sans selection:bg-white selection:text-black bg-[#050505] flex flex-col min-h-screen">
 
     <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
         <div class="layout-width">
             <div class="flex justify-between items-center h-16 sm:h-20">
                 <div class="flex items-center h-full">
-                    <button class="xl:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-white" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <button class="xl:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-white"
+                        onclick="toggleMobileMenu()">
                         <i data-lucide="menu" class="h-5 w-5"></i>
                     </button>
                     <a href="./" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
-                        <img src="./imgs/web-banners/favicon.png" alt="MyanCode" class="h-7 sm:h-8 w-auto transition-transform duration-500 group-hover:scale-105" onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
+                        <img src="./imgs/web-banners/favicon.png" alt="MyanCode"
+                            class="h-7 sm:h-8 w-auto transition-transform duration-500 group-hover:scale-105"
+                            onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
                     </a>
                 </div>
-                
+
                 <div class="hidden xl:flex space-x-6 2xl:space-x-8 text-[12px] capitalize tracking-wide font-bold items-center h-full">
-                    <a href="./studio/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
-                    <a href="./services/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/services/" data-i18n="navServices">Services</a>
-                    <a href="./templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
-                    <a href="./marketplace/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/marketplace/" data-i18n="navMarketplace">Marketplace</a>
-                    <a href="./developers/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/developers/" data-i18n="navDevelopers">Developers</a>
-                    <a href="./pricing/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/pricing/" data-i18n="navPricing">Pricing</a>
-                    <a href="./portfolio/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/portfolio/" data-i18n="navPortfolio">Portfolio</a>
-                    <a href="./about-us/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/about-us/" data-i18n="navAbout">About</a>
-                    
+                    <a href="./studio/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="./services/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    <a href="./templates/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="./marketplace/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/marketplace/" data-i18n="navMarketplace">Marketplace</a>
+                    <a href="./developers/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/developers/" data-i18n="navDevelopers">Developers</a>
+                    <a href="./pricing/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/pricing/" data-i18n="navPricing">Pricing</a>
+                    <a href="./portfolio/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/portfolio/" data-i18n="navPortfolio">Portfolio</a>
+                    <a href="./about-us/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/about-us/" data-i18n="navAbout">About</a>
+
                     <div class="relative group h-full flex items-center">
-                        <button class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link flex items-center gap-1 cursor-pointer text-white/90" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
-                        
+                        <button
+                            class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link flex items-center gap-1 cursor-pointer text-white/90"
+                            data-i18n="navSupport">Support <i data-lucide="chevron-down"
+                                class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
+
                         <div class="absolute top-[80%] left-0 w-full h-8"></div>
 
-                        <div class="fixed top-[64px] sm:top-[80px] left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] border-b border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
+                        <div
+                            class="fixed top-[64px] sm:top-[80px] left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] border-b border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
                             <div class="layout-width py-12 flex gap-8 md:gap-16 lg:gap-24 text-white">
                                 <div class="flex-[1.2]">
-                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest"
+                                        data-i18n="supHelpTitle">Explore Support</div>
                                     <div class="flex flex-col gap-4 font-display">
-                                        <a href="./guides/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supGuides">Guides</a>
-                                        <a href="./help/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supHelp">Help Center</a>
-                                        <a href="./faq/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supFaq">FAQs</a>
-                                        <a href="./contact-us/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                        <a href="./guides/" target="_blank"
+                                            class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="supGuides">Guides</a>
+                                        <a href="./help/" target="_blank"
+                                            class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="supHelp">Help Center</a>
+                                        <a href="./faq/" target="_blank"
+                                            class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="supFaq">FAQs</a>
+                                        <a href="./contact-us/" target="_blank"
+                                            class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="supContact">Contact</a>
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest"
+                                        data-i18n="supPoliciesTitle">Service Policies</div>
                                     <div class="flex flex-col gap-3">
-                                        <a href="./legal/#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
-                                        <a href="./legal/#studio-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
-                                        <a href="./legal/#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
-                                        <a href="./legal/#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polService">Service Policy</a>
-                                        <a href="./legal/#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                        <a href="./legal/#client-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polClient">Customer Policy</a>
+                                        <a href="./legal/#studio-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polStudio">Studio Policy</a>
+                                        <a href="./legal/#template-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polTemplate">Template Policy</a>
+                                        <a href="./legal/#service-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polService">Service Policy</a>
+                                        <a href="./legal/#maintenance-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polMaintenance">Maintenance Policy</a>
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest"
+                                        data-i18n="supLegalTitle">Legal & Transactions</div>
                                     <div class="flex flex-col gap-3">
-                                        <a href="./legal/#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
-                                        <a href="./legal/#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
-                                        <a href="./privacy-policy/" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
-                                        <a href="./legal/#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                        <a href="./legal/#payment-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polPayment">Payment Policy</a>
+                                        <a href="./legal/#refund-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polRefund">Refund Policy</a>
+                                        <a href="./legal/#privacy-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="./legal/#terms-of-service" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polTerms">Terms of Service</a>
                                     </div>
                                 </div>
                             </div>
@@ -285,27 +338,45 @@
                 </div>
 
                 <div class="flex items-center space-x-3 sm:space-x-5">
-                    <button aria-label="Search" onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
-                        <i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                    <button onclick="toggleSearchOverlay()"
+                        class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
+                        <i data-lucide="search"
+                            class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
                     </button>
-                    
-                    <button aria-label="Cart" onclick="toggleCartDrawer()" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
-                        <i data-lucide="shopping-bag" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
-                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-white text-black text-[9px] font-bold font-mono h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+
+                    <button onclick="toggleWishlistDrawer()"
+                        class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
+                        <i data-lucide="shopping-bag"
+                            class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="wishlist-count"
+                            class="absolute -top-1.5 -right-2 bg-white text-black text-[9px] font-bold font-mono h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
                     </button>
 
                     <div class="relative hidden sm:block" id="langContainer">
-                        <button aria-label="Language" onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
-                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
-                            <div class="px-4 pb-2 mb-2 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-bold font-mono" data-i18n="langSelect">Language</div>
-                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
-                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        <button onclick="toggleLangDropdown(event)"
+                            class="flex items-center transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i
+                                data-lucide="globe"
+                                class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown"
+                            class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
+                            <div class="px-4 pb-2 mb-2 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-bold font-mono"
+                                data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')"
+                                class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English
+                                <i data-lucide="check"
+                                    class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')"
+                                class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ
+                                <i data-lucide="check"
+                                    class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
                         </div>
                     </div>
-                    
+
                     <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
 
-                    <a href="./contact-us/" class="hidden md:flex items-center justify-center px-5 py-2 bg-myancode-accent text-white text-[11px] uppercase tracking-wider font-bold rounded-full hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:shadow-[0_0_20px_rgba(41,151,255,0.5)] transform hover:-translate-y-0.5" data-i18n="btnHireUs">
+                    <a href="./contact-us/"
+                        class="hidden md:flex items-center justify-center px-5 py-2 bg-myancode-accent text-white text-[11px] uppercase tracking-wider font-bold rounded-full hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:shadow-[0_0_20px_rgba(41,151,255,0.5)] transform hover:-translate-y-0.5"
+                        data-i18n="btnHireUs">
                         Hire Us
                     </a>
                 </div>
@@ -315,25 +386,47 @@
 
     <div id="searchOverlay" class="fixed inset-0 z-[100] bg-[#0a0a0a]/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
         <div class="layout-width pt-10">
-            <div class="flex justify-end"><button aria-label="Close" onclick="toggleSearchOverlay()" class="p-2 text-gray-400 hover:text-white transition-colors rounded-full bg-white/5 border border-white/10 hover:bg-white/10"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+            <div class="flex justify-end"><button onclick="toggleSearchOverlay()"
+                    class="p-2 text-gray-400 hover:text-white transition-colors rounded-full bg-white/5 border border-white/10 hover:bg-white/10"><i
+                        data-lucide="x" class="h-5 w-5"></i></button></div>
             <div class="mt-8 sm:mt-16 max-w-4xl mx-auto">
-                <div class="relative w-full border-b border-gray-700 focus-within:border-white transition-colors pb-4 flex items-center">
+                <div
+                    class="relative w-full border-b border-gray-700 focus-within:border-white transition-colors pb-4 flex items-center">
                     <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-500 mr-4"></i>
-                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off" class="w-full text-3xl sm:text-4xl font-display font-semibold text-white bg-transparent border-none outline-none placeholder-gray-600" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off"
+                        class="w-full text-3xl sm:text-4xl font-display font-semibold text-white bg-transparent border-none outline-none placeholder-gray-600"
+                        placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
                 </div>
             </div>
             <div class="mt-12 flex flex-col-reverse md:flex-row gap-12 sm:gap-20 max-w-4xl mx-auto">
                 <div class="w-full md:w-1/3">
-                    <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Actions</h4>
+                    <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6"
+                        data-i18n="quickLinks">Quick Actions</h4>
                     <ul class="space-y-4">
-                        <li><a href="./services/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span data-i18n="tradeInTitle">Web Development</span></a></li>
-                        <li><a href="./templates/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span data-i18n="newArrivals">Premium Templates</span></a></li>
-                        <li><a href="./services/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span data-i18n="bulkTitle">SEO Optimization</span></a></li>
+                        <li><a href="./services/" onclick="toggleSearchOverlay()"
+                                class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i
+                                    data-lucide="arrow-right"
+                                    class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span
+                                    data-i18n="tradeInTitle">Web Development</span></a></li>
+                        <li><a href="./templates/" onclick="toggleSearchOverlay()"
+                                class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i
+                                    data-lucide="arrow-right"
+                                    class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span
+                                    data-i18n="newArrivals">Premium Templates</span></a></li>
+                        <li><a href="./services/" onclick="toggleSearchOverlay()"
+                                class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i
+                                    data-lucide="arrow-right"
+                                    class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span
+                                    data-i18n="bulkTitle">SEO Optimization</span></a></li>
                     </ul>
                 </div>
                 <div class="w-full md:w-2/3">
-                    <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6" id="searchResultLabel" data-i18n="searchResults">Query Results</h4>
-                    <div id="megaSearchResults" class="space-y-4"><p class="text-gray-500 text-sm font-medium italic" data-i18n="searchHint">Type to discover our products and services...</p></div>
+                    <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6" id="searchResultLabel"
+                        data-i18n="searchResults">Query Results</h4>
+                    <div id="megaSearchResults" class="space-y-4">
+                        <p class="text-gray-500 text-sm font-medium italic" data-i18n="searchHint">Type to discover our
+                            products and services...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -341,88 +434,164 @@
 
     <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#050505] z-[80] drawer-left flex flex-col overflow-hidden text-white border-r border-white/10">
         <div class="px-6 py-6 flex items-center justify-between flex-shrink-0 border-b border-white/10">
-            <img src="./imgs/web-banners/favicon.png" alt="MyanCode" class="h-6 w-auto" onerror="this.onerror=null; this.src='https://placehold.co/30x30/050505/ffffff?text=MC';">
-            <button aria-label="Close" onclick="toggleMobileMenu()" class="p-2.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors text-gray-300"><i data-lucide="x" class="h-5 w-5"></i></button>
+            <img src="./imgs/web-banners/favicon.png" alt="MyanCode" class="h-6 w-auto"
+                onerror="this.onerror=null; this.src='https://placehold.co/30x30/050505/ffffff?text=MC';">
+            <button onclick="toggleMobileMenu()"
+                class="p-2.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors text-gray-300"><i
+                    data-lucide="x" class="h-5 w-5"></i></button>
         </div>
         <div class="flex-1 px-8 py-6 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
             <div class="relative mb-8" onclick="toggleMobileMenu(); toggleSearchOverlay();">
                 <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-500"></i>
-                <input type="text" class="w-full pl-8 py-3 border-b border-gray-700 focus:outline-none text-base bg-transparent text-white placeholder-gray-500 pointer-events-none" placeholder="Search..." data-i18n-placeholder="searchPlaceholder">
+                <input type="text"
+                    class="w-full pl-8 py-3 border-b border-gray-700 focus:outline-none text-base bg-transparent text-white placeholder-gray-500 pointer-events-none"
+                    placeholder="Search..." data-i18n-placeholder="searchPlaceholder">
             </div>
-            
+
             <div class="space-y-6 text-base font-semibold text-white tracking-wide flex-1">
-                <a href="./studio/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="./services/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="./templates/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="./marketplace/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navMarketplace">Marketplace</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="./developers/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navDevelopers">Developers</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="./pricing/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navPricing">Pricing</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="./portfolio/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navPortfolio">Portfolio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="./about-us/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navAbout">About</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                
+                <a href="./studio/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="./services/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navServices">Services</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="./templates/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="./marketplace/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navMarketplace">Marketplace</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="./developers/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navDevelopers">Developers</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="./pricing/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navPricing">Pricing</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="./portfolio/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navPortfolio">Portfolio</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="./about-us/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navAbout">About</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+
                 <div class="flex flex-col">
-                    <button aria-label="Support Menu" onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
-                        <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down" class="h-4 w-4 text-gray-500 transition-transform"></i>
+                    <button
+                        onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')"
+                        class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
+                        <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down"
+                            class="h-4 w-4 text-gray-500 transition-transform"></i>
                     </button>
                     <div id="mobSupportDrop" class="hidden flex-col w-full mt-6 pb-2 pl-4 border-l-2 border-white/10">
                         <div class="mb-6">
-                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest"
+                                data-i18n="supHelpTitle">Explore Support</div>
                             <div class="flex flex-col gap-4 font-display">
-                                <a href="./guides/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supGuides">Guides</a>
-                                <a href="./help/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supHelp">Help Center</a>
-                                <a href="./faq/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supFaq">FAQs</a>
-                                <a href="./contact-us/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supContact">Contact</a>
+                                <a href="./guides/" target="_blank"
+                                    class="text-lg font-bold hover:text-myancode-accent transition-colors"
+                                    data-i18n="supGuides">Guides</a>
+                                <a href="./help/" target="_blank"
+                                    class="text-lg font-bold hover:text-myancode-accent transition-colors"
+                                    data-i18n="supHelp">Help Center</a>
+                                <a href="./faq/" target="_blank"
+                                    class="text-lg font-bold hover:text-myancode-accent transition-colors"
+                                    data-i18n="supFaq">FAQs</a>
+                                <a href="./contact-us/" target="_blank"
+                                    class="text-lg font-bold hover:text-myancode-accent transition-colors"
+                                    data-i18n="supContact">Contact</a>
                             </div>
                         </div>
                         <div class="mb-6">
-                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest"
+                                data-i18n="supPoliciesTitle">Service Policies</div>
                             <div class="flex flex-col gap-3">
-                                <a href="./legal/#client-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
-                                <a href="./legal/#studio-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polStudio">Studio Policy</a>
-                                <a href="./legal/#template-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
-                                <a href="./legal/#service-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polService">Service Policy</a>
-                                <a href="./legal/#maintenance-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                <a href="./legal/#client-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polClient">Customer Policy</a>
+                                <a href="./legal/#studio-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polStudio">Studio Policy</a>
+                                <a href="./legal/#template-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polTemplate">Template Policy</a>
+                                <a href="./legal/#service-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polService">Service Policy</a>
+                                <a href="./legal/#maintenance-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polMaintenance">Maintenance Policy</a>
                             </div>
                         </div>
                         <div>
-                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
+                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest"
+                                data-i18n="supLegalTitle">Legal & Transactions</div>
                             <div class="flex flex-col gap-3">
-                                <a href="./legal/#payment-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
-                                <a href="./legal/#refund-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
-                                <a href="./privacy-policy/" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
-                                <a href="./legal/#terms-of-service" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                <a href="./legal/#payment-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polPayment">Payment Policy</a>
+                                <a href="./legal/#refund-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polRefund">Refund Policy</a>
+                                <a href="./privacy-policy/" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polPrivacy">Privacy Policy</a>
+                                <a href="./legal/#terms-of-service" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polTerms">Terms of Service</a>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="pt-4 border-t border-white/10">
-                    <button aria-label="Toggle Language" onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
-                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-5 w-5 text-gray-500"></i>
+                    <button onclick="toggleLanguageMobile()"
+                        class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
+                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe"
+                            class="h-5 w-5 text-gray-500"></i>
                     </button>
                 </div>
             </div>
             <div class="border-t border-white/10 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
                 <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
-                
-                <a href="./contact-us/" class="mt-6 flex justify-center items-center w-full bg-myancode-accent text-white py-3.5 rounded-xl text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-md" data-i18n="btnHireUsLong">
+
+                <a href="./contact-us/"
+                    class="mt-6 flex justify-center items-center w-full bg-myancode-accent text-white py-3.5 rounded-xl text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-md"
+                    data-i18n="btnHireUsLong">
                     Hire Us Today
                 </a>
             </div>
         </div>
     </div>
 
-    <div id="wishlistOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
-    <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-[#0a0a0a] text-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-white/10">
+    <div id="wishlistOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] drawer-overlay"
+        onclick="toggleWishlistDrawer()"></div>
+    <div id="wishlistDrawer"
+        class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-[#0a0a0a] text-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-white/10">
         <div class="px-6 py-6 flex items-center justify-between border-b border-white/10 bg-white/5">
-            <h3 class="font-bold text-lg font-display tracking-tight flex items-center gap-2"><i data-lucide="shopping-bag" class="h-5 w-5 text-white"></i> <span data-i18n="wishlistTitle">Your Bag</span></h3>
-            <button aria-label="Close" onclick="toggleWishlistDrawer()" class="p-2 bg-[#111] rounded-full border border-white/10 transition-all text-gray-400 hover:text-white hover:bg-white/10"><i data-lucide="x" class="h-4 w-4"></i></button>
+            <h3 class="font-bold text-lg font-display tracking-tight flex items-center gap-2"><i
+                    data-lucide="shopping-bag" class="h-5 w-5 text-white"></i> <span data-i18n="wishlistTitle">Your
+                    Bag</span></h3>
+            <button onclick="toggleWishlistDrawer()"
+                class="p-2 bg-[#111] rounded-full border border-white/10 transition-all text-gray-400 hover:text-white hover:bg-white/10"><i
+                    data-lucide="x" class="h-4 w-4"></i></button>
         </div>
         <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
         <div class="p-6 border-t border-white/10 bg-white/5">
-            <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest" data-i18n="wlTotal">Est. Total</span><span class="text-xl font-bold font-display text-white" id="wishlistTotal">0 MMK</span></div>
-            <button onclick="proceedToCheckout()" class="w-full bg-white text-black py-4 rounded-xl text-sm font-bold tracking-wide hover:bg-gray-200 transition flex items-center justify-center gap-2 btn-hover-effect">
-                <span data-i18n="btnContact">Proceed to Checkout</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            <div class="flex justify-between items-center mb-6"><span
+                    class="text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest"
+                    data-i18n="wlTotal">Est. Total</span><span class="text-xl font-bold font-display text-white"
+                    id="wishlistTotal">0 MMK</span></div>
+            <button onclick="proceedToCheckout()"
+                class="w-full bg-white text-black py-4 rounded-xl text-sm font-bold tracking-wide hover:bg-gray-200 transition flex items-center justify-center gap-2 btn-hover-effect">
+                <span data-i18n="btnContact">Proceed to Checkout</span> <i data-lucide="arrow-right"
+                    class="w-4 h-4"></i>
             </button>
         </div>
     </div>
@@ -920,47 +1089,67 @@
         </section>
     </main>
 
-    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans border-t border-white/10 shadow-[0_-30px_60px_-15px_rgba(0,0,0,0.8)]">
+    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
         <div class="layout-width relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
                 <div class="lg:col-span-4 pr-4">
                     <a href="./" class="flex items-center cursor-pointer group mb-6">
-                        <img src="./imgs/web-banners/favicon.png" alt="MyanCode" class="h-8 w-auto mr-3 transition-transform duration-500 group-hover:scale-105" loading="lazy">
-                        <span class="font-display font-bold text-2xl tracking-tight text-white group-hover:text-myancode-accent transition-colors">MyanCode</span>
+                        <img src="./imgs/web-banners/favicon.png" alt="MyanCode"
+                            class="h-8 w-auto mr-3 transition-transform duration-500 group-hover:scale-105"
+                            onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
+                        <span
+                            class="font-display font-bold text-2xl tracking-tight text-white group-hover:text-myancode-accent transition-colors">MyanCode</span>
                     </a>
                     <p class="text-[13px] text-gray-400 font-medium leading-relaxed mb-8 max-w-sm">
-                        We design and develop professional websites with a focus on performance, scalability, and modern web standards.
+                        We design and develop professional websites with a focus on performance, scalability, and modern
+                        web standards.
                     </p>
                     <div class="flex space-x-6 mb-8">
-                        <a aria-label="Facebook" href="https://facebook.co/myancode" target="_blank" rel="noopener noreferrer" class="opacity-70 hover:opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="./imgs/web-banners/facebook.png" class="h-6 w-6 object-contain" alt="Facebook" loading="lazy">
+                        <a href="https://facebook.com/myancode" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="./imgs/web-banners/facebook.png" class="h-6 w-6 object-contain" alt="Facebook">
                         </a>
-                        <a aria-label="TikTok" href="https://tiktok.com/@myancode" target="_blank" rel="noopener noreferrer" class="opacity-70 hover:opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="./imgs/web-banners/tiktok.png" class="h-6 w-6 object-contain" alt="Tik Tok" loading="lazy">
+                        <a href="https://tiktok.com/@myancode" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="./imgs/web-banners/tiktok.png" class="h-6 w-6 object-contain" alt="Tik Tok">
                         </a>
-                        <a aria-label="LinkedIn" href="https://linkedin.com/company/myancode" target="_blank" rel="noopener noreferrer" class="opacity-70 hover:opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="./imgs/web-banners/linkedin.png" class="h-6 w-6 object-contain" alt="LinkedIn" loading="lazy">
+                        <a href="https://linkedin.com/company/myancode" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="./imgs/web-banners/linkedin.png" class="h-6 w-6 object-contain" alt="LinkedIn">
                         </a>
-                        <a aria-label="GitHub" href="https://github.com/myancode" target="_blank" rel="noopener noreferrer" class="opacity-70 hover:opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="./imgs/web-banners/github.png" class="h-6 w-6 object-contain" alt="GitHub" loading="lazy">
+                        <a href="https://github.com/myancode" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="./imgs/web-banners/github.png" class="h-6 w-6 object-contain" alt="GitHub">
                         </a>
-                        <a aria-label="Instagram" href="https://instagram.com/myancode.mm" target="_blank" rel="noopener noreferrer" class="opacity-70 hover:opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="./imgs/web-banners/instagram.png" class="h-6 w-6 object-contain" alt="Instagram" loading="lazy">
+                        <a href="https://instagram.com/myancode.mm" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="./imgs/web-banners/instagram.png" class="h-6 w-6 object-contain" alt="Instagram">
                         </a>
                     </div>
-                    
+
                     <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                        <a href="#" onclick="showToast(currentLang === 'en' ? 'iOS App coming soon!' : 'iOS App မကြာမီလာမည်!'); return false;" class="inline-flex justify-center sm:justify-start items-center gap-3 bg-transparent border border-white/20 text-white px-5 py-3 rounded-xl text-[13px] font-bold tracking-wide hover:bg-white/5 transition-all btn-hover-effect flex-1 sm:flex-none">
-                            <svg class="w-6 h-6 fill-current flex-shrink-0" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+                        <a href="#"
+                            onclick="showToast(currentLang === 'en' ? 'iOS App coming soon!' : 'iOS App မကြာမီလာမည်!'); return false;"
+                            class="inline-flex justify-center sm:justify-start items-center gap-3 bg-[#111] border border-white/20 text-white px-5 py-3 rounded-xl text-[13px] font-bold tracking-wide hover:bg-white/10 hover:border-white/40 transition-all btn-hover-effect flex-1 sm:flex-none">
+                            <svg class="w-6 h-6 fill-current" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                            </svg>
                             <div class="flex flex-col items-start leading-none text-left">
-                                <span class="text-[10px] text-gray-400 font-mono tracking-widest uppercase mb-1" data-i18n="ftDownloadApp">Download</span>
+                                <span class="text-[10px] text-gray-400 font-mono tracking-widest uppercase mb-1"
+                                    data-i18n="ftDownloadApp">Download</span>
                                 <span data-i18n="ftGetIosApp">Get iOS App</span>
                             </div>
                         </a>
-                        <a href="./app-release.apk" download="MyanCode.apk" class="inline-flex justify-center sm:justify-start items-center gap-3 bg-white text-black px-5 py-3 rounded-xl text-[13px] font-bold tracking-wide hover:bg-gray-200 transition-colors btn-hover-effect flex-1 sm:flex-none shadow-[0_5px_20px_rgba(255,255,255,0.1)]">
-                            <svg class="w-6 h-6 fill-current flex-shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0004.551-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993 0 .551-.4483.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 0 0-.1521-.5676.416.416 0 0 0-.5676.1521l-2.0223 3.503C15.5902 8.244 13.8533 7.851 12 7.851c-1.8533 0-3.5902.393-5.1367 1.099L4.841 5.4466a.416.416 0 0 0-.5676-.1521.416.416 0 0 0-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396"/></svg>
+                        <a href="./app-release.apk" download="MyanCode.apk"
+                            class="inline-flex justify-center sm:justify-start items-center gap-3 bg-white text-black px-5 py-3 rounded-xl text-[13px] font-bold tracking-wide hover:bg-gray-200 transition-colors btn-hover-effect flex-1 sm:flex-none">
+                            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0004.551-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993 0 .551-.4483.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 0 0-.1521-.5676.416.416 0 0 0-.5676.1521l-2.0223 3.503C15.5902 8.244 13.8533 7.851 12 7.851c-1.8533 0-3.5902.393-5.1367 1.099L4.841 5.4466a.416.416 0 0 0-.5676-.1521.416.416 0 0 0-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396" />
+                            </svg>
                             <div class="flex flex-col items-start leading-none text-left">
-                                <span class="text-[10px] text-gray-500 font-mono tracking-widest uppercase mb-1" data-i18n="ftDownloadApp">Download</span>
+                                <span class="text-[10px] text-gray-500 font-mono tracking-widest uppercase mb-1"
+                                    data-i18n="ftDownloadApp">Download</span>
                                 <span data-i18n="ftGetAndroidApp">Get Android App</span>
                             </div>
                         </a>
@@ -968,84 +1157,163 @@
                 </div>
 
                 <div class="lg:col-span-2">
-                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftStoreTitle">Store</h4>
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
+                        data-i18n="ftStoreTitle">Store</h4>
                     <ul class="space-y-4">
-                        <li><a href="./studio/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="ftAddOns">Studio</span></a></li>
-                        <li><a href="./templates/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="ftTemplates">Templates</span></a></li>
-                        <li><a href="./services/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="ftServices">Services</span></a></li>
-                        <li><a href="./maintenance/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="ftMaintenance">Maintenance</span></a></li>
+                        <li><a href="./studio/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftAddOns">Studio</span></a></li>
+                        <li><a href="./templates/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftTemplates">Templates</span></a></li>
+                        <li><a href="./services/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftServices">Services</span></a></li>
+                        <li><a href="./maintenance/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftMaintenance">Maintenance</span></a></li>
                     </ul>
                 </div>
 
                 <div class="lg:col-span-2">
-                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftCompanyTitle">Company</h4>
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
+                        data-i18n="ftCompanyTitle">Company</h4>
                     <ul class="space-y-4">
-                        <li><a href="./about-us/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="ftAboutUs">About Us</span></a></li>
-                        <li><a href="./portfolio/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="navPortfolio">Portfolio</span></a></li>
-                        <li><a href="./updates-news/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="ftUpdates">Updates & News</span></a></li>
-                        <li><a href="./contact-us/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="ftContactUs">Contact Us</span></a></li>
+                        <li><a href="./about-us/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftAboutUs">About Us</span></a></li>
+                        <li><a href="./portfolio/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="navPortfolio">Portfolio</span></a></li>
+                        <li><a href="./updates-news/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftUpdates">Updates & News</span></a></li>
+                        <li><a href="./contact-us/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftContactUs">Contact Us</span></a></li>
                     </ul>
                 </div>
 
                 <div class="lg:col-span-2">
-                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftSupportTitle">Support</h4>
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
+                        data-i18n="ftSupportTitle">Support</h4>
                     <ul class="space-y-4">
-                        <li><a href="./guides/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="supGuides">Guides</span></a></li>
-                        <li><a href="./help/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="supHelp">Help Center</span></a></li>
-                        <li><a href="./faq/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="supFaq">FAQs</span></a></li>
-                        <li><a href="./careers/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="ftCareers">Careers</span></a></li>
+                        <li><a href="./guides/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="supGuides">Guides</span></a></li>
+                        <li><a href="./help/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="supHelp">Help Center</span></a></li>
+                        <li><a href="./faq/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="supFaq">FAQs</span></a></li>
+                        <li><a href="./careers/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftCareers">Careers</span></a></li>
                     </ul>
                 </div>
 
                 <div class="lg:col-span-2">
                     <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono">Legal</h4>
                     <ul class="space-y-4">
-                        <li><a href="./privacy-policy/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="polPrivacy">Privacy Policy</span></a></li>
-                        <li><a href="./legal/#terms-of-service" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="polTerms">Terms & Conditions</span></a></li>
-                        <li><a href="./legal/#refund-policy" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="polRefund">Refund Policy</span></a></li>
-                        <li><a href="./legal/#client-policy" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><span data-i18n="polClient">License Agreement</span></a></li>
+                        <li><a href="./privacy-policy/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="polPrivacy">Privacy Policy</span></a></li>
+                        <li><a href="./legal/#terms-of-service"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="polTerms">Terms & Conditions</span></a></li>
+                        <li><a href="./legal/#refund-policy"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="polRefund">Refund Policy</span></a></li>
+                        <li><a href="./legal/#client-policy"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="polClient">License Agreement</span></a></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-y border-white/10 py-10 mb-8 flex flex-col lg:flex-row items-center justify-between gap-10">
-                <div class="flex items-center gap-4 w-full lg:w-1/3 text-center sm:text-left">
-                    <div class="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center shrink-0 bg-transparent glass-panel-apple mx-auto sm:mx-0">
-                        <i data-lucide="mail" class="w-6 h-6 text-white"></i>
+            <div
+                class="border-y border-white/10 py-10 mb-8 flex flex-col xl:flex-row items-center justify-between gap-10">
+                <div class="flex items-center gap-4 w-full xl:w-1/3 text-center sm:text-left">
+                    <div
+                        class="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center shrink-0 bg-[#0a0a0a] mx-auto sm:mx-0">
+                        <i data-lucide="mail" class="w-5 h-5 text-gray-400"></i>
                     </div>
                     <div>
                         <h4 class="text-white font-bold text-[14px]" data-i18n="ftStayUpdated">Stay Updated</h4>
-                        <p class="text-gray-400 text-[12px] mt-1 leading-relaxed" data-i18n="ftStayUpdatedDesc">Get the latest templates, updates and offers straight to your inbox.</p>
+                        <p class="text-gray-400 text-[12px] mt-1 leading-relaxed" data-i18n="ftStayUpdatedDesc">Get the
+                            latest templates, updates and offers straight to your inbox.</p>
                     </div>
                 </div>
-                
-                <div class="w-full lg:w-1/3 flex justify-center">
-                    <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="relative flex flex-col xs:flex-row items-center gap-3 sm:gap-0 bg-transparent sm:bg-[#111] border-none sm:border border-white/10 rounded-2xl sm:p-1.5 transition-all w-full max-w-md">
-                        <input type="email" id="newsletterEmail" required class="w-full py-3 px-5 bg-[#111] sm:bg-transparent rounded-xl sm:rounded-none border-none outline-none text-sm font-medium text-white placeholder-gray-500 focus:ring-0" placeholder="Enter your email" data-i18n-placeholder="nlPlaceholder">
-                        <button type="submit" id="btnSubscribe" class="w-full xs:w-auto bg-white text-black px-6 py-3 rounded-xl text-sm font-bold hover:bg-gray-200 transition btn-hover-effect whitespace-nowrap" data-i18n="btnSubscribe">Subscribe</button>
+
+                <div class="w-full xl:w-1/3 flex justify-center">
+                    <form id="newsletterForm" onsubmit="handleSubscribe(event)"
+                        class="relative flex items-center bg-transparent border border-white/20 rounded-lg p-1 transition-all focus-within:border-white w-full max-w-sm">
+                        <input type="email" id="newsletterEmail" required
+                            class="w-full py-2.5 px-4 bg-transparent border-none outline-none text-[13px] font-medium text-white placeholder-gray-500 focus:ring-0"
+                            placeholder="Enter your email" data-i18n-placeholder="nlPlaceholder">
+                        <button type="submit" id="btnSubscribe"
+                            class="bg-white text-black px-6 py-2.5 rounded-md text-[12px] font-bold hover:bg-gray-200 transition btn-hover-effect whitespace-nowrap"
+                            data-i18n="btnSubscribe">Subscribe</button>
                     </form>
                     <div class="cf-turnstile hidden" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="dark"></div>
                 </div>
-                
-                <div class="hidden md:flex items-center gap-8 justify-center lg:justify-end w-full lg:w-1/3">
+
+                <div class="hidden md:flex items-center gap-8 justify-center xl:justify-end w-full xl:w-1/3">
                     <div class="flex flex-col items-center gap-2">
                         <i data-lucide="shield-check" class="w-6 h-6 text-gray-400"></i>
-                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight tracking-wide" data-i18n="ftTrust1">Trusted by<br>Enterprises</span>
+                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight"
+                            data-i18n="ftTrust1">Trusted by<br>Enterprises</span>
                     </div>
                     <div class="flex flex-col items-center gap-2 border-l border-white/10 pl-8">
                         <i data-lucide="award" class="w-6 h-6 text-gray-400"></i>
-                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight tracking-wide" data-i18n="ftTrust2">Verified<br>Developers</span>
+                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight"
+                            data-i18n="ftTrust2">Verified<br>Developers</span>
                     </div>
                     <div class="flex flex-col items-center gap-2 border-l border-white/10 pl-8">
                         <i data-lucide="headphones" class="w-6 h-6 text-gray-400"></i>
-                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight tracking-wide" data-i18n="ftTrust3">24/7<br>Support</span>
+                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight"
+                            data-i18n="ftTrust3">24/7<br>Support</span>
                     </div>
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-gray-400 font-medium">
+            <div
+                class="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-gray-400 font-medium">
                 <div data-i18n="ftCopyright">&copy; 2026 MyanCode Inc. All rights reserved.</div>
-                
+
                 <div class="flex items-center gap-4 opacity-60 hover:opacity-100 transition-opacity">
                     <span class="font-display font-bold text-white italic text-base tracking-tighter">VISA</span>
                     <div class="flex items-center">
@@ -1053,19 +1321,22 @@
                         <div class="w-4 h-4 rounded-full bg-white opacity-60 mix-blend-screen -ml-2"></div>
                     </div>
                     <span class="font-display font-bold text-white italic text-base tracking-tighter">P</span>
-                    <span class="font-display font-black text-white text-[10px] border border-white px-1 py-0.5 rounded leading-none">KBZ<br>Pay</span>
+                    <span
+                        class="font-display font-black text-white text-[10px] border border-white px-1 py-0.5 rounded leading-none">KBZ<br>Pay</span>
                 </div>
             </div>
         </div>
     </footer>
 
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 glass-panel-apple text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
-        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400 flex-shrink-0"></i>
+    <div id="toast"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
         <span id="toast-msg">Success!</span>
     </div>
 
-    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 glass-panel-apple border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
-        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-red-500 flex-shrink-0"></i>
+    <div id="error-toast"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-red-500"></i>
         <span id="error-toast-msg">Error!</span>
     </div>
 
