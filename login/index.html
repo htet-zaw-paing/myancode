@@ -65,7 +65,8 @@
         }
     </script>
     <style>
-        html, body {
+        html,
+        body {
             width: 100%;
             overflow-x: clip;
             position: relative;
@@ -86,7 +87,11 @@
             line-height: 2.2;
         }
 
-        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 {
+        html[lang="mm"] h1,
+        html[lang="mm"] h2,
+        html[lang="mm"] h3,
+        html[lang="mm"] h4,
+        html[lang="mm"] h5 {
             font-family: 'Jost', 'Noto Sans Myanmar', sans-serif;
         }
 
@@ -115,11 +120,14 @@
             line-height: 2.2;
         }
 
-        html[lang="mm"] .uppercase, html[lang="mm"] .capitalize {
+        html[lang="mm"] .uppercase,
+        html[lang="mm"] .capitalize {
             text-transform: none;
         }
 
-        html[lang="mm"] .tracking-widest, html[lang="mm"] .tracking-wide, html[lang="mm"] .tracking-\[0\.4em\] {
+        html[lang="mm"] .tracking-widest,
+        html[lang="mm"] .tracking-wide,
+        html[lang="mm"] .tracking-\[0\.4em\] {
             letter-spacing: normal;
         }
 
@@ -128,8 +136,13 @@
         }
 
         @media (min-width: 768px) {
-            html[lang="mm"] h1 { font-size: 3.5rem; }
-            html[lang="mm"] h2 { font-size: 2.5rem; }
+            html[lang="mm"] h1 {
+                font-size: 3.5rem;
+            }
+
+            html[lang="mm"] h2 {
+                font-size: 2.5rem;
+            }
         }
 
         #mainNav {
@@ -226,9 +239,19 @@
         }
 
         @keyframes lineAnim {
-            0% { left: -50%; width: 50%; }
-            50% { width: 20%; }
-            100% { left: 100%; width: 50%; }
+            0% {
+                left: -50%;
+                width: 50%;
+            }
+
+            50% {
+                width: 20%;
+            }
+
+            100% {
+                left: 100%;
+                width: 50%;
+            }
         }
 
         .search-overlay {
@@ -245,8 +268,13 @@
         }
 
         @media (max-width: 640px) {
-            .search-overlay { clip-path: circle(0px at calc(100% - 80px) 30px); }
-            .search-overlay.open { clip-path: circle(150% at calc(100% - 80px) 30px); }
+            .search-overlay {
+                clip-path: circle(0px at calc(100% - 80px) 30px);
+            }
+
+            .search-overlay.open {
+                clip-path: circle(150% at calc(100% - 80px) 30px);
+            }
         }
 
         .drawer-overlay {
@@ -1030,15 +1058,8 @@
                 date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
                 expires = '; expires=' + date.toUTCString();
             }
-            
-            // Fix: Intelligent Domain Setting
-            // Only force the apex domain if we are actually on a myancode.com URL
-            let domainStr = '';
-            if (window.location.hostname.includes('myancode.com')) {
-                domainStr = '; domain=.myancode.com';
-            }
-            
-            document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/' + domainStr + '; secure; samesite=lax';
+            const domain = window.location.hostname === 'localhost' ? '' : '; domain=.myancode.com';
+            document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/' + domain + '; secure; samesite=lax';
         }
 
         const customCookieStorage = {
@@ -1061,8 +1082,7 @@
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
                 auth: {
                     storage: customCookieStorage,
-                    storageKey: 'myancode-auth-token',
-                    detectSessionInUrl: true
+                    storageKey: 'myancode-auth-token'
                 }
             });
         }
@@ -1115,15 +1135,13 @@
                         }
 
                         const isAuthRedirect = hashStr.includes('access_token=') || hashStr.includes('provider=google') || hashStr.includes('provider=github');
-                        
-                        // FIX: Updated to Absolute URLs to support cross-domain redirect smoothly.
                         const dashboardRoutes = {
-                            'founder': 'https://admin.myancode.com/founder/', 
-                            'admin': 'https://admin.myancode.com/admin/',
-                            'moderator': 'https://admin.myancode.com/moderator/',
-                            'partner': 'https://admin.myancode.com/partner/',
-                            'developer': 'https://admin.myancode.com/developer/',
-                            'client': '../hub/' // Client stays on the main domain
+                            'founder': 'admin.myancode.com/founder/',
+                            'admin': '../admin-dashboard/',
+                            'moderator': '../moderator-dashboard/',
+                            'partner': '../partner-dashboard/',
+                            'developer': '../developer-dashboard/',
+                            'client': '../hub/'
                         };
                         const destination = dashboardRoutes[trueRole] || '../';
 
@@ -1297,13 +1315,12 @@
                     'client': ''
                 };
 
-                // FIX: Absolute Paths here too, so the dropdown points to right domains
                 const dashboardConfigs = {
-                    'founder': { label: 'Workplace (Founder)', url: 'https://admin.myancode.com/founder/' },
-                    'admin': { label: 'Workplace (Admin)', url: 'https://admin.myancode.com/admin/' },
-                    'moderator': { label: 'Workplace (Moderator)', url: 'https://admin.myancode.com/moderator/' },
-                    'partner': { label: 'Collaboration', url: 'https://admin.myancode.com/partner/' },
-                    'developer': { label: 'Console', url: 'https://admin.myancode.com/developer/' },
+                    'founder': { label: 'Workplace (Founder)', url: '../founder-dashboard/' },
+                    'admin': { label: 'Workplace (Admin)', url: '../admin-dashboard/' },
+                    'moderator': { label: 'Workplace (Moderator)', url: '../moderator-dashboard/' },
+                    'partner': { label: 'Collaboration', url: '../partner-dashboard/' },
+                    'developer': { label: 'Console', url: '../developer-dashboard/' },
                     'client': { label: 'My Hub', url: '../hub/' }
                 };
 
@@ -2055,15 +2072,13 @@
                 } else if (data && data.user) {
                     r = (data.user.app_metadata?.role || data.user.user_metadata?.role || 'client').toLowerCase();
                 }
-
-                // FIX: Update Password Redirect Routing to use absolute URLs
                 const dashboardRoutes = {
-                    'founder': 'https://admin.myancode.com/founder/', 
-                    'admin': 'https://admin.myancode.com/admin/',
-                    'moderator': 'https://admin.myancode.com/moderator/',
-                    'partner': 'https://admin.myancode.com/partner/',
-                    'developer': 'https://admin.myancode.com/developer/',
-                    'client': '../hub/' 
+                    'founder': '../founder-dashboard/',
+                    'admin': '../admin-dashboard/',
+                    'moderator': '../moderator-dashboard/',
+                    'partner': '../partner-dashboard/',
+                    'developer': '../developer-dashboard/',
+                    'client': '../hub/'
                 };
                 setTimeout(() => {
                     window.location.href = dashboardRoutes[r] || '../hub/';
