@@ -1018,12 +1018,12 @@
         const SUPABASE_URL = 'https://dnretdraqjwdiwxccmpd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucmV0ZHJhcWp3ZGl3eGNjbXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Mjk1OTgsImV4cCI6MjA5NDUwNTU5OH0.gmXci7KsgPRFvVtRzY2F--qV5TshCPejf580JTJpl20';
 
-        function getCookie(name) {
-            const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-            return v ? decodeURIComponent(v[2]) : null;
+        function getCookieRaw(name) {
+            const match = document.cookie.match(new RegExp('(^|;\\s*)' + name + '=([^;]*)'));
+            return match ? match[2] : null;
         }
 
-        function setCookie(name, value, days) {
+        function setCookieRaw(name, value, days) {
             let expires = '';
             if (days) {
                 const date = new Date();
@@ -1031,50 +1031,43 @@
                 expires = '; expires=' + date.toUTCString();
             }
             let domainStr = '';
-            if (window.location.hostname.endsWith('myancode.com')) {
+            if (window.location.hostname.includes('myancode.com')) {
                 domainStr = '; domain=.myancode.com';
             }
-            document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/' + domainStr + '; secure; samesite=lax';
+            document.cookie = name + '=' + value + expires + '; path=/' + domainStr + '; secure; samesite=lax';
         }
 
         const customCookieStorage = {
             getItem: (key) => {
-                let i = 0;
                 let result = '';
+                let i = 0;
                 while (true) {
-                    const chunk = getCookie(key + '-chunk-' + i);
+                    const chunk = getCookieRaw(key + '-chunk-' + i);
                     if (!chunk) break;
                     result += chunk;
                     i++;
                 }
-                if (!result) result = getCookie(key); // Fallback
+                if (!result) result = getCookieRaw(key); 
                 if (!result) return null;
-                try { return JSON.parse(result); } catch(e) { return result; }
+                try { return JSON.parse(decodeURIComponent(result)); } catch(e) { return null; }
             },
             setItem: (key, value) => {
                 if (!value) return;
-                const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-                const chunkSize = 1500; // Lowered to guarantee it stays well under the 4096-byte limit post URL-encoding
+                const encodedValue = encodeURIComponent(JSON.stringify(value));
+                const chunkSize = 2000;
                 
-                setCookie(key, '', -1); // Clear old unchunked cookie
+                setCookieRaw(key, '', -1); 
                 
-                if (stringValue.length <= chunkSize) {
-                    setCookie(key + '-chunk-0', stringValue, 365);
-                    for(let j=1; j<20; j++) setCookie(key + '-chunk-' + j, '', -1); // Clean up extras
-                } else {
-                    let i = 0;
-                    let pos = 0;
-                    while (pos < stringValue.length) {
-                        setCookie(key + '-chunk-' + i, stringValue.substring(pos, pos + chunkSize), 365);
-                        pos += chunkSize;
-                        i++;
-                    }
-                    for(let j=i; j<20; j++) setCookie(key + '-chunk-' + j, '', -1); // Clean up extras
+                let i = 0, pos = 0;
+                while (pos < encodedValue.length) {
+                    setCookieRaw(key + '-chunk-' + i, encodedValue.substring(pos, pos + chunkSize), 365);
+                    pos += chunkSize; i++;
                 }
+                for(let j=i; j<20; j++) setCookieRaw(key + '-chunk-' + j, '', -1); 
             },
             removeItem: (key) => {
-                setCookie(key, '', -1);
-                for(let j=0; j<20; j++) setCookie(key + '-chunk-' + j, '', -1);
+                setCookieRaw(key, '', -1);
+                for(let j=0; j<20; j++) setCookieRaw(key + '-chunk-' + j, '', -1);
             }
         };
 
