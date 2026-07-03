@@ -1030,8 +1030,15 @@
                 date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
                 expires = '; expires=' + date.toUTCString();
             }
-            const domain = window.location.hostname === 'localhost' ? '' : '; domain=.myancode.com';
-            document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/' + domain + '; secure; samesite=lax';
+            
+            // Fix: Intelligent Domain Setting
+            // Only force the apex domain if we are actually on a myancode.com URL
+            let domainStr = '';
+            if (window.location.hostname.includes('myancode.com')) {
+                domainStr = '; domain=.myancode.com';
+            }
+            
+            document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/' + domainStr + '; secure; samesite=lax';
         }
 
         const customCookieStorage = {
