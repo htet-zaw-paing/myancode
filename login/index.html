@@ -1030,16 +1030,13 @@
                 date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
                 expires = '; expires=' + date.toUTCString();
             }
-            let domainStr = '';
-            if (window.location.hostname.includes('myancode.com')) {
-                domainStr = '; domain=.myancode.com';
-            }
+            const domainStr = window.location.hostname === 'localhost' ? '' : '; domain=.myancode.com';
             document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/' + domainStr + '; secure; samesite=lax';
         }
 
+        // FULLY FIXED CHUNKER - DO NOT REMOVE THIS
         const customCookieStorage = {
             getItem: (key) => {
-                // Reassemble chunked cookies to bypass 4KB browser limits
                 let i = 0;
                 let result = '';
                 while (true) {
@@ -1049,19 +1046,20 @@
                     i++;
                 }
                 if (result) return result;
-                return getCookie(key); // Fallback for old unchunked cookies
+                return getCookie(key); // Fallback for old cookies
             },
             setItem: (key, value) => {
                 if (!value) return;
-                const chunkSize = 3000; // Safe size below 4096 bytes
-                if (value.length <= chunkSize) {
-                    setCookie(key, value, 365);
+                const stringValue = typeof value === 'object' ? JSON.stringify(value) : value;
+                const chunkSize = 3000; // Extremely safe limit well below 4096 bytes
+                if (stringValue.length <= chunkSize) {
+                    setCookie(key, stringValue, 365);
                 } else {
-                    setCookie(key, '', -1); // Clear old main cookie
+                    setCookie(key, '', -1); // Clear old main cookie to prevent collision
                     let i = 0;
                     let pos = 0;
-                    while (pos < value.length) {
-                        setCookie(key + '-chunk-' + i, value.substring(pos, pos + chunkSize), 365);
+                    while (pos < stringValue.length) {
+                        setCookie(key + '-chunk-' + i, stringValue.substring(pos, pos + chunkSize), 365);
                         pos += chunkSize;
                         i++;
                     }
@@ -1132,13 +1130,15 @@
                         }
 
                         const isAuthRedirect = hashStr.includes('access_token=') || hashStr.includes('provider=google') || hashStr.includes('provider=github');
+                        
+                        // FIX: ALL PATHS MUST INCLUDE HTTPS FOR SUBDOMAINS TO PREVENT RELATIVE 404s
                         const dashboardRoutes = {
-                            'founder': 'https://admin.myancode.com/founder/',
+                            'founder': 'https://admin.myancode.com/founder/', 
                             'admin': 'https://admin.myancode.com/admin/',
                             'moderator': 'https://admin.myancode.com/moderator/',
                             'partner': 'https://admin.myancode.com/partner/',
                             'developer': 'https://admin.myancode.com/developer/',
-                            'client': 'https://myancode.com/hub/'
+                            'client': 'https://myancode.com/hub/' // Client stays on the main domain
                         };
                         const destination = dashboardRoutes[trueRole] || 'https://myancode.com/';
 
@@ -1312,6 +1312,7 @@
                     'client': ''
                 };
 
+                // FIX: Update UI Links to explicitly use https:// URLs so the dropdown buttons work correctly
                 const dashboardConfigs = {
                     'founder': { label: 'Workplace (Founder)', url: 'https://admin.myancode.com/founder/' },
                     'admin': { label: 'Workplace (Admin)', url: 'https://admin.myancode.com/admin/' },
@@ -2069,13 +2070,15 @@
                 } else if (data && data.user) {
                     r = (data.user.app_metadata?.role || data.user.user_metadata?.role || 'client').toLowerCase();
                 }
+
+                // FIX: EXPLICIT ABSOLUTE URLs ON PASSWORD RESET
                 const dashboardRoutes = {
-                    'founder': 'https://admin.myancode.com/founder/',
+                    'founder': 'https://admin.myancode.com/founder/', 
                     'admin': 'https://admin.myancode.com/admin/',
                     'moderator': 'https://admin.myancode.com/moderator/',
                     'partner': 'https://admin.myancode.com/partner/',
                     'developer': 'https://admin.myancode.com/developer/',
-                    'client': 'https://myancode.com/hub/'
+                    'client': 'https://myancode.com/hub/' 
                 };
                 setTimeout(() => {
                     window.location.href = dashboardRoutes[r] || 'https://myancode.com/hub/';
