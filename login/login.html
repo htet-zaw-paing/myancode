@@ -723,7 +723,7 @@
                         We design and develop professional websites with a focus on performance, scalability, and modern web standards.
                     </p>
                     <div class="flex space-x-6 mb-8">
-                        <a href="https://facebook.com/myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1">
+                        <a href="https://facebook.co    /myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1">
                             <img src="../imgs/web-banners/facebook.png" class="h-6 w-6 object-contain" alt="Facebook">
                         </a>
                         <a href="https://tiktok.com/@myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1">
@@ -873,7 +873,7 @@
                 navMarketplace: "Marketplace", navDevelopers: "Developers", navPricing: "Pricing", navPortfolio: "Portfolio", navContact: "Contact",
                 langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
                 cartTitle: "Your Bag", emptyWishlist: "Your bag is empty.", removeFromWishlist: "Remove", btnCart: "Cart", wlTotal: "Est. Total", btnCheckout: "Proceed to Checkout",
-                quickLinks: "Quick Actions", searchResults: "Results", searchHint: "Type to discover our products and services...",
+                quickLinks: "Quick Links", searchResults: "Results", searchHint: "Type to discover our products and services...",
                 btnHireUs: "Hire Us", btnHireUsLong: "Hire Us Today",
                 heroTag1: "MyanCode", heroTag2: "Studio", heroTag3: "Templates", heroTag4: "Services", heroTag5: "Contact",
                 heroTitle1: "Engineering Digital Excellence.", heroDesc1: "Deploy high-performance web architectures. Tailored digital infrastructure built for global scale and supreme reliability.",
@@ -1054,13 +1054,12 @@
             setItem: (key, value) => {
                 if (!value) return;
                 const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-                const chunkSize = 1500; // Lowered to guarantee it stays well under the 4096-byte limit post URL-encoding
+                const chunkSize = 3000;
                 
                 setCookie(key, '', -1); // Clear old unchunked cookie
                 
                 if (stringValue.length <= chunkSize) {
                     setCookie(key + '-chunk-0', stringValue, 365);
-                    for(let j=1; j<20; j++) setCookie(key + '-chunk-' + j, '', -1); // Clean up extras
                 } else {
                     let i = 0;
                     let pos = 0;
@@ -1069,7 +1068,6 @@
                         pos += chunkSize;
                         i++;
                     }
-                    for(let j=i; j<20; j++) setCookie(key + '-chunk-' + j, '', -1); // Clean up extras
                 }
             },
             removeItem: (key) => {
@@ -1136,7 +1134,9 @@
                             return;
                         }
 
-                        // Use absolute URLs universally to prevent local domain routing issues
+                        const isAuthRedirect = hashStr.includes('access_token=') || hashStr.includes('provider=google') || hashStr.includes('provider=github');
+                        
+                        // FIX: Updated to Absolute URLs to support cross-domain redirect smoothly.
                         const dashboardRoutes = {
                             'founder': 'https://admin.myancode.com/founder/', 
                             'admin': 'https://admin.myancode.com/admin/',
@@ -1147,7 +1147,7 @@
                         };
                         const destination = dashboardRoutes[trueRole] || dashboardRoutes['client'];
 
-                        if (event === 'SIGNED_IN') { // Trust SIGNED_IN purely - Supabase strips hashes, isAuthRedirect might fail based on timing.
+                        if (event === 'SIGNED_IN' || isAuthRedirect) {
                             const formEl = document.getElementById('loginFormCard');
                             if (formEl) formEl.style.display = 'none';
                             showLoader('redirectingHome');
@@ -2075,7 +2075,7 @@
                     r = (data.user.app_metadata?.role || data.user.user_metadata?.role || 'client').toString().toLowerCase().trim();
                 }
 
-                // FIX: Use absolute URLs universally here as well
+                // FIX: Update Password Redirect Routing to use absolute URLs
                 const dashboardRoutes = {
                     'founder': 'https://admin.myancode.com/founder/', 
                     'admin': 'https://admin.myancode.com/admin/',
@@ -2102,7 +2102,7 @@
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                        redirectTo: 'https://myancode.com/login/' // FORCED to the correct return page to prevent fallbacks
+                        redirectTo: window.location.origin + window.location.pathname
                     }
                 });
                 if (error) throw error;
@@ -2118,7 +2118,7 @@
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'github',
                     options: {
-                        redirectTo: 'https://myancode.com/login/' // FORCED to the correct return page
+                        redirectTo: window.location.origin + window.location.pathname
                     }
                 });
                 if (error) throw error;
