@@ -1030,29 +1030,46 @@
                 date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
                 expires = '; expires=' + date.toUTCString();
             }
-            
-            // Fix: Intelligent Domain Setting
-            // Only force the apex domain if we are actually on a myancode.com URL
             let domainStr = '';
             if (window.location.hostname.includes('myancode.com')) {
                 domainStr = '; domain=.myancode.com';
             }
-            
             document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/' + domainStr + '; secure; samesite=lax';
         }
 
         const customCookieStorage = {
             getItem: (key) => {
-                const value = getCookie(key);
-                if (!value) return null;
-                try { return JSON.parse(value); } catch(e) { return value; }
+                // Reassemble chunked cookies to bypass 4KB browser limits
+                let i = 0;
+                let result = '';
+                while (true) {
+                    const chunk = getCookie(key + '-chunk-' + i);
+                    if (!chunk) break;
+                    result += chunk;
+                    i++;
+                }
+                if (result) return result;
+                return getCookie(key); // Fallback for old unchunked cookies
             },
             setItem: (key, value) => {
-                const stringValue = typeof value === 'object' ? JSON.stringify(value) : value;
-                setCookie(key, stringValue, 365);
+                if (!value) return;
+                const chunkSize = 3000; // Safe size below 4096 bytes
+                if (value.length <= chunkSize) {
+                    setCookie(key, value, 365);
+                } else {
+                    setCookie(key, '', -1); // Clear old main cookie
+                    let i = 0;
+                    let pos = 0;
+                    while (pos < value.length) {
+                        setCookie(key + '-chunk-' + i, value.substring(pos, pos + chunkSize), 365);
+                        pos += chunkSize;
+                        i++;
+                    }
+                }
             },
             removeItem: (key) => {
                 setCookie(key, '', -1);
+                for(let j=0; j<20; j++) setCookie(key + '-chunk-' + j, '', -1);
             }
         };
 
@@ -1115,17 +1132,15 @@
                         }
 
                         const isAuthRedirect = hashStr.includes('access_token=') || hashStr.includes('provider=google') || hashStr.includes('provider=github');
-                        
-                        // FIX: Updated to Absolute URLs to support cross-domain redirect smoothly.
                         const dashboardRoutes = {
-                            'founder': 'https://admin.myancode.com/founder/', 
+                            'founder': 'https://admin.myancode.com/founder/',
                             'admin': 'https://admin.myancode.com/admin/',
                             'moderator': 'https://admin.myancode.com/moderator/',
                             'partner': 'https://admin.myancode.com/partner/',
                             'developer': 'https://admin.myancode.com/developer/',
-                            'client': '../hub/' // Client stays on the main domain
+                            'client': 'https://myancode.com/hub/'
                         };
-                        const destination = dashboardRoutes[trueRole] || '../';
+                        const destination = dashboardRoutes[trueRole] || 'https://myancode.com/';
 
                         if (event === 'SIGNED_IN' || isAuthRedirect) {
                             const formEl = document.getElementById('loginFormCard');
@@ -1297,14 +1312,13 @@
                     'client': ''
                 };
 
-                // FIX: Absolute Paths here too, so the dropdown points to right domains
                 const dashboardConfigs = {
                     'founder': { label: 'Workplace (Founder)', url: 'https://admin.myancode.com/founder/' },
                     'admin': { label: 'Workplace (Admin)', url: 'https://admin.myancode.com/admin/' },
                     'moderator': { label: 'Workplace (Moderator)', url: 'https://admin.myancode.com/moderator/' },
                     'partner': { label: 'Collaboration', url: 'https://admin.myancode.com/partner/' },
                     'developer': { label: 'Console', url: 'https://admin.myancode.com/developer/' },
-                    'client': { label: 'My Hub', url: '../hub/' }
+                    'client': { label: 'My Hub', url: 'https://myancode.com/hub/' }
                 };
 
                 const userRole = (currentUser.role || 'client').toLowerCase();
@@ -2055,18 +2069,16 @@
                 } else if (data && data.user) {
                     r = (data.user.app_metadata?.role || data.user.user_metadata?.role || 'client').toLowerCase();
                 }
-
-                // FIX: Update Password Redirect Routing to use absolute URLs
                 const dashboardRoutes = {
-                    'founder': 'https://admin.myancode.com/founder/', 
+                    'founder': 'https://admin.myancode.com/founder/',
                     'admin': 'https://admin.myancode.com/admin/',
                     'moderator': 'https://admin.myancode.com/moderator/',
                     'partner': 'https://admin.myancode.com/partner/',
                     'developer': 'https://admin.myancode.com/developer/',
-                    'client': '../hub/' 
+                    'client': 'https://myancode.com/hub/'
                 };
                 setTimeout(() => {
-                    window.location.href = dashboardRoutes[r] || '../hub/';
+                    window.location.href = dashboardRoutes[r] || 'https://myancode.com/hub/';
                 }, 800);
             } catch (err) {
                 window.isUpdatingPassword = false;
