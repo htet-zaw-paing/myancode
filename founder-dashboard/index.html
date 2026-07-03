@@ -595,46 +595,9 @@
         const SUPABASE_URL = 'https://dnretdraqjwdiwxccmpd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucmV0ZHJhcWp3ZGl3eGNjbXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Mjk1OTgsImV4cCI6MjA5NDUwNTU5OH0.gmXci7KsgPRFvVtRzY2F--qV5TshCPejf580JTJpl20';
         
-        function getCookie(name) {
-            const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-            return v ? decodeURIComponent(v[2]) : null;
-        }
-
-        function setCookie(name, value, days) {
-            let expires = '';
-            if (days) {
-                const date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = '; expires=' + date.toUTCString();
-            }
-            const domain = window.location.hostname === 'localhost' ? '' : '; domain=.myancode.com';
-            document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/' + domain + '; secure; samesite=lax';
-        }
-
-        const customCookieStorage = {
-            getItem: (key) => {
-                const value = getCookie(key);
-                if (!value) return null;
-                try { return JSON.parse(value); } catch(e) { return value; }
-            },
-            setItem: (key, value) => {
-                const stringValue = typeof value === 'object' ? JSON.stringify(value) : value;
-                setCookie(key, stringValue, 365);
-            },
-            removeItem: (key) => {
-                setCookie(key, '', -1);
-            }
-        };
-
         let supabaseInstance = null;
         if (window.supabase) {
-            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                auth: {
-                    storage: customCookieStorage,
-                    storageKey: 'myancode-auth-token',
-                    detectSessionInUrl: true
-                }
-            });
+            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: true } });
         }
         
         let currentUser = null;
@@ -646,14 +609,14 @@
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
-                if (error || !session) { window.location.replace('https://myancode.com/login/'); return; }
+                if (error || !session) { window.location.replace('../login/'); return; }
                 verifyAndInitSession(session);
             });
             supabaseInstance.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_OUT' || event === 'USER_DELETED') { window.location.replace('https://myancode.com/login/'); }
+                if (event === 'SIGNED_OUT' || event === 'USER_DELETED') { window.location.replace('../login/'); }
             });
         } else {
-            window.location.replace('https://myancode.com/login/');
+            window.location.replace('../login/');
         }
 
         function updateAllAvatars(url) {
@@ -671,7 +634,7 @@
 
         async function verifyAndInitSession(session) {
             const { data: profile, error } = await supabaseInstance.from('profiles').select('*').eq('id', session.user.id).single();
-            if (error || !profile) { window.location.replace('https://myancode.com/login/'); return; }
+            if (error || !profile) { window.location.replace('../login/'); return; }
 
             if (profile.requires_password_change || session.user.user_metadata?.is_invite) {
                 currentSessionTemp = session;
@@ -692,7 +655,7 @@
         function proceedInit(session, profile) {
             const role = (profile.role || '').toLowerCase();
             if (role !== 'founder') {
-                window.location.replace('https://myancode.com/'); 
+                window.location.replace('../'); 
                 return;
             }
 
@@ -1052,7 +1015,7 @@
                     options: {
                         shouldCreateUser: true,
                         data: { is_invite: true },
-                        emailRedirectTo: 'https://myancode.com/login/'
+                        emailRedirectTo: new URL('../login/', window.location.href).href
                     }
                 });
                 if(otpErr) throw otpErr;
@@ -1205,7 +1168,7 @@
         async function handleLogout() {
             showLoader('loadingInit');
             if (supabaseInstance) await supabaseInstance.auth.signOut();
-            window.location.replace('https://myancode.com/login/');
+            window.location.replace('../login/');
         }
 
         let cropperInstance = null;
