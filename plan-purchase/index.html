@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Purchase Plan — MyanCode</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="../favicon.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <meta name="theme-color" content="#050505">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: { 'xs': '400px', 'sm': '640px', 'md': '768px', 'lg': '1024px', 'xl': '1280px', '2xl': '1536px' },
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', '"Noto Sans Myanmar"', 'sans-serif'],
+                        display: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: { myancode: { black: '#050505', gray: '#111111', darkgray: '#222222', blue: '#0066CC', accent: '#2997ff' } },
+                    animation: { 'float': 'float 6s ease-in-out infinite', 'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite', 'bounce-subtle': 'bounce-subtle 2s infinite' },
+                    keyframes: {
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+                        'bounce-subtle': { '0%, 100%': { transform: 'translateY(-10%)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' }, '50%': { transform: 'translateY(10%)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body { width: 100%; overflow-x: hidden; position: relative; background-color: #050505; color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body.no-scroll { overflow: hidden !important; touch-action: none; }
+
+        html[lang="mm"] body { font-family: 'Inter', 'Noto Sans Myanmar', sans-serif; font-size: 14px; line-height: 2.2; }
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 { font-family: 'Jost', 'Noto Sans Myanmar', sans-serif; }
+        html[lang="mm"] .font-mono { font-family: '"JetBrains Mono"', 'Noto Sans Myanmar', monospace; }
+
+        .layout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
+        .checkout-width { width: 96%; max-width: 1200px; margin-left: auto; margin-right: auto; }
+        
+        .btn-hover-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateZ(0); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(255, 255, 255, 0.1); }
+        .btn-hover-effect:active:not(:disabled) { transform: translateY(1px); }
+        .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .glass-panel { background: rgba(17, 17, 17, 0.8); backdrop-filter: blur(40px) saturate(150%); border: 1px solid rgba(255, 255, 255, 0.04); }
+        
+        #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; transform: translateZ(0); }
+        .glass-nav-dark { background: rgba(5, 5, 5, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
+        .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
+        .search-overlay { clip-path: circle(0% at 85% 5%); opacity: 0; pointer-events: none; transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease; }
+        .search-overlay.open { clip-path: circle(150% at 85% 5%); opacity: 1; pointer-events: auto; }
+        @media (max-width: 640px) {
+            .search-overlay { clip-path: circle(0px at calc(100% - 80px) 30px); }
+            .search-overlay.open { clip-path: circle(150% at calc(100% - 80px) 30px); }
+        }
+        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; transform: translateZ(0); }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .drawer-left { transform: translate3d(-100%, 0, 0); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+        .drawer-left.open { transform: translate3d(0, 0, 0); }
+        .drawer-right { transform: translate3d(100%, 0, 0); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+        .drawer-right.open { transform: translate3d(0, 0, 0); }
+        .dropdown-menu { transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95) translate3d(0, -10px, 0); pointer-events: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .bg-grid-dark { background-size: 50px 50px; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px); }
+
+        .step-circle { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .step-line { transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        .wizard-step { opacity: 0; transform: translateY(20px) scale(0.98); transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s; pointer-events: none; position: absolute; inset: 0; visibility: hidden; z-index: 1; }
+        .wizard-step.active-step { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; position: relative; visibility: visible; z-index: 10; }
+        .inner-step { transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s; }
+        .inner-step-hidden { opacity: 0; transform: translateY(15px) scale(0.98); pointer-events: none; position: absolute; inset: 0; visibility: hidden; }
+        .inner-step-active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; position: relative; visibility: visible; }
+
+        .custom-input { background: #050505; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease; }
+        .custom-input:focus { border-color: #2997ff; box-shadow: inset 0 0 10px rgba(41,151,255,0.1); outline: none; }
+        
+        .drop-zone { border: 1px dashed rgba(255,255,255,0.2); transition: all 0.3s ease; }
+        .drop-zone.dragover { border-color: #2997ff; background: rgba(41,151,255,0.05); }
+
+        .payment-card { transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.1); }
+        .payment-card.selected { border-color: #2997ff; background: rgba(41,151,255,0.05); }
+
+        .final-step-card { background: #050505; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 1.5rem; }
+        .final-btn { background: #2997ff; box-shadow: 0 0 25px rgba(41,151,255,0.3); transition: all 0.3s ease; }
+        .final-btn:hover:not(:disabled) { background: #3b82f6; box-shadow: 0 0 35px rgba(41,151,255,0.5); transform: translateY(-2px); }
+        
+        .user-avatar-global { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease; }
+        .group:hover .user-avatar-global { transform: scale(1.1); border-color: #2997ff; box-shadow: 0 8px 24px rgba(41, 151, 255, 0.4); }
+    </style>
+</head>
+<body class="font-sans flex flex-col min-h-screen bg-[#050505]">
+
+    <div id="globalLoader" class="fixed inset-0 z-[999999] bg-[#050505] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="relative w-16 h-16 mb-8 flex items-center justify-center">
+            <i data-lucide="code-2" class="h-8 w-8 text-white absolute animate-pulse"></i>
+        </div>
+        <div class="w-64 max-w-[80vw]">
+            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div class="w-1/2 h-full bg-white rounded-full animate-[lineAnim_1.5s_infinite]"></div>
+            </div>
+        </div>
+        <div class="mt-6 flex flex-col items-center gap-1 font-mono">
+            <span id="loaderText" class="text-[11px] font-bold tracking-[0.2em] text-gray-400 uppercase" data-i18n="loadAuth">Authenticating...</span>
+        </div>
+    </div>
+
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
+        <div class="layout-width">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <div class="flex items-center h-full">
+                    <button class="xl:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-white"
+                        onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="h-5 w-5"></i>
+                    </button>
+                    <a href="../" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode"
+                            class="h-7 sm:h-8 w-auto transition-transform duration-500 group-hover:scale-105"
+                            onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
+                    </a>
+                </div>
+
+                <div class="hidden xl:flex space-x-6 2xl:space-x-8 text-[12px] capitalize tracking-wide font-bold items-center h-full">
+                    <a href="../studio/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="../services/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    <a href="../templates/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../marketplace/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/marketplace/" data-i18n="navMarketplace">Marketplace</a>
+                    <a href="../developers/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/developers/" data-i18n="navDevelopers">Developers</a>
+                    <a href="../pricing/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/pricing/" data-i18n="navPricing">Pricing</a>
+                    <a href="../portfolio/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/portfolio/" data-i18n="navPortfolio">Portfolio</a>
+                    <a href="../about-us/"
+                        class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90"
+                        data-nav-path="/about-us/" data-i18n="navAbout">About</a>
+
+                    <div class="relative group h-full flex items-center">
+                        <button
+                            class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link flex items-center gap-1 cursor-pointer text-white/90"
+                            data-i18n="navSupport">Support <i data-lucide="chevron-down"
+                                class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
+
+                        <div class="absolute top-[80%] left-0 w-full h-8"></div>
+
+                        <div
+                            class="fixed top-[64px] sm:top-[80px] left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] border-b border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
+                            <div class="layout-width py-12 flex gap-8 md:gap-16 lg:gap-24 text-white">
+                                <div class="flex-[1.2]">
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest"
+                                        data-i18n="supHelpTitle">Explore Support</div>
+                                    <div class="flex flex-col gap-4 font-display">
+                                        <a href="../guides/" target="_blank"
+                                            class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="supGuides">Guides</a>
+                                        <a href="../help/" target="_blank"
+                                            class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="supHelp">Help Center</a>
+                                        <a href="../faq/" target="_blank"
+                                            class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="supFaq">FAQs</a>
+                                        <a href="../contact-us/" target="_blank"
+                                            class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="supContact">Contact</a>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest"
+                                        data-i18n="supPoliciesTitle">Service Policies</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/#client-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polClient">Customer Policy</a>
+                                        <a href="../legal/#studio-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polStudio">Studio Policy</a>
+                                        <a href="../legal/#template-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polTemplate">Template Policy</a>
+                                        <a href="../legal/#service-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polService">Service Policy</a>
+                                        <a href="../legal/#maintenance-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polMaintenance">Maintenance Policy</a>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest"
+                                        data-i18n="supLegalTitle">Legal & Transactions</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/#payment-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polPayment">Payment Policy</a>
+                                        <a href="../legal/#refund-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polRefund">Refund Policy</a>
+                                        <a href="../legal/#privacy-policy" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="../legal/#terms-of-service" target="_blank"
+                                            class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                            data-i18n="polTerms">Terms of Service</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3 sm:space-x-5">
+                    <button onclick="toggleSearchOverlay()"
+                        class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
+                        <i data-lucide="search"
+                            class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                    </button>
+
+                    <button onclick="toggleWishlistDrawer()"
+                        class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
+                        <i data-lucide="shopping-bag"
+                            class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="wishlist-count"
+                            class="absolute -top-1.5 -right-2 bg-white text-black text-[9px] font-bold font-mono h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    </button>
+
+                    <div class="relative hidden sm:block" id="langContainer">
+                        <button onclick="toggleLangDropdown(event)"
+                            class="flex items-center transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i
+                                data-lucide="globe"
+                                class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown"
+                            class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
+                            <div class="px-4 pb-2 mb-2 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-bold font-mono"
+                                data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')"
+                                class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English
+                                <i data-lucide="check"
+                                    class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')"
+                                class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ
+                                <i data-lucide="check"
+                                    class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
+
+                    <a href="../contact-us/"
+                        class="hidden md:flex items-center justify-center px-5 py-2 bg-myancode-accent text-white text-[11px] uppercase tracking-wider font-bold rounded-full hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:shadow-[0_0_20px_rgba(41,151,255,0.5)] transform hover:-translate-y-0.5"
+                        data-i18n="btnHireUs">
+                        Hire Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-[#0a0a0a]/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
+        <div class="layout-width pt-10">
+            <div class="flex justify-end"><button onclick="toggleSearchOverlay()"
+                    class="p-2 text-gray-400 hover:text-white transition-colors rounded-full bg-white/5 border border-white/10 hover:bg-white/10"><i
+                        data-lucide="x" class="h-5 w-5"></i></button></div>
+            <div class="mt-8 sm:mt-16 max-w-4xl mx-auto">
+                <div
+                    class="relative w-full border-b border-gray-700 focus-within:border-white transition-colors pb-4 flex items-center">
+                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-500 mr-4"></i>
+                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off"
+                        class="w-full text-3xl sm:text-4xl font-display font-semibold text-white bg-transparent border-none outline-none placeholder-gray-600"
+                        placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+                </div>
+            </div>
+            <div class="mt-12 flex flex-col-reverse md:flex-row gap-12 sm:gap-20 max-w-4xl mx-auto">
+                <div class="w-full md:w-1/3">
+                    <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6"
+                        data-i18n="quickLinks">Quick Actions</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../services/" onclick="toggleSearchOverlay()"
+                                class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i
+                                    data-lucide="arrow-right"
+                                    class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span
+                                    data-i18n="tradeInTitle">Web Development</span></a></li>
+                        <li><a href="../templates/" onclick="toggleSearchOverlay()"
+                                class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i
+                                    data-lucide="arrow-right"
+                                    class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span
+                                    data-i18n="newArrivals">Premium Templates</span></a></li>
+                        <li><a href="../services/" onclick="toggleSearchOverlay()"
+                                class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i
+                                    data-lucide="arrow-right"
+                                    class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span
+                                    data-i18n="bulkTitle">SEO Optimization</span></a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-2/3">
+                    <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6" id="searchResultLabel"
+                        data-i18n="searchResults">Query Results</h4>
+                    <div id="megaSearchResults" class="space-y-4">
+                        <p class="text-gray-500 text-sm font-medium italic" data-i18n="searchHint">Type to discover our
+                            products and services...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#050505] z-[80] drawer-left flex flex-col overflow-hidden text-white border-r border-white/10">
+        <div class="px-6 py-6 flex items-center justify-between flex-shrink-0 border-b border-white/10">
+            <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-6 w-auto"
+                onerror="this.onerror=null; this.src='https://placehold.co/30x30/050505/ffffff?text=MC';">
+            <button onclick="toggleMobileMenu()"
+                class="p-2.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors text-gray-300"><i
+                    data-lucide="x" class="h-5 w-5"></i></button>
+        </div>
+        <div class="flex-1 px-8 py-6 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
+            <div class="relative mb-8" onclick="toggleMobileMenu(); toggleSearchOverlay();">
+                <i data-lucide="search" class="absolute left-0 top-3 h-5 w-5 text-gray-500"></i>
+                <input type="text"
+                    class="w-full pl-8 py-3 border-b border-gray-700 focus:outline-none text-base bg-transparent text-white placeholder-gray-500 pointer-events-none"
+                    placeholder="Search..." data-i18n-placeholder="searchPlaceholder">
+            </div>
+
+            <div class="space-y-6 text-base font-semibold text-white tracking-wide flex-1">
+                <a href="../studio/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../services/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navServices">Services</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../templates/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../marketplace/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navMarketplace">Marketplace</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../developers/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navDevelopers">Developers</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../pricing/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navPricing">Pricing</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../portfolio/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navPortfolio">Portfolio</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../about-us/"
+                    class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span
+                        data-i18n="navAbout">About</span> <i data-lucide="chevron-right"
+                        class="h-4 w-4 text-gray-500"></i></a>
+
+                <div class="flex flex-col">
+                    <button
+                        onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')"
+                        class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
+                        <span data-i18n="navSupport">Support</span> <i data-lucide="chevron-down"
+                            class="h-4 w-4 text-gray-500 transition-transform"></i>
+                    </button>
+                    <div id="mobSupportDrop" class="hidden flex-col w-full mt-6 pb-2 pl-4 border-l-2 border-white/10">
+                        <div class="mb-6">
+                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest"
+                                data-i18n="supHelpTitle">Explore Support</div>
+                            <div class="flex flex-col gap-4 font-display">
+                                <a href="../guides/" target="_blank"
+                                    class="text-lg font-bold hover:text-myancode-accent transition-colors"
+                                    data-i18n="supGuides">Guides</a>
+                                <a href="../help/" target="_blank"
+                                    class="text-lg font-bold hover:text-myancode-accent transition-colors"
+                                    data-i18n="supHelp">Help Center</a>
+                                <a href="../faq/" target="_blank"
+                                    class="text-lg font-bold hover:text-myancode-accent transition-colors"
+                                    data-i18n="supFaq">FAQs</a>
+                                <a href="../contact-us/" target="_blank"
+                                    class="text-lg font-bold hover:text-myancode-accent transition-colors"
+                                    data-i18n="supContact">Contact</a>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest"
+                                data-i18n="supPoliciesTitle">Service Policies</div>
+                            <div class="flex flex-col gap-3">
+                                <a href="../legal/#client-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polClient">Customer Policy</a>
+                                <a href="../legal/#studio-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polStudio">Studio Policy</a>
+                                <a href="../legal/#template-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polTemplate">Template Policy</a>
+                                <a href="../legal/#service-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polService">Service Policy</a>
+                                <a href="../legal/#maintenance-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polMaintenance">Maintenance Policy</a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest"
+                                data-i18n="supLegalTitle">Legal & Transactions</div>
+                            <div class="flex flex-col gap-3">
+                                <a href="../legal/#payment-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polPayment">Payment Policy</a>
+                                <a href="../legal/#refund-policy" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polRefund">Refund Policy</a>
+                                <a href="../privacy-policy/" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polPrivacy">Privacy Policy</a>
+                                <a href="../legal/#terms-of-service" target="_blank"
+                                    class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit"
+                                    data-i18n="polTerms">Terms of Service</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-white/10">
+                    <button onclick="toggleLanguageMobile()"
+                        class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
+                        <span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe"
+                            class="h-5 w-5 text-gray-500"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
+                <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
+
+                <a href="../contact-us/"
+                    class="mt-6 flex justify-center items-center w-full bg-myancode-accent text-white py-3.5 rounded-xl text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-md"
+                    data-i18n="btnHireUsLong">
+                    Hire Us Today
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="wishlistOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] drawer-overlay"
+        onclick="toggleWishlistDrawer()"></div>
+    <div id="wishlistDrawer"
+        class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-[#0a0a0a] text-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-white/10">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-white/10 bg-white/5">
+            <h3 class="font-bold text-lg font-display tracking-tight flex items-center gap-2"><i
+                    data-lucide="shopping-bag" class="h-5 w-5 text-white"></i> <span data-i18n="cartTitle">Your
+                    Bag</span></h3>
+            <button onclick="toggleWishlistDrawer()"
+                class="p-2 bg-[#111] rounded-full border border-white/10 transition-all text-gray-400 hover:text-white hover:bg-white/10"><i
+                    data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
+        <div class="p-6 border-t border-white/10 bg-white/5">
+            <div class="flex justify-between items-center mb-6"><span
+                    class="text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest"
+                    data-i18n="wlTotal">Est. Total</span><span class="text-xl font-bold font-display text-white"
+                    id="wishlistTotal">0 MMK</span></div>
+            <button onclick="proceedToCheckout()"
+                class="w-full bg-white text-black py-4 rounded-xl text-sm font-bold tracking-wide hover:bg-gray-200 transition flex items-center justify-center gap-2 btn-hover-effect">
+                <span data-i18n="btnCheckout">Proceed to Checkout</span> <i data-lucide="arrow-right"
+                    class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+    <main class="flex-1 pt-24 sm:pt-32 pb-20 relative z-10">
+        <div class="absolute inset-0 bg-grid-dark pointer-events-none opacity-40 mix-blend-screen"></div>
+        <div class="absolute top-0 right-0 w-[40vw] h-[40vw] rounded-full bg-myancode-accent/5 blur-[120px] mix-blend-screen pointer-events-none"></div>
+
+        <div class="layout-width w-full relative z-10">
+            <div class="flex flex-col items-center mb-12 text-center">
+                <div class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4"><span data-i18n="hdrCheckout">Secure Checkout</span></div>
+                <h1 class="text-3xl sm:text-5xl font-display font-bold text-white tracking-tight mb-8" data-i18n="hdrTitle">Configure Subscription</h1>
+                
+                <div class="flex items-center justify-center w-full max-w-2xl mx-auto px-4">
+                    <div class="flex flex-col items-center relative z-10 w-16">
+                        <div id="step1-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-myancode-accent text-white font-bold font-mono text-sm border-2 border-myancode-accent step-circle shadow-[0_0_15px_rgba(41,151,255,0.4)]">1</div>
+                        <span id="step1-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap" data-i18n="stepPlan">Plan</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-[#111] mx-2 rounded-full relative overflow-hidden">
+                        <div id="step1-line" class="absolute top-0 left-0 h-full bg-myancode-accent w-0 step-line"></div>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 w-16">
+                        <div id="step2-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle">2</div>
+                        <span id="step2-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap" data-i18n="stepInfo">Details</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-[#111] mx-2 rounded-full relative overflow-hidden">
+                        <div id="step2-line" class="absolute top-0 left-0 h-full bg-myancode-accent w-0 step-line"></div>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 w-16">
+                        <div id="step3-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle">3</div>
+                        <span id="step3-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap" data-i18n="stepPayment">Method</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-[#111] mx-2 rounded-full relative overflow-hidden">
+                        <div id="step3-line" class="absolute top-0 left-0 h-full bg-myancode-accent w-0 step-line"></div>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 w-16">
+                        <div id="step4-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle">4</div>
+                        <span id="step4-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap" data-i18n="stepConfirm">Confirm</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative w-full mt-20 min-h-[550px]" id="wizardContainer">
+                <div id="step-1" class="wizard-step active-step w-full max-w-[1400px] mx-auto text-left">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-[1400px] mx-auto">
+                        
+                        <div class="group bg-[#0a0a0a] border border-white/5 hover:border-gray-500/50 rounded-[2rem] p-8 flex flex-col transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_15px_30px_-10px_rgba(255,255,255,0.05)] relative z-10 cursor-pointer" onclick="selectPlan('starter')">
+                            <h3 class="text-2xl font-display font-semibold text-white mb-2 group-hover:text-gray-200 transition-colors" data-i18n="planStarter">Starter</h3>
+                            <p class="text-[11px] font-mono text-gray-500 uppercase tracking-widest mb-8 border-b border-white/5 pb-6" data-i18n="planStarterSub">Core essentials</p>
+                            <div class="text-3xl sm:text-4xl font-display font-medium text-white mb-10 tracking-tight"><span data-i18n="planStarterPrice">30,000</span><span class="text-sm text-gray-500 font-sans ml-1" data-i18n="maintMo">MMK / mo</span></div>
+                            <ul class="space-y-4 mb-8 flex-1 text-sm text-gray-400">
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-gray-300 shrink-0 mt-0.5"></i> <span data-i18n="s_feat1">90-Day Global Bug Warranty</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-gray-300 shrink-0 mt-0.5"></i> <span data-i18n="s_feat2">Basic Monitoring</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-gray-300 shrink-0 mt-0.5"></i> <span data-i18n="s_feat3">SSL Setup & Renewal</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-gray-300 shrink-0 mt-0.5"></i> <span data-i18n="s_feat4">Weekly Backups</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-gray-300 shrink-0 mt-0.5"></i> <span data-i18n="s_feat5">Basic Security Updates</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-gray-300 shrink-0 mt-0.5"></i> <span data-i18n="s_feat6">Email Support</span></li>
+                            </ul>
+                            <button type="button" class="w-full bg-[#111111] border border-white/10 text-white group-hover:bg-white group-hover:text-black py-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 text-center btn-hover-effect mt-auto" data-i18n="btnStarter">Get Starter</button>
+                        </div>
+                        
+                        <div class="group bg-[#0d1520] border border-myancode-accent/30 hover:border-myancode-accent/70 rounded-[2rem] p-8 flex flex-col relative shadow-[0_0_20px_rgba(41,151,255,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(41,151,255,0.25)] transition-all duration-500 hover:-translate-y-3 z-20 cursor-pointer" onclick="selectPlan('plus')">
+                            <div class="absolute top-0 right-0 bg-myancode-accent text-white text-[10px] font-bold tracking-widest uppercase px-6 py-2 rounded-bl-[1.5rem] rounded-tr-[2rem] shadow-[0_0_15px_rgba(41,151,255,0.4)]" data-i18n="badgePopular">Most Popular</div>
+                            <h3 class="text-2xl font-display font-semibold text-white mb-2 group-hover:text-blue-100 transition-colors" data-i18n="planPlus">Plus</h3>
+                            <p class="text-[11px] font-mono text-myancode-accent uppercase tracking-widest mb-8 border-b border-myancode-accent/20 pb-6" data-i18n="planPlusSub">Growing platforms</p>
+                            <div class="text-3xl sm:text-4xl font-display font-medium text-white mb-10 tracking-tight"><span data-i18n="planPlusPrice">80,000</span><span class="text-sm text-blue-200/50 font-sans ml-1" data-i18n="maintMo">MMK / mo</span></div>
+                            <ul class="space-y-4 mb-8 flex-1 text-sm text-gray-300">
+                                <li class="flex items-start gap-3 text-white font-medium"><span data-i18n="p_feat0">Everything from Starter, plus:</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-myancode-accent shrink-0 mt-0.5"></i> <span data-i18n="p_feat1">Standard Monitoring</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-myancode-accent shrink-0 mt-0.5"></i> <span data-i18n="p_feat2">Weekly Full Backups</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-myancode-accent shrink-0 mt-0.5"></i> <span data-i18n="p_feat3">Performance Optimization</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-myancode-accent shrink-0 mt-0.5"></i> <span data-i18n="p_feat4">Priority Email Support</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-myancode-accent shrink-0 mt-0.5"></i> <span data-i18n="p_feat5">Monthly Health Report</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-myancode-accent shrink-0 mt-0.5"></i> <span data-i18n="p_feat6">1 Content Update / Month</span></li>
+                            </ul>
+                            <button type="button" class="w-full bg-myancode-accent text-white group-hover:bg-blue-500 py-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 shadow-[0_0_15px_rgba(41,151,255,0.2)] group-hover:shadow-[0_0_25px_rgba(41,151,255,0.4)] text-center btn-hover-effect mt-auto" data-i18n="btnPlus">Choose Plus</button>
+                        </div>
+                        
+                        <div class="group bg-[#100a1c] border border-purple-500/20 hover:border-purple-500/60 rounded-[2rem] p-8 flex flex-col transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_15px_40px_-10px_rgba(168,85,247,0.15)] relative z-10 cursor-pointer" onclick="selectPlan('pro')">
+                            <h3 class="text-2xl font-display font-semibold text-white mb-2 group-hover:text-purple-100 transition-colors" data-i18n="planPro">Pro</h3>
+                            <p class="text-[11px] font-mono text-purple-400 uppercase tracking-widest mb-8 border-b border-purple-500/20 pb-6" data-i18n="planProSub">Advanced metrics</p>
+                            <div class="text-3xl sm:text-4xl font-display font-medium text-white mb-10 tracking-tight"><span data-i18n="planProPrice">180,000</span><span class="text-sm text-purple-200/50 font-sans ml-1" data-i18n="maintMo">MMK / mo</span></div>
+                            <ul class="space-y-4 mb-8 flex-1 text-sm text-gray-300">
+                                <li class="flex items-start gap-3 text-purple-200 font-medium"><span data-i18n="pr_feat0">Everything from Plus, plus:</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i> <span data-i18n="pr_feat1">Advanced Monitoring (uptime + performance)</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i> <span data-i18n="pr_feat2">Daily Backups (DB + Storage)</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i> <span data-i18n="pr_feat3">Advanced Security (Cloudflare protection)</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i> <span data-i18n="pr_feat4">Priority Support (fast response)</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i> <span data-i18n="pr_feat5">5 Content Updates / Month</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i> <span data-i18n="pr_feat6">System & Deployment Management</span></li>
+                            </ul>
+                            <button type="button" class="w-full bg-[#1a102c] border border-purple-500/40 text-purple-300 group-hover:bg-purple-600 group-hover:text-white group-hover:border-purple-600 py-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.05)] group-hover:shadow-[0_0_25px_rgba(168,85,247,0.3)] text-center btn-hover-effect mt-auto" data-i18n="btnPro">Go Pro</button>
+                        </div>
+                        
+                        <div class="group bg-[#1a1105] border border-amber-500/20 hover:border-amber-500/60 rounded-[2rem] p-8 flex flex-col transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_15px_40px_-10px_rgba(245,158,11,0.15)] relative z-10 cursor-pointer" onclick="selectPlan('ultra')">
+                            <h3 class="text-2xl font-display font-semibold text-white mb-2 group-hover:text-amber-100 transition-colors" data-i18n="planUltra">Ultra</h3>
+                            <p class="text-[11px] font-mono text-amber-500 uppercase tracking-widest mb-8 border-b border-amber-500/20 pb-6" data-i18n="planUltraSub">Enterprise class</p>
+                            <div class="text-3xl sm:text-4xl font-display font-medium text-white mb-10 tracking-tight"><span data-i18n="planUltraPrice">350,000</span><span class="text-sm text-amber-200/50 font-sans ml-1" data-i18n="maintMo">MMK / mo</span></div>
+                            <ul class="space-y-4 mb-8 flex-1 text-sm text-gray-300">
+                                <li class="flex items-start gap-3 text-amber-200 font-medium"><span data-i18n="u_feat0">Everything from Pro, plus:</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat1">24/7 Monitoring</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat2">Real-time / Enhanced Backup System</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat3">Full Security Management (WAF + Firewall)</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat4">CDN & Performance Tuning</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat5">Emergency Priority Support</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat6">Dedicated Support Channel</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat7">Monthly Executive Report</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat8">Unlimited Content Updates*</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat9">Hosting + Domain Management</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i> <span data-i18n="u_feat10">Dedicated Account Manager</span></li>
+                            </ul>
+                            <button type="button" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-black group-hover:from-amber-500 group-hover:to-amber-400 py-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 shadow-[0_0_15px_rgba(245,158,11,0.15)] group-hover:shadow-[0_0_25px_rgba(245,158,11,0.3)] text-center btn-hover-effect mt-auto" data-i18n="btnUltra">Go Ultra</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="col-layout-wrapper" class="wizard-step w-full max-w-[1200px] mx-auto text-left">
+                    <div class="flex flex-col lg:flex-row gap-8 w-full">
+                        <div class="flex-1 order-2 lg:order-1 relative min-h-[500px]">
+                            
+                            <div id="step-2" class="glass-panel p-8 sm:p-10 rounded-[2rem] shadow-2xl inner-step inner-step-active flex flex-col w-full h-full border border-white/5">
+                                <h2 class="text-2xl font-bold font-display text-white mb-6 flex items-center gap-3 border-b border-white/10 pb-4"><i data-lucide="user" class="w-6 h-6 text-myancode-accent"></i> <span data-i18n="s1Title">Personal Details</span></h2>
+                                <div class="space-y-6 flex-1">
+                                    <div>
+                                        <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="s1Name">Full Name</label>
+                                        <input type="text" id="custName" class="w-full px-5 py-4 custom-input rounded-xl text-sm font-bold text-white shadow-inner" placeholder="Enter your name">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="s1Email">Email Address</label>
+                                        <input type="email" id="custEmail" disabled class="w-full px-5 py-4 bg-[#111] border border-white/5 rounded-xl text-sm font-bold text-gray-500 cursor-not-allowed shadow-inner">
+                                        <p class="text-[10px] text-gray-500 mt-2 font-mono" data-i18n="s1EmailNote">Email is locked to your authenticated session.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="s1Phone">Phone Number <span class="text-red-500">*</span></label>
+                                        <input type="tel" id="custPhone" class="w-full px-5 py-4 custom-input rounded-xl text-sm font-bold text-white shadow-inner" placeholder="09xxxxxxxxx">
+                                    </div>
+                                </div>
+                                <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
+                                    <button onclick="goToStep(1)" class="text-gray-400 hover:text-white px-6 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> <span data-i18n="btnBack">Back</span></button>
+                                    <button onclick="goToStep(3)" class="bg-white text-black px-10 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors hover:bg-gray-200 btn-hover-effect flex items-center gap-2"><span data-i18n="btnNext">Proceed</span> <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+
+                            <div id="step-3" class="glass-panel p-8 sm:p-10 rounded-[2rem] shadow-2xl inner-step inner-step-hidden flex flex-col w-full h-full border border-white/5">
+                                <h2 class="text-2xl font-bold font-display text-white mb-6 flex items-center gap-3 border-b border-white/10 pb-4"><i data-lucide="wallet" class="w-6 h-6 text-myancode-accent"></i> <span data-i18n="s2Title">Payment Method</span></h2>
+                                <p class="text-sm text-gray-400 font-medium mb-8" data-i18n="s2Desc">Select your preferred transaction gateway.</p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                                    <div class="payment-card selected p-6 rounded-2xl cursor-pointer flex flex-col items-center justify-center text-center group h-40 bg-myancode-accent/5 border-myancode-accent" onclick="selectPayment('KBZPay', this)">
+                                        <div class="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-blue-500/20">
+                                            <span class="font-display font-black text-blue-500 text-[10px] border border-blue-500 px-1 py-0.5 rounded leading-none text-center">KBZ<br>Pay</span>
+                                        </div>
+                                        <h4 class="text-white font-bold text-lg">KBZPay</h4>
+                                    </div>
+                                    <div class="payment-card p-6 rounded-2xl cursor-pointer flex flex-col items-center justify-center text-center group h-40" onclick="selectPayment('UABPay', this)">
+                                        <div class="w-14 h-14 rounded-full bg-purple-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-purple-500/20">
+                                            <i data-lucide="smartphone-nfc" class="w-6 h-6 text-purple-400"></i>
+                                        </div>
+                                        <h4 class="text-white font-bold text-lg">UABPay</h4>
+                                    </div>
+                                </div>
+                                <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
+                                    <button onclick="goToStep(2)" class="text-gray-400 hover:text-white px-6 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> <span data-i18n="btnBack">Back</span></button>
+                                    <button onclick="goToStep(4)" class="bg-white text-black px-10 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors hover:bg-gray-200 btn-hover-effect flex items-center gap-2"><span data-i18n="btnNext">Continue</span> <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-full lg:w-[400px] shrink-0 order-1 lg:order-2 z-20">
+                            <div class="glass-panel p-6 sm:p-8 rounded-[2rem] sticky top-32 border border-myancode-accent/20 shadow-2xl">
+                                <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6 border-b border-white/10 pb-4" data-i18n="sumTitle">Order Summary</h3>
+                                
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                                        <i data-lucide="box" class="w-6 h-6 text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xl font-bold font-display text-white" id="summaryPlanName">Loading...</h4>
+                                        <p class="text-sm font-bold text-myancode-accent" id="summaryMonthlyPrice">0 MMK / mo</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-6">
+                                    <div>
+                                        <label class="block text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-3 flex justify-between">
+                                            <span data-i18n="sumDuration">Duration (Months)</span>
+                                        </label>
+                                        <div class="flex items-center bg-[#050505] rounded-xl border border-white/10 p-1 shadow-inner">
+                                            <button onclick="updateMonths(-1)" class="w-12 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                                            <input type="text" id="monthQtyDisplay" value="1" readonly class="flex-1 bg-transparent text-center font-display font-bold text-xl text-white outline-none cursor-default">
+                                            <button onclick="updateMonths(1)" class="w-12 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                                        </div>
+                                    </div>
+
+                                    <div class="border-t border-white/10 pt-6">
+                                        <div class="flex justify-between items-end">
+                                            <span class="text-sm font-bold text-gray-400" data-i18n="sumTotal">Total Payment</span>
+                                            <div class="text-right">
+                                                <div class="text-3xl font-display font-bold text-white tracking-tight leading-none mb-1" id="summaryTotalPrice">0</div>
+                                                <span class="text-[11px] font-mono text-gray-500 uppercase tracking-widest">MMK</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 bg-white/5 border border-white/10 rounded-xl p-4 flex items-start gap-3">
+                                    <i data-lucide="info" class="w-4 h-4 text-myancode-accent shrink-0 mt-0.5"></i>
+                                    <p class="text-[11px] text-gray-400 font-medium leading-relaxed" data-i18n="sumNote">Your subscription will be manually verified by our team after order placement. Processing usually takes less than 15 minutes.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-4" class="wizard-step w-full max-w-[900px] mx-auto text-left">
+                    <div class="final-step-card p-8 sm:p-12 w-full shadow-2xl">
+                        
+                        <div class="flex flex-col sm:flex-row justify-between items-start mb-8 gap-4">
+                            <div>
+                                <h2 class="text-2xl font-bold font-display text-white mb-1 tracking-tight" data-i18n="s4Title">Finalize Payment</h2>
+                                <p class="text-[13px] text-gray-400 mt-1">
+                                    <span data-i18n="s4Desc">Please transfer the following amount:</span><br/>
+                                    <span class="font-bold text-white" id="finalAmountSub">0 MMK</span>
+                                    <span class="text-gray-500 mx-1">|</span>
+                                    <span class="font-bold text-myancode-accent" id="finalMethodSub">KBZPay</span>
+                                </p>
+                            </div>
+                            <div class="text-left sm:text-right">
+                                <div class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1" data-i18n="s4AmountLabel">Amount</div>
+                                <div class="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight leading-none"><span id="finalAmountMain">0</span> MMK</div>
+                            </div>
+                        </div>
+
+                        <div class="w-full h-px bg-white/10 mb-8"></div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+                            
+                            <div class="bg-[#050505] border border-white/10 rounded-[1.5rem] p-6 sm:p-10 flex flex-col items-center justify-center">
+                                <div id="qrBoxContainer" class="w-48 h-48 sm:w-56 sm:h-56 bg-[#0057B7] rounded-[1rem] flex items-center justify-center mb-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-[4px] border-white transition-colors duration-500">
+                                    <span class="text-white font-bold text-2xl font-display text-center" id="qrTextDisplay">KBZPay QR</span>
+                                </div>
+                                <p class="text-[13px] text-gray-400 font-medium text-center px-4 leading-relaxed" data-i18n="s4Instr">
+                                    Scan QR code to pay using your mobile banking app.
+                                </p>
+                            </div>
+
+                            <div class="flex flex-col justify-center gap-8">
+                                <div>
+                                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="s3Trans">Transaction ID (Required)</label>
+                                    <input type="text" id="transId" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-5 py-4 text-white text-[13px] font-bold focus:border-myancode-accent outline-none shadow-inner transition-colors" placeholder="e.g. 20240101XXXX">
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="s3Proof">Payment Screenshot</label>
+                                    <div id="dropZone" onclick="document.getElementById('proofInput').click()" class="drop-zone w-full h-[140px] rounded-xl bg-[#0a0a0a] border-2 border-dashed border-white/10 hover:border-white/30 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
+                                        <div id="uploadContent" class="flex flex-col items-center text-center pointer-events-none transition-opacity">
+                                            <i data-lucide="cloud-upload" class="w-6 h-6 text-gray-500 mb-3 group-hover:text-white transition-colors duration-300"></i>
+                                            <span class="text-[13px] font-medium text-gray-300 group-hover:text-white transition-colors duration-300" data-i18n="s3UploadLabel">Click or drag image here</span>
+                                            <span class="text-[11px] text-gray-600 mt-1 font-mono">Max 10MB</span>
+                                        </div>
+                                        <img id="proofPreview" src="" class="absolute inset-0 w-full h-full object-cover hidden transition-opacity duration-300" alt="Proof">
+                                        <button id="removeProofBtn" onclick="removeProof(event)" class="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hidden hover:bg-red-600 shadow-md transform transition-transform hover:scale-105"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                        <input type="file" id="proofInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-full h-px bg-white/10 mt-10 mb-8"></div>
+
+                        <div class="flex justify-between items-center">
+                            <button onclick="goToStep(3)" class="text-gray-400 hover:text-white px-2 py-2 text-[13px] font-bold tracking-wide transition-colors" data-i18n="btnBack">
+                                Back
+                            </button>
+                            <button onclick="submitOrder()" id="btnSubmitOrder" class="final-btn text-white px-8 py-3.5 sm:px-10 sm:py-4 rounded-full text-[12px] font-bold tracking-widest uppercase flex items-center justify-center shadow-[0_0_20px_rgba(41,151,255,0.4)] hover:shadow-[0_0_30px_rgba(41,151,255,0.6)]">
+                                <span data-i18n="btnSubmit">Place Order</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 font-sans border-t border-white/5 text-left">
+        <div class="layout-width relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
+                <div class="lg:col-span-4 pr-4">
+                    <a href="../" class="flex items-center cursor-pointer group mb-6">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode"
+                            class="h-8 w-auto mr-3 transition-transform duration-500 group-hover:scale-105"
+                            onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
+                        <span
+                            class="font-display font-bold text-2xl tracking-tight text-white group-hover:text-myancode-accent transition-colors">MyanCode</span>
+                    </a>
+                    <p class="text-[13px] text-gray-400 font-medium leading-relaxed mb-8 max-w-sm" data-i18n="heroDesc2">
+                        Custom websites with flexible budgets, dynamic features, and tailored design for your business.
+                    </p>
+                    <div class="flex space-x-6 mb-8">
+                        <a href="https://facebook.com/myancode" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="../imgs/web-banners/facebook.png" class="h-6 w-6 object-contain" alt="Facebook" onerror="this.onerror=null; this.src='https://placehold.co/24x24/111/fff?text=FB';">
+                        </a>
+                        <a href="https://tiktok.com/@myancode" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="../imgs/web-banners/tiktok.png" class="h-6 w-6 object-contain" alt="Tik Tok" onerror="this.onerror=null; this.src='https://placehold.co/24x24/111/fff?text=TT';">
+                        </a>
+                        <a href="https://linkedin.com/company/myancode" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="../imgs/web-banners/linkedin.png" class="h-6 w-6 object-contain" alt="LinkedIn" onerror="this.onerror=null; this.src='https://placehold.co/24x24/111/fff?text=IN';">
+                        </a>
+                        <a href="https://github.com/myancode" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="../imgs/web-banners/github.png" class="h-6 w-6 object-contain" alt="GitHub" onerror="this.onerror=null; this.src='https://placehold.co/24x24/111/fff?text=GH';">
+                        </a>
+                        <a href="https://instagram.com/myancode.mm" target="_blank" rel="noopener noreferrer"
+                            class="opacity-100 transition-transform hover:-translate-y-1">
+                            <img src="../imgs/web-banners/instagram.png" class="h-6 w-6 object-contain" alt="Instagram" onerror="this.onerror=null; this.src='https://placehold.co/24x24/111/fff?text=IG';">
+                        </a>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <a href="#"
+                            onclick="showToast(currentLang === 'en' ? 'iOS App coming soon!' : 'iOS App မကြာမီလာမည်!'); return false;"
+                            class="inline-flex justify-center sm:justify-start items-center gap-3 bg-[#111] border border-white/20 text-white px-5 py-3 rounded-xl text-[13px] font-bold tracking-wide hover:bg-white/10 hover:border-white/40 transition-all btn-hover-effect flex-1 sm:flex-none">
+                            <svg class="w-6 h-6 fill-current" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                            </svg>
+                            <div class="flex flex-col items-start leading-none text-left">
+                                <span class="text-[10px] text-gray-400 font-mono tracking-widest uppercase mb-1"
+                                    data-i18n="ftDownloadApp">Download</span>
+                                <span data-i18n="ftGetIosApp">Get iOS App</span>
+                            </div>
+                        </a>
+                        <a href="../app-release.apk" download="MyanCode.apk"
+                            class="inline-flex justify-center sm:justify-start items-center gap-3 bg-white text-black px-5 py-3 rounded-xl text-[13px] font-bold tracking-wide hover:bg-gray-200 transition-colors btn-hover-effect flex-1 sm:flex-none">
+                            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0004.551-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993 0 .551-.4483.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 0 0-.1521-.5676.416.416 0 0 0-.5676.1521l-2.0223 3.503C15.5902 8.244 13.8533 7.851 12 7.851c-1.8533 0-3.5902.393-5.1367 1.099L4.841 5.4466a.416.416 0 0 0-.5676-.1521.416.416 0 0 0-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396" />
+                            </svg>
+                            <div class="flex flex-col items-start leading-none text-left">
+                                <span class="text-[10px] text-gray-500 font-mono tracking-widest uppercase mb-1"
+                                    data-i18n="ftDownloadApp">Download</span>
+                                <span data-i18n="ftGetAndroidApp">Get Android App</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
+                        data-i18n="ftStoreTitle">Store</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../studio/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftAddOns">Studio</span></a></li>
+                        <li><a href="../templates/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftTemplates">Templates</span></a></li>
+                        <li><a href="../services/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftServices">Services</span></a></li>
+                        <li><a href="../maintenance/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftMaintenance">Maintenance</span></a></li>
+                    </ul>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
+                        data-i18n="ftCompanyTitle">Company</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../about-us/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftAboutUs">About Us</span></a></li>
+                        <li><a href="../portfolio/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="navPortfolio">Portfolio</span></a></li>
+                        <li><a href="../updates-news/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftUpdates">Updates & News</span></a></li>
+                        <li><a href="../contact-us/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftContactUs">Contact Us</span></a></li>
+                    </ul>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
+                        data-i18n="ftSupportTitle">Support</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../guides/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="supGuides">Guides</span></a></li>
+                        <li><a href="../help/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="supHelp">Help Center</span></a></li>
+                        <li><a href="../faq/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="supFaq">FAQs</span></a></li>
+                        <li><a href="../careers/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="ftCareers">Careers</span></a></li>
+                    </ul>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="supLegal">Legal</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../privacy-policy/"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="polPrivacy">Privacy Policy</span></a></li>
+                        <li><a href="../legal/#terms-of-service"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="polTerms">Terms & Conditions</span></a></li>
+                        <li><a href="../legal/#refund-policy"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="polRefund">Refund Policy</span></a></li>
+                        <li><a href="../legal/#client-policy"
+                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
+                                    data-lucide="chevron-right"
+                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
+                                <span data-i18n="polClient">License Agreement</span></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div
+                class="border-y border-white/10 py-10 mb-8 flex flex-col xl:flex-row items-center justify-between gap-10">
+                <div class="flex items-center gap-4 w-full xl:w-1/3 text-center sm:text-left">
+                    <div
+                        class="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center shrink-0 bg-[#0a0a0a] mx-auto sm:mx-0">
+                        <i data-lucide="mail" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold text-[14px]" data-i18n="ftStayUpdated">Stay Updated</h4>
+                        <p class="text-gray-400 text-[12px] mt-1 leading-relaxed" data-i18n="ftStayUpdatedDesc">Get the
+                            latest templates, updates and offers straight to your inbox.</p>
+                    </div>
+                </div>
+
+                <div class="w-full xl:w-1/3 flex justify-center">
+                    <form id="newsletterForm" onsubmit="handleSubscribe(event)"
+                        class="relative flex items-center bg-transparent border border-white/20 rounded-lg p-1 transition-all focus-within:border-white w-full max-w-sm">
+                        <input type="email" id="newsletterEmail" required
+                            class="w-full py-2.5 px-4 bg-transparent border-none outline-none text-[13px] font-medium text-white placeholder-gray-500 focus:ring-0"
+                            placeholder="Enter your email" data-i18n-placeholder="nlPlaceholder">
+                        <button type="submit" id="btnSubscribe"
+                            class="bg-white text-black px-6 py-2.5 rounded-md text-[12px] font-bold hover:bg-gray-200 transition btn-hover-effect whitespace-nowrap"
+                            data-i18n="btnSubscribe">Subscribe</button>
+                    </form>
+                    <div class="cf-turnstile hidden" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="dark"></div>
+                </div>
+
+                <div class="hidden md:flex items-center gap-8 justify-center xl:justify-end w-full xl:w-1/3">
+                    <div class="flex flex-col items-center gap-2">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-gray-400"></i>
+                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight"
+                            data-i18n="ftTrust1">Trusted by<br>Enterprises</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 border-l border-white/10 pl-8">
+                        <i data-lucide="award" class="w-6 h-6 text-gray-400"></i>
+                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight"
+                            data-i18n="ftTrust2">Verified<br>Developers</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 border-l border-white/10 pl-8">
+                        <i data-lucide="headphones" class="w-6 h-6 text-gray-400"></i>
+                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight"
+                            data-i18n="ftTrust3">24/7<br>Support</span>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-gray-400 font-medium">
+                <div data-i18n="ftCopyright">&copy; 2026 MyanCode Inc. All rights reserved.</div>
+
+                <div class="flex items-center gap-4 opacity-60 hover:opacity-100 transition-opacity">
+                    <span class="font-display font-bold text-white italic text-base tracking-tighter">VISA</span>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-white opacity-80 mix-blend-screen"></div>
+                        <div class="w-4 h-4 rounded-full bg-white opacity-60 mix-blend-screen -ml-2"></div>
+                    </div>
+                    <span class="font-display font-bold text-white italic text-base tracking-tighter">P</span>
+                    <span
+                        class="font-display font-black text-white text-[10px] border border-white px-1 py-0.5 rounded leading-none">KBZ<br>Pay</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
+        <span id="toast-msg">Success!</span>
+    </div>
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-red-500"></i>
+        <span id="error-toast-msg">Error!</span>
+    </div>
+
+    <div id="successOverlay" class="fixed inset-0 z-[999999] bg-[#050505] flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500">
+        <div class="w-24 h-24 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-8 scale-50 transition-transform duration-700" id="successIconCont">
+            <i data-lucide="check" class="w-12 h-12 text-green-400"></i>
+        </div>
+        <h2 class="text-3xl font-display font-bold text-white mb-2" data-i18n="succTitle">Order Submitted!</h2>
+        <p class="text-sm text-gray-400" data-i18n="succDesc">Redirecting to your dashboard...</p>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://dnretdraqjwdiwxccmpd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucmV0ZHJhcWp3ZGl3eGNjbXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Mjk1OTgsImV4cCI6MjA5NDUwNTU5OH0.gmXci7KsgPRFvVtRzY2F--qV5TshCPejf580JTJpl20';
+        let supabaseInstance = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        let currentUser = null; let currentUserCart = [];
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+        let searchDataCache = null;
+
+        const dict = {
+            en: {
+                navAbout: "About", navStudio: "Studio", navWebsites: "Templates", navServices: "Services", navSupport: "Support", navMaintenance: "Maintenance",
+                navMarketplace: "Marketplace", navDevelopers: "Developers", navPricing: "Pricing", navPortfolio: "Portfolio", navContact: "Contact",
+                langSelect: "Language", langToggle: "Switch Language", searchPlaceholder: "Search MyanCode...",
+                cartTitle: "Your Bag", emptyWishlist: "Your bag is empty.", removeFromWishlist: "Remove", btnCheckout: "Proceed to Checkout", wlTotal: "Est. Total",
+                quickLinks: "Quick Actions", searchResults: "Popular Queries", searchHint: "Type to discover our products and services...", searchNoRes: "No results found for", searchTryAlt: "Try searching for alternative keywords.",
+                btnHireUs: "Hire Us", btnHireUsLong: "Hire Us Today",
+                
+                ftCompanyTitle: "Company", ftAboutUs: "Read Our Story", ftContactUs: "Contact Us", ftUpdates: "Updates & News", ftCareers: "Careers",
+                ftStoreTitle: "Store", ftAddOns: "Add-Ons", ftTemplates: "Templates", ftServices: "Services", ftMaintenance: "Maintenance",
+                ftSupportTitle: "Support", supGuides: "Guides", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal",
+                supPoliciesTitle: "Service Policies", supLegalTitle: "Legal & Transactions", supHelpTitle: "Explore Support",
+                polClient: "Customer Policy", polStudio: "Studio Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
+                ftCopyright: "© 2026 MyanCode Inc. All rights reserved.",
+                hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrLogout: "Sign Out",
+                ftStayUpdated: "Stay Updated", ftStayUpdatedDesc: "Get the latest templates, updates and offers straight to your inbox.",
+                ftTrust1: "Trusted by<br>Enterprises", ftTrust2: "Verified<br>Developers", ftTrust3: "24/7<br>Support",
+                nlPlaceholder: "Enter your email", btnSubscribe: "Subscribe",
+                ftDownloadApp: "Download", ftGetAndroidApp: "Get Android App", ftGetIosApp: "Get iOS App",
+                msgLoggedOut: "Signed out securely.", msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
+                heroDesc2: "Custom websites with flexible budgets, dynamic features, and tailored design for your business.", tradeInTitle: "Web Development", newArrivals: "Premium Templates", bulkTitle: "SEO Optimization",
+                
+                loadAuth: "Authenticating...", loadProcess: "Processing Order...",
+                navDashboard: "Dashboard", hdrCheckout: "Secure Checkout", hdrTitle: "Plan Configuration",
+                stepPlan: "Plan", stepInfo: "Details", stepPayment: "Method", stepConfirm: "Confirm",
+                
+                planStarter: "Starter", planStarterSub: "Core essentials", planStarterPrice: "30,000",
+                s_feat1: "90-Day Global Bug Warranty", s_feat2: "Basic Monitoring", s_feat3: "SSL Setup & Renewal", s_feat4: "Weekly Backups", s_feat5: "Basic Security Updates", s_feat6: "Email Support", btnStarter: "Get Starter",
+                planPlus: "Plus", planPlusSub: "Growing platforms", planPlusPrice: "80,000", badgePopular: "Most Popular",
+                p_feat0: "Everything from Starter, plus:", p_feat1: "Standard Monitoring", p_feat2: "Weekly Full Backups", p_feat3: "Performance Optimization", p_feat4: "Priority Email Support", p_feat5: "Monthly Health Report", p_feat6: "1 Content Update / Month", btnPlus: "Choose Plus",
+                planPro: "Pro", planProSub: "Advanced metrics", planProPrice: "180,000",
+                pr_feat0: "Everything from Plus, plus:", pr_feat1: "Advanced Monitoring (uptime + performance)", pr_feat2: "Daily Backups (DB + Storage)", pr_feat3: "Advanced Security (Cloudflare protection)", pr_feat4: "Priority Support (fast response)", pr_feat5: "5 Content Updates / Month", pr_feat6: "System & Deployment Management", btnPro: "Go Pro",
+                planUltra: "Ultra", planUltraSub: "Enterprise class", planUltraPrice: "350,000",
+                u_feat0: "Everything from Pro, plus:", u_feat1: "24/7 Monitoring", u_feat2: "Real-time / Enhanced Backup System", u_feat3: "Full Security Management (WAF + Firewall)", u_feat4: "CDN & Performance Tuning", u_feat5: "Emergency Priority Support", u_feat6: "Dedicated Support Channel", u_feat7: "Monthly Executive Report", u_feat8: "Unlimited Content Updates*", u_feat9: "Hosting + Domain Management", u_feat10: "Dedicated Account Manager", btnUltra: "Go Ultra", maintMo: "MMK / mo",
+
+                s1Title: "Personal Details", s1Name: "Full Name", s1Email: "Email Address", s1EmailNote: "Email is locked to your authenticated session.", s1Phone: "Phone Number *",
+                btnNext: "Proceed", btnBack: "Back", btnSubmit: "PLACE ORDER",
+                s2Title: "Payment Method", s2Desc: "Select your preferred transaction gateway.",
+                s4Title: "Finalize Payment", s4Desc: "Please transfer the following amount:", s4AmountLabel: "AMOUNT",
+                s4Instr: "Scan QR code to pay using your mobile banking app.",
+                s3Trans: "TRANSACTION ID (REQUIRED)", s3Proof: "PAYMENT SCREENSHOT", s3UploadLabel: "Click or drag image here",
+                sumTitle: "Order Summary", sumDuration: "Duration (Months)", sumTotal: "Total Payment",
+                sumNote: "Your subscription will be manually verified by our team after order placement. Processing usually takes less than 15 minutes.",
+                succTitle: "Order Submitted!", succDesc: "Redirecting to your dashboard..."
+            },
+            mm: {
+                navAbout: "ကျွန်ုပ်တို့အကြောင်း", navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ", navMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
+                navMarketplace: "ဈေးကွက်", navDevelopers: "ရေးသားသူများ", navPricing: "ဈေးနှုန်းများ", navPortfolio: "မှတ်တမ်းများ", navContact: "ဆက်သွယ်ရန်",
+                langSelect: "ဘာသာစကားရွေးချယ်ရန်", langToggle: "ဘာသာစကားပြောင်းရန်", searchPlaceholder: "MyanCode တွင် ရှာဖွေရန်...",
+                cartTitle: "မှာယူမည့်စာရင်း", emptyWishlist: "သင်စာရင်းလွတ်နေပါသည်။", removeFromWishlist: "ဖယ်ရှားမည်", btnCheckout: "ဝယ်ယူရန် ရှေ့ဆက်မည်", wlTotal: "စုစုပေါင်း",
+                quickLinks: "အမြန်လင့်ခ်များ", searchResults: "အများဆုံးရှာဖွေမှုများ", searchHint: "ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများကို ရှာဖွေရန် ရိုက်ထည့်ပါ...", searchNoRes: "ရလဒ်မတွေ့ပါ", searchTryAlt: "အခြားသော စကားလုံးများဖြင့် ပြန်လည်ရှာဖွေကြည့်ပါ။",
+                btnHireUs: "အပ်နှံမည်", btnHireUsLong: "ယခုပင် အပ်နှံမည်",
+                
+                ftCompanyTitle: "ကုမ္ပဏီ", ftAboutUs: "ကျွန်ုပ်တို့အကြောင်း", ftContactUs: "ဆက်သွယ်ရန်", ftUpdates: "သတင်းနှင့် အသစ်များ", ftCareers: "အလုပ်အကိုင်များ",
+                ftStoreTitle: "စတိုး", ftAddOns: "အပိုပစ္စည်းများ", ftTemplates: "ဝက်ဘ်ဆိုက်များ", ftServices: "ဝန်ဆောင်မှုများ", ftMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
+                ftSupportTitle: "အကူအညီ", supGuides: "အသုံးပြုနည်းများ", supHelp: "အကူအညီဌာန", supFaq: "အမေးများသောမေးခွန်းများ", supLegal: "တရားဝင်",
+                supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ", supHelpTitle: "အကူအညီ ရယူရန်",
+                polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
+                ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။",
+                hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrLogout: "အကောင့်ထွက်ရန်",
+                ftStayUpdated: "နောက်ဆုံးရ သတင်းများ", ftStayUpdatedDesc: "ဒီဇိုင်းအသစ်များ၊ နည်းပညာအသစ်များနှင့် အထူးအစီအစဉ်များကို သင့်အီးမေးလ်သို့ တိုက်ရိုက်ပေးပို့ပေးမည် ဖြစ်ပါသည်။",
+                ftTrust1: "ယုံကြည်ရသော<br>အဖွဲ့အစည်းများ", ftTrust2: "ကျွမ်းကျင်သော<br>ရေးသားသူများ", ftTrust3: "၂၄ နာရီ<br>ဝန်ဆောင်မှု",
+                nlPlaceholder: "သင်၏ အီးမေးလ် ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်",
+                ftDownloadApp: "ဒေါင်းလုဒ်ဆွဲရန်", ftGetAndroidApp: "Android App ရယူမည်", ftGetIosApp: "iOS App ရယူမည်",
+                msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။",
+                heroDesc2: "သင့်လုပ်ငန်း၏ လိုအပ်ချက်၊ ဘတ်ဂျက်နှင့် ကိုက်ညီသော စိတ်ကြိုက်ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ။", tradeInTitle: "ဝက်ဘ်ဆိုက် ရေးဆွဲခြင်း", newArrivals: "အဆင့်မြင့် ဒီဇိုင်းပုံစံများ", bulkTitle: "SEO တည်ဆောက်ခြင်း",
+
+                loadAuth: "အကောင့်စစ်ဆေးနေပါသည်...", loadProcess: "အော်ဒါတင်နေပါသည်...",
+                navDashboard: "ဒက်ရှ်ဘုတ်", hdrCheckout: "လုံခြုံသော ဝယ်ယူမှု", hdrTitle: "အစီအစဉ် ရွေးချယ်မှု",
+                stepPlan: "အစီအစဉ်", stepInfo: "အချက်အလက်", stepPayment: "ငွေပေးချေမှု", stepConfirm: "အတည်ပြုရန်",
+
+                planStarter: "အခြေခံ (Starter)", planStarterSub: "မရှိမဖြစ် အခြေခံများ", planStarterPrice: "၃၀,၀၀၀",
+                s_feat1: "ရက် ၉၀ အခမဲ့ ပြင်ဆင်ပေးခြင်း", s_feat2: "အခြေခံ စနစ်စောင့်ကြည့်ခြင်း", s_feat3: "SSL တပ်ဆင်ခြင်း", s_feat4: "အပတ်စဉ် အချက်အလက် သိမ်းဆည်းခြင်း", s_feat5: "အခြေခံ လုံခြုံရေး", s_feat6: "အီးမေးလ်မှတစ်ဆင့် အကူအညီပေးခြင်း", btnStarter: "အခြေခံ အစီအစဉ် ရယူရန်",
+                planPlus: "ပလက်စ် (Plus)", planPlusSub: "တိုးတက်နေသော လုပ်ငန်းများအတွက်", planPlusPrice: "၈၀,၀၀၀", badgePopular: "အသုံးအများဆုံး",
+                p_feat0: "အခြေခံ အစီအစဉ်တွင် ပါဝင်သော ဝန်ဆောင်မှုများအပြင် -", p_feat1: "စံနှုန်းမီ စနစ်စောင့်ကြည့်ခြင်း", p_feat2: "အပတ်စဉ် အချက်အလက်အပြည့်အစုံ သိမ်းဆည်းခြင်း", p_feat3: "စနစ်ပိုင်းဆိုင်ရာ မြန်နှုန်းမြှင့်တင်ခြင်း", p_feat4: "ဦးစားပေး အီးမေးလ် အကူအညီ", p_feat5: "လစဉ် စနစ်ကျန်းမာရေး အစီရင်ခံစာ", p_feat6: "တစ်လလျှင် အချက်အလက် ၁ ကြိမ် အခမဲ့ ပြင်ဆင်ခွင့်", btnPlus: "ပလက်စ် အစီအစဉ် ရွေးချယ်ရန်",
+                planPro: "ပရို (Pro)", planProSub: "အဆင့်မြင့် လုပ်ဆောင်ချက်များ", planProPrice: "၁၈၀,၀၀၀",
+                pr_feat0: "ပလက်စ် အစီအစဉ်တွင် ပါဝင်သော ဝန်ဆောင်မှုများအပြင် -", pr_feat1: "အဆင့်မြင့် စနစ်စောင့်ကြည့်ခြင်း", pr_feat2: "နေ့စဉ် အချက်အလက် သိမ်းဆည်းခြင်း", pr_feat3: "အဆင့်မြင့် လုံခြုံရေး", pr_feat4: "အထူး ဦးစားပေး အကူအညီ", pr_feat5: "တစ်လလျှင် အချက်အလက် ၅ ကြိမ် အခမဲ့ ပြင်ဆင်ခွင့်", pr_feat6: "စနစ်နှင့် ဆာဗာပိုင်းဆိုင်ရာ စီမံခန့်ခွဲပေးခြင်း", btnPro: "ပရို အစီအစဉ် ရယူရန်",
+                planUltra: "အာလ်ထရာ (Ultra)", planUltraSub: "အင်တာပရိုက်စ် အဆင့်", planUltraPrice: "၃၅၀,၀၀၀",
+                u_feat0: "ပရို အစီအစဉ်တွင် ပါဝင်သော ဝန်ဆောင်မှုများအပြင် -", u_feat1: "၂၄ နာရီ အချိန်ပြည့် စနစ်စောင့်ကြည့်ခြင်း", u_feat2: "အချိန်နှင့်တစ်ပြေးညီ အချက်အလက် သိမ်းဆည်းစနစ်", u_feat3: "ပြီးပြည့်စုံသော လုံခြုံရေး", u_feat4: "CDN ချိတ်ဆက်ခြင်းနှင့် မြန်နှုန်း", u_feat5: "အရေးပေါ် အထူး ဦးစားပေး အကူအညီ", u_feat6: "သီးသန့် အကူအညီပေးရေး လမ်းကြောင်း", u_feat7: "လစဉ် အင်တာပရိုက်စ် အစီရင်ခံစာ", u_feat8: "အကန့်အသတ်မရှိ အချက်အလက် ပြင်ဆင်ခွင့်*", u_feat9: "ဟို့စ်တင်း နှင့် ဒိုမိန်း စီမံခန့်ခွဲပေးခြင်း", u_feat10: "သီးသန့် အကောင့်မန်နေဂျာ", btnUltra: "အာလ်ထရာ အစီအစဉ် ရယူရန်", maintMo: "ကျပ် / လ",
+                
+                s1Title: "ကိုယ်ရေးအချက်အလက်", s1Name: "အမည်အပြည့်အစုံ", s1Email: "အီးမေးလ်", s1EmailNote: "အီးမေးလ်ကို ပြောင်းလဲ၍မရပါ။", s1Phone: "ဖုန်းနံပါတ် *",
+                btnNext: "ရှေ့ဆက်မည်", btnBack: "နောက်သို့", btnSubmit: "PLACE ORDER",
+                s2Title: "ငွေပေးချေမှုစနစ်", s2Desc: "ငွေပေးချေလိုသော စနစ်ကို ရွေးချယ်ပါ။",
+                s4Title: "ငွေပေးချေမှုကို အတည်ပြုပါ", s4Desc: "အောက်ပါ ပမာဏအတိုင်း တိကျစွာ လွှဲပြောင်းပေးပါ :", s4AmountLabel: "AMOUNT",
+                s4Instr: "အောက်ပါ QR ကို သင့်ဘဏ်အကောင့်မှ စကင်ဖတ်၍ ငွေပေးချေနိုင်ပါသည်။",
+                s3Trans: "ငွေလွှဲအမှတ်စဉ် (TRANSACTION ID) *", s3Proof: "ငွေလွှဲပြေစာ (PAYMENT SCREENSHOT) *", s3UploadLabel: "ပုံရွေးချယ်ရန် နှိပ်ပါ",
+                sumTitle: "မှာယူမှု အကျဉ်းချုပ်", sumDuration: "ကာလ (လ)", sumTotal: "ကျသင့်ငွေ စုစုပေါင်း",
+                sumNote: "သင်၏ မှာယူမှုကို ကျွန်ုပ်တို့အဖွဲ့မှ လူကိုယ်တိုင် စစ်ဆေးအတည်ပြုပေးမည် ဖြစ်ပါသည်။ ပုံမှန်အားဖြင့် ၁၅ မိနစ်ခန့် ကြာမြင့်နိုင်ပါသည်။",
+                succTitle: "အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်!", succDesc: "ဒက်ရှ်ဘုတ်သို့ သွားနေပါသည်..."
+            }
+        };
+
+        const PLANS = {
+            'starter': { id: 'starter', name: 'Starter Plan', price: 30000 },
+            'plus': { id: 'plus', name: 'Plus Plan', price: 80000 },
+            'pro': { id: 'pro', name: 'Pro Plan', price: 180000 },
+            'ultra': { id: 'ultra', name: 'Ultra Plan', price: 350000 }
+        };
+        let currentStep = 1; let currentPlan = null; let selectedMonths = 1; let selectedPaymentMethod = 'KBZPay'; let proofFile = null;
+
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
+
+        function renderLanguage() {
+            document.documentElement.lang = currentLang; 
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
+            updateAuthUI();
+            const wDrawer = document.getElementById('wishlistDrawer');
+            if(wDrawer && wDrawer.classList.contains('open')) { renderWishlistItems(); }
+        }
+
+        async function initAuth() {
+            renderLanguage();
+            if (!supabaseInstance) { window.location.replace('../login/'); return; }
+            const { data: { session }, error } = await supabaseInstance.auth.getSession();
+            if (error || !session) { window.location.replace('../login/'); return; }
+            
+            currentUser = { id: session.user.id, email: session.user.email, name: session.user.user_metadata?.full_name || session.user.email.split('@')[0], avatar_url: session.user.user_metadata?.avatar_url || null, role: session.user.app_metadata?.role || session.user.user_metadata?.role || 'client' };
+            currentUserCart = session.user.user_metadata?.wishlist || [];
+
+            document.getElementById('custName').value = currentUser.name;
+            document.getElementById('custEmail').value = currentUser.email;
+
+            updateAuthUI();
+            setActiveNavLinks();
+            
+            const params = new URLSearchParams(window.location.search);
+            const planKey = params.get('plan')?.toLowerCase();
+            if (planKey && PLANS[planKey]) { selectPlan(planKey); } 
+            else { document.getElementById('globalLoader').classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); }
+        }
+
+        async function switchView(targetStep) {
+            let currentEl = document.querySelector('.wizard-step.active-step');
+            let targetId = targetStep === 1 ? 'step-1' : (targetStep === 2 || targetStep === 3) ? 'col-layout-wrapper' : 'step-4';
+            let nextEl = document.getElementById(targetId);
+
+            if(targetStep === 2 || targetStep === 3) {
+                const s2 = document.getElementById('step-2'); const s3 = document.getElementById('step-3');
+                if (targetStep === 2) {
+                    s3.classList.add('inner-step-hidden'); s3.classList.remove('inner-step-active');
+                    s2.classList.remove('inner-step-hidden'); s2.classList.add('inner-step-active');
+                } else {
+                    s2.classList.add('inner-step-hidden'); s2.classList.remove('inner-step-active');
+                    s3.classList.remove('inner-step-hidden'); s3.classList.add('inner-step-active');
+                }
+            }
+            if (currentEl !== nextEl) {
+                if (currentEl) currentEl.classList.remove('active-step');
+                nextEl.classList.add('active-step');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToStep(step) {
+            if(step === 2) { if(!currentPlan) { showErrorToast(currentLang === 'en' ? "Please select a plan." : "အစီအစဉ်ရွေးချယ်ပါ။"); return; } }
+            if(step === 3) {
+                const name = document.getElementById('custName').value.trim(); const phone = document.getElementById('custPhone').value.trim();
+                if(!name) { showErrorToast(currentLang === 'en' ? "Please enter your name." : "နာမည်ထည့်ပါ။"); return; }
+                if(!phone || phone.length < 6) { showErrorToast(currentLang === 'en' ? "Please enter a valid phone number." : "ဖုန်းနံပါတ်မှန်ကန်စွာထည့်ပါ။"); return; }
+            }
+            if(step === 4) { updateFinalStepUI(); }
+            currentStep = step; updateStepperUI(); switchView(step);
+        }
+
+        function updateStepperUI() {
+            for(let i=1; i<=4; i++) {
+                const circle = document.getElementById(`step${i}-circle`); const line = document.getElementById(`step${i}-line`); const text = document.getElementById(`step${i}-text`);
+                if (i < currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center bg-myancode-accent text-white font-bold font-mono text-sm border-2 border-myancode-accent step-circle";
+                    circle.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i>';
+                    if(line) line.style.width = "100%"; if(text) { text.classList.remove('text-gray-500'); text.classList.add('text-white'); }
+                } else if (i === currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center bg-myancode-accent text-white font-bold font-mono text-sm border-2 border-myancode-accent step-circle shadow-[0_0_15px_rgba(41,151,255,0.4)]";
+                    circle.innerHTML = i;
+                    if(line) line.style.width = "0%"; if(text) { text.classList.remove('text-gray-500'); text.classList.add('text-white'); }
+                } else {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle";
+                    circle.innerHTML = i;
+                    if(line) line.style.width = "0%"; if(text) { text.classList.remove('text-white'); text.classList.add('text-gray-500'); }
+                }
+            }
+            lucide.createIcons();
+        }
+
+        function selectPlan(planId) {
+            currentPlan = PLANS[planId];
+            document.getElementById('summaryPlanName').innerText = currentPlan.name;
+            document.getElementById('summaryMonthlyPrice').innerText = `${currentPlan.price.toLocaleString()} MMK / mo`;
+            updateLivePrice(); goToStep(2);
+            document.getElementById('globalLoader').classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll');
+        }
+
+        function updateMonths(change) {
+            let newVal = selectedMonths + change; if (newVal < 1) newVal = 1; if (newVal > 24) newVal = 24;
+            selectedMonths = newVal; document.getElementById('monthQtyDisplay').value = selectedMonths; updateLivePrice();
+        }
+
+        function updateLivePrice() { if(!currentPlan) return; const total = currentPlan.price * selectedMonths; document.getElementById('summaryTotalPrice').innerText = total.toLocaleString(); }
+
+        function selectPayment(method, el) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('.payment-card').forEach(card => { card.classList.remove('selected', 'border-myancode-accent', 'bg-myancode-accent/5'); });
+            el.classList.add('selected', 'border-myancode-accent', 'bg-myancode-accent/5');
+        }
+
+        function updateFinalStepUI() {
+            const total = currentPlan.price * selectedMonths; const fmtTotal = total.toLocaleString();
+            document.getElementById('finalAmountMain').innerText = fmtTotal;
+            document.getElementById('finalAmountSub').innerText = fmtTotal + ' MMK';
+            document.getElementById('finalMethodSub').innerText = selectedPaymentMethod;
+            
+            const qrBox = document.getElementById('qrTextDisplay'); const qrContainer = document.getElementById('qrBoxContainer');
+            qrBox.innerText = selectedPaymentMethod + ' QR';
+            if (selectedPaymentMethod === 'KBZPay') { qrContainer.className = 'w-48 h-48 sm:w-56 sm:h-56 bg-[#0057B7] rounded-[1rem] flex items-center justify-center mb-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-[4px] border-white transition-colors duration-500'; } 
+            else { qrContainer.className = 'w-48 h-48 sm:w-56 sm:h-56 bg-purple-600 rounded-[1rem] flex items-center justify-center mb-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-[4px] border-white transition-colors duration-500'; }
+        }
+
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-white/40'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('border-white/40'); });
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('border-white/40'); if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]); });
+        function handleFileSelect(e) { if (e.target.files.length) processFile(e.target.files[0]); }
+
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) { showErrorToast(currentLang === 'en' ? 'Please upload an image file.' : 'ပုံဖိုင်သာ တင်ပေးပါ။'); return; }
+            if (file.size > 10 * 1024 * 1024) { showErrorToast(currentLang === 'en' ? 'Image must be under 10MB.' : '10MB ထက်မကြီးရပါ။'); return; }
+            proofFile = file; const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('proofPreview'); preview.src = e.target.result; preview.classList.remove('hidden');
+                setTimeout(() => preview.classList.remove('opacity-0'), 10);
+                document.getElementById('uploadContent').classList.add('opacity-0'); document.getElementById('removeProofBtn').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeProof(e) {
+            e.stopPropagation(); proofFile = null; document.getElementById('proofInput').value = '';
+            document.getElementById('proofPreview').classList.add('opacity-0'); setTimeout(() => document.getElementById('proofPreview').classList.add('hidden'), 300);
+            document.getElementById('uploadContent').classList.remove('opacity-0'); document.getElementById('removeProofBtn').classList.add('hidden');
+        }
+
+        async function submitOrder() {
+            const transId = document.getElementById('transId').value.trim();
+            if(!transId) { showErrorToast(currentLang === 'en' ? "Transaction ID is required." : "ငွေလွှဲအမှတ်စဉ် ထည့်ပါ။"); return; }
+            if(!proofFile) { showErrorToast(currentLang === 'en' ? "Payment screenshot is required." : "ငွေလွှဲပြေစာ တင်ပေးပါ။"); return; }
+
+            const btn = document.getElementById('btnSubmitOrder'); btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin text-white"></i>`; lucide.createIcons();
+
+            try {
+                const fileExt = proofFile.name.split('.').pop(); const filePath = `${currentUser.id}/${Date.now()}_proof.${fileExt}`;
+                const { error: uploadError } = await supabaseInstance.storage.from('payment-proofs').upload(filePath, proofFile);
+                if (uploadError) throw uploadError;
+                const { data: urlData } = supabaseInstance.storage.from('payment-proofs').getPublicUrl(filePath); const proofUrl = urlData.publicUrl;
+                const total = currentPlan.price * selectedMonths;
+
+                const { error: insertError } = await supabaseInstance.from('plan_orders').insert([{
+                    user_id: currentUser.id, username: document.getElementById('custName').value.trim(), email: currentUser.email, phone: document.getElementById('custPhone').value.trim(),
+                    plan_id: currentPlan.id, plan_name: currentPlan.name, monthly_price: currentPlan.price, months: selectedMonths, total_price: total,
+                    payment_method: selectedPaymentMethod, transaction_id: transId, payment_proof_url: proofUrl, status: 'Pending'
+                }]);
+                if (insertError) throw insertError;
+
+                const overlay = document.getElementById('successOverlay'); const icon = document.getElementById('successIconCont');
+                overlay.classList.remove('opacity-0', 'pointer-events-none'); setTimeout(() => icon.classList.remove('scale-50'), 100);
+                setTimeout(() => window.location.replace('../hub/#subscriptions'), 2500);
+            } catch (err) {
+                showErrorToast(err.message || "Failed to place order."); btn.disabled = false; btn.innerHTML = "PLACE ORDER";
+            }
+        }
+
+        function updateAuthUI() {
+            const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
+            if (!desktopAuth || !containerMob) return;
+            if (currentUser) {
+                const roleBadges = { 'founder': '../imgs/web-banners/founder-badge.png', 'admin': '../imgs/web-banners/verified-admin.png', 'moderator': '../imgs/web-banners/verified-moderator.png', 'partner': '../imgs/web-banners/verified-partner.png', 'developer': '../imgs/web-banners/verified-developer.png', 'client': '' };
+                const dashboardConfigs = { 'founder': { label: 'Workplace (Founder)', url: '../founder-dashboard/' }, 'admin': { label: 'Workplace (Admin)', url: '../admin-dashboard/' }, 'moderator': { label: 'Workplace (Moderator)', url: '../moderator-dashboard/' }, 'partner': { label: 'Collaboration', url: '../partner-dashboard/' }, 'developer': { label: 'Console', url: '../developer-dashboard/' }, 'client': { label: 'My Hub', url: '../hub/' } };
+                const userRole = (currentUser.role || 'client').toLowerCase(); const badgeSrc = roleBadges[userRole]; const dashConfig = dashboardConfigs[userRole] || dashboardConfigs['client'];
+                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" alt="${userRole}">` : '';
+                const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10" alt="avatar">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 text-white"></i>`;
+                const mobileAvatarHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-white/10 shadow-sm" alt="avatar">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-accent"></i>`;
+
+                desktopAuth.innerHTML = `
+                    <div class="relative" id="profileContainer">
+                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon flex items-center justify-center text-white">${avatarIconHTML}</button>
+                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-56 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
+                            <div class="px-5 py-3 border-b border-white/10 mb-1 text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center">
+                                <span class="truncate">${currentUser.name}</span> ${badgeHTML}
+                            </div>
+                            <a href="${dashConfig.url}" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
+                                ${dashConfig.label} <i data-lucide="layout-dashboard" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i>
+                            </a>
+                            <a href="../profile/" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
+                                ${dict[currentLang].hdrProfile} <i data-lucide="user" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i>
+                            </a>
+                            <button onclick="handleLogout()" class="w-full text-left px-5 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors flex items-center justify-between group/btn">
+                                ${dict[currentLang].hdrLogout} <i data-lucide="log-out" class="h-3.5 w-3.5 text-red-400 group-hover/btn:translate-x-1 transition-transform"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                
+                containerMob.innerHTML = `
+                    <div class="flex justify-between items-center w-full text-white hover:text-myancode-accent transition-colors text-base font-normal tracking-wide border-b border-white/10 pb-6 mb-6">
+                        <div class="flex items-center">
+                            <span class="capitalize truncate max-w-[200px] font-semibold">${currentUser.name}</span>
+                            ${badgeHTML}
+                        </div>
+                        ${mobileAvatarHTML}
+                    </div>
+                    <div class="flex flex-col gap-6 font-semibold text-white">
+                        <a href="${dashConfig.url}" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors">
+                            <span>${dashConfig.label}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-500"></i>
+                        </a>
+                        <a href="../profile/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors">
+                            <span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-500"></i>
+                        </a>
+                        <button onclick="handleLogout()" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors text-red-400">
+                            <span>${dict[currentLang].hdrLogout}</span> <i data-lucide="log-out" class="h-5 w-5 text-red-400"></i>
+                        </button>
+                    </div>`;
+            } else {
+                desktopAuth.innerHTML = `<a href="../login/" class="text-[12px] font-bold hover:text-myancode-accent transition-colors nav-link text-white px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a><a href="../register/" class="text-[12px] font-bold text-white border border-white/20 hover:border-white/50 px-4 py-1.5 rounded-full hover:bg-white/5 transition-all whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+                containerMob.innerHTML = `<div class="flex flex-col gap-6 font-semibold text-white"><a href="../login/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors text-base tracking-wide"><span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-500"></i></a><a href="../register/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors text-base tracking-wide"><span>${dict[currentLang].hdrRegister}</span> <i data-lucide="user-plus" class="h-5 w-5 text-gray-500"></i></a></div>`;
+            }
+            updateWishlistCount();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+            setActiveNavLinks();
+        }
+
+        function setActiveNavLinks() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link[data-nav-path]').forEach(link => {
+                const path = link.getAttribute('data-nav-path');
+                if (path !== '/' && currentPath.includes(path)) {
+                    link.classList.add('text-myancode-accent', 'font-bold', 'active-nav-item');
+                    link.classList.remove('hover:text-myancode-accent', 'text-white/80', 'text-white/90', 'text-myancode-black/80', 'text-myancode-black', 'text-white');
+                }
+            });
+        }
+
+        function updateWishlistCount() {
+            const countSpan = document.getElementById('wishlist-count'); if (!countSpan) return;
+            if (currentUserCart.length > 0) { countSpan.textContent = currentUserCart.length; countSpan.classList.remove('opacity-0'); } 
+            else { countSpan.classList.add('opacity-0'); }
+        }
+
+        function toggleWishlistDrawer() {
+            if (!currentUser) { window.location.href = '../login/'; return; }
+            const drawer = document.getElementById('wishlistDrawer'); const overlay = document.getElementById('wishlistOverlay');
+            if(!drawer.classList.contains('open')) document.getElementById('mobileDrawer').classList.remove('open');
+            drawer.classList.toggle('open'); overlay.classList.toggle('open');
+            if(drawer.classList.contains('open')) { document.body.classList.add('no-scroll'); renderWishlistItems(); } else { document.body.classList.remove('no-scroll'); }
+        }
+
+        function toggleWishlist(id, name, price) {
+            if (!currentUser) { window.location.href = '../login/'; return; }
+            const isStaff = ['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role);
+            if (isStaff) { showErrorToast(currentLang === 'en' ? "Access Denied: Staff members cannot add to bag." : "ဝန်ထမ်းများ စာရင်းသို့ ထည့်ခွင့်မရှိပါ။"); return; }
+            const index = currentUserCart.findIndex(i => i.id === id);
+            if (index > -1) { currentUserCart.splice(index, 1); showToast(dict[currentLang].removeFromWishlist + " Successful"); } 
+            else { currentUserCart.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to Cart" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
+            syncWishlistToSupabase(); updateWishlistCount(); 
+            const wDrawer = document.getElementById('wishlistDrawer');
+            if(wDrawer && wDrawer.classList.contains('open')) renderWishlistItems();
+        }
+
+        window.proceedToCheckout = function() {
+            if (!currentUser) { showErrorToast(currentLang === 'en' ? "Please log in to proceed" : "အကောင့်အရင်ဝင်ပါ"); return; }
+            const isStaff = ['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role);
+            if (isStaff) { showErrorToast(currentLang === 'en' ? "Access Denied: Staff cannot checkout." : "ဝန်ထမ်းများ ဝယ်ယူခွင့်မရှိပါ။"); return; }
+            if (currentUserCart.length === 0) { showErrorToast(currentLang === 'en' ? "Your bag is empty" : "ဝယ်ယူရန်စာရင်း လွတ်နေပါသည်"); return; }
+            window.location.href = `../checkout/?source=cart`;
+        }
+
+        async function syncWishlistToSupabase() {
+            if (supabaseInstance && currentUser) { const { error } = await supabaseInstance.auth.updateUser({ data: { wishlist: currentUserCart } }); if (error) console.error(error); }
+        }
+
+        function renderWishlistItems() {
+            const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal'); if (!container) return;
+            let total = 0;
+            if (currentUserCart.length === 0) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500"><i data-lucide="shopping-bag" class="h-12 w-12 mb-4 opacity-50"></i><p class="text-sm font-medium tracking-wide">${dict[currentLang].emptyWishlist}</p></div>`;
+                if (totalDisplay) totalDisplay.textContent = `0 MMK`; if(typeof lucide !== 'undefined') lucide.createIcons(); return;
+            }
+            container.innerHTML = currentUserCart.map(item => {
+                total += item.price;
+                return `
+                <div class="flex justify-between items-center p-4 bg-[#111] border border-white/10 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div>
+                        <h4 class="font-bold text-sm mb-1 truncate max-w-[150px] text-white">${item.name}</h4>
+                        <span class="text-xs font-bold text-gray-400">${item.price.toLocaleString()} MMK</span>
+                    </div>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-xs font-bold text-red-400 hover:text-red-300 bg-red-500/10 rounded-lg px-3 py-1.5 transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                </div>
+            `}).join('');
+            if (totalDisplay) totalDisplay.textContent = `${total.toLocaleString()} MMK`; if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        async function handleLogout() { if(supabaseInstance) await supabaseInstance.auth.signOut(); window.location.replace('../login/'); }
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            if(!drawer.classList.contains('open')) { const wishlistD = document.getElementById('wishlistDrawer'); const wishlistO = document.getElementById('wishlistOverlay'); if(wishlistD) wishlistD.classList.remove('open'); if(wishlistO) wishlistO.classList.remove('open'); }
+            drawer.classList.toggle('open');
+            if(drawer.classList.contains('open')) document.body.classList.add('no-scroll'); else document.body.classList.remove('no-scroll');
+        }
+        function toggleLangDropdown(e) {
+            e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden');
+            if(document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden');
+        }
+        function toggleProfile(e) {
+            e.stopPropagation(); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
+        }
+        function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
+        function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
+        
+        document.addEventListener('click', (e) => {
+            const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
+            if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
+            const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
+        });
+
+        async function fetchSearchData() {
+            if (!supabaseInstance || searchDataCache) return;
+            try {
+                const [prodRes, servRes] = await Promise.all([
+                    supabaseInstance.from('products').select('product_id, product_name_en, product_name_mm, product_description_en, product_description_mm, category_id, product_slug, slug, product_image').eq('product_status', 'active'),
+                    supabaseInstance.from('services').select('id, title_en, title_mm, icon, short_desc_en, short_desc_mm, slug')
+                ]);
+                let dbItems = [];
+                if (prodRes.data) {
+                    dbItems = dbItems.concat(prodRes.data.map(p => ({
+                        type: 'Templates', name: p.product_name_en, mm: p.product_name_mm, 
+                        desc_en: p.product_description_en, desc_mm: p.product_description_mm,
+                        url: `../template-detail/?product=${p.product_slug || p.slug || p.product_id}`, image: p.product_image
+                    })));
+                }
+                if (servRes.data) {
+                    dbItems = dbItems.concat(servRes.data.map(s => ({
+                        type: 'Services', name: s.title_en, mm: s.title_mm, icon: s.icon || 'briefcase',
+                        desc_en: s.short_desc_en, desc_mm: s.short_desc_mm, url: `../services/?id=${s.slug || s.id}`
+                    })));
+                }
+                searchDataCache = dbItems;
+            } catch(e) { console.error('Cache prep failed:', e); }
+        }
+
+        function toggleSearchOverlay() {
+            const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
+            if(overlay.classList.contains('open')) { 
+                document.body.classList.add('no-scroll'); fetchSearchData(); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); 
+            } else { 
+                document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('searchResultLabel').innerText = dict[currentLang].searchResults || 'Popular Queries'; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint || 'Type to discover our products and services...'}</p>`; }, 400); 
+            }
+        }
+
+        let searchDebounceTimer;
+        function handleMegaSearch(e) {
+            const query = e.target.value.toLowerCase().trim(); const resultsContainer = document.getElementById('megaSearchResults'); const label = document.getElementById('searchResultLabel');
+            if (!query) { clearTimeout(searchDebounceTimer); label.innerText = currentLang === 'en' ? 'Popular Queries' : 'အများဆုံးရှာဖွေမှုများ'; resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint || 'Type to discover our products and services...'}</p>`; return; }
+            label.innerText = currentLang === 'en' ? 'Results' : 'ရလဒ်များ'; resultsContainer.innerHTML = `<div class="flex justify-center py-6"><i data-lucide="loader-2" class="h-6 w-6 animate-spin text-white"></i></div>`; if(typeof lucide !== 'undefined') lucide.createIcons();
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                const searchSource = searchDataCache || []; let combined = []; const queryWords = query.split(/\s+/).filter(w => w);
+                searchSource.forEach(item => {
+                    const searchStr = `${item.name || ''} ${item.mm || ''} ${item.desc_en || ''} ${item.desc_mm || ''} ${item.type || ''}`.toLowerCase();
+                    let score = 0; if (searchStr === query) score = 1000; else if (searchStr.includes(query)) score = 500; else { let matched = 0; queryWords.forEach(w => { if(searchStr.includes(w)) { matched++; score += 50; } }); if(matched === queryWords.length && queryWords.length > 0) score += 200; }
+                    if (score > 0) combined.push({ ...item, score });
+                });
+                combined.sort((a, b) => b.score - a.score); const unique = []; const urls = new Set(); combined.forEach(i => { if(!urls.has(i.url)) { urls.add(i.url); unique.push(i); }});
+                if (unique.length === 0) {
+                    resultsContainer.innerHTML = `<div class="py-8 text-center bg-[#111] border border-white/10 rounded-2xl">
+                        <i data-lucide="search-x" class="h-8 w-8 text-gray-500 mx-auto mb-3"></i><p class="text-white text-sm tracking-wide font-medium mb-1">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p><p class="text-xs text-gray-500 tracking-wide">${currentLang === 'en' ? 'Try searching for alternative keywords.' : 'အခြားသော စကားလုံးများဖြင့် ပြန်လည်ရှာဖွေကြည့်ပါ။'}</p></div>`;
+                    if(typeof lucide !== 'undefined') lucide.createIcons(); return;
+                }
+                const grouped = unique.reduce((acc, item) => { if (!acc[item.type]) acc[item.type] = []; if (acc[item.type].length < 4) acc[item.type].push(item); return acc; }, {});
+                const groupOrder = ['Templates', 'Services', 'Pages & Navigation', 'Company', 'Support & Help'];
+                const sortedKeys = Object.keys(grouped).sort((a, b) => { let idxA = groupOrder.indexOf(a); let idxB = groupOrder.indexOf(b); return (idxA===-1?999:idxA) - (idxB===-1?999:idxB); });
+                let html = '';
+                for (const type of sortedKeys) {
+                    const translatedType = type === 'Templates' ? (currentLang === 'en' ? 'Templates' : 'ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ') : type === 'Services' ? (currentLang === 'en' ? 'Services' : 'ဝန်ဆောင်မှုများ') : type === 'Pages & Navigation' ? (currentLang === 'en' ? 'Pages & Navigation' : 'စာမျက်နှာများ') : type === 'Company' ? (currentLang === 'en' ? 'Company' : 'ကုမ္ပဏီ') : (currentLang === 'en' ? 'Support & Help' : 'အကူအညီ');
+                    html += `<div class="mb-8 last:mb-0 reveal active"><h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">${translatedType} <span class="bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded-full text-[9px]">${grouped[type].length}</span></h4><div class="grid grid-cols-1 gap-2">`;
+                    html += grouped[type].map(item => {
+                        const title = currentLang === 'en' ? (item.name || 'Link') : (item.mm || item.name || 'Link');
+                        const desc = currentLang === 'en' ? (item.desc_en || '') : (item.desc_mm || item.desc_en || '');
+                        const fallbackImg = 'https://placehold.co/150x150/111111/444444?text=IMG';
+                        let finalImgUrl = item.image || fallbackImg; if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', '../');
+                        const imgBlock = item.image ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>` : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'link'}" class="h-5 w-5"></i></div>`;
+                        return `<a href="${item.url}" onclick="toggleSearchOverlay()" class="flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">${imgBlock}<div class="flex-1 min-w-0 z-10"><h5 class="text-sm font-bold font-display tracking-tight text-white group-hover:text-myancode-accent transition-colors truncate">${title}</h5>${desc ? `<p class="text-[11px] font-medium text-gray-400 line-clamp-1 mt-0.5">${desc}</p>` : ''}</div><div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-myancode-accent transition-colors z-10 opacity-0 sm:opacity-100"><i data-lucide="arrow-right" class="h-4 w-4 ml-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i></div></a>`;
+                    }).join('');
+                    html += `</div></div>`;
+                }
+                resultsContainer.innerHTML = html; if(typeof lucide !== 'undefined') lucide.createIcons();
+            }, 250); 
+        }
+
+        async function handleSubscribe(e) {
+            e.preventDefault(); if (!supabaseInstance) { showErrorToast("Database connection offline."); return; }
+            const emailInput = document.getElementById('newsletterEmail'); const btn = document.getElementById('btnSubscribe');
+            const email = emailInput.value.trim(); const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            if (!turnstileResponse) { showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); return; }
+            if (!email) return;
+
+            btn.disabled = true; const originalBtnText = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`; if(typeof lucide !== 'undefined') lucide.createIcons();
+            try {
+                const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
+                if (error) { if (error.code === '23505') { showToast(dict[currentLang].msgSubscribedAlready); } else { throw error; } } 
+                else { showToast(dict[currentLang].msgSubscribedSuccess); emailInput.value = ''; if (window.turnstile) turnstile.reset(); }
+            } catch (err) { showErrorToast(err.message || "Subscription processing failed."); } 
+            finally { btn.disabled = false; btn.innerHTML = originalBtnText; }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAuth(); lucide.createIcons();
+            window.addEventListener('scroll', () => {
+                const nav = document.getElementById('mainNav');
+                if (window.scrollY > 50) { nav.classList.add('glass-nav-dark'); nav.classList.remove('nav-transparent', 'border-transparent'); } 
+                else { nav.classList.remove('glass-nav-dark'); nav.classList.add('nav-transparent', 'border-transparent'); }
+            });
+        });
+    </script>
+</body>
+</html>
