@@ -58,12 +58,19 @@
         .avatar-upload-container:hover .avatar-upload-overlay { opacity: 1; cursor: pointer; }
         .cropper-view-box, .cropper-face { border-radius: 50%; }
 
+        .status-badge { display: inline-flex; align-items: center; justify-content: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .status-pending { background-color: rgba(234, 179, 8, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .status-confirmed { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
+        .status-expired { background-color: rgba(156, 163, 175, 0.1); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.2); }
+        .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+
         #sidebar { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         #sidebar.collapsed { width: 80px !important; }
         #sidebar.collapsed .sidebar-text { display: none; }
         #sidebar.collapsed .px-6 { padding-left: 0; padding-right: 0; justify-content: center; }
         #sidebar.collapsed .px-4 { padding-left: 0.5rem; padding-right: 0.5rem; }
         #sidebar.collapsed .logo-container { justify-content: center; padding: 0; }
+        #sidebar.collapsed .logo-container-inner { justify-content: center; }
         #sidebar.collapsed .logo-img { margin-right: 0; }
         #sidebar.collapsed .menu-item-btn { justify-content: center; padding-left: 0; padding-right: 0; }
         #sidebar.collapsed #sbFooter { padding: 1.25rem 0; display: flex; flex-direction: column; align-items: center; }
@@ -114,6 +121,11 @@
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOverview">Overview</span>
             </button>
             
+            <button onclick="switchTab('orders')" id="nav-orders" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="receipt" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOrders">Plan Orders</span>
+            </button>
+
             <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabSettings">System Settings</span>
@@ -147,7 +159,7 @@
     <main class="flex-1 flex flex-col h-screen overflow-hidden bg-[#050505] relative w-full">
         <div class="absolute inset-0 bg-grid-dark pointer-events-none z-0 opacity-60"></div>
         
-        <header class="glass-header h-20 flex items-center justify-between px-6 sm:px-12 relative z-10 flex-shrink-0">
+        <header class="glass-header h-20 flex items-center justify-between px-6 sm:px-12 relative z-[70] flex-shrink-0">
             <div class="flex items-center gap-5">
                 <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white transition-colors lg:hidden"><i data-lucide="menu" class="w-6 h-6"></i></button>
                 <button onclick="toggleSidebarDesktop()" class="text-gray-400 hover:text-white transition-colors hidden lg:block"><i data-lucide="align-left" class="w-6 h-6"></i></button>
@@ -190,6 +202,52 @@
                 </div>
             </div>
 
+            <!-- Orders Management Tab -->
+            <div id="view-orders" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display">
+                            <i data-lucide="receipt" class="h-7 w-7 text-myancode-accent"></i> 
+                            <span data-i18n="orderMgtTitle">Order Management</span>
+                        </h3>
+                        <div class="flex items-center gap-4 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-64">
+                                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                                <input type="text" id="adminOrderSearch" onkeyup="filterAdminOrders()" class="w-full pl-10 pr-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Search orders..." data-i18n-placeholder="searchOrderAdmin">
+                            </div>
+                            <select id="adminOrderStatusFilter" onchange="filterAdminOrders()" class="bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-gray-300 focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer">
+                                <option value="All" data-i18n="filterAll">All Status</option>
+                                <option value="Pending" data-i18n="filterPending">Pending</option>
+                                <option value="Confirmed" data-i18n="filterConfirmed">Confirmed</option>
+                                <option value="Expired" data-i18n="filterExpired">Expired</option>
+                                <option value="Cancelled" data-i18n="filterCancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scroll pb-4">
+                        <table class="w-full text-left border-collapse min-w-[1100px]">
+                            <thead>
+                                <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
+                                    <th class="pb-4 pl-4" data-i18n="thOrder">Order ID</th>
+                                    <th class="pb-4" data-i18n="thCustomer">Customer</th>
+                                    <th class="pb-4" data-i18n="thPlanInfo">Plan Info</th>
+                                    <th class="pb-4" data-i18n="thPayment">Payment</th>
+                                    <th class="pb-4" data-i18n="thStatus">Status</th>
+                                    <th class="pb-4 pr-4 text-right" data-i18n="thActions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminOrdersTableBody" class="text-sm font-medium text-gray-300">
+                                <tr>
+                                    <td colspan="6" class="py-12 text-center text-gray-500 italic" data-i18n="loadingOrders">Loading orders...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
             <div id="view-settings" class="view-section hidden flex-col gap-8 max-w-4xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="user-circle" class="h-7 w-7 text-myancode-accent"></i> <span data-i18n="profPublic">Public Profile</span></h3>
@@ -238,6 +296,38 @@
         </div>
     </main>
 
+    <!-- Update Order Status Modal -->
+    <div id="updateOrderModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="updateOrderModalContent">
+            <h3 class="text-2xl font-bold font-display tracking-tight text-white mb-6" data-i18n="updateStatusTitle">Update Order Status</h3>
+            
+            <input type="hidden" id="updOrderId">
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="lblStatus">Status</label>
+                    <select id="updOrderStatus" onchange="toggleMonthsInput()" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent cursor-pointer">
+                        <option value="Pending" data-i18n="filterPending">Pending</option>
+                        <option value="Confirmed" data-i18n="filterConfirmed">Confirmed</option>
+                        <option value="Expired" data-i18n="filterExpired">Expired</option>
+                        <option value="Cancelled" data-i18n="filterCancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div id="updMonthsContainer" class="hidden">
+                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="lblMonths">Active Duration (Months)</label>
+                    <input type="number" id="updOrderMonths" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent" min="1" max="24">
+                    <p class="text-[11px] text-gray-500 mt-2" data-i18n="lblMonthsDesc">Required for confirmed orders to calculate expiry date.</p>
+                </div>
+            </div>
+
+            <div class="flex space-x-4 w-full mt-8">
+                <button onclick="closeUpdateOrderModal()" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors" data-i18n="cropCancel">Cancel</button>
+                <button onclick="submitOrderUpdate()" id="btnSubmitOrderUpdate" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-black shadow-md transition-colors bg-white hover:bg-gray-200 btn-hover-effect" data-i18n="btnSave">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
     <div id="forcePasswordModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 px-4">
         <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-500" id="forcePasswordModalContent">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
@@ -281,6 +371,11 @@
         <span id="error-toast-msg">Error!</span>
     </div>
 
+    <div id="imagePreviewModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300" onclick="closeImagePreview()">
+        <button class="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors" onclick="closeImagePreview()"><i data-lucide="x" class="w-6 h-6"></i></button>
+        <img id="previewModalImg" src="" class="max-w-[90%] max-h-[85vh] object-contain rounded-xl shadow-2xl transform scale-95 transition-transform duration-300 border border-white/10" onclick="event.stopPropagation()">
+    </div>
+
     <div id="cropperModal" class="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300" onclick="cancelCrop()">
         <div class="glass-panel border border-white/10 p-6 sm:p-8 rounded-[2.5rem] w-[95%] max-w-xl shadow-2xl transform scale-95 transition-transform duration-300" id="cropperModalContent" onclick="event.stopPropagation()">
             <h3 class="text-2xl font-bold font-display tracking-tight mb-6 text-white flex justify-between items-center">
@@ -311,7 +406,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings",
+                menuMain: "Main Menu", tabOverview: "Overview", tabOrders: "Plan Orders", tabSettings: "System Settings",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
@@ -319,11 +414,17 @@
                 profPublic: "Public Profile", profUpload: "Upload", profName: "Full Name", profUpdateBtn: "Save Changes", profRemoveAv: "Remove Icon",
                 profSecurity: "Security & Access", profOldPass: "Current Password", profPass: "New Password", profPassConfirm: "Confirm Password", profUpdatePassBtn: "Update Authentication",
                 cropTitle: "Crop Photo", cropCancel: "Cancel", cropSave: "Save",
-                msgLoggedOut: "Signed out securely."
+                msgLoggedOut: "Signed out securely.",
+                orderMgtTitle: "Order Management", searchOrderAdmin: "Search orders...",
+                filterAll: "All Status", filterPending: "Pending", filterConfirmed: "Confirmed", filterExpired: "Expired", filterCancelled: "Cancelled",
+                thOrder: "Order ID", thCustomer: "Customer", thPlanInfo: "Plan Info", thPayment: "Payment", thStatus: "Status", thActions: "Actions",
+                btnUpdate: "Update", loadingOrders: "Loading orders...", noOrders: "No orders found.",
+                updateStatusTitle: "Update Order Status", lblStatus: "Status", lblMonths: "Active Duration (Months)", lblMonthsDesc: "Required for confirmed orders to calculate expiry date.", btnSave: "Save Changes",
+                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo", viewProof: "View Proof"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabOrders: "အော်ဒါများ", tabSettings: "စနစ် ဆက်တင်များ",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
@@ -331,7 +432,13 @@
                 profPublic: "ကိုယ်ရေးအကျဉ်း", profUpload: "ပြောင်းမည်", profName: "အမည်အပြည့်အစုံ", profUpdateBtn: "အချက်အလက်များ သိမ်းဆည်းရန်", profRemoveAv: "ပုံဖယ်ရှားမည်",
                 profSecurity: "လုံခြုံရေး", profOldPass: "လက်ရှိ စကားဝှက်", profPass: "စကားဝှက်အသစ်", profPassConfirm: "စကားဝှက်အသစ် အတည်ပြုရန်", profUpdatePassBtn: "စကားဝှက် ပြောင်းရန်",
                 cropTitle: "ဓာတ်ပုံဖြတ်မည်", cropCancel: "ပယ်ဖျက်မည်", cropSave: "သိမ်းဆည်းမည်",
-                msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။"
+                msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
+                orderMgtTitle: "အော်ဒါ စီမံခန့်ခွဲမှု", searchOrderAdmin: "အော်ဒါများ ရှာရန်...",
+                filterAll: "အခြေအနေအားလုံး", filterPending: "စစ်ဆေးဆဲ", filterConfirmed: "အတည်ပြုပြီး", filterExpired: "သက်တမ်းကုန်", filterCancelled: "ပယ်ဖျက်ထားသည်",
+                thOrder: "အော်ဒါ ID", thCustomer: "ဖောက်သည်", thPlanInfo: "အစီအစဉ်", thPayment: "ငွေပေးချေမှု", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ရန်",
+                btnUpdate: "ပြင်ဆင်မည်", loadingOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noOrders: "အော်ဒါများ မရှိသေးပါ။",
+                updateStatusTitle: "အော်ဒါ အခြေအနေ ပြင်ဆင်ရန်", lblStatus: "အခြေအနေ", lblMonths: "ကာလ (လ)", lblMonthsDesc: "သက်တမ်းကုန်ဆုံးမည့်ရက် တွက်ချက်ရန် လိုအပ်ပါသည်။", btnSave: "သိမ်းဆည်းမည်",
+                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ", viewProof: "ပြေစာကြည့်ရန်"
             }
         };
 
@@ -365,6 +472,7 @@
         let currentUser = null;
         let currentSessionTemp = null;
         let currentProfileTemp = null;
+        let adminOrders = [];
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
@@ -438,8 +546,204 @@
             renderLanguage();
             populateSidebar();
             populateProfileData();
-            switchTab('overview');
+            
+            const hash = window.location.hash.replace('#', '');
+            if(hash && document.getElementById(`nav-${hash}`)) {
+                switchTab(hash);
+            } else {
+                switchTab('overview');
+            }
+
+            fetchAdminOrders();
             hideLoader();
+        }
+
+        async function fetchAdminOrders() {
+            if(!supabaseInstance || !currentUser) return;
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('plan_orders')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if(error) throw error;
+                
+                const now = new Date();
+                adminOrders = [];
+                
+                for(let order of data) {
+                    if(order.status === 'Confirmed' && order.expires_at) {
+                        const expiry = new Date(order.expires_at);
+                        if(now >= expiry) {
+                            order.status = 'Expired';
+                            await supabaseInstance.from('plan_orders').update({ status: 'Expired', updated_at: now.toISOString() }).eq('id', order.id);
+                        }
+                    }
+                    adminOrders.push(order);
+                }
+
+                filterAdminOrders();
+
+            } catch (err) {
+                console.error("Error fetching admin orders:", err);
+            }
+        }
+
+        function filterAdminOrders() {
+            const search = document.getElementById('adminOrderSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('adminOrderStatusFilter').value;
+            
+            const filtered = adminOrders.filter(o => {
+                const searchStr = `${o.id} ${o.username} ${o.email} ${o.phone} ${o.transaction_id}`.toLowerCase();
+                const matchSearch = searchStr.includes(search);
+                const matchStatus = statusFilter === 'All' || o.status === statusFilter;
+                return matchSearch && matchStatus;
+            });
+            
+            renderAdminOrdersTable(filtered);
+        }
+
+        function renderAdminOrdersTable(orders) {
+            const tbody = document.getElementById('adminOrdersTableBody');
+            
+            if(orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-gray-500 italic">${dict[currentLang].noOrders}</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = orders.map(order => {
+                const dateStr = new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                
+                let statusClass = 'status-pending';
+                let statusTrans = dict[currentLang].statPending;
+                if(order.status === 'Confirmed') { statusClass = 'status-confirmed'; statusTrans = dict[currentLang].statConfirmed; }
+                else if(order.status === 'Expired') { statusClass = 'status-expired'; statusTrans = dict[currentLang].statExpired; }
+                else if(order.status === 'Cancelled') { statusClass = 'status-cancelled'; statusTrans = dict[currentLang].statCancelled; }
+
+                return `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">${order.id.split('-')[0]}</td>
+                    <td class="py-4">
+                        <div class="font-bold text-white">${order.username}</div>
+                        <div class="text-xs text-gray-500 font-mono">${order.email}</div>
+                        <div class="text-[10px] text-gray-600 font-mono">${order.phone}</div>
+                    </td>
+                    <td class="py-4">
+                        <div class="font-bold text-white">${order.plan_name}</div>
+                        <div class="text-xs text-gray-400">${order.months} ${dict[currentLang].moUnit}</div>
+                    </td>
+                    <td class="py-4">
+                        <div class="font-bold text-white">${parseInt(order.total_price).toLocaleString()} <span class="text-[10px] text-gray-500">MMK</span></div>
+                        <div class="inline-flex items-center gap-1.5 mt-1 text-xs text-gray-400">
+                            ${order.payment_method}
+                            <button onclick="openImagePreview('${order.payment_proof_url}')" class="ml-2 p-1 rounded bg-[#111] border border-white/10 hover:text-myancode-accent transition-colors" title="Proof">
+                                <i data-lucide="image" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
+                    <td class="py-4 pr-4 text-right">
+                        <button onclick="openUpdateOrderModal('${order.id}', '${order.status}', ${order.months})" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-xs font-bold text-white">
+                            ${dict[currentLang].btnUpdate}
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        function openUpdateOrderModal(id, currentStatus, months) {
+            document.getElementById('updOrderId').value = id;
+            document.getElementById('updOrderStatus').value = currentStatus;
+            document.getElementById('updOrderMonths').value = months;
+            toggleMonthsInput();
+            
+            const modal = document.getElementById('updateOrderModal');
+            const content = document.getElementById('updateOrderModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeUpdateOrderModal() {
+            const modal = document.getElementById('updateOrderModal');
+            const content = document.getElementById('updateOrderModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function toggleMonthsInput() {
+            const status = document.getElementById('updOrderStatus').value;
+            const container = document.getElementById('updMonthsContainer');
+            if (status === 'Confirmed') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        async function submitOrderUpdate() {
+            const id = document.getElementById('updOrderId').value;
+            const status = document.getElementById('updOrderStatus').value;
+            const months = parseInt(document.getElementById('updOrderMonths').value) || 1;
+            
+            const btn = document.getElementById('btnSubmitOrderUpdate');
+            btn.disabled = true;
+            showLoader();
+
+            try {
+                let updateData = { status: status, updated_at: new Date().toISOString() };
+                
+                if (status === 'Confirmed') {
+                    updateData.confirmed_at = new Date().toISOString();
+                    updateData.months = months;
+                    const expDate = new Date();
+                    expDate.setMonth(expDate.getMonth() + months);
+                    updateData.expires_at = expDate.toISOString();
+                }
+
+                const { error } = await supabaseInstance.from('plan_orders').update(updateData).eq('id', id);
+                if (error) throw error;
+                
+                showToast("Order status updated successfully.");
+                closeUpdateOrderModal();
+                fetchAdminOrders();
+            } catch (err) {
+                showErrorToast(err.message || "Failed to update order.");
+            } finally {
+                btn.disabled = false;
+                hideLoader();
+            }
+        }
+
+        function openImagePreview(url) {
+            const modal = document.getElementById('imagePreviewModal');
+            const img = document.getElementById('previewModalImg');
+            img.src = url;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            img.classList.remove('scale-95');
+        }
+
+        function closeImagePreview() {
+            const modal = document.getElementById('imagePreviewModal');
+            const img = document.getElementById('previewModalImg');
+            modal.classList.add('opacity-0');
+            img.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                img.src = '';
+            }, 300);
         }
 
         async function submitForcePassword() {
@@ -497,6 +801,7 @@
             currentLang = currentLang === 'en' ? 'mm' : 'en';
             localStorage.setItem('myancode_lang', currentLang);
             renderLanguage();
+            if(adminOrders.length > 0) filterAdminOrders();
         }
 
         function populateSidebar() {
@@ -589,15 +894,23 @@
             });
             
             const activeView = document.getElementById(`view-${tabId}`);
-            activeView.classList.remove('hidden');
-            activeView.classList.add('flex');
+            if(activeView) {
+                activeView.classList.remove('hidden');
+                activeView.classList.add('flex');
+            }
             
             const activeBtn = document.getElementById(`nav-${tabId}`);
-            activeBtn.classList.remove('text-gray-400', 'hover:bg-white/5');
-            activeBtn.classList.add('bg-white/10', 'text-white');
+            if(activeBtn) {
+                activeBtn.classList.remove('text-gray-400', 'hover:bg-white/5');
+                activeBtn.classList.add('bg-white/10', 'text-white');
+            }
 
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings' };
-            document.getElementById('headerTitle').innerText = titleMap[tabId] || 'Dashboard';
+            const titleMap = { 'overview': 'Overview', 'orders': 'Order Management', 'settings': 'System Settings' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'settings': 'စနစ် ဆက်တင်များ' };
+            const titleStr = currentLang === 'en' ? (titleMap[tabId] || 'Dashboard') : (titleMapMM[tabId] || 'Dashboard');
+            document.getElementById('headerTitle').innerText = titleStr;
+            
+            window.history.replaceState(null, null, `#${tabId}`);
             
             if(window.innerWidth < 1024 && sidebarOpen) toggleMobileMenu();
         }
@@ -784,10 +1097,14 @@
             document.addEventListener('keydown', (e) => {
                 const cropperModal = document.getElementById('cropperModal');
                 const confirmModal = document.getElementById('confirmModal');
+                const updateOrderModal = document.getElementById('updateOrderModal');
+                const imgModal = document.getElementById('imagePreviewModal');
                 
                 if (e.key === 'Escape') {
                     if (!cropperModal.classList.contains('hidden')) cancelCrop();
                     if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
+                    if (!updateOrderModal.classList.contains('hidden')) closeUpdateOrderModal();
+                    if (!imgModal.classList.contains('hidden')) closeImagePreview();
                 }
             });
         });
