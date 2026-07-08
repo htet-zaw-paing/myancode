@@ -142,7 +142,6 @@
         .user-avatar-global { transition: all 0.3s ease; }
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
 
-        /* Glitch Animation Styles */
         .glitch-wrapper {
             position: relative;
             display: inline-block;
@@ -205,7 +204,6 @@
             100% { clip-path: inset(25% 0 65% 0); transform: translate(-2px, -2px); }
         }
 
-        /* Scroller Styles */
         .marquee-container {
             position: absolute;
             top: 50%;
@@ -449,13 +447,11 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT: 404 NOT FOUND -->
     <main class="flex-grow flex flex-col items-center justify-center pt-32 pb-24 px-4 w-full relative z-10 min-h-[80vh] overflow-hidden">
         
         <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/95 via-[#050505]/80 to-[#050505] z-0 pointer-events-none"></div>
         <div class="absolute inset-0 bg-grid-dark pointer-events-none z-0 opacity-40"></div>
 
-        <!-- Animated Scrolling Background Text -->
         <div class="marquee-container">
             <div class="marquee-content animate-marquee font-display">
                 <span class="marquee-text">NOT FOUND</span>
@@ -465,7 +461,6 @@
             </div>
         </div>
 
-        <!-- Foreground Content -->
         <div class="relative z-10 text-center max-w-2xl mx-auto w-full flex flex-col items-center">
             
             <div class="glitch-wrapper mb-6 font-display">
@@ -487,7 +482,6 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
         <div class="layout-width relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
@@ -663,7 +657,6 @@
                 loadingInit: "Initializing...",
                 msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
                 
-                /* 404 Specific Translations */
                 title404: "Page Not Found",
                 desc404: "The link you followed may be broken, or the page may have been removed. Let's get you back on track.",
                 btnHome: "Return to Home",
@@ -735,7 +728,6 @@
         async function initPage() {
             if (supabaseInstance) {
                 try {
-                    // Explicitly await the session first instead of relying solely on the listener
                     const { data: { session } } = await supabaseInstance.auth.getSession();
                     
                     if (session && session.user) {
@@ -758,14 +750,12 @@
                         currentUserCart = session.user.user_metadata?.wishlist || []; 
                     }
                     
-                    // Attach listener for future state changes
                     supabaseInstance.auth.onAuthStateChange((event, session) => {
                         if (event === 'SIGNED_OUT') {
                             currentUser = null;
                             currentUserCart = [];
                             updateAuthUI();
                         } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-                            // Automatically handled by session object if page refreshes
                         }
                     });
 
@@ -774,7 +764,6 @@
                 }
             }
             
-            // Unconditionally setup UI and hide loader
             updateAuthUI();
             setActiveNavLinks();
             renderLanguage();

@@ -126,6 +126,11 @@
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOrders">Plan Orders</span>
             </button>
 
+            <button onclick="switchTab('coupons')" id="nav-coupons" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="ticket" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabCoupons">Coupons</span>
+            </button>
+
             <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabSettings">System Settings</span>
@@ -247,6 +252,40 @@
                 </div>
             </div>
 
+            <div id="view-coupons" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display">
+                            <i data-lucide="ticket" class="h-7 w-7 text-myancode-accent"></i> 
+                            <span data-i18n="couponMgtTitle">Coupon Management</span>
+                        </h3>
+                        <button onclick="openCreateCouponModal()" class="px-6 py-3 rounded-xl bg-white text-black font-bold uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.2)] flex items-center gap-2 btn-hover-effect">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Create Coupon
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scroll pb-4">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
+                                    <th class="pb-4 pl-4">Code</th>
+                                    <th class="pb-4">Name</th>
+                                    <th class="pb-4">Discount</th>
+                                    <th class="pb-4">Usage</th>
+                                    <th class="pb-4">Validity</th>
+                                    <th class="pb-4 pr-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminCouponsTableBody" class="text-sm font-medium text-gray-300">
+                                <tr>
+                                    <td colspan="6" class="py-12 text-center text-gray-500 italic">Loading coupons...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div id="view-settings" class="view-section hidden flex-col gap-8 max-w-4xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="user-circle" class="h-7 w-7 text-myancode-accent"></i> <span data-i18n="profPublic">Public Profile</span></h3>
@@ -295,16 +334,70 @@
         </div>
     </main>
 
-    <div id="updateOrderModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
-        <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="updateOrderModalContent">
-            <h3 class="text-2xl font-bold font-display tracking-tight text-white mb-6" data-i18n="updateStatusTitle">Update Order Status</h3>
+    <div id="createCouponModal" class="fixed inset-0 z-[100000] bg-black/20 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-lg shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden custom-scroll overflow-y-auto max-h-[90vh]" id="createCouponModalContent">
+            <div class="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            
+            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center">Create Coupon</h3>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Coupon Name</label>
+                    <input type="text" id="newCouponName" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner" placeholder="e.g. New Year Sale">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Coupon Code</label>
+                    <input type="text" id="newCouponCode" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner uppercase" placeholder="e.g. NEWYEAR2024">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Start Date</label>
+                        <input type="datetime-local" id="newCouponStart" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">End Date</label>
+                        <input type="datetime-local" id="newCouponEnd" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Discount Type</label>
+                        <select id="newCouponType" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors cursor-pointer appearance-none shadow-inner">
+                            <option value="percent">Percentage (%)</option>
+                            <option value="fixed">Fixed Amount</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Discount Value</label>
+                        <input type="number" id="newCouponValue" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner" min="0">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Usage Limit (Optional)</label>
+                    <input type="number" id="newCouponLimit" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner" placeholder="Leave empty for unlimited">
+                </div>
+            </div>
+
+            <div class="flex space-x-3 w-full mt-8">
+                <button onclick="closeCreateCouponModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
+                <button onclick="submitCreateCoupon()" id="btnSubmitCreateCoupon" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all bg-white hover:bg-gray-200">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="updateOrderModal" class="fixed inset-0 z-[100000] bg-black/20 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="updateOrderModalContent">
+            <div class="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            
+            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center" data-i18n="updateStatusTitle">Update Order Status</h3>
             
             <input type="hidden" id="updOrderId">
+            <input type="hidden" id="updOrderUserId">
             
-            <div class="space-y-6">
+            <div class="space-y-5">
                 <div>
-                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="lblStatus">Status</label>
-                    <select id="updOrderStatus" onchange="toggleMonthsInput()" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent cursor-pointer">
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblStatus">Status</label>
+                    <select id="updOrderStatus" onchange="toggleMonthsInput()" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors cursor-pointer appearance-none shadow-inner">
                         <option value="Pending" data-i18n="filterPending">Pending</option>
                         <option value="Confirmed" data-i18n="filterConfirmed">Confirmed</option>
                         <option value="Expired" data-i18n="filterExpired">Expired</option>
@@ -312,15 +405,14 @@
                     </select>
                 </div>
                 <div id="updMonthsContainer" class="hidden">
-                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="lblMonths">Active Duration (Months)</label>
-                    <input type="number" id="updOrderMonths" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent" min="1" max="24">
-                    <p class="text-[11px] text-gray-500 mt-2" data-i18n="lblMonthsDesc">Required for confirmed orders to calculate expiry date.</p>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblMonths">Active Duration (Months)</label>
+                    <input type="number" id="updOrderMonths" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner" min="1" max="24">
                 </div>
             </div>
 
-            <div class="flex space-x-4 w-full mt-8">
-                <button onclick="closeUpdateOrderModal()" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors" data-i18n="cropCancel">Cancel</button>
-                <button onclick="submitOrderUpdate()" id="btnSubmitOrderUpdate" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-black shadow-md transition-colors bg-white hover:bg-gray-200 btn-hover-effect" data-i18n="btnSave">Save Changes</button>
+            <div class="flex space-x-3 w-full mt-8">
+                <button onclick="closeUpdateOrderModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
+                <button onclick="submitOrderUpdate()" id="btnSubmitOrderUpdate" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all bg-white hover:bg-gray-200">Save</button>
             </div>
         </div>
     </div>
@@ -410,7 +502,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabOrders: "Plan Orders", tabSettings: "System Settings",
+                menuMain: "Main Menu", tabOverview: "Overview", tabOrders: "Plan Orders", tabCoupons: "Coupons", tabSettings: "System Settings",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
@@ -424,11 +516,12 @@
                 thOrder: "Order ID", thCustomer: "Customer", thCompany: "Company", thPlanInfo: "Plan Info", thPayment: "Payment", thStatus: "Status", thActions: "Actions",
                 btnUpdate: "Update", loadingOrders: "Loading orders...", noOrders: "No orders found.",
                 updateStatusTitle: "Update Order Status", lblStatus: "Status", lblMonths: "Active Duration (Months)", lblMonthsDesc: "Required for confirmed orders to calculate expiry date.", btnSave: "Save Changes",
-                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo", viewProof: "View Proof"
+                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo", viewProof: "View Proof",
+                couponMgtTitle: "Coupon Management"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabOrders: "အော်ဒါများ", tabSettings: "စနစ် ဆက်တင်များ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabOrders: "အော်ဒါများ", tabCoupons: "ကူပွန်များ", tabSettings: "စနစ် ဆက်တင်များ",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
@@ -442,7 +535,8 @@
                 thOrder: "အော်ဒါ ID", thCustomer: "ဖောက်သည်", thCompany: "ကုမ္ပဏီ", thPlanInfo: "အစီအစဉ်", thPayment: "ငွေပေးချေမှု", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ရန်",
                 btnUpdate: "ပြင်ဆင်မည်", loadingOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noOrders: "အော်ဒါများ မရှိသေးပါ။",
                 updateStatusTitle: "အော်ဒါ အခြေအနေ ပြင်ဆင်ရန်", lblStatus: "အခြေအနေ", lblMonths: "ကာလ (လ)", lblMonthsDesc: "သက်တမ်းကုန်ဆုံးမည့်ရက် တွက်ချက်ရန် လိုအပ်ပါသည်။", btnSave: "သိမ်းဆည်းမည်",
-                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ", viewProof: "ပြေစာကြည့်ရန်"
+                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ", viewProof: "ပြေစာကြည့်ရန်",
+                couponMgtTitle: "ကူပွန် စီမံခန့်ခွဲမှု"
             }
         };
 
@@ -559,7 +653,20 @@
             }
 
             fetchAdminOrders();
+            fetchAdminCoupons();
+            setupRealtimeSubscription();
             hideLoader();
+        }
+
+        function setupRealtimeSubscription() {
+            if (!supabaseInstance) return;
+            
+            supabaseInstance
+                .channel('admin-realtime')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'plan_orders' }, payload => {
+                    fetchAdminOrders(); 
+                })
+                .subscribe();
         }
 
         async function fetchAdminOrders() {
@@ -660,8 +767,70 @@
                     </td>
                     <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
                     <td class="py-4 pr-4 text-right">
-                        <button onclick="openUpdateOrderModal('${order.id}', '${order.status}', ${order.months})" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-xs font-bold text-white">
-                            ${dict[currentLang].btnUpdate}
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="openUpdateOrderModal('${order.id}', '${order.status}', ${order.months}, '${order.user_id}')" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-xs font-bold text-white">
+                                ${dict[currentLang].btnUpdate}
+                            </button>
+                            <button onclick="deleteAdminOrder('${order.id}')" class="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-50 hover:text-white transition-all text-red-500" title="Delete">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        async function fetchAdminCoupons() {
+            if(!supabaseInstance || !currentUser) return;
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('coupons')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if(error) throw error;
+                
+                renderAdminCouponsTable(data || []);
+
+            } catch (err) {
+                console.error("Error fetching admin coupons:", err);
+            }
+        }
+
+        function renderAdminCouponsTable(coupons) {
+            const tbody = document.getElementById('adminCouponsTableBody');
+            
+            if(coupons.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-gray-500 italic">No coupons found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = coupons.map(coupon => {
+                let discountText = coupon.discount_type === 'percent' ? `${coupon.discount_value}%` : `${coupon.discount_value.toLocaleString()} MMK`;
+                let usageText = coupon.usage_limit ? `${coupon.usage_count} / ${coupon.usage_limit}` : `${coupon.usage_count} (Unlimited)`;
+                
+                let validFrom = coupon.start_date ? new Date(coupon.start_date).toLocaleDateString() : '-';
+                let validTo = coupon.end_date ? new Date(coupon.end_date).toLocaleDateString() : '-';
+                let validityText = `${validFrom} to ${validTo}`;
+                
+                const now = new Date();
+                let statusDot = '<div class="w-2 h-2 rounded-full bg-green-500"></div>';
+                if ((coupon.start_date && new Date(coupon.start_date) > now) || (coupon.end_date && new Date(coupon.end_date) < now) || (coupon.usage_limit && coupon.usage_count >= coupon.usage_limit)) {
+                    statusDot = '<div class="w-2 h-2 rounded-full bg-red-500"></div>';
+                }
+
+                return `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <td class="py-4 pl-4 font-mono font-bold text-white flex items-center gap-2">${statusDot} ${coupon.code}</td>
+                    <td class="py-4 text-white font-medium">${coupon.name}</td>
+                    <td class="py-4 text-green-400 font-bold">${discountText}</td>
+                    <td class="py-4 text-gray-400 text-xs">${usageText}</td>
+                    <td class="py-4 text-gray-500 text-xs font-mono">${validityText}</td>
+                    <td class="py-4 pr-4 text-right">
+                        <button onclick="deleteAdminCoupon('${coupon.id}')" class="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-red-500" title="Delete">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </td>
                 </tr>`;
@@ -670,8 +839,103 @@
             lucide.createIcons();
         }
 
-        function openUpdateOrderModal(id, currentStatus, months) {
+        function openCreateCouponModal() {
+            document.getElementById('newCouponName').value = '';
+            document.getElementById('newCouponCode').value = '';
+            document.getElementById('newCouponStart').value = '';
+            document.getElementById('newCouponEnd').value = '';
+            document.getElementById('newCouponType').value = 'percent';
+            document.getElementById('newCouponValue').value = '';
+            document.getElementById('newCouponLimit').value = '';
+
+            const modal = document.getElementById('createCouponModal');
+            const content = document.getElementById('createCouponModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeCreateCouponModal() {
+            const modal = document.getElementById('createCouponModal');
+            const content = document.getElementById('createCouponModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function submitCreateCoupon() {
+            const name = document.getElementById('newCouponName').value.trim();
+            const code = document.getElementById('newCouponCode').value.trim().toUpperCase();
+            const start = document.getElementById('newCouponStart').value;
+            const end = document.getElementById('newCouponEnd').value;
+            const type = document.getElementById('newCouponType').value;
+            const value = document.getElementById('newCouponValue').value;
+            const limit = document.getElementById('newCouponLimit').value;
+
+            if (!name || !code || !value) {
+                showErrorToast("Please fill in name, code, and value.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitCreateCoupon');
+            btn.disabled = true;
+            showLoader();
+
+            try {
+                let insertData = {
+                    name: name,
+                    code: code,
+                    discount_type: type,
+                    discount_value: parseFloat(value),
+                };
+                if (start) insertData.start_date = new Date(start).toISOString();
+                if (end) insertData.end_date = new Date(end).toISOString();
+                if (limit) insertData.usage_limit = parseInt(limit);
+
+                const { error } = await supabaseInstance.from('coupons').insert([insertData]);
+                if (error) throw error;
+                
+                showToast("Coupon created successfully.");
+                closeCreateCouponModal();
+                fetchAdminCoupons();
+            } catch (err) {
+                showErrorToast(err.message || "Failed to create coupon.");
+            } finally {
+                btn.disabled = false;
+                hideLoader();
+            }
+        }
+
+        function deleteAdminCoupon(id) {
+            showConfirmModal(
+                'Delete Coupon',
+                'Are you sure you want to permanently delete this coupon?',
+                'danger',
+                async () => {
+                    showLoader();
+                    try {
+                        const { error } = await supabaseInstance.from('coupons').delete().eq('id', id);
+                        if (error) throw error;
+                        
+                        showToast('Coupon deleted successfully');
+                        fetchAdminCoupons();
+                    } catch (err) {
+                        showErrorToast(err.message || 'Failed to delete coupon');
+                    } finally {
+                        hideLoader();
+                    }
+                }
+            );
+        }
+
+        function openUpdateOrderModal(id, currentStatus, months, userId) {
             document.getElementById('updOrderId').value = id;
+            document.getElementById('updOrderUserId').value = userId;
             document.getElementById('updOrderStatus').value = currentStatus;
             document.getElementById('updOrderMonths').value = months;
             toggleMonthsInput();
@@ -708,6 +972,7 @@
 
         async function submitOrderUpdate() {
             const id = document.getElementById('updOrderId').value;
+            const userId = document.getElementById('updOrderUserId').value;
             const status = document.getElementById('updOrderStatus').value;
             const months = parseInt(document.getElementById('updOrderMonths').value) || 1;
             
@@ -719,6 +984,12 @@
                 let updateData = { status: status, updated_at: new Date().toISOString() };
                 
                 if (status === 'Confirmed') {
+                    await supabaseInstance.from('plan_orders')
+                        .update({ status: 'Expired', updated_at: new Date().toISOString() })
+                        .eq('user_id', userId)
+                        .eq('status', 'Confirmed')
+                        .neq('id', id);
+                        
                     updateData.confirmed_at = new Date().toISOString();
                     updateData.months = months;
                     const expDate = new Date();
@@ -738,6 +1009,33 @@
                 btn.disabled = false;
                 hideLoader();
             }
+        }
+        
+        function deleteAdminOrder(id) {
+            showConfirmModal(
+                currentLang === 'en' ? 'Delete Order' : 'အော်ဒါဖျက်ရန်',
+                currentLang === 'en' ? 'Are you sure you want to permanently delete this order? This action cannot be undone.' : 'ဤအော်ဒါကို အပြီးအပိုင်ဖျက်ရန် သေချာပါသလား?',
+                'danger',
+                async () => {
+                    showLoader();
+                    try {
+                        const { data, error } = await supabaseInstance.from('plan_orders').delete().eq('id', id).select();
+                        if (error) throw error;
+                        
+                        if (!data || data.length === 0) {
+                            throw new Error("Deletion blocked by Database RLS Policy. Please apply the provided SQL snippet in Supabase.");
+                        }
+
+                        showToast(currentLang === 'en' ? 'Order deleted successfully' : 'အော်ဒါဖျက်သိမ်းပြီးပါပြီ');
+                        adminOrders = adminOrders.filter(order => order.id !== id);
+                        filterAdminOrders();
+                    } catch (err) {
+                        showErrorToast(err.message || 'Failed to delete order');
+                    } finally {
+                        hideLoader();
+                    }
+                }
+            );
         }
 
         function openImagePreview(url) {
@@ -922,8 +1220,8 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'orders': 'Order Management', 'settings': 'System Settings' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'settings': 'စနစ် ဆက်တင်များ' };
+            const titleMap = { 'overview': 'Overview', 'orders': 'Order Management', 'coupons': 'Coupon Management', 'settings': 'System Settings' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'settings': 'စနစ် ဆက်တင်များ' };
             const titleStr = currentLang === 'en' ? (titleMap[tabId] || 'Dashboard') : (titleMapMM[tabId] || 'Dashboard');
             document.getElementById('headerTitle').innerText = titleStr;
             
@@ -1115,12 +1413,14 @@
                 const cropperModal = document.getElementById('cropperModal');
                 const confirmModal = document.getElementById('confirmModal');
                 const updateOrderModal = document.getElementById('updateOrderModal');
+                const createCouponModal = document.getElementById('createCouponModal');
                 const imgModal = document.getElementById('imagePreviewModal');
                 
                 if (e.key === 'Escape') {
                     if (!cropperModal.classList.contains('hidden')) cancelCrop();
                     if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
                     if (!updateOrderModal.classList.contains('hidden')) closeUpdateOrderModal();
+                    if (!createCouponModal.classList.contains('hidden')) closeCreateCouponModal();
                     if (!imgModal.classList.contains('hidden')) closeImagePreview();
                 }
             });
