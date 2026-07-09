@@ -90,7 +90,7 @@
         .user-avatar-global { transition: all 0.3s ease; }
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
 
-        .editor-content { min-height: 100px; outline: none; padding: 16px; font-size: 15px; line-height: 1.6; }
+        .editor-content { min-height: 80px; outline: none; padding: 6px 0; font-size: 16px; line-height: 1.5; }
         .editor-content:empty:before { content: attr(data-placeholder); color: #52525b; pointer-events: none; display: block; }
         .editor-content ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
         .editor-content a { color: #2997ff; text-decoration: underline; }
@@ -135,6 +135,9 @@
         .ambient-glow { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; opacity: 0.4; }
         .glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(41, 151, 255, 0.15); }
         .glow-2 { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(88, 86, 214, 0.15); }
+        
+        #mobileActionBar { top: 64px; }
+        @media (min-width: 640px) { #mobileActionBar { top: 80px; } }
     </style>
 </head>
 
@@ -239,6 +242,22 @@
             </div>
         </div>
     </nav>
+
+    <div id="mobileActionBar" class="block lg:hidden fixed left-0 right-0 z-[45] bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 py-3 px-4 transition-transform duration-300">
+        <div class="flex items-center gap-3 max-w-full mx-auto relative">
+            <div class="flex-1 glass-panel rounded-full p-1.5 relative flex items-center focus-within:border-white/30 transition-colors h-[42px]">
+                <i data-lucide="search" class="w-4 h-4 text-gray-400 ml-3"></i>
+                <input type="text" id="mobileSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-sm text-white px-3 focus:outline-none placeholder-gray-500 h-full" placeholder="Search posts, tags...">
+            </div>
+            <button onclick="scrollToComposer()" class="flex-shrink-0 w-[42px] h-[42px] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors shadow-sm">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+            </button>
+            <button onclick="toggleBottomDrawer()" class="flex-shrink-0 w-[42px] h-[42px] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors shadow-sm">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div id="mobileSearchSuggestions" class="absolute top-full left-0 right-0 mt-2 mx-4 bg-[#111] border border-white/10 rounded-2xl shadow-xl hidden max-h-64 overflow-y-auto no-scrollbar"></div>
+    </div>
 
     <div id="searchOverlay" class="fixed inset-0 z-[100] bg-[#0a0a0a]/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
         <div class="layout-width pt-10">
@@ -354,6 +373,53 @@
         </div>
     </div>
 
+    <div id="bottomDrawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity" onclick="toggleBottomDrawer()"></div>
+    <div id="bottomDrawer" class="fixed bottom-0 left-0 right-0 bg-[#0a0a0a] z-[90] rounded-t-3xl border-t border-white/10 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[85vh]">
+        <div class="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing" id="drawerDragHandle">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+        </div>
+        <div class="overflow-y-auto p-6 pt-2 space-y-8 no-scrollbar flex-1">
+            
+            <div>
+                <nav class="space-y-1.5 border border-white/10 p-2 rounded-3xl bg-[#111]">
+                    <button onclick="filterFeed('all'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 bg-white/10 text-white rounded-2xl text-sm font-medium transition-colors mob-mp-nav-btn" id="mob-nav-all">
+                        <i data-lucide="layout-grid" class="w-5 h-5"></i> <span data-i18n="mpFeed">Live Feed</span>
+                    </button>
+                    <button onclick="filterFeed('saved'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-2xl text-sm font-medium transition-colors mob-mp-nav-btn" id="mob-nav-saved">
+                        <i data-lucide="bookmark" class="w-5 h-5"></i> <span data-i18n="mpSaved">Saved Posts</span>
+                    </button>
+                    <button onclick="filterFeed('mine'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-2xl text-sm font-medium transition-colors mob-mp-nav-btn" id="mob-nav-mine">
+                        <i data-lucide="user" class="w-5 h-5"></i> <span data-i18n="mpMyPosts">My Posts</span>
+                    </button>
+                    <div class="h-px bg-white/10 my-2 mx-4"></div>
+                    <button onclick="filterFeed('snippets'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-2xl text-sm font-medium transition-colors mob-mp-nav-btn" id="mob-nav-snippets">
+                        <i data-lucide="code" class="w-5 h-5"></i> <span data-i18n="mpSnippets">Code Snippets</span>
+                    </button>
+                    <button onclick="filterFeed('qa'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-2xl text-sm font-medium transition-colors mob-mp-nav-btn" id="mob-nav-qa">
+                        <i data-lucide="help-circle" class="w-5 h-5"></i> <span data-i18n="mpQA">Q&A / Help</span>
+                    </button>
+                    <div class="h-px bg-white/10 my-2 mx-4"></div>
+                    <a href="./rules/" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-2xl text-sm font-medium transition-colors">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i> <span data-i18n="mpRules">Community Rules</span>
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="pt-6 border-t border-white/10">
+                <h3 class="text-[10px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-4">Trending Tags</h3>
+                <div class="flex flex-wrap gap-2" id="mobTrendingTagsContainer"></div>
+            </div>
+            <div>
+                <h3 class="text-[10px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-4" data-i18n="mpTopUsers">Top Engagement</h3>
+                <div class="space-y-4" id="mobTopEngagementContainer"></div>
+            </div>
+            <div>
+                <h3 class="text-[10px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-4">Hot Discussions</h3>
+                <div class="space-y-4" id="mobHotDiscussionsContainer"></div>
+            </div>
+        </div>
+    </div>
+
     <main class="flex-grow pt-24 sm:pt-28 pb-24 w-full relative z-10 text-white min-h-screen">
         <div class="layout-width relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
             
@@ -395,47 +461,44 @@
             </div>
 
             <div class="col-span-1 lg:col-span-6 space-y-6">
+                <!-- Spacer for mobile to prevent composer overlapping with action bar -->
+                <div class="block lg:hidden h-[60px] sm:h-[70px]"></div>
+
                 <div class="glass-panel rounded-3xl shadow-xl overflow-hidden relative transition-all duration-300 hover:border-white/20" id="composerContainer">
                     <div id="composerOverlay" class="absolute inset-0 bg-black/40 backdrop-blur-md z-20 flex flex-col items-center justify-center hidden rounded-3xl">
                         <i data-lucide="lock" class="w-8 h-8 text-white mb-3"></i>
                         <h4 class="font-medium text-lg mb-4 text-white" data-i18n="mpLoginToPost">Join the Community</h4>
                         <a href="../login/" class="bg-white text-black px-6 py-2.5 rounded-full text-sm font-semibold btn-hover-effect" data-i18n="hdrLogin">Login to Post</a>
                     </div>
-                    <div class="p-4 sm:p-5 border-b border-white/10 flex items-start gap-3 sm:gap-4">
-                        <div id="composerAvatar" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex-shrink-0 overflow-hidden flex items-center justify-center shadow-inner">
+                    <div class="p-5 sm:p-6 border-b border-white/10 flex items-start gap-4">
+                        <div id="composerAvatar" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/5 border border-white/10 flex-shrink-0 overflow-hidden flex items-center justify-center shadow-inner mt-0.5">
                             <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div id="postEditor" class="editor-content w-full bg-transparent resize-none text-white focus:outline-none placeholder-gray-500 text-lg" contenteditable="true" data-placeholder="Share an update, snippet, or ask a question..."></div>
-                            <div id="imagePreviewContainer" class="flex flex-wrap gap-3 mt-3 hidden px-4 pb-2"></div>
+                            <div id="postEditor" class="editor-content w-full bg-transparent resize-none text-white focus:outline-none placeholder-gray-500 text-base sm:text-lg" contenteditable="true" data-placeholder="Share an update, snippet, or ask a question..."></div>
+                            <div id="imagePreviewContainer" class="flex flex-wrap gap-3 mt-3 hidden px-2 pb-2"></div>
                         </div>
                     </div>
-                    <div class="p-3 bg-white/[0.02] flex items-center justify-between">
-                        <div class="flex items-center gap-1 sm:gap-2 text-gray-400 overflow-x-auto no-scrollbar">
-                            <button onclick="formatDoc('bold')" class="p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors tooltip flex-shrink-0" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
-                            <button onclick="formatDoc('italic')" class="p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors tooltip flex-shrink-0" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
-                            <button onclick="formatDoc('insertUnorderedList')" class="p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors tooltip flex-shrink-0" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
-                            <button onclick="addLink()" class="p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors tooltip flex-shrink-0" title="Add Link"><i data-lucide="link" class="w-4 h-4"></i></button>
-                            <div class="w-px h-5 bg-white/10 mx-1 flex-shrink-0"></div>
-                            <label class="p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors cursor-pointer flex items-center gap-2 relative flex-shrink-0">
-                                <i data-lucide="image" class="w-4 h-4"></i>
+                    <div class="px-4 py-3 sm:p-4 bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-1 sm:gap-2 text-gray-400 overflow-x-auto no-scrollbar w-full sm:w-auto">
+                            <button onclick="formatDoc('bold')" class="p-2.5 sm:p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors tooltip flex-shrink-0" title="Bold"><i data-lucide="bold" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+                            <button onclick="formatDoc('italic')" class="p-2.5 sm:p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors tooltip flex-shrink-0" title="Italic"><i data-lucide="italic" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+                            <button onclick="formatDoc('insertUnorderedList')" class="p-2.5 sm:p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors tooltip flex-shrink-0" title="Bullet List"><i data-lucide="list" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+                            <button onclick="addLink()" class="p-2.5 sm:p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors tooltip flex-shrink-0" title="Add Link"><i data-lucide="link" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+                            <div class="w-px h-5 bg-white/10 mx-1 flex-shrink-0 hidden sm:block"></div>
+                            <label class="p-2.5 sm:p-2 hover:bg-white/10 hover:text-white rounded-xl transition-colors cursor-pointer flex items-center gap-2 relative flex-shrink-0">
+                                <i data-lucide="image" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                                 <span class="text-xs font-medium hidden sm:inline" id="imageCountText">0/5</span>
                                 <input type="file" id="imageUploadInput" multiple accept="image/*" class="hidden" onchange="handleImageSelection(event)">
                             </label>
                         </div>
-                        <button id="btnPublishPost" onclick="publishPost()" class="bg-white text-black px-5 sm:px-6 py-2 rounded-full text-sm font-semibold hover:bg-gray-200 transition-colors btn-hover-effect flex items-center gap-2 disabled:opacity-50 flex-shrink-0">
-                            <span class="hidden sm:inline" data-i18n="mpPostBtn">Post</span>
-                            <span class="sm:hidden">Post</span>
-                        </button>
+                        <div class="flex items-center justify-between w-full sm:w-auto gap-4 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/5 sm:border-transparent">
+                            <div class="text-[11px] sm:text-[12px] font-medium text-gray-500 whitespace-nowrap" id="textStatsMobile">0/3000 words • 0/18000 chars</div>
+                            <button id="btnPublishPost" onclick="publishPost()" class="bg-white text-black px-6 py-2 sm:py-2.5 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors btn-hover-effect disabled:opacity-50 flex-shrink-0 shadow-lg">
+                                <span data-i18n="mpPostBtn">Post</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-
-                <div class="block lg:hidden relative w-full mb-6 z-30">
-                    <div class="glass-panel rounded-full p-1.5 relative flex items-center focus-within:border-white/30 transition-colors">
-                        <i data-lucide="search" class="w-4 h-4 text-gray-400 ml-3"></i>
-                        <input type="text" id="mobileSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-sm text-white px-3 py-1.5 focus:outline-none placeholder-gray-500" placeholder="Search posts, tags, users...">
-                    </div>
-                    <div id="mobileSearchSuggestions" class="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-white/10 rounded-2xl shadow-xl hidden max-h-64 overflow-y-auto no-scrollbar"></div>
                 </div>
 
                 <div id="feedContainer" class="space-y-6">
@@ -453,8 +516,8 @@
                     </div>
                     
                     <div class="glass-panel rounded-3xl p-5 shadow-lg">
-                        <h3 class="text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-4" data-i18n="mpTopUsers">Top Contributors</h3>
-                        <div class="space-y-4" id="topContributorsContainer">
+                        <h3 class="text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-4" data-i18n="mpTopUsers">Top Engagement</h3>
+                        <div class="space-y-4" id="topEngagementContainer">
                             <div class="w-full space-y-4">
                                 <div class="flex gap-3 items-center">
                                     <div class="w-8 h-8 rounded-full skeleton"></div>
@@ -726,7 +789,7 @@
                 ftFollow: "Follow Us", ftCopyright: "© 2026 MyanCode Inc. All rights reserved.",
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrLogout: "Sign Out",
                 msgLoggedOut: "Signed out securely.", loadingInit: "Loading...", msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
-                mpMenu: "Community Hub", mpFeed: "Live Feed", mpSaved: "Saved Posts", mpMyPosts: "My Posts", mpRules: "Community Rules", mpTrending: "Trending Tags", mpLoginToPost: "Join the Community", mpPostBtn: "Post", mpPlaceholder: "Share an update, snippet, or ask a question...", mpTopUsers: "Top Contributors", searchMpPlaceholder: "Search posts, tags...", mpSnippets: "Code Snippets", mpQA: "Q&A / Help", mpHotDiscussions: "Hot Discussions"
+                mpMenu: "Community Hub", mpFeed: "Live Feed", mpSaved: "Saved Posts", mpMyPosts: "My Posts", mpRules: "Community Rules", mpTrending: "Trending Tags", mpLoginToPost: "Join the Community", mpPostBtn: "Post", mpPlaceholder: "Share an update, snippet, or ask a question...", mpTopUsers: "Top Engagement", searchMpPlaceholder: "Search posts, tags...", mpSnippets: "Code Snippets", mpQA: "Q&A / Help", mpHotDiscussions: "Hot Discussions"
             },
             mm: {
                 navAbout: "ကျွန်ုပ်တို့အကြောင်း", navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ", navMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
@@ -768,6 +831,8 @@
         
         let searchDebounceTimer;
         let searchTimeout;
+        let hasInitialShuffled = false;
+        let postOrderMap = new Map();
 
         async function initCommunity() {
             renderInitialSkeletons();
@@ -813,6 +878,70 @@
             const urlParams = new URLSearchParams(window.location.search);
             const sharedPostId = urlParams.get('post');
             if (sharedPostId) setTimeout(() => openPostDetail(sharedPostId), 500);
+            
+            setupBottomDrawerDrag();
+            setupPostEditorLimits();
+        }
+
+        function setupPostEditorLimits() {
+            const editor = document.getElementById('postEditor');
+            if(editor) {
+                editor.addEventListener('input', function() {
+                    const text = this.innerText || '';
+                    const letters = text.length;
+                    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+                    const statsMobile = document.getElementById('textStatsMobile');
+                    const btn = document.getElementById('btnPublishPost');
+                    
+                    if(statsMobile) statsMobile.innerText = `${words}/3000 words • ${letters}/18000 chars`;
+                    
+                    if (words > 3000 || letters > 18000) {
+                        if(statsMobile) { statsMobile.classList.add('text-red-500'); statsMobile.classList.remove('text-gray-500'); }
+                        if(btn) btn.disabled = true;
+                    } else {
+                        if(statsMobile) { statsMobile.classList.remove('text-red-500'); statsMobile.classList.add('text-gray-500'); }
+                        if(btn) btn.disabled = false;
+                    }
+                });
+            }
+        }
+
+        function setupBottomDrawerDrag() {
+            let drawerStartY = 0; let currentDrawerY = 0;
+            const bDrawer = document.getElementById('bottomDrawer');
+            const dHandle = document.getElementById('drawerDragHandle');
+            if(dHandle && bDrawer) {
+                dHandle.addEventListener('touchstart', e => { drawerStartY = e.touches[0].clientY; bDrawer.style.transition = 'none'; });
+                dHandle.addEventListener('touchmove', e => {
+                    const deltaY = e.touches[0].clientY - drawerStartY;
+                    if (deltaY > 0) { currentDrawerY = deltaY; bDrawer.style.transform = `translateY(${deltaY}px)`; }
+                });
+                dHandle.addEventListener('touchend', e => {
+                    bDrawer.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                    if (currentDrawerY > 100) { 
+                        toggleBottomDrawer(); 
+                    } else { 
+                        bDrawer.style.transform = 'translateY(0)'; 
+                    }
+                    currentDrawerY = 0;
+                });
+            }
+        }
+        
+        function toggleBottomDrawer() {
+            const drawer = document.getElementById('bottomDrawer'); const overlay = document.getElementById('bottomDrawerOverlay');
+            const isOpen = !drawer.classList.contains('translate-y-full') && drawer.style.transform !== '';
+            
+            if (isOpen || !drawer.classList.contains('translate-y-full')) {
+                drawer.classList.add('translate-y-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => { overlay.classList.add('hidden'); document.body.classList.remove('no-scroll'); }, 300);
+                drawer.style.transform = ''; 
+            } else {
+                overlay.classList.remove('hidden');
+                document.body.classList.add('no-scroll');
+                setTimeout(() => { overlay.classList.remove('opacity-0'); drawer.classList.remove('translate-y-full'); }, 10);
+            }
         }
 
         function renderLanguage() {
@@ -1045,6 +1174,14 @@
             toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
         }
 
+        function scrollToComposer() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                const editor = document.getElementById('postEditor');
+                if (editor) editor.focus();
+            }, 400);
+        }
+
         function showErrorToast(msg) { 
             const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; 
             toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
@@ -1069,7 +1206,22 @@
             }
         }
 
-        window.addEventListener('scroll', () => { const scrollThreshold = 50; const isScrolled = window.scrollY > scrollThreshold; updateHeaderTheme('dark', isScrolled); });
+        window.addEventListener('scroll', () => { 
+            const scrollThreshold = 50; 
+            const currentScrollY = window.scrollY;
+            const isScrolled = currentScrollY > scrollThreshold; 
+            updateHeaderTheme('dark', isScrolled); 
+            
+            const mobileActionBar = document.getElementById('mobileActionBar');
+            if (mobileActionBar) {
+                if (currentScrollY > window.lastScrollY && currentScrollY > 150) {
+                    mobileActionBar.classList.add('-translate-y-[150%]');
+                } else {
+                    mobileActionBar.classList.remove('-translate-y-[150%]');
+                }
+            }
+            window.lastScrollY = currentScrollY;
+        });
 
         function toggleSearchOverlay() {
             const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
@@ -1290,9 +1442,18 @@
             try {
                 let query = supabaseInstance.from('marketplace_posts').select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`);
                 const { data, error } = await query; if (error) return;
-                const searchVal = document.getElementById('localSearchInput') ? document.getElementById('localSearchInput').value.trim() : '';
-                if (currentFilter === 'all' && searchVal === '') allCommunityPosts = shuffleArray(data || []); else allCommunityPosts = (data || []).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                extractTrendingTags(allCommunityPosts); extractTopContributors(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
+                let fetchedData = data || [];
+                allCommunityPosts = fetchedData.sort((a, b) => {
+                    const idxA = postOrderMap.has(a.id) ? postOrderMap.get(a.id) : -1;
+                    const idxB = postOrderMap.has(b.id) ? postOrderMap.get(b.id) : -1;
+                    if (idxA === -1 && idxB === -1) return new Date(b.created_at) - new Date(a.created_at);
+                    if (idxA === -1) return -1;
+                    if (idxB === -1) return 1;
+                    return idxA - idxB;
+                });
+                allCommunityPosts.forEach((p, i) => postOrderMap.set(p.id, i));
+                
+                extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
                 const activeElement = document.activeElement; const isTypingComment = activeElement && activeElement.tagName === 'INPUT' && activeElement.id.startsWith('comment-input');
                 if (!isTypingComment) applyFiltersAndRenderVisible();
             } catch (err) { }
@@ -1452,12 +1613,36 @@
             } return uploadedUrls;
         }
 
-        function extractHashtags(htmlStr) { const div = document.createElement('div'); div.innerHTML = htmlStr; const txt = div.textContent || div.innerText || ""; const m = txt.match(/#[\w]+/g); return m ? m.map(x => x.trim()) : []; }
+        function extractHashtags(htmlStr) { 
+            const div = document.createElement('div'); 
+            div.innerHTML = htmlStr; 
+            const txt = div.textContent || div.innerText || ""; 
+            const m = txt.match(/#[\w]+/g); 
+            if (!m) return [];
+            
+            const uniqueTags = [];
+            const seen = new Set();
+            m.forEach(x => {
+                const tag = x.trim();
+                const lower = tag.toLowerCase();
+                if (!seen.has(lower)) {
+                    seen.add(lower);
+                    uniqueTags.push(tag);
+                }
+            });
+            return uniqueTags;
+        }
 
         async function publishPost() {
             if (!currentUser || !supabaseInstance) return;
             const editor = document.getElementById('postEditor'); let raw = editor.innerHTML.trim();
+            const textContent = editor.innerText || '';
+            const letters = textContent.length;
+            const words = textContent.trim().split(/\s+/).filter(w => w.length > 0).length;
+            
+            if (words > 3000 || letters > 18000) { showErrorToast("Post exceeds word or letter limits."); return; }
             if (raw === '' || raw === '<br>') { showErrorToast("Post cannot be empty."); return; }
+            
             const confirmed = await customConfirm("Publish this post to the community?", "Publish Post"); if (!confirmed) return;
             let safeContent = window.DOMPurify ? DOMPurify.sanitize(raw, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span'], ALLOWED_ATTR: ['href', 'target', 'rel'] }) : raw;
             const btn = document.getElementById('btnPublishPost'); btn.disabled = true; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 spinner"></i>`; if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -1465,7 +1650,9 @@
                 const imageUrls = await uploadImagesToGitHub();
                 const postData = { user_id: currentUser.id, author_name: currentUser.name, author_avatar: currentUser.avatar_url, author_role: currentUser.role, content: safeContent, images: imageUrls, hashtags: extractHashtags(safeContent) };
                 const { error } = await supabaseInstance.from('marketplace_posts').insert([postData]); if (error) throw new Error();
-                editor.innerHTML = ''; selectedImages = []; updateImagePreview(); showToast("Published successfully!"); await fetchPosts();
+                editor.innerHTML = ''; selectedImages = []; updateImagePreview(); showToast("Published successfully!");
+                document.getElementById('textStatsMobile').innerText = `0/3000 words • 0/18000 chars`;
+                await fetchPosts();
             } catch (err) { showErrorToast("Failed to publish post."); }
             finally { btn.disabled = false; btn.innerHTML = `<span class="hidden sm:inline" data-i18n="mpPostBtn">Post</span><span class="sm:hidden">Post</span>`; if (typeof lucide !== 'undefined') lucide.createIcons(); }
         }
@@ -1475,56 +1662,132 @@
             try {
                 let query = supabaseInstance.from('marketplace_posts').select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`);
                 const { data, error } = await query; if (error) throw error;
-                if (currentFilter === 'all' && (!document.getElementById('localSearchInput') || document.getElementById('localSearchInput').value.trim() === '')) {
-                   allCommunityPosts = shuffleArray(data || []);
+                let fetchedData = data || [];
+                
+                if (!hasInitialShuffled) {
+                    allCommunityPosts = shuffleArray(fetchedData);
+                    allCommunityPosts.forEach((p, i) => postOrderMap.set(p.id, i));
+                    hasInitialShuffled = true;
                 } else {
-                   allCommunityPosts = (data || []).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                    allCommunityPosts = fetchedData.sort((a, b) => {
+                        const idxA = postOrderMap.has(a.id) ? postOrderMap.get(a.id) : -1;
+                        const idxB = postOrderMap.has(b.id) ? postOrderMap.get(b.id) : -1;
+                        if (idxA === -1 && idxB === -1) return new Date(b.created_at) - new Date(a.created_at);
+                        if (idxA === -1) return -1;
+                        if (idxB === -1) return 1;
+                        return idxA - idxB;
+                    });
+                    allCommunityPosts.forEach((p, i) => postOrderMap.set(p.id, i));
                 }
-                extractTrendingTags(allCommunityPosts); extractTopContributors(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
+
+                extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
                 const searchVal = document.getElementById('localSearchInput') ? document.getElementById('localSearchInput').value : '';
                 renderFeed(searchVal);
             } catch (err) { document.getElementById('feedContainer').innerHTML = `<p class="text-red-400 text-center py-10">Failed to load marketplace data.</p>`; }
         }
 
         function extractTrendingTags(posts) {
-            const tagCounts = {}; posts.forEach(p => { if (p.hashtags && Array.isArray(p.hashtags)) p.hashtags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }); });
-            const sortedTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]).slice(0, 10); const container = document.getElementById('trendingTagsContainer');
-            if (sortedTags.length === 0) container.innerHTML = `<span class="text-xs text-gray-500 italic">No trending tags.</span>`;
-            else container.innerHTML = sortedTags.map(tag => `<span class="tag-pill cursor-pointer" onclick="searchByTag('${tag}')">${tag}</span>`).join('');
+            const tagCounts = {}; 
+            const tagDisplayNames = {};
+            
+            posts.forEach(p => { 
+                if (p.hashtags && Array.isArray(p.hashtags)) {
+                    const seenInPost = new Set();
+                    p.hashtags.forEach(tag => { 
+                        const lowerTag = tag.toLowerCase();
+                        if (!seenInPost.has(lowerTag)) {
+                            seenInPost.add(lowerTag);
+                            tagCounts[lowerTag] = (tagCounts[lowerTag] || 0) + 1;
+                            if (!tagDisplayNames[lowerTag]) tagDisplayNames[lowerTag] = tag;
+                        }
+                    });
+                } 
+            });
+            const sortedTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]).slice(0, 10); 
+            const container = document.getElementById('trendingTagsContainer');
+            const mobContainer = document.getElementById('mobTrendingTagsContainer');
+            
+            const html = sortedTags.map(lowerTag => {
+                const displayTag = tagDisplayNames[lowerTag];
+                return `<span class="tag-pill cursor-pointer" onclick="searchByTag('${displayTag}')">${displayTag}</span>`;
+            }).join('');
+            
+            if (container) {
+                if (sortedTags.length === 0) container.innerHTML = `<span class="text-xs text-gray-500 italic">No trending tags.</span>`; else container.innerHTML = html;
+            }
+            if (mobContainer) {
+                if (sortedTags.length === 0) mobContainer.innerHTML = `<span class="text-xs text-gray-500 italic">No trending tags.</span>`; else mobContainer.innerHTML = html;
+            }
         }
 
-        function extractTopContributors(posts) {
-            const userCounts = {}; posts.forEach(p => { if (!userCounts[p.user_id]) userCounts[p.user_id] = { count: 0, name: p.author_name, avatar: p.author_avatar, role: p.author_role }; userCounts[p.user_id].count++; });
-            const sortedUsers = Object.values(userCounts).sort((a, b) => b.count - a.count).slice(0, 5); const container = document.getElementById('topContributorsContainer');
-            if (sortedUsers.length === 0) { container.innerHTML = `<span class="text-xs text-gray-500 italic">No contributors yet.</span>`; return; }
-            container.innerHTML = sortedUsers.map(u => {
-                const avatar = u.avatar ? `<img src="${u.avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1.5 text-gray-500"></i>`;
-                return `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">${avatar}</div><div><h4 class="text-sm font-semibold text-white leading-tight flex items-center">${u.name} ${getRoleBadge(u.role)}</h4><p class="text-xs text-gray-400">${u.role.charAt(0).toUpperCase() + u.role.slice(1)} • ${u.count} posts</p></div></div>`;
-            }).join(''); if (typeof lucide !== 'undefined') lucide.createIcons();
+        function extractTopEngagement(posts) {
+            const sorted = [...posts].sort((a, b) => {
+                const engA = (a.marketplace_likes?.length || 0) + (a.marketplace_comments?.[0]?.count || 0);
+                const engB = (b.marketplace_likes?.length || 0) + (b.marketplace_comments?.[0]?.count || 0);
+                return engB - engA;
+            }).slice(0, 5);
+            
+            const container = document.getElementById('topEngagementContainer');
+            const mobContainer = document.getElementById('mobTopEngagementContainer');
+            
+            const html = sorted.map(p => {
+                const engCount = (p.marketplace_likes?.length || 0) + (p.marketplace_comments?.[0]?.count || 0);
+                const avatar = p.author_avatar ? `<img src="${p.author_avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1.5 text-gray-500"></i>`;
+                let safeContent = window.DOMPurify ? DOMPurify.sanitize(p.content, { ALLOWED_TAGS: [] }) : p.content.replace(/<[^>]*>?/gm, '');
+                let title = safeContent.length > 40 ? safeContent.substring(0, 40) + '...' : safeContent;
+
+                return `<div class="flex items-center gap-3 cursor-pointer group" onclick="openPostDetail('${p.id}'); if(window.innerWidth < 1024) toggleBottomDrawer();">
+                    <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">${avatar}</div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-sm font-semibold text-white group-hover:text-myancode-accent transition-colors truncate">${title}</h4>
+                        <p class="text-[11px] text-gray-400">${p.author_name} • ${engCount} engagements</p>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            if (container) {
+                if (sorted.length === 0) container.innerHTML = `<span class="text-xs text-gray-500 italic">No engagement yet.</span>`; else container.innerHTML = html;
+            }
+            if (mobContainer) {
+                if (sorted.length === 0) mobContainer.innerHTML = `<span class="text-xs text-gray-500 italic">No engagement yet.</span>`; else mobContainer.innerHTML = html;
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function extractHotDiscussions(posts) {
             const sorted = [...posts].sort((a, b) => (b.marketplace_comments?.[0]?.count || 0) - (a.marketplace_comments?.[0]?.count || 0)).filter(p => p.marketplace_comments && p.marketplace_comments[0].count > 0).slice(0, 3);
             const container = document.getElementById('hotDiscussionsContainer');
-            if (sorted.length === 0) { container.innerHTML = `<span class="text-xs text-gray-500 italic">No active discussions yet.</span>`; return; }
-            container.innerHTML = sorted.map(p => {
+            const mobContainer = document.getElementById('mobHotDiscussionsContainer');
+            
+            const html = sorted.map(p => {
                 let safeContent = window.DOMPurify ? DOMPurify.sanitize(p.content, { ALLOWED_TAGS: [] }) : p.content.replace(/<[^>]*>?/gm, '');
                 let title = safeContent.length > 50 ? safeContent.substring(0, 50) + '...' : safeContent;
-                return `<div class="block cursor-pointer group" onclick="openPostDetail('${p.id}')">
+                return `<div class="block cursor-pointer group" onclick="openPostDetail('${p.id}'); if(window.innerWidth < 1024) toggleBottomDrawer();">
                     <h4 class="text-sm font-semibold text-white group-hover:text-myancode-accent transition-colors line-clamp-2 leading-snug mb-1">${title}</h4>
                     <p class="text-[11px] text-gray-400 flex items-center gap-2"><i data-lucide="message-square" class="w-3 h-3"></i> ${p.marketplace_comments?.[0]?.count || 0} comments</p>
                 </div>`;
             }).join('');
+            
+            if (container) {
+                if (sorted.length === 0) container.innerHTML = `<span class="text-xs text-gray-500 italic">No active discussions yet.</span>`; else container.innerHTML = html;
+            }
+            if (mobContainer) {
+                if (sorted.length === 0) mobContainer.innerHTML = `<span class="text-xs text-gray-500 italic">No active discussions yet.</span>`; else mobContainer.innerHTML = html;
+            }
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function filterFeed(type) {
-            currentFilter = type; document.querySelectorAll('.mp-nav-btn').forEach(btn => { btn.classList.remove('bg-white/10', 'text-white'); btn.classList.add('hover:bg-white/5', 'text-gray-400'); });
-            document.getElementById(`nav-${type}`).classList.add('bg-white/10', 'text-white'); document.getElementById(`nav-${type}`).classList.remove('hover:bg-white/5', 'text-gray-400');
+            currentFilter = type; 
+            document.querySelectorAll('.mp-nav-btn, .mob-mp-nav-btn').forEach(btn => { btn.classList.remove('bg-white/10', 'text-white'); btn.classList.add('hover:bg-white/5', 'text-gray-400'); });
+            
+            const dBtn = document.getElementById(`nav-${type}`); if(dBtn) { dBtn.classList.add('bg-white/10', 'text-white'); dBtn.classList.remove('hover:bg-white/5', 'text-gray-400'); }
+            const mBtn = document.getElementById(`mob-nav-${type}`); if(mBtn) { mBtn.classList.add('bg-white/10', 'text-white'); mBtn.classList.remove('hover:bg-white/5', 'text-gray-400'); }
+            
             if(type === 'all') fetchPosts(); else { const searchVal = document.getElementById('localSearchInput') ? document.getElementById('localSearchInput').value : ''; renderFeed(searchVal); }
         }
 
-        function searchByTag(tag) { document.getElementById('localSearchInput').value = tag; const mobileInput = document.getElementById('mobileSearchInput'); if (mobileInput) mobileInput.value = tag; handleLocalSearch({ target: document.getElementById('localSearchInput') }); }
+        function searchByTag(tag) { document.getElementById('localSearchInput').value = tag; const mobileInput = document.getElementById('mobileSearchInput'); if (mobileInput) mobileInput.value = tag; handleLocalSearch({ target: document.getElementById('localSearchInput') }); if(window.innerWidth < 1024) toggleBottomDrawer(); }
 
         function hideSuggestions(id) {
             const el = document.getElementById(id);
@@ -1597,7 +1860,8 @@
         }
 
         function applyFiltersAndRenderVisible() {
-            const searchQuery = document.getElementById('localSearchInput') ? document.getElementById('localSearchInput').value.toLowerCase().trim() : '';
+            const searchInput = document.getElementById('localSearchInput') || document.getElementById('mobileSearchInput');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
             currentFilteredPosts = allCommunityPosts;
             if (currentFilter === 'mine' && currentUser) currentFilteredPosts = currentFilteredPosts.filter(p => p.user_id === currentUser.id);
             else if (currentFilter === 'saved' && currentUser) currentFilteredPosts = currentFilteredPosts.filter(p => p.marketplace_saves && p.marketplace_saves.some(s => s.user_id === currentUser.id));
