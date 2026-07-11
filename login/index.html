@@ -17,6 +17,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
+     <script src="../js/cookie-consent.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -993,7 +994,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
         <div class="layout-width relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
@@ -1443,7 +1443,6 @@
         let currentUserCart = [];
 
         if (supabaseInstance) {
-            // Fail-safe to unblock the UI if the connection drops or hangs
             setTimeout(() => {
                 if (globalLoader && globalLoader.style.display !== 'none' && !currentUser && !window.location.hash.includes('access_token')) {
                     hideLoader();
@@ -1453,14 +1452,11 @@
             supabaseInstance.auth.onAuthStateChange(async (event, session) => {
                 if (window.isUpdatingPassword) return;
                 try {
-                    // Update: Robust checking to ensure type=recovery from search OR hash parameters
                     const searchStr = window.location.search || '';
                     const hashStr = window.location.hash || '';
                     const isRecovery = searchStr.includes('type=recovery') || hashStr.includes('type=recovery') || event === 'PASSWORD_RECOVERY';
 
                     if (session && session.user) {
-                        // Removed the blocking database fetch here to prevent infinite loading.
-                        // Relying purely on metadata ensures instant resolution.
                         let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
                         const trueRole = profileRole.toLowerCase();
 
@@ -1473,7 +1469,6 @@
                         };
                         currentUserCart = session.user.user_metadata?.wishlist || [];
 
-                        // If user is accessing from a recovery link, immediately halt everything else and render the Set Password Box
                         if (isRecovery) {
                             hideLoader();
                             const formEl = document.getElementById('loginFormCard');
@@ -1488,12 +1483,12 @@
                                 updateState.classList.remove('hidden');
                                 updateState.classList.add('flex');
                             }
-                            return; // PREVENTS REDIRECTS TO DASHBOARD
+                            return;
                         }
 
                         const isAuthRedirect = hashStr.includes('access_token=') || hashStr.includes('provider=google') || hashStr.includes('provider=github');
                         const dashboardRoutes = {
-                            'founder': 'https://admin.myancode.com/founder/', // Cross-domain fix
+                            'founder': 'https://admin.myancode.com/founder/',
                             'admin': '../admin-dashboard/',
                             'moderator': '../moderator-dashboard/',
                             'partner': '../partner-dashboard/',
@@ -1568,35 +1563,47 @@
             hideLoader();
         }
 
-        function getLockoutStatus() {
-            const fails = parseInt(localStorage.getItem('myancode_login_fails') || '0');
-            const lockoutTime = parseInt(localStorage.getItem('myancode_lockout_time') || '0');
-            return { fails, lockoutTime };
+        let currentFailedAttempts = 0;
+        let currentLockoutTime = 0;
+        let lockoutInterval;
+
+        async function fetchLockoutStatus(email) {
+            if (!supabaseInstance || !email) return { fails: 0, lockoutTime: 0 };
+            const { data } = await supabaseInstance.from('auth_lockouts').select('*').eq('email', email).single();
+            if (data) {
+                const lockoutTime = data.lockout_until ? new Date(data.lockout_until).getTime() : 0;
+                return { fails: data.failed_attempts || 0, lockoutTime };
+            }
+            return { fails: 0, lockoutTime: 0 };
         }
 
-        function setLockoutStatus(fails, lockoutTime) {
-            localStorage.setItem('myancode_login_fails', fails.toString());
-            localStorage.setItem('myancode_lockout_time', lockoutTime.toString());
+        async function updateLockoutDB(email, fails, lockoutTime) {
+            if (!supabaseInstance || !email) return;
+            const lockoutUntil = lockoutTime > 0 ? new Date(lockoutTime).toISOString() : null;
+            await supabaseInstance.from('auth_lockouts').upsert({
+                email: email,
+                failed_attempts: fails,
+                lockout_until: lockoutUntil,
+                last_attempt: new Date().toISOString()
+            });
+        }
+
+        async function clearLockoutDB(email) {
+            if (!supabaseInstance || !email) return;
+            await supabaseInstance.from('auth_lockouts').delete().eq('email', email);
         }
 
         function getNextThreshold(fails) {
-            const thresholds = [
-                { limit: 7, penalty: 5 * 60 * 1000 },
-                { limit: 10, penalty: 15 * 60 * 1000 },
-                { limit: 13, penalty: 30 * 60 * 1000 },
-                { limit: 16, penalty: 60 * 60 * 1000 },
-                { limit: 19, penalty: 24 * 60 * 60 * 1000 }
-            ];
-            for (let t of thresholds) {
-                if (fails < t.limit) return t;
-            }
-            const extraSteps = Math.floor((fails - 19) / 3) + 1;
-            return { limit: 19 + (extraSteps * 3), penalty: 24 * 60 * 60 * 1000 };
+            if (fails < 10) return { limit: 10, penalty: 5 * 60 * 1000 };
+            if (fails < 13) return { limit: 13, penalty: 10 * 60 * 1000 };
+            if (fails < 16) return { limit: 16, penalty: 15 * 60 * 1000 };
+            if (fails < 19) return { limit: 19, penalty: 20 * 60 * 1000 };
+            return { limit: 21, penalty: 100 * 365 * 24 * 60 * 60 * 1000 };
         }
 
-        let lockoutInterval;
         function updateLockoutUI() {
-            const { fails, lockoutTime } = getLockoutStatus();
+            const fails = currentFailedAttempts;
+            const lockoutTime = currentLockoutTime;
             const now = Date.now();
             const loginBtn = document.getElementById('loginBtn');
             const loginBtnText = document.getElementById('loginBtnText');
@@ -1604,7 +1611,16 @@
 
             if (!alertBox || !loginBtn) return;
 
-            if (lockoutTime > now) {
+            if (fails >= 21) {
+                loginBtn.disabled = true;
+                if (lockoutInterval) {
+                    clearInterval(lockoutInterval);
+                    lockoutInterval = null;
+                }
+                loginBtnText.innerHTML = dict[currentLang].btnLocked || 'Locked';
+                alertBox.innerHTML = `<i data-lucide="ban" class="w-4 h-4 mr-2 mt-0.5 shrink-0"></i> <span>${currentLang === 'en' ? 'Account permanently blocked due to too many failed attempts. Please contact support.' : 'အကြိမ်များစွာမှားယွင်းမှုကြောင့် အကောင့်ကို အမြဲတမ်းပိတ်လိုက်ပါသည်။ အကူအညီဌာနသို့ ဆက်သွယ်ပါ။'}</span>`;
+                alertBox.className = 'flex items-start text-xs font-bold tracking-wide rounded-xl p-4 mb-6 border transition-all bg-red-500/10 text-red-400 border-red-500/20';
+            } else if (lockoutTime > now) {
                 loginBtn.disabled = true;
                 if (!lockoutInterval) lockoutInterval = setInterval(updateLockoutUI, 1000);
 
@@ -1631,7 +1647,7 @@
                 if (fails > 0) {
                     const next = getNextThreshold(fails);
                     const left = next.limit - fails;
-                    alertBox.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4 mr-2 mt-0.5 shrink-0"></i> <span>${currentLang === 'en' ? `<b>${fails}</b> failed attempts.` : `<b>${fails}</b> ကြိမ်မှားယွင်းထားသည်။`} ${currentLang === 'en' ? `<b>${left}</b> attempts left before lockout.` : `<b>${left}</b> ကြိမ် ထပ်မှားပါက အကောင့်ယာယီပိတ်ပါမည်။`}</span>`;
+                    alertBox.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4 mr-2 mt-0.5 shrink-0"></i> <span>${currentLang === 'en' ? `<b>${fails}</b> failed attempts.` : `<b>${fails}</b> ကြိမ်မှားယွင်းထားသည်။`} ${currentLang === 'en' ? `<b>${left}</b> attempts left before lockout.` : `<b>${left}</b> ကြိမ် ထပ်မှားပါက အကောင့်ကိုယာယီပိတ်ပါမည်။`}</span>`;
                     alertBox.className = 'flex items-start text-xs font-bold tracking-wide rounded-xl p-4 mb-6 border transition-all bg-orange-500/10 text-orange-400 border-orange-500/20';
                 } else {
                     alertBox.className = 'hidden';
@@ -2242,13 +2258,12 @@
         async function handleLogin(e) {
             e.preventDefault();
 
-            const { fails, lockoutTime } = getLockoutStatus();
-            if (Date.now() < lockoutTime) {
-                showErrorToast(currentLang === 'en' ? "Please wait for the lockout period to end." : "ကျေးဇူးပြု၍ သတ်မှတ်ချိန်ပြည့်သည်အထိ စောင့်ပါ။");
+            const email = document.getElementById('loginEmail').value.trim();
+            if (!email) {
+                showErrorToast(dict[currentLang].errInvalidEmail);
                 return;
             }
 
-            const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPass').value;
             const loginBtn = document.getElementById('loginBtn');
 
@@ -2267,6 +2282,24 @@
             loginBtn.disabled = true;
             showLoader('loadingAuth');
 
+            const status = await fetchLockoutStatus(email);
+            currentFailedAttempts = status.fails;
+            currentLockoutTime = status.lockoutTime;
+
+            if (currentFailedAttempts >= 21) {
+                hideLoader();
+                updateLockoutUI();
+                showErrorToast(currentLang === 'en' ? "Account is permanently blocked." : "အကောင့်ကို အမြဲတမ်းပိတ်လိုက်ပါသည်။");
+                return;
+            }
+
+            if (Date.now() < currentLockoutTime) {
+                hideLoader();
+                updateLockoutUI();
+                showErrorToast(currentLang === 'en' ? "Please wait for the lockout period to end." : "ကျေးဇူးပြု၍ သတ်မှတ်ချိန်ပြည့်သည်အထိ စောင့်ပါ။");
+                return;
+            }
+
             try {
                 if (!supabaseInstance) throw new Error("Database connection error.");
 
@@ -2277,18 +2310,21 @@
                 });
 
                 if (error) {
-                    let newFails = fails + 1;
-                    let newLockout = 0;
-
-                    const nextThresh = getNextThreshold(fails);
-                    if (newFails >= nextThresh.limit) {
-                        newLockout = Date.now() + nextThresh.penalty;
-                        showErrorToast(currentLang === 'en' ? "Account temporarily locked due to failed attempts." : "အကြိမ်များစွာ မှားယွင်းမှုကြောင့် အကောင့်ကို ယာယီပိတ်လိုက်ပါသည်။");
+                    currentFailedAttempts += 1;
+                    const nextThresh = getNextThreshold(currentFailedAttempts - 1);
+                    if (currentFailedAttempts >= nextThresh.limit) {
+                        if (currentFailedAttempts >= 21) {
+                            currentLockoutTime = Date.now() + (100 * 365 * 24 * 60 * 60 * 1000);
+                            showErrorToast(currentLang === 'en' ? "Account permanently blocked due to failed attempts." : "အကြိမ်များစွာ မှားယွင်းမှုကြောင့် အကောင့်ကို အမြဲတမ်းပိတ်လိုက်ပါသည်။");
+                        } else {
+                            currentLockoutTime = Date.now() + nextThresh.penalty;
+                            showErrorToast(currentLang === 'en' ? "Account temporarily locked due to failed attempts." : "အကြိမ်များစွာ မှားယွင်းမှုကြောင့် အကောင့်ကို ယာယီပိတ်လိုက်ပါသည်။");
+                        }
                     } else {
                         showErrorToast(dict[currentLang].errAuthFailed);
                     }
 
-                    setLockoutStatus(newFails, newLockout);
+                    await updateLockoutDB(email, currentFailedAttempts, currentLockoutTime);
                     updateLockoutUI();
 
                     hideLoader();
@@ -2297,8 +2333,9 @@
                     return;
                 }
 
-                setLockoutStatus(0, 0);
-                localStorage.setItem('myancode_login_attempts', '0');
+                currentFailedAttempts = 0;
+                currentLockoutTime = 0;
+                await clearLockoutDB(email);
 
             } catch (err) {
                 hideLoader();
@@ -2349,7 +2386,6 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
-                // Update: Enforce absolute route to current page so it doesn't redirect user to home dashboard
                 const currentAbsoluteUrl = window.location.origin + window.location.pathname + '?type=recovery';
                 
                 const { error } = await supabaseInstance.auth.resetPasswordForEmail(email, {
@@ -2450,7 +2486,6 @@
                 if (error) throw error;
                 showToast(currentLang === 'en' ? "Password updated! Redirecting to Dashboard..." : "စကားဝှက် ပြောင်းလဲခြင်း အောင်မြင်ပါသည်...");
                 
-                // Clear the hash from URL completely securely
                 if (window.history && window.history.replaceState) {
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
@@ -2581,6 +2616,16 @@
                     }
                 }, 1000);
             }
+
+            document.getElementById('loginEmail').addEventListener('blur', async (e) => {
+                const email = e.target.value.trim();
+                if(email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                    const status = await fetchLockoutStatus(email);
+                    currentFailedAttempts = status.fails;
+                    currentLockoutTime = status.lockoutTime;
+                    updateLockoutUI();
+                }
+            });
         });
 
         document.addEventListener('keydown', (e) => {

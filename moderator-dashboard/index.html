@@ -4,18 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Moderator - MyanCode</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="../imgs/web-banners/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-
+     <script src="../js/cookie-consent.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
     <script>
         tailwind.config = {
             theme: {
@@ -37,27 +35,22 @@
         html[lang="mm"] body { font-family: 'Inter', 'Noto Sans Myanmar', sans-serif; font-size: 14px; line-height: 2.2; }
         html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 { font-family: 'Jost', 'Noto Sans Myanmar', sans-serif; }
         html[lang="mm"] .font-mono { font-family: '"JetBrains Mono"', 'Noto Sans Myanmar', monospace; }
-        
         .bg-grid-dark { background-size: 40px 40px; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px); }
         .btn-hover-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(255,255,255,0.1); }
         .btn-hover-effect:active:not(:disabled) { transform: translateY(1px); }
         .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
-
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #444; }
-
         .glass-panel { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); }
         .glass-header { background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(30px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        
         .avatar-upload-overlay { opacity: 0; transition: opacity 0.3s ease; background: rgba(0,0,0,0.6); }
         .avatar-upload-container:hover .avatar-upload-overlay { opacity: 1; cursor: pointer; }
         .cropper-view-box, .cropper-face { border-radius: 50%; }
-
         #sidebar { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         #sidebar.collapsed { width: 80px !important; }
         #sidebar.collapsed .sidebar-text { display: none; }
@@ -70,7 +63,6 @@
         #sidebar.collapsed #sbProfileCard { padding: 0; background: transparent; border-color: transparent; justify-content: center; width: 100%; display: flex; align-items: center; }
         #sidebar.collapsed #sbProfileInner { gap: 0; justify-content: center; align-items: center; width: 100%; }
         #sidebar.collapsed .sb-footer-btn { justify-content: center; padding: 0; width: 40px; height: 40px; margin: 0.5rem auto 0 auto; border-radius: 12px; }
-
         #sbAvatarContainer, .hdr-avatar-container { width: 40px !important; height: 40px !important; min-width: 40px !important; min-height: 40px !important; max-width: 40px !important; max-height: 40px !important; flex-shrink: 0; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #111; border: 1px solid rgba(255,255,255,0.1); }
         #sbAvatar, #headerAvatar { width: 100% !important; height: 100% !important; object-fit: cover !important; }
         #sidebarResizer { cursor: col-resize; }
@@ -117,6 +109,11 @@
             <button onclick="switchTab('community')" id="nav-community" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="flag" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabCommunity">Community Management</span>
+            </button>
+
+            <button onclick="switchTab('access')" id="nav-access" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="shield-alert" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabAccess">Access Control</span>
             </button>
             
             <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
@@ -195,12 +192,10 @@
                 </div>
             </div>
 
-            <!-- Community Management View -->
             <div id="view-community" class="view-section hidden flex-col gap-8 max-w-6xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
                         <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display"><i data-lucide="flag" class="h-7 w-7 text-orange-400"></i> Reported Posts</h3>
-                        <button onclick="fetchReportedPosts()" class="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-gray-300 transition-colors"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh</button>
                     </div>
                     
                     <div class="overflow-x-auto custom-scroll border border-white/5 rounded-2xl bg-[#0a0a0a]">
@@ -218,6 +213,35 @@
                                     <td colspan="4" class="px-6 py-12 text-center text-gray-500">
                                         <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3 text-gray-400"></i>
                                         Loading reports...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-access" class="view-section hidden flex-col gap-8 max-w-6xl mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
+                    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display"><i data-lucide="shield-alert" class="h-7 w-7 text-red-400"></i> <span data-i18n="authLockouts">Locked Accounts</span></h3>
+                    </div>
+                    
+                    <div class="overflow-x-auto custom-scroll border border-white/5 rounded-2xl bg-[#0a0a0a]">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
+                            <thead>
+                                <tr class="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-mono bg-white/5">
+                                    <th class="py-4 px-6 font-bold">Email</th>
+                                    <th class="py-4 px-6 font-bold">Failed Attempts</th>
+                                    <th class="py-4 px-6 font-bold">Lockout Status</th>
+                                    <th class="py-4 px-6 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lockedAccountsTableBody" class="divide-y divide-white/5 text-sm">
+                                <tr>
+                                    <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3 text-gray-400"></i>
+                                        Loading accounts...
                                     </td>
                                 </tr>
                             </tbody>
@@ -292,7 +316,6 @@
         </div>
     </div>
 
-    <!-- The Confirmation Modal (FIXED) -->
     <div id="confirmModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeConfirmModal()">
         <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent" onclick="event.stopPropagation()">
             <div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6">
@@ -359,7 +382,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabCommunity: "Community Management",
+                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabCommunity: "Community Management", tabAccess: "Access Control",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
@@ -367,11 +390,12 @@
                 profPublic: "Public Profile", profUpload: "Upload", profName: "Full Name", profUpdateBtn: "Save Changes", profRemoveAv: "Remove Icon",
                 profSecurity: "Security & Access", profOldPass: "Current Password", profPass: "New Password", profPassConfirm: "Confirm Password", profUpdatePassBtn: "Update Authentication",
                 cropTitle: "Crop Photo", cropCancel: "Cancel", cropSave: "Save",
-                msgLoggedOut: "Signed out securely."
+                msgLoggedOut: "Signed out securely.",
+                authLockouts: "Locked Accounts", unblockAcc: "Unblock"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabCommunity: "အသိုက်အဝန်း စီမံခန့်ခွဲမှု",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabCommunity: "အသိုက်အဝန်း စီမံခန့်ခွဲမှု", tabAccess: "ဝင်ရောက်ခွင့် ထိန်းချုပ်မှု",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
@@ -379,7 +403,8 @@
                 profPublic: "ကိုယ်ရေးအကျဉ်း", profUpload: "ပြောင်းမည်", profName: "အမည်အပြည့်အစုံ", profUpdateBtn: "အချက်အလက်များ သိမ်းဆည်းရန်", profRemoveAv: "ပုံဖယ်ရှားမည်",
                 profSecurity: "လုံခြုံရေး", profOldPass: "လက်ရှိ စကားဝှက်", profPass: "စကားဝှက်အသစ်", profPassConfirm: "စကားဝှက်အသစ် အတည်ပြုရန်", profUpdatePassBtn: "စကားဝှက် ပြောင်းရန်",
                 cropTitle: "ဓာတ်ပုံဖြတ်မည်", cropCancel: "ပယ်ဖျက်မည်", cropSave: "သိမ်းဆည်းမည်",
-                msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။"
+                msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
+                authLockouts: "ပိတ်ခံထားရသော အကောင့်များ", unblockAcc: "ပိတ်ပင်မှု ရုပ်သိမ်းမည်"
             }
         };
 
@@ -494,16 +519,64 @@
         function initRealtime() {
             if (!supabaseInstance) return;
             
-            // Listen to any changes in the marketplace reports table
             supabaseInstance.channel('moderator_reports')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'marketplace_reports' }, payload => {
                     const activeView = document.getElementById('view-community');
-                    // Only refresh if the moderator is currently on the Community tab
                     if (activeView && !activeView.classList.contains('hidden')) {
                         fetchReportedPosts(true); 
                     }
                 })
                 .subscribe();
+
+            supabaseInstance.channel('moderator_lockouts')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'auth_lockouts' }, payload => {
+                    const activeView = document.getElementById('view-access');
+                    if (activeView && !activeView.classList.contains('hidden')) {
+                        fetchLockedAccounts(true); 
+                    }
+                })
+                .subscribe();
+        }
+
+        let liveTimerInterval;
+        function startLiveTimers() {
+            if(liveTimerInterval) clearInterval(liveTimerInterval);
+            liveTimerInterval = setInterval(() => {
+                const now = Date.now();
+                document.querySelectorAll('.live-lockout-timer').forEach(el => {
+                    const lockoutTime = parseInt(el.getAttribute('data-time'));
+                    if(lockoutTime > now) {
+                        const diff = Math.ceil((lockoutTime - now)/1000);
+                        const m = Math.floor(diff/60);
+                        const s = diff%60;
+                        el.innerText = `Locked (${m}m ${s}s)`;
+                    } else {
+                        el.innerText = 'Active (Warning)';
+                        el.className = 'text-gray-400 font-bold';
+                    }
+                });
+            }, 1000);
+        }
+
+        function optimisticRemove(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.style.transition = 'all 0.2s ease-out';
+                el.style.opacity = '0';
+                el.style.transform = 'scale(0.95)';
+                setTimeout(() => { el.style.display = 'none'; }, 200);
+            }
+        }
+        
+        function optimisticRevert(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.style.display = '';
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'scale(1)';
+                }, 10);
+            }
         }
 
         async function submitForcePassword() {
@@ -664,28 +737,112 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'community': 'Community Management' };
+            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'community': 'Community Management', 'access': 'Access Control' };
             document.getElementById('headerTitle').innerText = titleMap[tabId] || 'Dashboard';
             
-            if (tabId === 'community') {
-                fetchReportedPosts();
-            }
+            if (tabId === 'community') fetchReportedPosts();
+            if (tabId === 'access') fetchLockedAccounts();
 
             if(window.innerWidth < 1024 && sidebarOpen) toggleMobileMenu();
+        }
+
+        async function fetchLockedAccounts(isSilent = false) {
+            if(!supabaseInstance) return;
+            const tbody = document.getElementById('lockedAccountsTableBody');
+            
+            if (!isSilent) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading accounts...</td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+            
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('auth_lockouts')
+                    .select('*')
+                    .or('failed_attempts.gt.0,lockout_until.gt.' + new Date().toISOString())
+                    .order('last_attempt', { ascending: false });
+
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="shield-check" class="w-6 h-6 text-green-400"></i></div><p class="font-medium">No locked accounts found.</p></td></tr>';
+                    if(typeof lucide !== 'undefined') lucide.createIcons();
+                    return;
+                }
+
+                const now = new Date().getTime();
+
+                tbody.innerHTML = data.map(acc => {
+                    const lockoutTime = acc.lockout_until ? new Date(acc.lockout_until).getTime() : 0;
+                    const isPermanentlyLocked = acc.failed_attempts >= 21;
+                    const isTemporarilyLocked = lockoutTime > now;
+                    let statusHtml = '<span class="text-gray-400 font-bold">Active (Warning)</span>';
+                    
+                    if (isPermanentlyLocked) {
+                        statusHtml = '<span class="text-red-500 font-bold">Permanently Blocked</span>';
+                    } else if (isTemporarilyLocked) {
+                        statusHtml = `<span class="text-orange-400 font-bold live-lockout-timer" data-time="${lockoutTime}">Locked</span>`;
+                    }
+
+                    const safeEmail = acc.email.replace(/[^a-zA-Z0-9]/g, '_');
+
+                    return `
+                        <tr id="lockout-row-${safeEmail}" class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                            <td class="px-6 py-4 align-top w-1/3">
+                                <div class="font-bold text-white mb-1 truncate">${acc.email}</div>
+                                <div class="text-[11px] text-gray-500 font-mono">Last attempt: ${new Date(acc.last_attempt).toLocaleString()}</div>
+                            </td>
+                            <td class="px-6 py-4 align-top w-1/6">
+                                <div class="text-sm ${acc.failed_attempts >= 21 ? 'text-red-400' : 'text-orange-300'} font-bold">${acc.failed_attempts}</div>
+                            </td>
+                            <td class="px-6 py-4 align-top w-1/3">
+                                ${statusHtml}
+                            </td>
+                            <td class="px-6 py-4 align-top text-right">
+                                <button onclick="unblockAccount('${acc.email}')" class="px-4 py-2 text-green-400 hover:text-white bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 rounded-xl transition-all shadow-sm inline-flex items-center gap-2 hover:scale-105" title="Unblock & Reset">
+                                    <i data-lucide="unlock" class="w-4 h-4"></i> <span data-i18n="unblockAcc">Unblock</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+                startLiveTimers();
+
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+
+        function unblockAccount(email) {
+            showConfirmModal("Unblock Account", `Are you sure you want to completely unblock ${email} and reset their failed attempts to 0?`, "warning", async () => {
+                const safeEmail = email.replace(/[^a-zA-Z0-9]/g, '_');
+                const rowId = `lockout-row-${safeEmail}`;
+                optimisticRemove(rowId);
+
+                try {
+                    const { error } = await supabaseInstance.from('auth_lockouts').delete().eq('email', email);
+                    if (error) throw error;
+                    showToast("Account successfully unblocked.");
+                } catch(e) {
+                    optimisticRevert(rowId);
+                    showErrorToast("Error: " + (e.message || "Failed to unblock account."));
+                    fetchLockedAccounts(true);
+                }
+            });
         }
 
         async function fetchReportedPosts(isSilent = false) {
             if(!supabaseInstance) return;
             const tbody = document.getElementById('reportedPostsTableBody');
             
-            // If it's a background realtime sync, don't show the flashing loader
             if (!isSilent) {
                 tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading reports...</td></tr>';
                 if(typeof lucide !== 'undefined') lucide.createIcons();
             }
             
             try {
-                // We use the specific named constraint to prevent ambiguity
                 const { data, error } = await supabaseInstance.from('marketplace_reports').select(`
                     id, 
                     reason, 
@@ -721,7 +878,7 @@
                     const formattedDate = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
                     return `
-                        <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                        <tr id="report-row-${report.id}" class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
                             <td class="px-6 py-4 align-top w-1/4">
                                 <div class="font-bold text-white mb-1 capitalize">${report.reason || 'Reported'}</div>
                                 <div class="text-[11px] text-gray-500 font-mono">${formattedDate}</div>
@@ -754,7 +911,7 @@
                 if(typeof lucide !== 'undefined') lucide.createIcons();
 
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p><p class="text-xs text-gray-500 mt-4">Please paste this error back to the AI.</p></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
                 if(typeof lucide !== 'undefined') lucide.createIcons();
             }
         }
@@ -763,9 +920,10 @@
             const actionText = isPostAlreadyDeleted ? "dismiss this report (post is already deleted)" : "permanently delete this post from the marketplace";
             
             showConfirmModal("Delete Post", `Are you sure you want to ${actionText}? This action cannot be undone.`, "danger", async () => {
-                showLoader("Processing deletion...");
+                const rowId = `report-row-${reportId}`;
+                optimisticRemove(rowId);
+
                 try {
-                    // 1. Delete the actual post from marketplace_posts (if it hasn't been deleted yet)
                     if (!isPostAlreadyDeleted && postId && postId !== 'undefined' && postId !== 'null') {
                         const { error: deleteError } = await supabaseInstance
                             .from('marketplace_posts')
@@ -775,7 +933,6 @@
                         if (deleteError) throw deleteError;
                     }
                     
-                    // 2. Mark the report as deleted so it leaves the pending queue
                     const { error: reportError } = await supabaseInstance
                         .from('marketplace_reports')
                         .update({ status: 'deleted' })
@@ -784,28 +941,28 @@
                     if (reportError) throw reportError;
                     
                     showToast(isPostAlreadyDeleted ? "Report cleared." : "Post permanently deleted from marketplace.");
-                    fetchReportedPosts(); 
                 } catch(e) {
+                    optimisticRevert(rowId);
                     showErrorToast("Error: " + (e.message || "Failed to delete post."));
-                } finally {
-                    hideLoader();
+                    fetchReportedPosts(true);
                 }
             });
         }
 
         function dismissReport(reportId) {
             showConfirmModal("Ignore Report", "Are you sure you want to ignore this report? The post will remain visible in the marketplace.", "warning", async () => {
-                showLoader();
+                const rowId = `report-row-${reportId}`;
+                optimisticRemove(rowId);
+
                 try {
                     const {error} = await supabaseInstance.from('marketplace_reports').update({ status: 'ignored' }).eq('id', reportId);
                     if (error) throw error;
                     
                     showToast("Report ignored.");
-                    fetchReportedPosts(); 
                 } catch(e) {
+                    optimisticRevert(rowId);
                     showErrorToast(e.message || "Failed to ignore report.");
-                } finally {
-                    hideLoader();
+                    fetchReportedPosts(true);
                 }
             });
         }
@@ -957,7 +1114,6 @@
             };
         }
 
-        // ADDED MISSING FUNCTION HERE
         function closeConfirmModal() {
             const modal = document.getElementById('confirmModal');
             const content = document.getElementById('confirmModalContent');
