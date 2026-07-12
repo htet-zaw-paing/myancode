@@ -63,6 +63,8 @@
         .status-confirmed { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
         .status-expired { background-color: rgba(156, 163, 175, 0.1); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.2); }
         .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .status-active { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
+        .status-inactive { background-color: rgba(156, 163, 175, 0.1); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.2); }
 
         #sidebar { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         #sidebar.collapsed { width: 80px !important; }
@@ -84,6 +86,9 @@
         #sidebarResizer:hover, .is-resizing { background-color: rgba(41, 151, 255, 0.5); }
         .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
         .dropdown-hidden { opacity: 0; transform: scale(0.96); pointer-events: none; }
+        
+        #mailRichEditor:empty:before { content: attr(data-placeholder); color: #6b7280; pointer-events: none; display: block; }
+        .resize-container { resize: both; overflow: auto; min-width: 300px; max-width: 100%; }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-accent selection:text-white flex bg-[#050505] relative text-white">
@@ -129,6 +134,11 @@
             <button onclick="switchTab('coupons')" id="nav-coupons" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="ticket" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabCoupons">Coupons</span>
+            </button>
+
+            <button onclick="switchTab('subscribers')" id="nav-subscribers" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="users" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabSubscribers">Newsletter</span>
             </button>
 
             <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
@@ -286,6 +296,44 @@
                 </div>
             </div>
 
+            <div id="view-subscribers" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display">
+                            <i data-lucide="users" class="h-7 w-7 text-myancode-accent"></i> 
+                            <span data-i18n="newsletterMgtTitle">Newsletter Subscribers</span>
+                        </h3>
+                        <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                            <button onclick="openAddSubscriberModal()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-colors flex items-center justify-center gap-2 btn-hover-effect">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i> Add Subscriber
+                            </button>
+                            <button onclick="openSendMailModal()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-black font-bold uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2 btn-hover-effect">
+                                <i data-lucide="send" class="w-4 h-4"></i> Send Broadcast
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scroll pb-4">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
+                            <thead>
+                                <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
+                                    <th class="pb-4 pl-4">ID</th>
+                                    <th class="pb-4">Email</th>
+                                    <th class="pb-4">Status</th>
+                                    <th class="pb-4">Subscribed Date</th>
+                                    <th class="pb-4 pr-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminSubscribersTableBody" class="text-sm font-medium text-gray-300">
+                                <tr>
+                                    <td colspan="5" class="py-12 text-center text-gray-500 italic">Loading subscribers...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div id="view-settings" class="view-section hidden flex-col gap-8 max-w-4xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="user-circle" class="h-7 w-7 text-myancode-accent"></i> <span data-i18n="profPublic">Public Profile</span></h3>
@@ -381,6 +429,89 @@
             <div class="flex space-x-3 w-full mt-8">
                 <button onclick="closeCreateCouponModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
                 <button onclick="submitCreateCoupon()" id="btnSubmitCreateCoupon" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all bg-white hover:bg-gray-200">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addSubscriberModal" class="fixed inset-0 z-[100000] bg-black/20 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="addSubscriberModalContent">
+            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center">Add Subscriber</h3>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
+                    <input type="email" id="newSubscriberEmail" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner" placeholder="user@example.com">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Status</label>
+                    <select id="newSubscriberStatus" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors cursor-pointer appearance-none shadow-inner">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex space-x-3 w-full mt-8">
+                <button onclick="closeAddSubscriberModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
+                <button onclick="submitAddSubscriber()" id="btnSubmitSubscriber" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all bg-white hover:bg-gray-200">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sendMailModal" class="fixed inset-0 z-[100000] bg-black/20 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 p-6 sm:p-10 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col w-[95vw] lg:max-w-[1000px] h-[90vh] max-h-[90vh]" id="sendMailModalContent">
+            
+            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 flex items-center gap-3 shrink-0">
+                <i data-lucide="send" class="text-myancode-accent w-6 h-6"></i> Send Broadcast Email
+            </h3>
+            
+            <div class="flex-1 flex flex-col min-h-0 space-y-5">
+                <div class="shrink-0">
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Mail Subject</label>
+                    <input type="text" id="mailSubject" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner" placeholder="e.g. Big Update from MyanCode!">
+                </div>
+                
+                <div class="flex-1 flex flex-col min-h-0 relative">
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 shrink-0">Mail Content (Rich Text / HTML)</label>
+                    <div class="border border-white/10 rounded-xl bg-[#050505] flex flex-col overflow-hidden resize-container h-full w-full relative">
+                        <div class="flex flex-wrap items-center gap-1 p-2 border-b border-white/10 bg-[#111] shrink-0 sticky top-0 z-10">
+                            <button type="button" onclick="formatText('bold')" class="p-1.5 hover:bg-white/10 rounded text-gray-300 transition-colors" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatText('italic')" class="p-1.5 hover:bg-white/10 rounded text-gray-300 transition-colors" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatText('underline')" class="p-1.5 hover:bg-white/10 rounded text-gray-300 transition-colors" title="Underline"><i data-lucide="underline" class="w-4 h-4"></i></button>
+                            <div class="w-px h-4 bg-white/10 mx-1"></div>
+                            <button type="button" onclick="formatText('insertOrderedList')" class="p-1.5 hover:bg-white/10 rounded text-gray-300 transition-colors" title="Numbered List"><i data-lucide="list-ordered" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatText('insertUnorderedList')" class="p-1.5 hover:bg-white/10 rounded text-gray-300 transition-colors" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
+                            <div class="w-px h-4 bg-white/10 mx-1"></div>
+                            <button type="button" onclick="insertLink()" class="p-1.5 hover:bg-white/10 rounded text-gray-300 transition-colors" title="Insert Link"><i data-lucide="link" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatText('removeFormat')" class="p-1.5 hover:bg-white/10 rounded text-gray-300 transition-colors" title="Clear Formatting"><i data-lucide="eraser" class="w-4 h-4"></i></button>
+                            
+                            <div class="flex-1 min-w-[20px]"></div>
+                            
+                            <div class="flex items-center bg-[#050505] rounded border border-white/10 p-0.5">
+                                <button type="button" onclick="setMailView('visual')" id="btnViewVisual" class="px-3 py-1.5 rounded text-white bg-white/10 text-[10px] font-bold font-mono tracking-widest uppercase transition-colors flex items-center gap-1.5 whitespace-nowrap">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> Visual
+                                </button>
+                                <button type="button" onclick="setMailView('html')" id="btnViewHtml" class="px-3 py-1.5 rounded text-gray-500 hover:text-gray-300 hover:bg-white/5 text-[10px] font-bold font-mono tracking-widest uppercase transition-colors flex items-center gap-1.5 whitespace-nowrap">
+                                    <i data-lucide="code" class="w-3.5 h-3.5"></i> Code
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="mailRichEditor" contenteditable="true" data-placeholder="Write your email content here. You can use HTML & CSS... drag the bottom right corner to resize..." class="w-full flex-1 p-4 text-sm text-white focus:outline-none custom-scroll overflow-y-auto relative outline-none bg-transparent"></div>
+                        <textarea id="mailHtmlEditor" class="w-full flex-1 p-4 text-sm text-green-400 focus:outline-none custom-scroll overflow-y-auto bg-[#0a0a0a] hidden font-mono resize-none border-none outline-none" placeholder="Write pure HTML/CSS code here..."></textarea>
+                        
+                        <div class="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize flex items-end justify-end pointer-events-none opacity-50 p-0.5">
+                            <i data-lucide="scaling" class="w-3 h-3 text-gray-500 transform rotate-90"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-3 w-full mt-6 pt-6 border-t border-white/5 shrink-0">
+                <button onclick="closeSendMailModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
+                <button onclick="submitBroadcastMail()" id="btnSubmitMail" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(41,151,255,0.4)] hover:shadow-[0_0_25px_rgba(41,151,255,0.6)] transition-all bg-myancode-accent hover:bg-blue-500 flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i> Send to All Active
+                </button>
             </div>
         </div>
     </div>
@@ -502,7 +633,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabOrders: "Plan Orders", tabCoupons: "Coupons", tabSettings: "System Settings",
+                menuMain: "Main Menu", tabOverview: "Overview", tabOrders: "Plan Orders", tabCoupons: "Coupons", tabSubscribers: "Newsletter", tabSettings: "System Settings",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
@@ -517,11 +648,11 @@
                 btnUpdate: "Update", loadingOrders: "Loading orders...", noOrders: "No orders found.",
                 updateStatusTitle: "Update Order Status", lblStatus: "Status", lblMonths: "Active Duration (Months)", lblMonthsDesc: "Required for confirmed orders to calculate expiry date.", btnSave: "Save Changes",
                 statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo", viewProof: "View Proof",
-                couponMgtTitle: "Coupon Management"
+                couponMgtTitle: "Coupon Management", newsletterMgtTitle: "Newsletter Subscribers"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabOrders: "အော်ဒါများ", tabCoupons: "ကူပွန်များ", tabSettings: "စနစ် ဆက်တင်များ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabOrders: "အော်ဒါများ", tabCoupons: "ကူပွန်များ", tabSubscribers: "သတင်းလွှာစာရင်း", tabSettings: "စနစ် ဆက်တင်များ",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
@@ -536,7 +667,7 @@
                 btnUpdate: "ပြင်ဆင်မည်", loadingOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noOrders: "အော်ဒါများ မရှိသေးပါ။",
                 updateStatusTitle: "အော်ဒါ အခြေအနေ ပြင်ဆင်ရန်", lblStatus: "အခြေအနေ", lblMonths: "ကာလ (လ)", lblMonthsDesc: "သက်တမ်းကုန်ဆုံးမည့်ရက် တွက်ချက်ရန် လိုအပ်ပါသည်။", btnSave: "သိမ်းဆည်းမည်",
                 statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ", viewProof: "ပြေစာကြည့်ရန်",
-                couponMgtTitle: "ကူပွန် စီမံခန့်ခွဲမှု"
+                couponMgtTitle: "ကူပွန် စီမံခန့်ခွဲမှု", newsletterMgtTitle: "သတင်းလွှာစာရင်းသွင်းသူများ"
             }
         };
 
@@ -654,6 +785,7 @@
 
             fetchAdminOrders();
             fetchAdminCoupons();
+            fetchAdminSubscribers();
             setupRealtimeSubscription();
             hideLoader();
         }
@@ -665,6 +797,9 @@
                 .channel('admin-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'plan_orders' }, payload => {
                     fetchAdminOrders(); 
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'subscribers' }, payload => {
+                    fetchAdminSubscribers();
                 })
                 .subscribe();
         }
@@ -837,6 +972,264 @@
             }).join('');
             
             lucide.createIcons();
+        }
+
+        async function fetchAdminSubscribers() {
+            if(!supabaseInstance || !currentUser) return;
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('subscribers')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if(error) throw error;
+                
+                renderAdminSubscribersTable(data || []);
+
+            } catch (err) {
+                console.error("Error fetching subscribers:", err);
+            }
+        }
+
+        function renderAdminSubscribersTable(subscribers) {
+            const tbody = document.getElementById('adminSubscribersTableBody');
+            
+            if(subscribers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-gray-500 italic">No subscribers found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = subscribers.map(sub => {
+                let statusClass = sub.status === 'active' ? 'status-active' : 'status-inactive';
+                let dateStr = new Date(sub.created_at).toLocaleDateString();
+                
+                return `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">${sub.id.split('-')[0]}</td>
+                    <td class="py-4 font-mono font-bold text-white">${sub.email}</td>
+                    <td class="py-4"><span class="status-badge ${statusClass}">${sub.status}</span></td>
+                    <td class="py-4 text-gray-500 text-xs font-mono">${dateStr}</td>
+                    <td class="py-4 pr-4 text-right">
+                        <button onclick="deleteSubscriber('${sub.id}')" class="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-red-500" title="Delete">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        function openAddSubscriberModal() {
+            document.getElementById('newSubscriberEmail').value = '';
+            document.getElementById('newSubscriberStatus').value = 'active';
+
+            const modal = document.getElementById('addSubscriberModal');
+            const content = document.getElementById('addSubscriberModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeAddSubscriberModal() {
+            const modal = document.getElementById('addSubscriberModal');
+            const content = document.getElementById('addSubscriberModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function submitAddSubscriber() {
+            const email = document.getElementById('newSubscriberEmail').value.trim();
+            const status = document.getElementById('newSubscriberStatus').value;
+
+            if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                showErrorToast("Please enter a valid email address.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitSubscriber');
+            btn.disabled = true;
+            showLoader();
+
+            try {
+                const { error } = await supabaseInstance.from('subscribers').insert([{ email, status }]);
+                if (error) {
+                    if (error.code === '23505') throw new Error("This email is already subscribed.");
+                    throw error;
+                }
+                
+                showToast("Subscriber added successfully.");
+                closeAddSubscriberModal();
+                fetchAdminSubscribers();
+            } catch (err) {
+                showErrorToast(err.message || "Failed to add subscriber.");
+            } finally {
+                btn.disabled = false;
+                hideLoader();
+            }
+        }
+
+        function deleteSubscriber(id) {
+            showConfirmModal(
+                'Delete Subscriber',
+                'Are you sure you want to permanently delete this subscriber?',
+                'danger',
+                async () => {
+                    showLoader();
+                    try {
+                        const { error } = await supabaseInstance.from('subscribers').delete().eq('id', id);
+                        if (error) throw error;
+                        
+                        showToast('Subscriber deleted successfully');
+                        fetchAdminSubscribers();
+                    } catch (err) {
+                        showErrorToast(err.message || 'Failed to delete subscriber');
+                    } finally {
+                        hideLoader();
+                    }
+                }
+            );
+        }
+
+        function openSendMailModal() {
+            document.getElementById('mailSubject').value = '';
+            document.getElementById('mailRichEditor').innerHTML = '';
+            document.getElementById('mailHtmlEditor').value = '';
+            
+            setMailView('visual');
+
+            const modal = document.getElementById('sendMailModal');
+            const content = document.getElementById('sendMailModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeSendMailModal() {
+            const modal = document.getElementById('sendMailModal');
+            const content = document.getElementById('sendMailModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('mailRichEditor').focus();
+        }
+
+        function insertLink() {
+            const url = prompt("Enter the link URL:");
+            if (url) {
+                document.execCommand("createLink", false, url);
+            }
+            document.getElementById('mailRichEditor').focus();
+        }
+
+        function setMailView(viewType) {
+            const richEditor = document.getElementById('mailRichEditor');
+            const htmlEditor = document.getElementById('mailHtmlEditor');
+            const btnVisual = document.getElementById('btnViewVisual');
+            const btnHtml = document.getElementById('btnViewHtml');
+            
+            if (viewType === 'html') {
+                if (htmlEditor.classList.contains('hidden')) {
+                    htmlEditor.value = richEditor.innerHTML;
+                }
+                richEditor.classList.add('hidden');
+                htmlEditor.classList.remove('hidden');
+                
+                btnHtml.classList.add('bg-white/10', 'text-white');
+                btnHtml.classList.remove('text-gray-500', 'hover:text-gray-300', 'hover:bg-white/5');
+                
+                btnVisual.classList.remove('bg-white/10', 'text-white');
+                btnVisual.classList.add('text-gray-500', 'hover:text-gray-300', 'hover:bg-white/5');
+            } else {
+                if (richEditor.classList.contains('hidden')) {
+                    richEditor.innerHTML = htmlEditor.value;
+                }
+                htmlEditor.classList.add('hidden');
+                richEditor.classList.remove('hidden');
+                
+                btnVisual.classList.add('bg-white/10', 'text-white');
+                btnVisual.classList.remove('text-gray-500', 'hover:text-gray-300', 'hover:bg-white/5');
+                
+                btnHtml.classList.remove('bg-white/10', 'text-white');
+                btnHtml.classList.add('text-gray-500', 'hover:text-gray-300', 'hover:bg-white/5');
+            }
+        }
+
+        async function submitBroadcastMail() {
+            const subject = document.getElementById('mailSubject').value.trim();
+            const isHtmlView = !document.getElementById('mailHtmlEditor').classList.contains('hidden');
+            
+            let htmlContent = '';
+            if (isHtmlView) {
+                htmlContent = document.getElementById('mailHtmlEditor').value.trim();
+            } else {
+                htmlContent = document.getElementById('mailRichEditor').innerHTML.trim();
+            }
+
+            if (!subject || !htmlContent) {
+                showErrorToast("Please enter both subject and content.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitMail');
+            btn.disabled = true;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sending...`;
+            lucide.createIcons();
+
+            try {
+                const { data: sessionData, error: sessionError } = await supabaseInstance.auth.getSession();
+                if (sessionError || !sessionData.session) throw new Error("Authentication failed. Session missing.");
+                
+                const token = sessionData.session.access_token;
+
+                // Explicitly calling the exact endpoint of the deployed Edge Function
+                const response = await fetch('https://dnretdraqjwdiwxccmpd.supabase.co/functions/v1/send-newsletter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        subject: subject,
+                        htmlContent: htmlContent
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Broadcast failed (${response.status}): ${errorText}`);
+                }
+
+                showToast("Broadcast emails successfully routed to Resend.");
+                closeSendMailModal();
+            } catch (err) {
+                let errorMsg = err.message;
+                if (errorMsg === 'Failed to fetch') {
+                    errorMsg = "Network error: The send-newsletter edge function might not be deployed or CORS is failing.";
+                }
+                showErrorToast(errorMsg);
+                console.error("Mailing Error:", err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+                lucide.createIcons();
+            }
         }
 
         function openCreateCouponModal() {
@@ -1220,8 +1613,8 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'orders': 'Order Management', 'coupons': 'Coupon Management', 'settings': 'System Settings' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'settings': 'စနစ် ဆက်တင်များ' };
+            const titleMap = { 'overview': 'Overview', 'orders': 'Order Management', 'coupons': 'Coupon Management', 'subscribers': 'Newsletter Subscribers', 'settings': 'System Settings' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'subscribers': 'သတင်းလွှာစာရင်းသွင်းသူများ', 'settings': 'စနစ် ဆက်တင်များ' };
             const titleStr = currentLang === 'en' ? (titleMap[tabId] || 'Dashboard') : (titleMapMM[tabId] || 'Dashboard');
             document.getElementById('headerTitle').innerText = titleStr;
             
@@ -1415,13 +1808,17 @@
                 const updateOrderModal = document.getElementById('updateOrderModal');
                 const createCouponModal = document.getElementById('createCouponModal');
                 const imgModal = document.getElementById('imagePreviewModal');
+                const addSubscriberModal = document.getElementById('addSubscriberModal');
+                const sendMailModal = document.getElementById('sendMailModal');
                 
                 if (e.key === 'Escape') {
-                    if (!cropperModal.classList.contains('hidden')) cancelCrop();
-                    if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
-                    if (!updateOrderModal.classList.contains('hidden')) closeUpdateOrderModal();
-                    if (!createCouponModal.classList.contains('hidden')) closeCreateCouponModal();
-                    if (!imgModal.classList.contains('hidden')) closeImagePreview();
+                    if (cropperModal && !cropperModal.classList.contains('hidden')) cancelCrop();
+                    if (confirmModal && !confirmModal.classList.contains('hidden')) closeConfirmModal();
+                    if (updateOrderModal && !updateOrderModal.classList.contains('hidden')) closeUpdateOrderModal();
+                    if (createCouponModal && !createCouponModal.classList.contains('hidden')) closeCreateCouponModal();
+                    if (imgModal && !imgModal.classList.contains('hidden')) closeImagePreview();
+                    if (addSubscriberModal && !addSubscriberModal.classList.contains('hidden')) closeAddSubscriberModal();
+                    if (sendMailModal && !sendMailModal.classList.contains('hidden')) closeSendMailModal();
                 }
             });
         });
