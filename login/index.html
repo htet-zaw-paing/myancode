@@ -1456,35 +1456,50 @@
                     const isRecovery = isUrlRecoveryFlow || event === 'PASSWORD_RECOVERY';
 
                     if (session && session.user) {
-                            let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
-                            const trueRole = profileRole.toLowerCase();
-
-                            currentUser = {
-                                name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                                email: session.user.email || '',
-                                id: session.user.id,
-                                avatar_url: session.user.user_metadata?.avatar_url || null,
-                                role: trueRole
-                            };
-                            currentUserCart = session.user.user_metadata?.wishlist || [];
-
-                            const lockoutStatus = await fetchLockoutStatus(session.user.email);
-                            if (lockoutStatus.fails >= 21 || Date.now() < lockoutStatus.lockoutTime) {
-                                await supabaseInstance.auth.signOut();
-                                currentUser = null;
-                                currentUserCart = [];
-                                hideLoader();
-                                
-                                const formEl = document.getElementById('loginFormCard');
-                                if (formEl) formEl.style.display = 'block';
-                                
-                                currentFailedAttempts = lockoutStatus.fails;
-                                currentLockoutTime = lockoutStatus.lockoutTime;
-                                updateLockoutUI();
-                                
-                                showErrorToast(currentLang === 'en' ? "Access denied. Account is blocked or locked." : "ဝင်ရောက်ခွင့် ပိတ်ပင်ထားပါသည်။");
-                                return;
+                        const lockoutStatus = await fetchLockoutStatus(session.user.email);
+                        if (lockoutStatus.fails >= 21 || Date.now() < lockoutStatus.lockoutTime) {
+                            await supabaseInstance.auth.signOut();
+                            
+                            currentUser = null;
+                            currentUserCart = [];
+                            
+                            if (window.history && window.history.replaceState) {
+                                const cleanUrlObj = new URL(window.location.href);
+                                cleanUrlObj.searchParams.delete('type');
+                                cleanUrlObj.hash = '';
+                                window.history.replaceState({}, document.title, cleanUrlObj.pathname);
                             }
+                            
+                            hideLoader();
+                            
+                            const formEl = document.getElementById('loginFormCard');
+                            if (formEl) formEl.style.display = 'block';
+                            
+                            const loggedInState = document.getElementById('alreadyLoggedInState');
+                            if (loggedInState) {
+                                loggedInState.classList.add('hidden');
+                                loggedInState.classList.remove('flex');
+                            }
+                            
+                            currentFailedAttempts = lockoutStatus.fails;
+                            currentLockoutTime = lockoutStatus.lockoutTime;
+                            updateLockoutUI();
+                            
+                            showErrorToast(currentLang === 'en' ? "Access denied. Account is permanently blocked or locked." : "ဝင်ရောက်ခွင့် ပိတ်ပင်ထားပါသည်။");
+                            return; 
+                        }
+
+                        let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
+                        const trueRole = profileRole.toLowerCase();
+
+                        currentUser = {
+                            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                            email: session.user.email || '',
+                            id: session.user.id,
+                            avatar_url: session.user.user_metadata?.avatar_url || null,
+                            role: trueRole
+                        };
+                        currentUserCart = session.user.user_metadata?.wishlist || [];
 
                         if (isRecovery) {
                             hideLoader();
@@ -1587,10 +1602,17 @@
 
         async function fetchLockoutStatus(email) {
             if (!supabaseInstance || !email) return { fails: 0, lockoutTime: 0 };
-            const { data } = await supabaseInstance.from('auth_lockouts').select('*').eq('email', email).single();
-            if (data) {
-                const lockoutTime = data.lockout_until ? new Date(data.lockout_until).getTime() : 0;
-                return { fails: data.failed_attempts || 0, lockoutTime };
+            try {
+                const { data, error } = await supabaseInstance.from('auth_lockouts').select('*').eq('email', email).single();
+                if (error && error.code !== 'PGRST116') {
+                    console.error("Lockout fetch error:", error);
+                }
+                if (data) {
+                    const lockoutTime = data.lockout_until ? new Date(data.lockout_until).getTime() : 0;
+                    return { fails: data.failed_attempts || 0, lockoutTime };
+                }
+            } catch(e) {
+                console.error(e);
             }
             return { fails: 0, lockoutTime: 0 };
         }
@@ -2398,6 +2420,14 @@
                 return;
             }
 
+            showLoader();
+            const status = await fetchLockoutStatus(email);
+            if (status.fails >= 21) {
+                hideLoader();
+                showErrorToast(currentLang === 'en' ? "Account is permanently blocked." : "အကောင့်ကို အမြဲတမ်းပိတ်လိုက်ပါသည်။");
+                return;
+            }
+
             btn.disabled = true;
             const originalHTML = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-black"></i>`;
@@ -2414,9 +2444,11 @@
 
                 if (error) throw error;
 
+                hideLoader();
                 showToast(currentLang === 'en' ? "Recovery link sent successfully. Check your email." : "စကားဝှက်အသစ်သတ်မှတ်ရန် အီးမေးလ် ပို့လိုက်ပါပြီ။");
                 closeForgotModal();
             } catch (err) {
+                hideLoader();
                 showErrorToast(err.message || "Failed to send recovery link.");
             } finally {
                 btn.disabled = false;
@@ -2459,6 +2491,19 @@
                 return;
             }
 
+            showLoader();
+            const status = await fetchLockoutStatus(email);
+            if (status.fails >= 21) {
+                hideLoader();
+                showErrorToast(currentLang === 'en' ? "Account is permanently blocked." : "အကောင့်ကို အမြဲတမ်းပိတ်လိုက်ပါသည်။");
+                return;
+            }
+            if (Date.now() < status.lockoutTime) {
+                hideLoader();
+                showErrorToast(currentLang === 'en' ? "Please wait for the lockout period to end." : "ကျေးဇူးပြု၍ သတ်မှတ်ချိန်ပြည့်သည်အထိ စောင့်ပါ။");
+                return;
+            }
+
             btn.disabled = true;
             const originalHTML = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-white"></i>`;
@@ -2478,9 +2523,11 @@
 
                 if (error) throw error;
 
+                hideLoader();
                 showToast(currentLang === 'en' ? "Magic link sent successfully. Please check your inbox." : "ဝင်ရောက်ရန်လင့်ခ် ပေးပို့ပြီးပါပြီ။ သင်၏ အီးမေးလ်ကို စစ်ဆေးပါ။");
                 closeMagicLinkModal();
             } catch (err) {
+                hideLoader();
                 showErrorToast(err.message || "Failed to send login link.");
             } finally {
                 btn.disabled = false;
@@ -2544,6 +2591,17 @@
         }
 
         async function handleGoogleLogin() {
+            const emailInput = document.getElementById('loginEmail').value.trim();
+            if (emailInput && emailInput.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                showLoader('loadingAuth');
+                const status = await fetchLockoutStatus(emailInput);
+                if (status.fails >= 21 || Date.now() < status.lockoutTime) {
+                    hideLoader();
+                    showErrorToast(currentLang === 'en' ? "Account is permanently blocked or locked." : "ဝင်ရောက်ခွင့် ပိတ်ပင်ထားပါသည်။");
+                    return;
+                }
+            }
+            
             showLoader('loadingAuth');
             try {
                 const urlObj = new URL(window.location.href);
@@ -2564,6 +2622,17 @@
         }
 
         async function handleGithubLogin() {
+            const emailInput = document.getElementById('loginEmail').value.trim();
+            if (emailInput && emailInput.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                showLoader('loadingAuth');
+                const status = await fetchLockoutStatus(emailInput);
+                if (status.fails >= 21 || Date.now() < status.lockoutTime) {
+                    hideLoader();
+                    showErrorToast(currentLang === 'en' ? "Account is permanently blocked or locked." : "ဝင်ရောက်ခွင့် ပိတ်ပင်ထားပါသည်။");
+                    return;
+                }
+            }
+
             showLoader('loadingAuth');
             try {
                 const urlObj = new URL(window.location.href);
