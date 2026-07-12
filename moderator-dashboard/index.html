@@ -829,7 +829,7 @@
         async function submitBanUser() {
             const email = document.getElementById('banEmailInput').value.trim();
             if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showErrorToast("Please enter a valid email address.");
+                showErrorToast(currentLang === 'en' ? "Please enter a valid email address." : "ကျေးဇူးပြု၍ မှန်ကန်သောအီးမေးလ်ကို ထည့်ပါ။");
                 return;
             }
             
@@ -837,9 +837,36 @@
             btn.disabled = true;
             const originalText = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-white"></i>`;
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
+                const { data: profileData, error: profileError } = await supabaseInstance
+                    .from('profiles')
+                    .select('role')
+                    .ilike('email', email)
+                    .maybeSingle();
+
+                if (profileError && profileError.code !== 'PGRST116') {
+                    throw profileError;
+                }
+
+                if (!profileData) {
+                    showErrorToast(currentLang === 'en' ? "User not found in the database." : "အသုံးပြုသူ ရှာမတွေ့ပါ။");
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    return;
+                }
+
+                const targetRole = (profileData.role || 'client').toLowerCase();
+                if (targetRole === 'founder' || targetRole === 'admin') {
+                    showErrorToast(currentLang === 'en' ? "Action denied. You cannot ban a Founder or Admin." : "Founder သို့မဟုတ် Admin အား ပိတ်ပင်ခွင့် မရှိပါ။");
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    return;
+                }
+
                 const lockoutDate = new Date(Date.now() + (100 * 365 * 24 * 60 * 60 * 1000)).toISOString();
                 
                 const { error } = await supabaseInstance.from('auth_lockouts').upsert({
@@ -851,13 +878,14 @@
 
                 if (error) throw error;
 
-                showToast("User has been permanently blocked.");
+                showToast(currentLang === 'en' ? "User has been permanently blocked." : "အသုံးပြုသူအား အပြီးအပိုင်ပိတ်ပင်လိုက်ပါပြီ။");
                 closeBanUserModal();
             } catch (err) {
-                showErrorToast(err.message || "Failed to ban user.");
+                showErrorToast(err.message || (currentLang === 'en' ? "Failed to ban user." : "ပိတ်ပင်ခြင်း မအောင်မြင်ပါ။"));
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             }
         }
 
