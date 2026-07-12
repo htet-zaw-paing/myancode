@@ -9,7 +9,6 @@
     <link rel="icon" href="../imgs/web-banners/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-     <script src="../js/cookie-consent.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -224,7 +223,8 @@
             <div id="view-access" class="view-section hidden flex-col gap-8 max-w-6xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
-                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display"><i data-lucide="shield-alert" class="h-7 w-7 text-red-400"></i> <span data-i18n="authLockouts">Locked Accounts</span></h3>
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display"><i data-lucide="shield-alert" class="h-7 w-7 text-red-400"></i> Locked Accounts</h3>
+                        <button onclick="openBanUserModal()" class="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-xs font-bold text-red-400 transition-colors"><i data-lucide="user-x" class="w-4 h-4"></i> Ban User</button>
                     </div>
                     
                     <div class="overflow-x-auto custom-scroll border border-white/5 rounded-2xl bg-[#0a0a0a]">
@@ -331,6 +331,26 @@
         </div>
     </div>
 
+    <div id="banUserModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeBanUserModal()">
+        <div class="glass-panel border border-red-500/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(239,68,68,0.1)] transform scale-95 transition-transform duration-300 text-center" id="banUserModalContent" onclick="event.stopPropagation()">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6">
+                <i data-lucide="user-x" class="h-8 w-8 text-red-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold font-display tracking-tight text-white mb-3">Ban User</h3>
+            <p class="text-[13px] font-medium text-gray-400 mb-8 leading-relaxed">Enter the email address of the user you want to permanently block.</p>
+            <div class="space-y-6 text-left">
+                <div>
+                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">User Email</label>
+                    <input type="email" id="banEmailInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-red-500 shadow-inner" placeholder="user@example.com">
+                </div>
+                <div class="flex space-x-4 w-full pt-2">
+                    <button onclick="closeBanUserModal()" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors">Cancel</button>
+                    <button onclick="submitBanUser()" id="btnSubmitBan" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700 btn-hover-effect">Block User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="postPreviewModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closePostPreviewModal()">
         <div class="glass-panel border border-white/10 rounded-[2.5rem] w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
             <div class="p-6 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-[2.5rem]">
@@ -391,7 +411,7 @@
                 profSecurity: "Security & Access", profOldPass: "Current Password", profPass: "New Password", profPassConfirm: "Confirm Password", profUpdatePassBtn: "Update Authentication",
                 cropTitle: "Crop Photo", cropCancel: "Cancel", cropSave: "Save",
                 msgLoggedOut: "Signed out securely.",
-                authLockouts: "Locked Accounts", unblockAcc: "Unblock"
+                unblockAcc: "Unblock"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
@@ -404,7 +424,7 @@
                 profSecurity: "လုံခြုံရေး", profOldPass: "လက်ရှိ စကားဝှက်", profPass: "စကားဝှက်အသစ်", profPassConfirm: "စကားဝှက်အသစ် အတည်ပြုရန်", profUpdatePassBtn: "စကားဝှက် ပြောင်းရန်",
                 cropTitle: "ဓာတ်ပုံဖြတ်မည်", cropCancel: "ပယ်ဖျက်မည်", cropSave: "သိမ်းဆည်းမည်",
                 msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
-                authLockouts: "ပိတ်ခံထားရသော အကောင့်များ", unblockAcc: "ပိတ်ပင်မှု ရုပ်သိမ်းမည်"
+                unblockAcc: "ပိတ်ပင်မှု ရုပ်သိမ်းမည်"
             }
         };
 
@@ -536,47 +556,6 @@
                     }
                 })
                 .subscribe();
-        }
-
-        let liveTimerInterval;
-        function startLiveTimers() {
-            if(liveTimerInterval) clearInterval(liveTimerInterval);
-            liveTimerInterval = setInterval(() => {
-                const now = Date.now();
-                document.querySelectorAll('.live-lockout-timer').forEach(el => {
-                    const lockoutTime = parseInt(el.getAttribute('data-time'));
-                    if(lockoutTime > now) {
-                        const diff = Math.ceil((lockoutTime - now)/1000);
-                        const m = Math.floor(diff/60);
-                        const s = diff%60;
-                        el.innerText = `Locked (${m}m ${s}s)`;
-                    } else {
-                        el.innerText = 'Active (Warning)';
-                        el.className = 'text-gray-400 font-bold';
-                    }
-                });
-            }, 1000);
-        }
-
-        function optimisticRemove(id) {
-            const el = document.getElementById(id);
-            if(el) {
-                el.style.transition = 'all 0.2s ease-out';
-                el.style.opacity = '0';
-                el.style.transform = 'scale(0.95)';
-                setTimeout(() => { el.style.display = 'none'; }, 200);
-            }
-        }
-        
-        function optimisticRevert(id) {
-            const el = document.getElementById(id);
-            if(el) {
-                el.style.display = '';
-                setTimeout(() => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'scale(1)';
-                }, 10);
-            }
         }
 
         async function submitForcePassword() {
@@ -781,13 +760,11 @@
                     if (isPermanentlyLocked) {
                         statusHtml = '<span class="text-red-500 font-bold">Permanently Blocked</span>';
                     } else if (isTemporarilyLocked) {
-                        statusHtml = `<span class="text-orange-400 font-bold live-lockout-timer" data-time="${lockoutTime}">Locked</span>`;
+                        statusHtml = `<span class="text-orange-400 font-bold">Locked</span>`;
                     }
 
-                    const safeEmail = acc.email.replace(/[^a-zA-Z0-9]/g, '_');
-
                     return `
-                        <tr id="lockout-row-${safeEmail}" class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                        <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
                             <td class="px-6 py-4 align-top w-1/3">
                                 <div class="font-bold text-white mb-1 truncate">${acc.email}</div>
                                 <div class="text-[11px] text-gray-500 font-mono">Last attempt: ${new Date(acc.last_attempt).toLocaleString()}</div>
@@ -807,7 +784,6 @@
                     `;
                 }).join('');
                 if(typeof lucide !== 'undefined') lucide.createIcons();
-                startLiveTimers();
 
             } catch (err) {
                 tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
@@ -817,20 +793,72 @@
 
         function unblockAccount(email) {
             showConfirmModal("Unblock Account", `Are you sure you want to completely unblock ${email} and reset their failed attempts to 0?`, "warning", async () => {
-                const safeEmail = email.replace(/[^a-zA-Z0-9]/g, '_');
-                const rowId = `lockout-row-${safeEmail}`;
-                optimisticRemove(rowId);
-
                 try {
                     const { error } = await supabaseInstance.from('auth_lockouts').delete().eq('email', email);
                     if (error) throw error;
                     showToast("Account successfully unblocked.");
                 } catch(e) {
-                    optimisticRevert(rowId);
                     showErrorToast("Error: " + (e.message || "Failed to unblock account."));
-                    fetchLockedAccounts(true);
                 }
             });
+        }
+
+        function openBanUserModal() {
+            document.getElementById('banEmailInput').value = '';
+            const modal = document.getElementById('banUserModal');
+            const content = document.getElementById('banUserModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeBanUserModal() {
+            const modal = document.getElementById('banUserModal');
+            const content = document.getElementById('banUserModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function submitBanUser() {
+            const email = document.getElementById('banEmailInput').value.trim();
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showErrorToast("Please enter a valid email address.");
+                return;
+            }
+            
+            const btn = document.getElementById('btnSubmitBan');
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-white"></i>`;
+            lucide.createIcons();
+
+            try {
+                const lockoutDate = new Date(Date.now() + (100 * 365 * 24 * 60 * 60 * 1000)).toISOString();
+                
+                const { error } = await supabaseInstance.from('auth_lockouts').upsert({
+                    email: email,
+                    failed_attempts: 21,
+                    lockout_until: lockoutDate,
+                    last_attempt: new Date().toISOString()
+                });
+
+                if (error) throw error;
+
+                showToast("User has been permanently blocked.");
+                closeBanUserModal();
+            } catch (err) {
+                showErrorToast(err.message || "Failed to ban user.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
         }
 
         async function fetchReportedPosts(isSilent = false) {
@@ -878,7 +906,7 @@
                     const formattedDate = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
                     return `
-                        <tr id="report-row-${report.id}" class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                        <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
                             <td class="px-6 py-4 align-top w-1/4">
                                 <div class="font-bold text-white mb-1 capitalize">${report.reason || 'Reported'}</div>
                                 <div class="text-[11px] text-gray-500 font-mono">${formattedDate}</div>
@@ -920,9 +948,7 @@
             const actionText = isPostAlreadyDeleted ? "dismiss this report (post is already deleted)" : "permanently delete this post from the marketplace";
             
             showConfirmModal("Delete Post", `Are you sure you want to ${actionText}? This action cannot be undone.`, "danger", async () => {
-                const rowId = `report-row-${reportId}`;
-                optimisticRemove(rowId);
-
+                showLoader("Processing deletion...");
                 try {
                     if (!isPostAlreadyDeleted && postId && postId !== 'undefined' && postId !== 'null') {
                         const { error: deleteError } = await supabaseInstance
@@ -942,27 +968,25 @@
                     
                     showToast(isPostAlreadyDeleted ? "Report cleared." : "Post permanently deleted from marketplace.");
                 } catch(e) {
-                    optimisticRevert(rowId);
                     showErrorToast("Error: " + (e.message || "Failed to delete post."));
-                    fetchReportedPosts(true);
+                } finally {
+                    hideLoader();
                 }
             });
         }
 
         function dismissReport(reportId) {
             showConfirmModal("Ignore Report", "Are you sure you want to ignore this report? The post will remain visible in the marketplace.", "warning", async () => {
-                const rowId = `report-row-${reportId}`;
-                optimisticRemove(rowId);
-
+                showLoader();
                 try {
                     const {error} = await supabaseInstance.from('marketplace_reports').update({ status: 'ignored' }).eq('id', reportId);
                     if (error) throw error;
                     
                     showToast("Report ignored.");
                 } catch(e) {
-                    optimisticRevert(rowId);
                     showErrorToast(e.message || "Failed to ignore report.");
-                    fetchReportedPosts(true);
+                } finally {
+                    hideLoader();
                 }
             });
         }
@@ -1254,11 +1278,13 @@
                 const cropperModal = document.getElementById('cropperModal');
                 const confirmModal = document.getElementById('confirmModal');
                 const postPreviewModal = document.getElementById('postPreviewModal');
+                const banUserModal = document.getElementById('banUserModal');
                 
                 if (e.key === 'Escape') {
                     if (!cropperModal.classList.contains('hidden')) cancelCrop();
                     if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
                     if (!postPreviewModal.classList.contains('hidden')) closePostPreviewModal();
+                    if (!banUserModal.classList.contains('hidden')) closeBanUserModal();
                 }
             });
         });
