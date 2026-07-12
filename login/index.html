@@ -916,8 +916,7 @@
 
                 <button onclick="submitNewPassword()" id="btnSubmitUpdatePass"
                     class="w-full btn-hover-effect bg-myancode-accent text-white py-4 rounded-full text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-[0_0_20px_rgba(41,151,255,0.3)] mt-6 flex justify-center items-center gap-2">
-                    <span data-i18n="btnUpdatePass">Update & Login</span> <i data-lucide="check-circle"
-                        class="w-4 h-4 ml-1"></i>
+                    <span data-i18n="btnUpdatePass">Update & Login</span>
                 </button>
             </div>
         </div>
@@ -1288,7 +1287,7 @@
 
                 ftCompanyTitle: "Company", ftAboutUs: "Read Our Story", ftContactUs: "Contact Us", ftUpdates: "Updates & News", ftCareers: "Careers",
                 ftStoreTitle: "Store", ftAddOns: "Add-Ons", ftTemplates: "Templates", ftServices: "Services", ftMaintenance: "Maintenance",
-                ftSupportTitle: "Support", supGuides: "Documentation", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal", supContact: "Contact Sales",
+                ftSupportTitle: "Support", supGuides: "Documentation", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal", supContact: "Contact",
                 supHelpTitle: "Explore Support.", supPoliciesTitle: "Service Policies", supLegalTitle: "Legal & Transactions",
                 polClient: "Customer Policy", polStudio: "Studio Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
 
@@ -1457,17 +1456,35 @@
                     const isRecovery = isUrlRecoveryFlow || event === 'PASSWORD_RECOVERY';
 
                     if (session && session.user) {
-                        let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
-                        const trueRole = profileRole.toLowerCase();
+                            let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
+                            const trueRole = profileRole.toLowerCase();
 
-                        currentUser = {
-                            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                            email: session.user.email || '',
-                            id: session.user.id,
-                            avatar_url: session.user.user_metadata?.avatar_url || null,
-                            role: trueRole
-                        };
-                        currentUserCart = session.user.user_metadata?.wishlist || [];
+                            currentUser = {
+                                name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                                email: session.user.email || '',
+                                id: session.user.id,
+                                avatar_url: session.user.user_metadata?.avatar_url || null,
+                                role: trueRole
+                            };
+                            currentUserCart = session.user.user_metadata?.wishlist || [];
+
+                            const lockoutStatus = await fetchLockoutStatus(session.user.email);
+                            if (lockoutStatus.fails >= 21 || Date.now() < lockoutStatus.lockoutTime) {
+                                await supabaseInstance.auth.signOut();
+                                currentUser = null;
+                                currentUserCart = [];
+                                hideLoader();
+                                
+                                const formEl = document.getElementById('loginFormCard');
+                                if (formEl) formEl.style.display = 'block';
+                                
+                                currentFailedAttempts = lockoutStatus.fails;
+                                currentLockoutTime = lockoutStatus.lockoutTime;
+                                updateLockoutUI();
+                                
+                                showErrorToast(currentLang === 'en' ? "Access denied. Account is blocked or locked." : "ဝင်ရောက်ခွင့် ပိတ်ပင်ထားပါသည်။");
+                                return;
+                            }
 
                         if (isRecovery) {
                             hideLoader();
