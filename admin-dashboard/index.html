@@ -702,6 +702,8 @@
         let currentSessionTemp = null;
         let currentProfileTemp = null;
         let adminOrders = [];
+        let adminCoupons = [];
+        let adminSubscribers = [];
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
@@ -796,10 +798,40 @@
             supabaseInstance
                 .channel('admin-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'plan_orders' }, payload => {
-                    fetchAdminOrders(); 
+                    if (payload.eventType === 'INSERT') {
+                        if (!adminOrders.find(o => o.id === payload.new.id)) adminOrders.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = adminOrders.findIndex(o => o.id === payload.new.id);
+                        if (idx > -1) adminOrders[idx] = Object.assign({}, adminOrders[idx], payload.new);
+                        else adminOrders.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        adminOrders = adminOrders.filter(o => o.id !== payload.old.id);
+                    }
+                    filterAdminOrders(); 
                 })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'subscribers' }, payload => {
-                    fetchAdminSubscribers();
+                    if (payload.eventType === 'INSERT') {
+                        if (!adminSubscribers.find(s => s.id === payload.new.id)) adminSubscribers.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = adminSubscribers.findIndex(s => s.id === payload.new.id);
+                        if (idx > -1) adminSubscribers[idx] = Object.assign({}, adminSubscribers[idx], payload.new);
+                        else adminSubscribers.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        adminSubscribers = adminSubscribers.filter(s => s.id !== payload.old.id);
+                    }
+                    renderAdminSubscribersTable(adminSubscribers);
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        if (!adminCoupons.find(c => c.id === payload.new.id)) adminCoupons.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = adminCoupons.findIndex(c => c.id === payload.new.id);
+                        if (idx > -1) adminCoupons[idx] = Object.assign({}, adminCoupons[idx], payload.new);
+                        else adminCoupons.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        adminCoupons = adminCoupons.filter(c => c.id !== payload.old.id);
+                    }
+                    renderAdminCouponsTable(adminCoupons);
                 })
                 .subscribe();
         }
@@ -906,7 +938,7 @@
                             <button onclick="openUpdateOrderModal('${order.id}', '${order.status}', ${order.months}, '${order.user_id}')" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-xs font-bold text-white">
                                 ${dict[currentLang].btnUpdate}
                             </button>
-                            <button onclick="deleteAdminOrder('${order.id}')" class="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-50 hover:text-white transition-all text-red-500" title="Delete">
+                            <button onclick="deleteAdminOrder('${order.id}')" class="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-red-500" title="Delete">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -927,7 +959,8 @@
 
                 if(error) throw error;
                 
-                renderAdminCouponsTable(data || []);
+                adminCoupons = data || [];
+                renderAdminCouponsTable(adminCoupons);
 
             } catch (err) {
                 console.error("Error fetching admin coupons:", err);
@@ -984,7 +1017,8 @@
 
                 if(error) throw error;
                 
-                renderAdminSubscribersTable(data || []);
+                adminSubscribers = data || [];
+                renderAdminSubscribersTable(adminSubscribers);
 
             } catch (err) {
                 console.error("Error fetching subscribers:", err);
@@ -1058,7 +1092,7 @@
             showLoader();
 
             try {
-                const { error } = await supabaseInstance.from('subscribers').insert([{ email, status }]);
+                const { data, error } = await supabaseInstance.from('subscribers').insert([{ email, status }]).select().single();
                 if (error) {
                     if (error.code === '23505') throw new Error("This email is already subscribed.");
                     throw error;
@@ -1066,7 +1100,11 @@
                 
                 showToast("Subscriber added successfully.");
                 closeAddSubscriberModal();
-                fetchAdminSubscribers();
+                
+                if (data && !adminSubscribers.find(s => s.id === data.id)) {
+                    adminSubscribers.unshift(data);
+                    renderAdminSubscribersTable(adminSubscribers);
+                }
             } catch (err) {
                 showErrorToast(err.message || "Failed to add subscriber.");
             } finally {
@@ -1083,11 +1121,16 @@
                 async () => {
                     showLoader();
                     try {
-                        const { error } = await supabaseInstance.from('subscribers').delete().eq('id', id);
+                        const { error, data } = await supabaseInstance.from('subscribers').delete().eq('id', id).select();
                         if (error) throw error;
                         
+                        if (!data || data.length === 0) {
+                            throw new Error("Deletion blocked by Database RLS Policy. Ensure the policy is added in Supabase.");
+                        }
+                        
                         showToast('Subscriber deleted successfully');
-                        fetchAdminSubscribers();
+                        adminSubscribers = adminSubscribers.filter(s => s.id !== id);
+                        renderAdminSubscribersTable(adminSubscribers);
                     } catch (err) {
                         showErrorToast(err.message || 'Failed to delete subscriber');
                     } finally {
@@ -1102,7 +1145,7 @@
             document.getElementById('mailRichEditor').innerHTML = '';
             document.getElementById('mailHtmlEditor').value = '';
             
-            setMailView('visual');
+            setMailView('html');
 
             const modal = document.getElementById('sendMailModal');
             const content = document.getElementById('sendMailModalContent');
@@ -1290,12 +1333,16 @@
                 if (end) insertData.end_date = new Date(end).toISOString();
                 if (limit) insertData.usage_limit = parseInt(limit);
 
-                const { error } = await supabaseInstance.from('coupons').insert([insertData]);
+                const { data, error } = await supabaseInstance.from('coupons').insert([insertData]).select().single();
                 if (error) throw error;
                 
                 showToast("Coupon created successfully.");
                 closeCreateCouponModal();
-                fetchAdminCoupons();
+                
+                if (data && !adminCoupons.find(c => c.id === data.id)) {
+                    adminCoupons.unshift(data);
+                    renderAdminCouponsTable(adminCoupons);
+                }
             } catch (err) {
                 showErrorToast(err.message || "Failed to create coupon.");
             } finally {
@@ -1312,11 +1359,12 @@
                 async () => {
                     showLoader();
                     try {
-                        const { error } = await supabaseInstance.from('coupons').delete().eq('id', id);
+                        const { error, data } = await supabaseInstance.from('coupons').delete().eq('id', id).select();
                         if (error) throw error;
                         
                         showToast('Coupon deleted successfully');
-                        fetchAdminCoupons();
+                        adminCoupons = adminCoupons.filter(c => c.id !== id);
+                        renderAdminCouponsTable(adminCoupons);
                     } catch (err) {
                         showErrorToast(err.message || 'Failed to delete coupon');
                     } finally {
@@ -1390,12 +1438,26 @@
                     updateData.expires_at = expDate.toISOString();
                 }
 
-                const { error } = await supabaseInstance.from('plan_orders').update(updateData).eq('id', id);
+                const { data, error } = await supabaseInstance.from('plan_orders').update(updateData).eq('id', id).select().single();
                 if (error) throw error;
                 
                 showToast("Order status updated successfully.");
                 closeUpdateOrderModal();
-                fetchAdminOrders();
+                
+                if (data) {
+                    const idx = adminOrders.findIndex(o => o.id === data.id);
+                    if(idx > -1) adminOrders[idx] = data;
+                    
+                    if (status === 'Confirmed') {
+                        adminOrders.forEach(o => {
+                            if (o.user_id === userId && o.id !== id && o.status === 'Confirmed') {
+                                o.status = 'Expired';
+                            }
+                        });
+                    }
+
+                    filterAdminOrders();
+                }
             } catch (err) {
                 showErrorToast(err.message || "Failed to update order.");
             } finally {

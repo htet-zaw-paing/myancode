@@ -957,8 +957,7 @@
                     </p>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-[1400px] mb-16 text-left">
-                    
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-[1536px] mb-16 text-left">
                     <div class="group bg-[#09090b] border border-zinc-800 hover:border-zinc-600 rounded-[2rem] p-8 flex flex-col transition-all duration-500 hover:-translate-y-2 shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_15px_40px_rgba(255,255,255,0.15)] relative z-10 overflow-hidden h-full">
                         <div class="absolute inset-0 bg-gradient-to-br from-zinc-800/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                         <h3 class="text-2xl font-display font-semibold text-white mb-2 group-hover:text-gray-200 transition-colors z-10" data-i18n="planStarter">Starter</h3>
@@ -1007,11 +1006,11 @@
                             <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i> <span data-i18n="pr_feat5">5 Content Updates / Month</span></li>
                             <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i> <span data-i18n="pr_feat6">System & Deployment Management</span></li>
                         </ul>
-                        <a href="./plan-purchase/?plan=pro" class="w-full bg-violet-600 border border-purple-500/40 text-white group-hover:bg-purple-600 group-hover:text-white group-hover:border-purple-500 py-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.05)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] text-center btn-hover-effect mt-auto z-10" data-i18n="btnPro">Go Pro</a>
+                        <a href="./plan-purchase/?plan=pro" class="w-full bg-[#1d1133] border border-purple-500/40 text-purple-300 group-hover:bg-purple-600 group-hover:text-white group-hover:border-purple-500 py-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.05)] group-hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] text-center btn-hover-effect mt-auto z-10" data-i18n="btnPro">Go Pro</a>
                     </div>
                     
                     <div class="relative group z-10 h-full flex flex-col transition-all duration-700 hover:-translate-y-3">
-                        <div class="absolute -inset-[3px] bg-gradient-to-br from-[#d4af37] via-[#fffde7] to-[#aa8000] rounded-[2.2rem] blur-[15px] opacity-60 group-hover:opacity-100 animate-[pulse_4s_ease-in-out_infinite] transition duration-700 -z-10"></div>
+                        <div class="absolute -inset-[3px] bg-gradient-to-br from-slate-400 via-gray-300 to-zinc-500 rounded-[2.2rem] blur-[15px] opacity-60 group-hover:opacity-100 animate-[pulse_4s_ease-in-out_infinite] transition duration-700 -z-10"></div>
                         
                         <div class="bg-[#050505] border border-yellow-500/40 group-hover:border-yellow-400/80 rounded-[2rem] p-8 flex flex-col relative z-10 overflow-hidden backdrop-blur-3xl h-full flex-1 shadow-[inset_0_0_40px_rgba(212,175,55,0.1)] group-hover:shadow-[inset_0_0_60px_rgba(212,175,55,0.2)] transition-all duration-700">
                             <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-transparent opacity-50 pointer-events-none"></div>
@@ -1035,7 +1034,6 @@
                             <a href="./plan-purchase/?plan=ultra" class="w-full bg-gradient-to-r from-[#d4af37] to-[#aa8000] text-black group-hover:from-[#ffd700] group-hover:to-[#d4af37] py-4 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_35px_rgba(212,175,55,0.5)] text-center btn-hover-effect mt-auto z-10" data-i18n="btnUltra">Go Ultra</a>
                         </div>
                     </div>
-                    
                 </div>
             </div>
         </section>
@@ -1553,6 +1551,7 @@
                 u_feat9: "Hosting + Domain Management", 
                 u_feat10: "Dedicated Account Manager", 
                 btnUltra: "Go Ultra",
+                btnActivePlan: "Currently Active",
                 
                 tagOrg: "Organization",
                 aboutStatsTitle: "Trusted by Enterprises.",
@@ -1747,6 +1746,7 @@
                 u_feat9: "ဟို့စ်တင်း နှင့် ဒိုမိန်း စီမံခန့်ခွဲပေးခြင်း", 
                 u_feat10: "သီးသန့် အကောင့်မန်နေဂျာ", 
                 btnUltra: "အာလ်ထရာ အစီအစဉ် ရယူရန်",
+                btnActivePlan: "လက်ရှိအသုံးပြုနေပါသည်",
                 
                 tagOrg: "အဖွဲ့အစည်း",
                 aboutStatsTitle: "ယုံကြည်စိတ်ချရသော ဝန်ဆောင်မှု။",
@@ -1795,6 +1795,14 @@
 
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
         let hasAnimatedStats = false; let statsDataReady = false; 
+        
+        let activePlanId = null; let activePlanName = null; let activeOrderObj = null; let currentDiscountValue = 0;
+        const PLANS = {
+            'starter': { id: 'starter', name: 'Starter Plan', price: 30000 },
+            'plus': { id: 'plus', name: 'Plus Plan', price: 80000 },
+            'pro': { id: 'pro', name: 'Pro Plan', price: 180000 },
+            'ultra': { id: 'ultra', name: 'Ultra Plan', price: 350000 }
+        };
 
         function showLoader(i18nKey = 'loadingInit') {
             if (i18nKey !== 'loadingInit') {
@@ -1839,7 +1847,83 @@
 
         function setupUserSession(session) {
             currentUser = { name: session.user.user_metadata?.full_name || session.user.email.split('@')[0], email: session.user.email, id: session.user.id, avatar_url: session.user.user_metadata?.avatar_url || null, role: session.user.app_metadata?.role || session.user.user_metadata?.role || 'client' };
-            currentUserCart = session.user.user_metadata?.wishlist || []; updateAuthUI();
+            currentUserCart = session.user.user_metadata?.wishlist || []; 
+            updateAuthUI();
+            fetchUserActivePlan();
+        }
+        
+        async function fetchUserActivePlan() {
+            if (!supabaseInstance || !currentUser) return;
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('plan_orders')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .eq('status', 'Confirmed')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                const now = new Date();
+                for (let order of data) {
+                    if (order.expires_at && new Date(order.expires_at) > now) {
+                        activePlanId = order.plan_id;
+                        activePlanName = order.plan_name;
+                        activeOrderObj = order;
+                        updateActivePlanUI();
+                        break;
+                    }
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function updateActivePlanUI() {
+            if(!activePlanId || !activeOrderObj) return;
+
+            const now = new Date();
+            const expiry = new Date(activeOrderObj.expires_at);
+            const daysRemaining = Math.max(0, (expiry - now) / (1000 * 60 * 60 * 24));
+            const totalDays = (activeOrderObj.months || 1) * 30;
+            currentDiscountValue = (activeOrderObj.total_price / totalDays) * daysRemaining;
+
+            const activePrice = activeOrderObj.monthly_price;
+
+            const planKeys = ['starter', 'plus', 'pro', 'ultra'];
+            const btnMap = { 'starter': 'btnStarter', 'plus': 'btnPlus', 'pro': 'btnPro', 'ultra': 'btnUltra' };
+            const priceMap = { 'starter': 'planStarterPrice', 'plus': 'planPlusPrice', 'pro': 'planProPrice', 'ultra': 'planUltraPrice' };
+
+            planKeys.forEach(key => {
+                const btnKey = btnMap[key];
+                const priceKey = priceMap[key];
+                const btn = document.querySelector(`a[data-i18n="${btnKey}"]`);
+                const priceEl = document.querySelector(`span[data-i18n="${priceKey}"]`);
+                
+                if (!btn) return;
+
+                if (key === activePlanId) {
+                    const card = btn.closest('.group');
+                    if(card) {
+                        card.classList.add('opacity-70');
+                    }
+                    btn.setAttribute('data-i18n', 'btnActivePlan');
+                    btn.innerText = dict[currentLang].btnActivePlan || 'Currently Active';
+                    btn.classList.remove('btn-hover-effect');
+                    btn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+                    btn.href = "javascript:void(0)";
+                } else if (PLANS[key].price > activePrice) {
+                    let upgradePrice = Math.max(0, PLANS[key].price - currentDiscountValue);
+                    upgradePrice = Math.floor(upgradePrice);
+                    if (priceEl) {
+                        priceEl.innerHTML = `<span class="text-gray-500 line-through text-2xl mr-3 font-light">${PLANS[key].price.toLocaleString()}</span><span class="text-myancode-accent drop-shadow-[0_0_12px_rgba(41,151,255,0.6)]">${upgradePrice.toLocaleString()}</span>`;
+                        if(priceEl.nextElementSibling) {
+                            priceEl.nextElementSibling.innerText = currentLang === 'en' ? 'MMK / mo (Upgrade)' : 'ကျပ် / လ (အဆင့်မြှင့်ရန်)';
+                            priceEl.nextElementSibling.classList.add('text-myancode-accent', 'font-bold');
+                        }
+                    }
+                    btn.innerText = currentLang === 'en' ? `Upgrade to ${PLANS[key].name.split(' ')[0]}` : `အဆင့်မြှင့်မည်`;
+                } else {
+                    btn.innerText = currentLang === 'en' ? `Downgrade` : `အဆင့်နှိမ့်မည်`;
+                }
+            });
         }
 
         function renderLanguage() {
@@ -1851,6 +1935,7 @@
             if(wDrawer && wDrawer.classList.contains('open')) {
                 renderWishlistItems();
             }
+            if (typeof updateActivePlanUI === 'function') updateActivePlanUI();
         }
 
         function setLanguage(lang) {

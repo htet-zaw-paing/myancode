@@ -570,7 +570,34 @@
                     table: 'plan_orders',
                     filter: `user_id=eq.${currentUser.id}`
                 }, payload => {
-                    fetchMyOrders();
+                    const now = new Date();
+                    
+                    if (payload.eventType === 'INSERT') {
+                        let newOrder = payload.new;
+                        if(newOrder.status === 'Confirmed' && newOrder.expires_at && now >= new Date(newOrder.expires_at)) newOrder.status = 'Expired';
+                        if (!allOrders.find(o => o.id === newOrder.id)) allOrders.unshift(newOrder);
+                    } else if (payload.eventType === 'UPDATE') {
+                        let updatedOrder = payload.new;
+                        if(updatedOrder.status === 'Confirmed' && updatedOrder.expires_at && now >= new Date(updatedOrder.expires_at)) updatedOrder.status = 'Expired';
+                        
+                        const idx = allOrders.findIndex(o => o.id === updatedOrder.id);
+                        if (idx > -1) allOrders[idx] = Object.assign({}, allOrders[idx], updatedOrder);
+                        else allOrders.unshift(updatedOrder);
+                    } else if (payload.eventType === 'DELETE') {
+                        allOrders = allOrders.filter(o => o.id !== payload.old.id);
+                    }
+
+                    let activeOrder = null;
+                    for(let order of allOrders) {
+                        if(order.status === 'Confirmed' && order.expires_at) {
+                            if(!activeOrder || new Date(order.expires_at) > new Date(activeOrder.expires_at)) {
+                                activeOrder = order;
+                            }
+                        }
+                    }
+
+                    updateActiveSubscriptionBanner(activeOrder);
+                    filterOrders();
                 })
                 .subscribe();
         }
