@@ -578,7 +578,6 @@
                     <div class="flex flex-col lg:flex-row gap-8 w-full">
                         <div class="flex-1 order-2 lg:order-1 relative min-h-[500px]">
                             
-                            <!-- Step 2: Personal Details -->
                             <div id="step-2" class="bg-[#050505] p-8 sm:p-10 rounded-[2rem] shadow-xl inner-step inner-step-active flex flex-col w-full h-full border border-white/10">
                                 <h2 class="text-2xl font-bold font-display text-white mb-6 flex items-center gap-3 border-b border-white/10 pb-4"><i data-lucide="user" class="w-6 h-6 text-white"></i> <span data-i18n="s1Title">Personal Details</span></h2>
                                 <div class="space-y-6 flex-1">
@@ -606,7 +605,6 @@
                                 </div>
                             </div>
 
-                            <!-- Step 3: Payment Method -->
                             <div id="step-3" class="bg-[#050505] p-8 sm:p-10 rounded-[2rem] shadow-xl inner-step inner-step-hidden flex flex-col w-full h-full border border-white/10">
                                 <h2 class="text-2xl font-bold font-display text-white mb-6 flex items-center gap-3 border-b border-white/10 pb-4"><i data-lucide="wallet" class="w-6 h-6 text-white"></i> <span data-i18n="s2Title">Payment Method</span></h2>
                                 <p class="text-sm text-gray-400 font-medium mb-8" data-i18n="s2Desc">Select your preferred transaction gateway.</p>
@@ -724,7 +722,6 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
                             
-                            <!-- Payment QR Section -->
                             <div class="bg-[#000] border border-white/10 rounded-[1.5rem] p-6 sm:p-10 flex flex-col items-center justify-center">
                                 <div id="qrBoxContainer" class="w-48 h-48 sm:w-56 sm:h-56 bg-white rounded-[1rem] flex items-center justify-center mb-6 shadow-md border-[4px] border-[#0057B7] transition-all duration-500 overflow-hidden">
                                     <img id="qrImageDisplay" src="../imgs/web-qrs/kbz-qr.jpg" alt="Payment QR" class="w-full h-full object-cover">
@@ -1253,7 +1250,7 @@
             document.getElementById('custEmail').value = currentUser.email;
             
             await fetchUserActivePlan();
-            fetchPopularPlan(); // Dynamically fetch most popular plan and update UI
+            fetchPopularPlan();
 
             updateAuthUI();
             setActiveNavLinks();
@@ -1269,32 +1266,35 @@
                 const { data, error } = await supabaseInstance
                     .from('plan_orders')
                     .select('plan_id')
-                    .eq('status', 'Confirmed');
+                    .in('status', ['Confirmed', 'Active', 'Pending']);
 
-                let counts = { 'starter': 0, 'plus': 0, 'pro': 0, 'ultra': 0 };
-                
-                if (!error && data && data.length > 0) {
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    let counts = {};
                     data.forEach(order => {
-                        if (counts[order.plan_id] !== undefined) {
-                            counts[order.plan_id]++;
+                        const pid = order.plan_id;
+                        if (pid) {
+                            counts[pid] = (counts[pid] || 0) + 1;
                         }
                     });
-                }
-                
-                let mostPopular = 'plus';
-                let maxCount = -1;
-                for (let p in counts) {
-                    if (counts[p] > maxCount) {
-                        maxCount = counts[p];
-                        mostPopular = p;
+
+                    let mostPopular = null;
+                    let maxCount = 0;
+                    
+                    for (let p in counts) {
+                        if (counts[p] > maxCount) {
+                            maxCount = counts[p];
+                            mostPopular = p;
+                        }
+                    }
+
+                    if (mostPopular) {
+                        renderPopularBadge(mostPopular);
                     }
                 }
-
-                renderPopularBadge(mostPopular);
-
             } catch (e) {
-                console.error('Error fetching popular plan:', e);
-                renderPopularBadge('plus');
+                console.error('Error fetching popular plan data from database:', e);
             }
         }
 
@@ -1806,7 +1806,6 @@
 
                 const dispId = (insertedOrder && insertedOrder.length > 0) ? insertedOrder[0].id.toString().split('-')[0].substring(0,8).toUpperCase() : transId.toUpperCase();
                 
-                // Show the voucher
                 document.getElementById('voucherOrderId').innerText = '#' + dispId;
                 document.getElementById('voucherDate').innerText = new Date().toLocaleDateString('en-GB');
                 document.getElementById('voucherName').innerText = document.getElementById('custName').value.trim();
