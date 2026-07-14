@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Build Package — MyanCode</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="../favicon.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="../js/cookie-consent.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <meta name="theme-color" content="#050505">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: { 'xs': '400px', 'sm': '640px', 'md': '768px', 'lg': '1024px', 'xl': '1280px', '2xl': '1536px' },
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', '"Noto Sans Myanmar"', 'sans-serif'],
+                        display: ['Jost', '"Noto Sans Myanmar"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: { myancode: { black: '#050505', gray: '#111111', darkgray: '#222222', blue: '#0066CC', accent: '#2997ff' } },
+                    animation: { 'bounce-subtle': 'bounce-subtle 2s infinite' },
+                    keyframes: {
+                        'bounce-subtle': { '0%, 100%': { transform: 'translateY(-10%)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' }, '50%': { transform: 'translateY(10%)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        html, body { width: 100%; overflow-x: clip; position: relative; background-color: #050505; color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body.no-scroll { overflow: hidden !important; touch-action: none; }
+
+        html[lang="mm"] body { font-family: 'Inter', 'Noto Sans Myanmar', sans-serif; font-size: 14px; line-height: 2.2; }
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 { font-family: 'Jost', 'Noto Sans Myanmar', sans-serif; }
+        html[lang="mm"] .font-mono { font-family: '"JetBrains Mono"', 'Noto Sans Myanmar', monospace; }
+
+        .layout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
+        .checkout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
+        
+        .btn-hover-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateZ(0); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(255, 255, 255, 0.1); }
+        .btn-hover-effect:active:not(:disabled) { transform: translateY(1px); }
+        .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; transform: translateZ(0); }
+        .glass-nav-dark { background: rgba(5, 5, 5, 0.85) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
+        .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
+        
+        .search-overlay, .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; transform: translateZ(0); }
+        .search-overlay.open, .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .search-overlay { clip-path: circle(0% at 85% 5%); transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease; }
+        .search-overlay.open { clip-path: circle(150% at 85% 5%); }
+        @media (max-width: 640px) {
+            .search-overlay { clip-path: circle(0px at calc(100% - 80px) 30px); }
+            .search-overlay.open { clip-path: circle(150% at calc(100% - 80px) 30px); }
+        }
+        
+        .drawer-left { transform: translate3d(-100%, 0, 0); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+        .drawer-left.open { transform: translate3d(0, 0, 0); }
+        .drawer-right { transform: translate3d(100%, 0, 0); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+        .drawer-right.open { transform: translate3d(0, 0, 0); }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95) translate3d(0, -10px, 0); pointer-events: none; }
+        .dropdown-menu { transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform-origin: top right; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .bg-grid-dark { background-size: 50px 50px; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px); }
+
+        .user-avatar-global { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease; }
+        .group:hover .user-avatar-global { transform: scale(1.1); border-color: #2997ff; box-shadow: 0 8px 24px rgba(41, 151, 255, 0.4); }
+
+        .custom-input { background: #000000; border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s ease; }
+        .custom-input:focus { border-color: #ffffff; outline: none; box-shadow: 0 0 0 1px rgba(255,255,255,0.2); }
+
+        .toggle-checkbox:checked { right: 0; border-color: #2997ff; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #2997ff; }
+        .toggle-checkbox:disabled + .toggle-label { opacity: 0.5; cursor: not-allowed; }
+        
+        .addon-card { transition: all 0.3s ease; }
+        .addon-card.selected-addon { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.03); }
+        .addon-card.included-addon { border-color: rgba(74, 222, 128, 0.3); background: rgba(74, 222, 128, 0.05); pointer-events: none; }
+
+        .step-circle { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .step-line { transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        .wizard-step { opacity: 0; transform: translateY(20px) scale(0.98); transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s; pointer-events: none; position: absolute; inset: 0; visibility: hidden; z-index: 1; }
+        .wizard-step.active-step { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; position: relative; visibility: visible; z-index: 10; }
+    </style>
+</head>
+<body class="font-sans flex flex-col min-h-screen bg-[#050505]">
+
+    <div id="globalLoader" class="fixed inset-0 z-[999999] bg-[#050505] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="relative w-16 h-16 mb-8 flex items-center justify-center">
+            <i data-lucide="package" class="h-8 w-8 text-white absolute animate-pulse"></i>
+        </div>
+        <div class="w-64 max-w-[80vw]">
+            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div class="w-1/2 h-full bg-white rounded-full animate-[lineAnim_1.5s_infinite]"></div>
+            </div>
+        </div>
+        <div class="mt-6 flex flex-col items-center gap-1 font-mono">
+            <span id="loaderText" class="text-[11px] font-bold tracking-[0.2em] text-gray-400 uppercase" data-i18n="loadAuth">Loading Systems...</span>
+        </div>
+    </div>
+
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
+        <div class="layout-width">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <div class="flex items-center h-full">
+                    <button class="xl:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-white" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="h-5 w-5"></i>
+                    </button>
+                    <a href="../" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-7 sm:h-8 w-auto transition-transform duration-500 group-hover:scale-105" onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
+                    </a>
+                </div>
+
+                <div class="hidden xl:flex space-x-6 2xl:space-x-8 text-[12px] capitalize tracking-wide font-bold items-center h-full">
+                    <a href="../studio/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/studio/" data-i18n="navStudio">Studio</a>
+                    <a href="../services/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    <a href="../packages/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/packages/" data-i18n="navPackages">Packages</a>
+                    <a href="../templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../marketplace/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/marketplace/" data-i18n="navCommunity">Community</a>
+                    <a href="../developers/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/developers/" data-i18n="navDevelopers">Developers</a>
+                    <a href="../pricing/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/pricing/" data-i18n="navPricing">Pricing</a>
+                    
+                    <div class="relative group h-full flex items-center">
+                        <button class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link flex items-center gap-1 cursor-pointer text-white/90" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
+                        <div class="absolute top-[80%] left-0 w-full h-8"></div>
+                        <div class="fixed top-[64px] sm:top-[80px] left-0 w-full bg-[#0a0a0a]/95 backdrop-blur-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] border-b border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out transform -translate-y-2 group-hover:translate-y-0 z-[45]">
+                            <div class="layout-width py-12 flex gap-8 md:gap-16 lg:gap-24 text-white">
+                                <div class="flex-[1.2]">
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
+                                    <div class="flex flex-col gap-4 font-display">
+                                        <a href="../help/" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                        <a href="../contact-us/" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
+                                    <div class="flex flex-col gap-3">
+                                        <a href="../legal/#client-policy" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3 sm:space-x-5">
+                    <button onclick="toggleSearchOverlay()" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i data-lucide="search" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i></button>
+                    <button onclick="toggleWishlistDrawer()" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
+                        <i data-lucide="shopping-bag" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
+                        <span id="wishlist-count" class="absolute -top-1.5 -right-2 bg-white text-black text-[9px] font-bold font-mono h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    </button>
+
+                    <div class="relative hidden sm:block" id="langContainer">
+                        <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
+                        <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
+                            <div class="px-4 pb-2 mb-2 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-bold font-mono" data-i18n="langSelect">Language</div>
+                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English<i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ<i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
+
+                    <a href="../contact-us/" class="hidden md:flex items-center justify-center px-5 py-2 bg-myancode-accent text-white text-[11px] uppercase tracking-wider font-bold rounded-full hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:shadow-[0_0_20px_rgba(41,151,255,0.5)] transform hover:-translate-y-0.5" data-i18n="btnHireUs">Hire Us</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div id="searchOverlay" class="fixed inset-0 z-[100] bg-[#0a0a0a]/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
+        <div class="layout-width pt-10">
+            <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-400 hover:text-white transition-colors rounded-full bg-white/5 border border-white/10 hover:bg-white/10"><i data-lucide="x" class="h-5 w-5"></i></button></div>
+            <div class="mt-8 sm:mt-16 max-w-4xl mx-auto">
+                <div class="relative w-full border-b border-gray-700 focus-within:border-white transition-colors pb-4 flex items-center">
+                    <i data-lucide="search" class="h-6 w-6 sm:h-8 sm:w-8 text-gray-500 mr-4"></i>
+                    <input type="text" id="megaSearchInput" onkeyup="handleMegaSearch(event)" autocomplete="off" class="w-full text-3xl sm:text-4xl font-display font-semibold text-white bg-transparent border-none outline-none placeholder-gray-600" placeholder="Search MyanCode..." data-i18n-placeholder="searchPlaceholder">
+                </div>
+            </div>
+            <div class="mt-12 max-w-4xl mx-auto"><div id="megaSearchResults" class="space-y-4"></div></div>
+        </div>
+    </div>
+
+    <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#050505] z-[80] drawer-left flex flex-col overflow-hidden text-white border-r border-white/10">
+        <div class="px-6 py-6 flex items-center justify-between flex-shrink-0 border-b border-white/10">
+            <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-6 w-auto">
+            <button onclick="toggleMobileMenu()" class="p-2.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors text-gray-300"><i data-lucide="x" class="h-5 w-5"></i></button>
+        </div>
+        <div class="flex-1 px-8 py-6 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
+            <div class="space-y-6 text-base font-semibold text-white tracking-wide flex-1">
+                <a href="../studio/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navStudio">Studio</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../packages/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navPackages">Packages</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../services/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../pricing/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navPricing">Pricing</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <div class="pt-4 border-t border-white/10"><button onclick="toggleLanguageMobile()" class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="langToggle">Switch Language</span> <i data-lucide="globe" class="h-5 w-5 text-gray-500"></i></button></div>
+            </div>
+            <div class="border-t border-white/10 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
+                <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="wishlistOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] drawer-overlay" onclick="toggleWishlistDrawer()"></div>
+    <div id="wishlistDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[90vw] sm:max-w-[420px] bg-[#0a0a0a] text-white z-[80] drawer-right flex flex-col shadow-2xl border-l border-white/10">
+        <div class="px-6 py-6 flex items-center justify-between border-b border-white/10 bg-white/5">
+            <h3 class="font-bold text-lg font-display tracking-tight flex items-center gap-2"><i data-lucide="shopping-bag" class="h-5 w-5 text-white"></i> <span data-i18n="cartTitle">Your Bag</span></h3>
+            <button onclick="toggleWishlistDrawer()" class="p-2 bg-[#111] rounded-full border border-white/10 transition-all text-gray-400 hover:text-white hover:bg-white/10"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
+        <div class="p-6 border-t border-white/10 bg-white/5">
+            <button onclick="proceedToCheckout()" class="w-full bg-white text-black py-4 rounded-xl text-sm font-bold tracking-wide hover:bg-gray-200 transition flex items-center justify-center gap-2 btn-hover-effect">
+                <span data-i18n="btnCheckout">Proceed to Checkout</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <main class="flex-1 pt-24 sm:pt-32 pb-20 relative z-10">
+        <div class="absolute inset-0 bg-grid-dark pointer-events-none opacity-40 mix-blend-screen"></div>
+        <div class="absolute top-0 right-0 w-[40vw] h-[40vw] rounded-full bg-myancode-accent/5 blur-[120px] mix-blend-screen pointer-events-none"></div>
+
+        <div class="checkout-width w-full relative z-10" id="mainAppContent">
+            
+            <div class="flex flex-col items-center mb-12 text-center">
+                <div class="text-[11px] font-bold font-mono text-myancode-accent uppercase tracking-widest mb-4 border border-myancode-accent/30 px-4 py-1.5 rounded-full bg-myancode-accent/5"><span data-i18n="pkgBadge">Build Platform</span></div>
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-white tracking-tight mb-8" data-i18n="pkgTitle">Architecture Packages</h1>
+                
+                <div class="flex items-center justify-center w-full max-w-2xl mx-auto px-4">
+                    <div class="flex flex-col items-center relative z-10 w-16 cursor-pointer group transition-opacity hover:opacity-80" onclick="navigateStep(1)">
+                        <div id="step1-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-white text-black font-bold font-mono text-sm border-2 border-white step-circle shadow-[0_0_15px_rgba(255,255,255,0.4)]">1</div>
+                        <span id="step1-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap" data-i18n="step1">Base</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-[#111] mx-2 rounded-full relative overflow-hidden">
+                        <div id="step1-line" class="absolute top-0 left-0 h-full bg-white w-0 step-line"></div>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 w-16 cursor-pointer group transition-opacity hover:opacity-80" onclick="navigateStep(2)">
+                        <div id="step2-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle">2</div>
+                        <span id="step2-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap" data-i18n="step2">Modules</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-[#111] mx-2 rounded-full relative overflow-hidden">
+                        <div id="step2-line" class="absolute top-0 left-0 h-full bg-white w-0 step-line"></div>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 w-16 cursor-pointer group transition-opacity hover:opacity-80" onclick="navigateStep(3)">
+                        <div id="step3-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle">3</div>
+                        <span id="step3-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap" data-i18n="step3">Details</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-[#111] mx-2 rounded-full relative overflow-hidden">
+                        <div id="step3-line" class="absolute top-0 left-0 h-full bg-white w-0 step-line"></div>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 w-16 cursor-pointer group transition-opacity hover:opacity-80" onclick="navigateStep(4)">
+                        <div id="step4-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle">4</div>
+                        <span id="step4-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap" data-i18n="step4">Review</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8 w-full max-w-[1536px] mx-auto items-start">
+                
+                <div class="flex-1 w-full relative min-h-[500px]" id="wizardContainer">
+                    
+                    <!-- Step 1: Base Packages -->
+                    <div id="step-1" class="wizard-step active-step w-full bg-[#050505] p-6 sm:p-8 rounded-[2rem] border border-white/10 shadow-xl">
+                        <h2 class="text-xl font-bold font-display text-white mb-6 border-b border-white/10 pb-4 flex items-center gap-3"><i data-lucide="layers" class="w-5 h-5 text-gray-400"></i> <span data-i18n="step1Base">Step 1: Select Base Package</span></h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8" id="packagesGrid">
+                            <!-- Dynamic Content Rendered via JS -->
+                        </div>
+                        <div class="flex justify-end pt-6 border-t border-white/10">
+                            <button onclick="navigateStep(2)" class="bg-white text-black px-10 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors hover:bg-gray-200 btn-hover-effect flex items-center gap-2"><span data-i18n="btnNextMod">Continue to Modules</span> <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Add-ons -->
+                    <div id="step-2" class="wizard-step w-full bg-[#050505] p-6 sm:p-8 rounded-[2rem] border border-white/10 shadow-xl">
+                        <h2 class="text-xl font-bold font-display text-white mb-6 border-b border-white/10 pb-4 flex items-center gap-3"><i data-lucide="blocks" class="w-5 h-5 text-gray-400"></i> <span data-i18n="step2Addons">Step 2: Configure Add-ons</span></h2>
+                        <div class="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden divide-y divide-white/5 mb-8" id="addonsList">
+                            <!-- Dynamic Content Rendered via JS -->
+                        </div>
+                        <div class="flex justify-between items-center pt-6 border-t border-white/10">
+                            <button onclick="navigateStep(1)" class="text-gray-400 hover:text-white px-6 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> <span data-i18n="btnBack">Back</span></button>
+                            <button onclick="navigateStep(3)" class="bg-white text-black px-10 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors hover:bg-gray-200 btn-hover-effect flex items-center gap-2"><span data-i18n="btnNextDet">Continue to Details</span> <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Project Details -->
+                    <div id="step-3" class="wizard-step w-full bg-[#050505] p-6 sm:p-8 rounded-[2rem] border border-white/10 shadow-xl">
+                        <h2 class="text-xl font-bold font-display text-white mb-6 border-b border-white/10 pb-4 flex items-center gap-3"><i data-lucide="user" class="w-5 h-5 text-gray-400"></i> <span data-i18n="step3Details">Step 3: Project Details</span></h2>
+                        <div class="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6 mb-8">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="lblContactName">Contact Name *</label>
+                                    <input type="text" id="inpName" class="w-full px-5 py-3.5 custom-input rounded-xl text-sm font-bold text-white shadow-inner" placeholder="Enter your name">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="lblPhone">Phone Number *</label>
+                                    <input type="tel" id="inpPhone" class="w-full px-5 py-3.5 custom-input rounded-xl text-sm font-bold text-white shadow-inner" placeholder="09xxxxxxxxx">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="lblBrief">Project Brief / Remarks (Optional)</label>
+                                <textarea id="inpBrief" rows="3" class="w-full px-5 py-3.5 custom-input rounded-xl text-sm font-medium text-white shadow-inner resize-none" placeholder="Share a short overview of your project requirements..."></textarea>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-6 border-t border-white/10">
+                            <button onclick="navigateStep(2)" class="text-gray-400 hover:text-white px-6 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> <span data-i18n="btnBack">Back</span></button>
+                            <button onclick="navigateStep(4)" class="bg-white text-black px-10 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors hover:bg-gray-200 btn-hover-effect flex items-center gap-2"><span data-i18n="btnReview">Review Final Order</span> <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Final Review -->
+                    <div id="step-4" class="wizard-step w-full bg-[#050505] p-6 sm:p-8 rounded-[2rem] border border-white/10 shadow-xl">
+                        <div class="text-center mb-10">
+                            <div class="w-16 h-16 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="clipboard-check" class="w-8 h-8 text-white"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold font-display text-white mb-2 tracking-tight" data-i18n="s4Title">Final Review</h2>
+                            <p class="text-gray-400 text-sm" data-i18n="s4Desc">Please review your architecture configuration before submitting the request.</p>
+                        </div>
+
+                        <div class="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 mb-8 font-mono text-sm">
+                            <div class="grid grid-cols-2 gap-y-4 text-gray-400">
+                                <div><span class="uppercase tracking-widest text-[10px] block mb-1">Contact Name</span><span class="text-white font-bold font-sans" id="revName">...</span></div>
+                                <div><span class="uppercase tracking-widest text-[10px] block mb-1">Phone Number</span><span class="text-white font-bold font-sans" id="revPhone">...</span></div>
+                                <div class="col-span-2"><span class="uppercase tracking-widest text-[10px] block mb-1">Project Brief</span><span class="text-white font-sans text-[13px]" id="revBrief">...</span></div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-6 border-t border-white/10">
+                            <button onclick="navigateStep(3)" class="text-gray-400 hover:text-white px-6 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> <span data-i18n="btnBack">Back</span></button>
+                            <button onclick="submitPackageOrder()" id="btnSubmitOrderAction" class="bg-myancode-accent text-white px-10 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors hover:bg-blue-500 shadow-[0_0_20px_rgba(41,151,255,0.4)] btn-hover-effect flex items-center gap-2"><span data-i18n="btnSubmitArch">Submit Architecture Request</span> <i data-lucide="check-circle" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="w-full lg:w-[400px] shrink-0 sticky top-24 sm:top-32 z-30 transition-all duration-300">
+                    <div class="bg-[#0a0a0a] p-6 sm:p-8 rounded-[2rem] border border-white/10 shadow-2xl relative overflow-hidden group">
+                        <div class="absolute -inset-[1px] bg-gradient-to-br from-myancode-accent/20 via-transparent to-transparent rounded-[2rem] opacity-50 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                        
+                        <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6 border-b border-white/10 pb-4 relative z-10" data-i18n="sumTitle">Configuration Summary</h3>
+                        
+                        <div class="relative z-10 mb-6 border-b border-white/10 pb-6">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="text-lg font-bold font-display text-white" id="sumPkgName">...</h4>
+                                <span class="text-sm font-bold text-gray-300" id="sumPkgPrice">0 MMK</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 font-mono tracking-wide">Base Foundation</p>
+                        </div>
+
+                        <div class="relative z-10 space-y-3 mb-8 border-b border-white/10 pb-6 min-h-[50px]" id="sumAddonsContainer">
+                            <!-- Dynamic Addons Summary -->
+                        </div>
+
+                        <div class="relative z-10 border-t border-white/10 pt-6 mb-6">
+                            <div class="flex justify-between items-end">
+                                <span class="text-sm font-bold text-gray-400" data-i18n="sumTotal">Total Estimation</span>
+                                <div class="text-right flex items-end gap-1">
+                                    <div class="text-3xl font-display font-bold text-white tracking-tight leading-none mb-1" id="sumTotalPrice">0</div>
+                                    <span class="text-[11px] font-mono text-gray-500 uppercase tracking-widest pb-1">MMK</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="handleSummaryAction()" id="btnSummaryAction" class="relative z-10 w-full bg-white text-black hover:bg-gray-200 transition-all duration-300 py-4 rounded-xl text-[13px] font-bold tracking-wide btn-hover-effect flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                            <span>Continue to Modules</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                        
+                        <div class="mt-6 flex items-start gap-3 relative z-10">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-green-500 shrink-0 mt-0.5"></i>
+                            <p class="text-[11px] text-gray-500 font-medium leading-relaxed" data-i18n="sumNote">No immediate payment required. Our engineering team will review your requirements and reach out to finalize the technical scope.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="voucher-screen" class="hidden w-full max-w-[700px] mx-auto pt-10 pb-20 relative z-20">
+            <div class="flex flex-col items-center mb-8 text-center">
+                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                    <i data-lucide="check" class="w-8 h-8 text-black"></i>
+                </div>
+                <h2 class="text-3xl font-display font-medium text-white mb-2" data-i18n="succTitle">Request Received</h2>
+                <p class="text-sm text-gray-400" data-i18n="succDesc">Your platform architecture has been submitted.</p>
+            </div>
+
+            <div id="voucher-card" class="bg-[#050505] border border-white/10 p-10 relative shadow-2xl mx-auto w-full font-mono text-sm text-white">
+                <div class="flex justify-between items-start border-b border-white/10 pb-8 mb-8">
+                    <div>
+                        <h3 class="text-xl font-display font-medium text-white tracking-widest uppercase mb-1">Architecture Request</h3>
+                        <p class="text-xs text-gray-500">MyanCode Engineering</p>
+                    </div>
+                    <div class="text-right text-xs text-gray-400 space-y-1">
+                        <p>REQ: <span class="text-white" id="voucherOrderId">#000000</span></p>
+                        <p>DAT: <span class="text-white" id="voucherDate">--/--/----</span></p>
+                        <p>STS: <span class="text-yellow-400 font-bold">PENDING REVIEW</span></p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 mb-8 border-b border-white/10 pb-8 text-gray-400">
+                    <div class="flex justify-between"><span>Client</span><span class="text-white" id="voucherName">...</span></div>
+                    <div class="flex justify-between"><span>Base Foundation</span><span class="text-white" id="voucherPlan">...</span></div>
+                    
+                    <div class="pt-4 mt-4 border-t border-white/5">
+                        <span class="block text-[10px] uppercase tracking-widest mb-2">Attached Modules</span>
+                        <div id="voucherAddons" class="text-white text-right flex flex-col gap-1">
+                            <!-- Dynamic -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-end">
+                    <span class="text-gray-500 uppercase tracking-widest text-xs">Estimated Total</span>
+                    <span class="font-display text-3xl font-medium text-white tracking-tight"><span id="voucherTotal">0</span> <span class="text-lg">MMK</span></span>
+                </div>
+            </div>
+
+            <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center px-4">
+                <button onclick="downloadVoucher(event)" class="px-6 py-3.5 bg-white text-black hover:bg-gray-200 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 btn-hover-effect">
+                    <i data-lucide="download" class="w-4 h-4"></i> Download Document
+                </button>
+                <a href="../hub/" class="px-6 py-3.5 bg-[#111] text-white border border-white/10 hover:bg-white/5 rounded-lg text-sm font-bold transition-colors flex items-center justify-center btn-hover-effect">
+                    Go to Dashboard
+                </a>
+                <a href="../" class="px-6 py-3.5 bg-transparent text-gray-400 hover:text-white rounded-lg text-sm font-bold transition-colors flex items-center justify-center btn-hover-effect">
+                    Home Page
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans border-t border-white/5">
+        <div class="layout-width relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
+                <div class="lg:col-span-4 pr-4">
+                    <a href="../" class="flex items-center cursor-pointer group mb-6">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-8 w-auto mr-3 transition-transform duration-500 group-hover:scale-105">
+                        <span class="font-display font-bold text-2xl tracking-tight text-white group-hover:text-myancode-accent transition-colors">MyanCode</span>
+                    </a>
+                    <p class="text-[13px] text-gray-400 font-medium leading-relaxed mb-8 max-w-sm" data-i18n="heroDesc2">Custom websites with flexible budgets, dynamic features, and tailored design for your business.</p>
+                </div>
+                <div class="lg:col-span-2">
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftStoreTitle">Store</h4>
+                    <ul class="space-y-4">
+                        <li><a href="../studio/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Studio</a></li>
+                        <li><a href="../packages/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Packages</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-10 flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-gray-400 font-medium">
+                <div data-i18n="ftCopyright">&copy; 2026 MyanCode Inc. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
+        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
+        <span id="toast-msg">Success!</span>
+    </div>
+    <div id="error-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[120] flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
+        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-red-500"></i>
+        <span id="error-toast-msg">Error!</span>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://dnretdraqjwdiwxccmpd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucmV0ZHJhcWp3ZGl3eGNjbXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Mjk1OTgsImV4cCI6MjA5NDUwNTU5OH0.gmXci7KsgPRFvVtRzY2F--qV5TshCPejf580JTJpl20';
+        let supabaseInstance = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        
+        let currentUser = null; let currentUserCart = [];
+        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+        
+        let dbPackages = [];
+        let dbAddons = [];
+        let activePackageId = null;
+        let selectedAddonsList = [];
+        let currentStep = 1;
+
+        const FALLBACK_PACKAGES = [
+            { id: 'small', name_en: 'Small', name_mm: 'အသေးစား', base_price: 150000, description_en: 'Perfect for local businesses.', description_mm: 'ကိုယ်ပိုင်လုပ်ငန်းများအတွက်။', features_en: ['Responsive Design', 'Basic SEO'], features_mm: ['မိုဘိုင်းဖုန်းဒီဇိုင်း', 'အခြေခံ SEO'], included_addons: [] },
+            { id: 'medium', name_en: 'Medium', name_mm: 'အလတ်စား', base_price: 300000, description_en: 'Ideal for growing companies.', description_mm: 'တိုးတက်နေသော ကုမ္ပဏီများအတွက်။', features_en: ['CMS Integration', 'Blog System'], features_mm: ['CMS စနစ်', 'ဘလော့ဂ် စနစ်'], included_addons: [] },
+            { id: 'large', name_en: 'Large', name_mm: 'အကြီးစား', base_price: 600000, description_en: 'Advanced web applications.', description_mm: 'အဆင့်မြင့် Web App များ။', features_en: ['Unlimited Pages', 'Advanced API'], features_mm: ['အကန့်အသတ်မရှိ စာမျက်နှာ', 'API ချိတ်ဆက်မှုများ'], included_addons: ['auth'] },
+            { id: 'enterprise', name_en: 'Enterprise', name_mm: 'အင်တာပရိုက်စ်', base_price: 1200000, description_en: 'Full-scale architecture.', description_mm: 'လုပ်ငန်းကြီးများအတွက် စနစ်ကြီးများ။', features_en: ['Custom Architecture', '24/7 Support'], features_mm: ['စိတ်ကြိုက် တည်ဆောက်မှု', '၂၄ နာရီ ဝန်ဆောင်မှု'], included_addons: ['auth', 'dashboard', 'otp', 'promo'] }
+        ];
+
+        const FALLBACK_ADDONS = [
+            { id: 'auth', name_en: 'Authentication System', name_mm: 'အကောင့်ဝင်/ထွက် စနစ်', price: 80000, description_en: 'Secure login and registration.', description_mm: 'လုံခြုံသော အကောင့်ဝင်ခြင်းစနစ်။', icon: 'shield-check' },
+            { id: 'dashboard', name_en: 'User Dashboard', name_mm: 'အသုံးပြုသူ ဒက်ရှ်ဘုတ်', price: 150000, description_en: 'Personalized user portal.', description_mm: 'အသုံးပြုသူများ ကိုယ်ပိုင်အချက်အလက် စီမံနိုင်သောစနစ်။', icon: 'layout-dashboard' },
+            { id: 'otp', name_en: 'SMS OTP Verification', name_mm: 'OTP စစ်ဆေးခြင်း', price: 50000, description_en: 'Mobile number verification.', description_mm: 'ဖုန်းနံပါတ်ဖြင့် စစ်ဆေးခြင်း။', icon: 'message-square-text' },
+            { id: 'promo', name_en: 'Promotion Engine', name_mm: 'ပရိုမိုးရှင်း စနစ်', price: 100000, description_en: 'Discount codes management.', description_mm: 'ကူပွန်များနှင့် ပရိုမိုးရှင်းများ စီမံနိုင်သောစနစ်။', icon: 'tag' }
+        ];
+
+        const dict = {
+            en: {
+                navStudio: "Studio", navPackages: "Packages", navServices: "Services", navWebsites: "Templates", navCommunity: "Community", navDevelopers: "Developers", navPricing: "Pricing", navPortfolio: "Portfolio", navAbout: "About", navSupport: "Support",
+                langSelect: "Language", cartTitle: "Your Bag", emptyWishlist: "Your bag is empty.", btnCheckout: "Proceed to Checkout", wlTotal: "Est. Total", removeFromWishlist: "Remove",
+                btnHireUs: "Hire Us", hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrLogout: "Sign Out",
+                
+                loadAuth: "Loading Systems...", pkgBadge: "Build Platform", pkgTitle: "Architecture Packages", pkgDesc: "Select a core foundation and attach advanced modules to configure your exact infrastructure requirements.",
+                step1Base: "Step 1: Select Base Package", step2Addons: "Step 2: Configure Add-ons", step3Details: "Step 3: Project Details",
+                step1: "Base", step2: "Modules", step3: "Details", step4: "Review",
+                btnNextMod: "Continue to Modules", btnNextDet: "Continue to Details", btnBack: "Back", btnReview: "Review Final Order", btnSubmitArch: "Submit Architecture Request",
+                lblContactName: "Contact Name *", lblPhone: "Phone Number *", lblBrief: "Project Brief / Remarks (Optional)",
+                s4Title: "Final Review", s4Desc: "Please review your architecture configuration before submitting the request.",
+                sumTitle: "Configuration Summary", sumTotal: "Total Estimation", btnRequest: "Request Proposal",
+                sumNote: "No immediate payment required. Our engineering team will review your requirements and reach out to finalize the technical scope.",
+                succTitle: "Request Received", succDesc: "Your platform architecture has been submitted.",
+                featIncluded: "Included in Package", txtAddonBase: "Base Module"
+            },
+            mm: {
+                navStudio: "စတူဒီယို", navPackages: "ပက်ကေ့ချ်များ", navServices: "ဝန်ဆောင်မှုများ", navWebsites: "ဝက်ဘ်ဆိုက်များ", navCommunity: "ဈေးကွက်", navDevelopers: "ရေးသားသူများ", navPricing: "ဈေးနှုန်းများ", navPortfolio: "မှတ်တမ်းများ", navAbout: "ကျွန်ုပ်တို့အကြောင်း", navSupport: "အကူအညီ",
+                langSelect: "ဘာသာစကားရွေးချယ်ရန်", cartTitle: "မှာယူမည့်စာရင်း", emptyWishlist: "သင်စာရင်းလွတ်နေပါသည်။", btnCheckout: "ဝယ်ယူရန် ရှေ့ဆက်မည်", wlTotal: "စုစုပေါင်း", removeFromWishlist: "ဖယ်ရှားမည်",
+                btnHireUs: "အပ်နှံမည်", hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrLogout: "အကောင့်ထွက်ရန်",
+                
+                loadAuth: "စနစ်များ အလုပ်လုပ်နေပါသည်...", pkgBadge: "စနစ်တည်ဆောက်ရန်", pkgTitle: "အထူးပြု ပက်ကေ့ချ်များ", pkgDesc: "သင့်လုပ်ငန်းအတွက် အသင့်တော်ဆုံး အခြေခံစနစ်ကို ရွေးချယ်ပြီး လိုအပ်သော လုပ်ဆောင်ချက်များကို ထပ်မံဖြည့်စွက်ပါ။",
+                step1Base: "အဆင့် ၁ : အခြေခံပက်ကေ့ချ် ရွေးချယ်ပါ", step2Addons: "အဆင့် ၂ : လုပ်ဆောင်ချက်များ ထပ်မံဖြည့်စွက်ပါ", step3Details: "အဆင့် ၃ : ပရောဂျက် အချက်အလက်",
+                step1: "အခြေခံ", step2: "မော်ဂျူး", step3: "အချက်အလက်", step4: "အတည်ပြုမည်",
+                btnNextMod: "မော်ဂျူးများ ရွေးချယ်ရန်", btnNextDet: "အချက်အလက်များ ဖြည့်ရန်", btnBack: "နောက်သို့", btnReview: "မှာယူမှု စစ်ဆေးအတည်ပြုရန်", btnSubmitArch: "အဆိုပြုလွှာ တောင်းခံမည်",
+                lblContactName: "အမည်အပြည့်အစုံ *", lblPhone: "ဖုန်းနံပါတ် *", lblBrief: "ပရောဂျက် အကြောင်းအရာ (ရွေးချယ်ရန်)",
+                s4Title: "မှာယူမှု စစ်ဆေးအတည်ပြုရန်", s4Desc: "တင်သွင်းခြင်းမပြုမီ အချက်အလက်များကို ပြန်လည်စစ်ဆေးပါ။",
+                sumTitle: "မှာယူမှု အကျဉ်းချုပ်", sumTotal: "ခန့်မှန်း ကုန်ကျစရိတ်", btnRequest: "အဆိုပြုလွှာ တောင်းခံမည်",
+                sumNote: "ယခုချက်ချင်း ငွေပေးချေရန် မလိုအပ်ပါ။ ကျွန်ုပ်တို့၏ အင်ဂျင်နီယာအဖွဲ့မှ သင်၏ လိုအပ်ချက်များကို စစ်ဆေးပြီး ဆက်သွယ်ပေးမည် ဖြစ်ပါသည်။",
+                succTitle: "တောင်းဆိုမှု ရရှိပါသည်", succDesc: "သင်၏ ပရောဂျက် အချက်အလက်များကို လက်ခံရရှိပါပြီ။",
+                featIncluded: "ပက်ကေ့ချ်တွင် ပါဝင်ပြီးဖြစ်သည်", txtAddonBase: "အခြေခံ မော်ဂျူး"
+            }
+        };
+
+        function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; t.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const t = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; t.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 4000); }
+
+        function renderLanguage() {
+            document.documentElement.lang = currentLang; 
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
+            updateAuthUI(); renderPackagesGrid(); renderAddonsList(); updateSummary(); updateSummaryButton();
+        }
+
+        async function initApp() {
+            renderLanguage();
+            if (supabaseInstance) {
+                const { data: { session } } = await supabaseInstance.auth.getSession();
+                if (session) {
+                    currentUser = { id: session.user.id, email: session.user.email, name: session.user.user_metadata?.full_name || session.user.email.split('@')[0], avatar_url: session.user.user_metadata?.avatar_url || null, role: session.user.app_metadata?.role || session.user.user_metadata?.role || 'client' };
+                    currentUserCart = session.user.user_metadata?.wishlist || [];
+                    document.getElementById('inpName').value = currentUser.name;
+                }
+            }
+            updateAuthUI();
+            await fetchData();
+            renderPackagesGrid();
+            renderAddonsList();
+            
+            if(dbPackages.length > 0) { selectPackage(dbPackages[0].id); currentStep = 1; updateStepperUI(); switchView(1); }
+            document.getElementById('globalLoader').classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('no-scroll');
+        }
+
+        async function fetchData() {
+            try {
+                if(!supabaseInstance) throw new Error("No DB");
+                const [pkgRes, addRes] = await Promise.all([
+                    supabaseInstance.from('custom_packages').select('*').eq('is_active', true).order('base_price', { ascending: true }),
+                    supabaseInstance.from('package_addons').select('*').eq('is_active', true).order('price', { ascending: true })
+                ]);
+                
+                if (pkgRes.error || !pkgRes.data || pkgRes.data.length === 0) throw new Error("Packages Empty");
+                dbPackages = pkgRes.data;
+                dbAddons = addRes.data || [];
+            } catch (err) {
+                console.warn("Using fallback data due to DB missing or empty.", err);
+                dbPackages = FALLBACK_PACKAGES;
+                dbAddons = FALLBACK_ADDONS;
+            }
+        }
+
+        function renderPackagesGrid() {
+            const grid = document.getElementById('packagesGrid');
+            if(!grid || dbPackages.length === 0) return;
+            
+            grid.innerHTML = dbPackages.map(pkg => {
+                const name = currentLang === 'en' ? pkg.name_en : pkg.name_mm;
+                const desc = currentLang === 'en' ? pkg.description_en : pkg.description_mm;
+                const features = currentLang === 'en' ? pkg.features_en : pkg.features_mm;
+                const isSelected = activePackageId === pkg.id;
+                
+                let bgClass = 'bg-gradient-to-b from-[#111] to-[#050505]';
+                let borderClass = 'border-white/10';
+                let hoverBorderClass = 'hover:border-white/30';
+                let glowClass = 'from-white/10';
+                let iconColor = 'text-myancode-accent';
+                let iconSrc = '../imgs/web-banners/starter-icon.png';
+                let planPrefix = 'MyanCode ';
+
+                const pid = pkg.id.toLowerCase();
+                if (pid === 'small' || pid === 'starter') {
+                    bgClass = 'bg-gradient-to-b from-[#18181b] to-[#09090b]';
+                    borderClass = 'border-zinc-800/60';
+                    hoverBorderClass = 'hover:border-zinc-500';
+                    glowClass = 'from-zinc-800/20';
+                    iconColor = 'text-zinc-400';
+                    iconSrc = '../imgs/web-banners/starter-icon.png';
+                } else if (pid === 'medium' || pid === 'plus') {
+                    bgClass = 'bg-gradient-to-b from-[#0a1630] to-[#020817]';
+                    borderClass = 'border-blue-500/30';
+                    hoverBorderClass = 'hover:border-blue-400/60';
+                    glowClass = 'from-blue-600/10';
+                    iconColor = 'text-blue-400';
+                    iconSrc = '../imgs/web-banners/plus-icon.png';
+                } else if (pid === 'large' || pid === 'pro') {
+                    bgClass = 'bg-gradient-to-b from-[#1c0f2e] to-[#0f071a]';
+                    borderClass = 'border-purple-500/30';
+                    hoverBorderClass = 'hover:border-purple-400/60';
+                    glowClass = 'from-purple-600/10';
+                    iconColor = 'text-purple-400';
+                    iconSrc = '../imgs/web-banners/pro-icon.png';
+                } else if (pid === 'enterprise' || pid === 'ultra') {
+                    bgClass = 'bg-gradient-to-b from-[#141208] to-[#050505]';
+                    borderClass = 'border-yellow-500/40';
+                    hoverBorderClass = 'hover:border-yellow-400/80';
+                    glowClass = 'from-yellow-500/10';
+                    iconColor = 'text-yellow-500';
+                    iconSrc = '../imgs/web-banners/ultra-icon.png';
+                }
+
+                let featHtml = '';
+                if(Array.isArray(features)) {
+                    featHtml = features.map(f => `<li class="flex items-start gap-3 text-sm text-gray-300 relative z-10"><i data-lucide="check" class="w-4 h-4 ${iconColor} shrink-0 mt-0.5"></i> <span>${f}</span></li>`).join('');
+                }
+
+                const activeBorder = isSelected ? 'border-white shadow-[0_0_30px_rgba(255,255,255,0.15)] scale-[1.02]' : `${borderClass} ${hoverBorderClass}`;
+
+                return `
+                <div class="pkg-card p-8 rounded-[2rem] cursor-pointer flex flex-col h-full group relative overflow-hidden transition-all duration-500 hover:-translate-y-2 border ${activeBorder} ${bgClass}" onclick="selectPackage('${pkg.id}')">
+                    <div class="absolute inset-0 bg-gradient-to-br ${glowClass} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                    
+                    ${isSelected ? `<div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-bl-[2rem] flex items-center justify-center"><i data-lucide="check-circle-2" class="w-6 h-6 text-white"></i></div>` : ''}
+                    
+                    <div class="flex items-center gap-3 mb-2 z-10">
+                        <img src="${iconSrc}" alt="${name}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
+                        <h3 class="text-2xl font-display font-semibold text-white group-hover:text-gray-200 transition-colors">${planPrefix}<span class="${iconColor.replace('text-', 'text-')}">${name}</span></h3>
+                    </div>
+                    <p class="text-[11px] font-mono text-gray-400 uppercase tracking-widest mb-8 border-b border-white/10 pb-6 z-10">${desc}</p>
+                    <div class="text-3xl sm:text-4xl font-display font-medium text-white mb-10 tracking-tight z-10">${pkg.base_price.toLocaleString()} <span class="text-sm text-gray-500 font-sans ml-1">MMK</span></div>
+                    
+                    <ul class="space-y-4 flex-1 text-sm text-gray-300 z-10 relative">
+                        ${featHtml}
+                    </ul>
+                </div>
+                `;
+            }).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function renderAddonsList() {
+            const list = document.getElementById('addonsList');
+            if(!list || dbAddons.length === 0) return;
+
+            const activePkg = dbPackages.find(p => p.id === activePackageId);
+            const includedList = activePkg && activePkg.included_addons ? activePkg.included_addons : [];
+
+            list.innerHTML = dbAddons.map(addon => {
+                const name = currentLang === 'en' ? addon.name_en : addon.name_mm;
+                const desc = currentLang === 'en' ? addon.description_en : addon.description_mm;
+                const isIncluded = includedList.includes(addon.id);
+                const isSelected = isIncluded || selectedAddonsList.includes(addon.id);
+                
+                return `
+                <div class="addon-card p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${isIncluded ? 'included-addon' : (isSelected ? 'selected-addon' : 'hover:bg-white/5 cursor-pointer')}" onclick="!${isIncluded} && toggleAddon('${addon.id}')">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                            <i data-lucide="${addon.icon || 'box'}" class="w-5 h-5 ${isIncluded ? 'text-green-400' : 'text-gray-400'}"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="text-sm font-bold text-white font-display tracking-wide">${name}</h4>
+                                ${isIncluded ? `<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest font-mono">${dict[currentLang].featIncluded}</span>` : ''}
+                            </div>
+                            <p class="text-[12px] text-gray-400 font-medium">${desc}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between w-full sm:w-auto gap-6 sm:mt-0 mt-2 border-t sm:border-0 border-white/5 pt-3 sm:pt-0">
+                        <div class="text-sm font-bold font-mono ${isIncluded ? 'text-green-400' : 'text-white'} text-right whitespace-nowrap">
+                            ${isIncluded ? '0 MMK' : `+${addon.price.toLocaleString()} MMK`}
+                        </div>
+                        ${!isIncluded ? `
+                        <label class="relative inline-flex items-center cursor-pointer" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="sr-only peer" ${isSelected ? 'checked' : ''} onchange="toggleAddon('${addon.id}')">
+                            <div class="w-11 h-6 bg-[#222] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-myancode-accent border border-white/10 shadow-inner"></div>
+                        </label>
+                        ` : `
+                        <div class="w-11 h-6 flex items-center justify-end"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-500"></i></div>
+                        `}
+                    </div>
+                </div>
+                `;
+            }).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function selectPackage(id) {
+            activePackageId = id;
+            selectedAddonsList = [];
+            renderPackagesGrid();
+            renderAddonsList();
+            updateSummary();
+        }
+
+        function toggleAddon(id) {
+            const activePkg = dbPackages.find(p => p.id === activePackageId);
+            if (activePkg && activePkg.included_addons && activePkg.included_addons.includes(id)) return;
+
+            const idx = selectedAddonsList.indexOf(id);
+            if(idx > -1) selectedAddonsList.splice(idx, 1);
+            else selectedAddonsList.push(id);
+            
+            renderAddonsList();
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const activePkg = dbPackages.find(p => p.id === activePackageId);
+            if(!activePkg) return;
+
+            document.getElementById('sumPkgName').innerText = currentLang === 'en' ? activePkg.name_en : activePkg.name_mm;
+            document.getElementById('sumPkgPrice').innerText = activePkg.base_price.toLocaleString() + ' MMK';
+
+            let total = activePkg.base_price;
+            let addonsHtml = '';
+            const includedList = activePkg.included_addons || [];
+
+            addonsHtml += `<div class="flex justify-between items-center text-xs font-medium text-gray-400 py-1"><span class="flex items-center gap-2"><i data-lucide="box" class="w-3 h-3"></i> Base Configuration</span> <span>--</span></div>`;
+
+            dbAddons.forEach(addon => {
+                const name = currentLang === 'en' ? addon.name_en : addon.name_mm;
+                if(includedList.includes(addon.id)) {
+                    addonsHtml += `<div class="flex justify-between items-center text-xs font-medium text-green-400 py-1"><span class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3"></i> ${name}</span> <span>Included</span></div>`;
+                } else if(selectedAddonsList.includes(addon.id)) {
+                    total += addon.price;
+                    addonsHtml += `<div class="flex justify-between items-center text-xs font-medium text-white py-1"><span class="flex items-center gap-2"><i data-lucide="plus" class="w-3 h-3 text-myancode-accent"></i> ${name}</span> <span>+${addon.price.toLocaleString()}</span></div>`;
+                }
+            });
+
+            document.getElementById('sumAddonsContainer').innerHTML = addonsHtml;
+            document.getElementById('sumTotalPrice').innerText = total.toLocaleString();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function switchView(targetStep) {
+            document.querySelectorAll('.wizard-step').forEach(el => {
+                el.classList.remove('active-step');
+            });
+            const nextEl = document.getElementById(`step-${targetStep}`);
+            if (nextEl) nextEl.classList.add('active-step');
+            
+            if(targetStep === 4) {
+                document.getElementById('revName').innerText = document.getElementById('inpName').value.trim() || '-';
+                document.getElementById('revPhone').innerText = document.getElementById('inpPhone').value.trim() || '-';
+                document.getElementById('revBrief').innerText = document.getElementById('inpBrief').value.trim() || '-';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function navigateStep(targetStep) {
+            if (targetStep === currentStep) return;
+            if (targetStep > 1 && !activePackageId) {
+                showErrorToast(currentLang === 'en' ? "Please select a base package first." : "အခြေခံပက်ကေ့ချ် ရွေးချယ်ပါ။");
+                return;
+            }
+            if (targetStep > 3) {
+                const name = document.getElementById('inpName').value.trim(); 
+                const phone = document.getElementById('inpPhone').value.trim();
+                if(!name || !phone || phone.length < 6) {
+                    showErrorToast(currentLang === 'en' ? "Please complete your project details in step 3." : "အချက်အလက်များကို အပြည့်အစုံထည့်ပါ။");
+                    goToStep(3);
+                    return;
+                }
+            }
+            goToStep(targetStep);
+        }
+
+        function goToStep(step) {
+            currentStep = step; 
+            updateStepperUI(); 
+            switchView(step);
+            updateSummaryButton();
+        }
+
+        function updateStepperUI() {
+            for(let i=1; i<=4; i++) {
+                const circle = document.getElementById(`step${i}-circle`); const line = document.getElementById(`step${i}-line`); const text = document.getElementById(`step${i}-text`);
+                if (i < currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center bg-white text-black font-bold font-mono text-sm border-2 border-white step-circle";
+                    circle.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i>';
+                    if(line) line.style.width = "100%"; if(text) { text.classList.remove('text-gray-500'); text.classList.add('text-white'); }
+                } else if (i === currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center bg-white text-black font-bold font-mono text-sm border-2 border-white step-circle shadow-[0_0_15px_rgba(255,255,255,0.4)]";
+                    circle.innerHTML = i;
+                    if(line) line.style.width = "0%"; if(text) { text.classList.remove('text-gray-500'); text.classList.add('text-white'); }
+                } else {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle";
+                    circle.innerHTML = i;
+                    if(line) line.style.width = "0%"; if(text) { text.classList.remove('text-white'); text.classList.add('text-gray-500'); }
+                }
+            }
+            lucide.createIcons();
+        }
+
+        function updateSummaryButton() {
+            const btn = document.getElementById('btnSummaryAction');
+            if(!btn) return;
+            if(currentStep === 1) {
+                btn.innerHTML = `<span>${dict[currentLang].btnNextMod || 'Continue to Modules'}</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+            } else if(currentStep === 2) {
+                btn.innerHTML = `<span>${dict[currentLang].btnNextDet || 'Continue to Details'}</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+            } else if(currentStep === 3) {
+                btn.innerHTML = `<span>${dict[currentLang].btnReview || 'Review Final Order'}</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+            } else if(currentStep === 4) {
+                btn.innerHTML = `<span>${dict[currentLang].btnSubmitArch || 'Submit Architecture Request'}</span> <i data-lucide="check-circle" class="w-4 h-4"></i>`;
+                btn.classList.add('bg-myancode-accent', 'text-white', 'hover:bg-blue-500', 'shadow-[0_0_20px_rgba(41,151,255,0.4)]');
+                btn.classList.remove('bg-white', 'text-black', 'hover:bg-gray-200');
+            }
+            
+            if(currentStep !== 4) {
+                btn.classList.remove('bg-myancode-accent', 'text-white', 'hover:bg-blue-500', 'shadow-[0_0_20px_rgba(41,151,255,0.4)]');
+                btn.classList.add('bg-white', 'text-black', 'hover:bg-gray-200');
+            }
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function handleSummaryAction() {
+            if (currentStep < 4) {
+                navigateStep(currentStep + 1);
+            } else {
+                submitPackageOrder();
+            }
+        }
+
+        async function submitPackageOrder() {
+            if(!currentUser) { showErrorToast(currentLang === 'en' ? 'Please login to submit.' : 'အကောင့်အရင်ဝင်ပါ။'); setTimeout(()=> window.location.href='../login/', 1500); return; }
+            
+            const isStaff = ['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role);
+            if (isStaff) { showErrorToast(currentLang === 'en' ? "Access Denied: Staff cannot order packages." : "ဝန်ထမ်းများ မှာယူခွင့်မရှိပါ။"); return; }
+
+            const name = document.getElementById('inpName').value.trim();
+            const phone = document.getElementById('inpPhone').value.trim();
+            const brief = document.getElementById('inpBrief').value.trim();
+
+            if(!name || !phone || phone.length < 6) {
+                showErrorToast(currentLang === 'en' ? 'Please fill your contact details.' : 'အချက်အလက်များ အပြည့်အစုံထည့်ပါ။');
+                goToStep(3);
+                return;
+            }
+
+            const btn1 = document.getElementById('btnSubmitOrderAction');
+            const btn2 = document.getElementById('btnSummaryAction');
+            if(btn1) { btn1.disabled = true; btn1.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...`; }
+            if(btn2) { btn2.disabled = true; btn2.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...`; }
+
+            try {
+                const activePkg = dbPackages.find(p => p.id === activePackageId);
+                let total = activePkg.base_price;
+                const finalAddons = [];
+                const displayAddons = [];
+                
+                dbAddons.forEach(addon => {
+                    const isIncluded = activePkg.included_addons && activePkg.included_addons.includes(addon.id);
+                    if(isIncluded || selectedAddonsList.includes(addon.id)) {
+                        const price = isIncluded ? 0 : addon.price;
+                        total += price;
+                        const nameEn = addon.name_en;
+                        finalAddons.push({ id: addon.id, name: nameEn, price: price, is_included: isIncluded });
+                        if(isIncluded) {
+                            displayAddons.push(`<div class="flex justify-between text-gray-500"><span>${nameEn}</span><span>Included</span></div>`);
+                        } else {
+                            displayAddons.push(`<div class="flex justify-between"><span>${nameEn}</span><span>${price.toLocaleString()}</span></div>`);
+                        }
+                    }
+                });
+
+                const { data, error } = await supabaseInstance.from('package_orders').insert([{
+                    user_id: currentUser.id,
+                    customer_name: name,
+                    customer_phone: phone,
+                    customer_email: currentUser.email,
+                    project_brief: brief,
+                    package_id: activePkg.id,
+                    package_name: activePkg.name_en,
+                    base_price: activePkg.base_price,
+                    selected_addons: finalAddons,
+                    total_price: total
+                }]).select();
+
+                if(error) throw error;
+
+                const orderId = (data && data.length > 0) ? data[0].id.toString().split('-')[0].substring(0,8).toUpperCase() : 'REQ' + Date.now().toString().substring(7);
+
+                document.getElementById('voucherOrderId').innerText = '#' + orderId;
+                document.getElementById('voucherDate').innerText = new Date().toLocaleDateString('en-GB');
+                document.getElementById('voucherName').innerText = name;
+                document.getElementById('voucherPlan').innerText = activePkg.name_en;
+                document.getElementById('voucherTotal').innerText = total.toLocaleString();
+                
+                const addonsContainer = document.getElementById('voucherAddons');
+                if(displayAddons.length > 0) {
+                    addonsContainer.innerHTML = displayAddons.join('');
+                } else {
+                    addonsContainer.innerHTML = `<span class="text-gray-500">No external modules attached.</span>`;
+                }
+
+                document.getElementById('mainAppContent').classList.add('hidden');
+                document.getElementById('voucher-screen').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch(err) {
+                console.error(err);
+                showErrorToast(err.message || 'Failed to submit order.');
+                if(btn1) { btn1.disabled = false; btn1.innerHTML = `<span data-i18n="btnSubmitArch">${dict[currentLang].btnSubmitArch}</span> <i data-lucide="check-circle" class="w-4 h-4"></i>`; }
+                if(btn2) { btn2.disabled = false; btn2.innerHTML = `<span>${dict[currentLang].btnSubmitArch}</span> <i data-lucide="check-circle" class="w-4 h-4"></i>`; }
+                lucide.createIcons();
+            }
+        }
+
+        function downloadVoucher(e) {
+            const btn = e.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i> Generating...`;
+            lucide.createIcons();
+            
+            const voucherEl = document.getElementById('voucher-card');
+            const vOrderId = document.getElementById('voucherOrderId').innerText;
+            
+            html2canvas(voucherEl, { backgroundColor: '#0f0f0f', scale: 2, useCORS: true }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `MyanCode_Architecture_${vOrderId}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+            }).catch(err => {
+                console.error(err);
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+                showErrorToast("Failed to download document.");
+            });
+        }
+
+        function updateAuthUI() {
+            const desktopAuth = document.getElementById('desktopAuthContainer'); const containerMob = document.getElementById('mobileAuthContainer');
+            if (!desktopAuth || !containerMob) return;
+            if (currentUser) {
+                const roleBadges = { 'founder': '../imgs/web-banners/founder-badge.png', 'admin': '../imgs/web-banners/verified-admin.png', 'moderator': '../imgs/web-banners/verified-moderator.png', 'partner': '../imgs/web-banners/verified-partner.png', 'developer': '../imgs/web-banners/verified-developer.png', 'client': '' };
+                const dashboardConfigs = { 'founder': { label: 'Workplace (Founder)', url: '../founder-dashboard/' }, 'admin': { label: 'Workplace (Admin)', url: '../admin-dashboard/' }, 'moderator': { label: 'Workplace (Moderator)', url: '../moderator-dashboard/' }, 'partner': { label: 'Collaboration', url: '../partner-dashboard/' }, 'developer': { label: 'Console', url: '../developer-dashboard/' }, 'client': { label: 'My Hub', url: '../hub/' } };
+                const userRole = (currentUser.role || 'client').toLowerCase(); const badgeSrc = roleBadges[userRole]; const dashConfig = dashboardConfigs[userRole] || dashboardConfigs['client'];
+                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="w-[18px] h-[18px] inline-block ml-2 align-middle select-none">` : '';
+                const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 text-white"></i>`;
+                
+                desktopAuth.innerHTML = `
+                    <div class="relative" id="profileContainer">
+                        <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon flex items-center justify-center text-white">${avatarIconHTML}</button>
+                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-56 bg-[#111] rounded-2xl shadow-xl border border-white/10 py-2 z-50 text-white">
+                            <div class="px-5 py-3 border-b border-white/10 mb-1 text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center"><span class="truncate">${currentUser.name}</span> ${badgeHTML}</div>
+                            <a href="${dashConfig.url}" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex items-center justify-between group/link">${dashConfig.label} <i data-lucide="layout-dashboard" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i></a>
+                            <button onclick="supabaseInstance.auth.signOut().then(()=>location.reload())" class="w-full text-left px-5 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors flex items-center justify-between group/btn">${dict[currentLang].hdrLogout} <i data-lucide="log-out" class="h-3.5 w-3.5 text-red-400 group-hover/btn:translate-x-1 transition-transform"></i></button>
+                        </div>
+                    </div>`;
+                containerMob.innerHTML = `<a href="${dashConfig.url}" class="flex justify-center items-center w-full bg-white text-black py-3.5 rounded-xl text-sm font-bold tracking-wide transition shadow-md">${dashConfig.label}</a>`;
+            } else {
+                desktopAuth.innerHTML = `<a href="../login/" class="text-[12px] font-bold hover:text-myancode-accent text-white px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a><a href="../register/" class="text-[12px] font-bold text-white border border-white/20 hover:border-white/50 px-4 py-1.5 rounded-full hover:bg-white/5 transition-all whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+                containerMob.innerHTML = `<a href="../login/" class="flex justify-center items-center w-full bg-white text-black py-3.5 rounded-xl text-sm font-bold tracking-wide transition shadow-md">${dict[currentLang].hdrLogin}</a>`;
+            }
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+            
+            document.querySelectorAll('.nav-link[data-nav-path]').forEach(link => {
+                if (window.location.pathname.includes(link.getAttribute('data-nav-path'))) {
+                    link.classList.add('text-myancode-accent', 'font-bold', 'active-nav-item');
+                    link.classList.remove('text-white/90');
+                }
+            });
+        }
+
+        function toggleMobileMenu() { document.getElementById('mobileDrawer').classList.toggle('open'); }
+        function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); }
+        function toggleProfile(e) { e.stopPropagation(); const p = document.getElementById('profileDropdown'); if(p) p.classList.toggle('dropdown-hidden'); }
+        
+        document.addEventListener('click', (e) => {
+            const ld = document.getElementById('langDropdown'); if (ld && !ld.classList.contains('dropdown-hidden') && !e.target.closest('#langContainer')) ld.classList.add('dropdown-hidden');
+            const pd = document.getElementById('profileDropdown'); if (pd && !pd.classList.contains('dropdown-hidden') && !e.target.closest('#profileContainer')) pd.classList.add('dropdown-hidden');
+        });
+
+        async function fetchSearchData() {
+            if (!supabaseInstance || searchDataCache) return;
+            try {
+                const [prodRes, servRes] = await Promise.all([
+                    supabaseInstance.from('products').select('product_id, product_name_en, product_name_mm, product_description_en, product_description_mm, category_id, product_slug, slug, product_image').eq('product_status', 'active'),
+                    supabaseInstance.from('services').select('id, title_en, title_mm, icon, short_desc_en, short_desc_mm, slug')
+                ]);
+                let dbItems = [];
+                if (prodRes.data) {
+                    dbItems = dbItems.concat(prodRes.data.map(p => ({
+                        type: 'Templates', name: p.product_name_en, mm: p.product_name_mm, 
+                        desc_en: p.product_description_en, desc_mm: p.product_description_mm,
+                        url: `../template-detail/?product=${p.product_slug || p.slug || p.product_id}`, image: p.product_image
+                    })));
+                }
+                if (servRes.data) {
+                    dbItems = dbItems.concat(servRes.data.map(s => ({
+                        type: 'Services', name: s.title_en, mm: s.title_mm, icon: s.icon || 'briefcase',
+                        desc_en: s.short_desc_en, desc_mm: s.short_desc_mm, url: `../services/?id=${s.slug || s.id}`
+                    })));
+                }
+                searchDataCache = dbItems;
+            } catch(e) { console.error('Cache prep failed:', e); }
+        }
+
+        function toggleSearchOverlay() {
+            const overlay = document.getElementById('searchOverlay'); overlay.classList.toggle('open');
+            if(overlay.classList.contains('open')) { 
+                document.body.classList.add('no-scroll'); fetchSearchData(); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); 
+            } else { 
+                document.body.classList.remove('no-scroll'); setTimeout(() => { document.getElementById('megaSearchInput').value = ''; document.getElementById('searchResultLabel').innerText = dict[currentLang].searchResults || 'Popular Queries'; document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint || 'Type to discover our products and services...'}</p>`; }, 400); 
+            }
+        }
+
+        let searchDebounceTimer;
+        function handleMegaSearch(e) {
+            const query = e.target.value.toLowerCase().trim(); const resultsContainer = document.getElementById('megaSearchResults'); const label = document.getElementById('searchResultLabel');
+            if (!query) { clearTimeout(searchDebounceTimer); label.innerText = currentLang === 'en' ? 'Popular Queries' : 'အများဆုံးရှာဖွေမှုများ'; resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint || 'Type to discover our products and services...'}</p>`; return; }
+            label.innerText = currentLang === 'en' ? 'Results' : 'ရလဒ်များ'; resultsContainer.innerHTML = `<div class="flex justify-center py-6"><i data-lucide="loader-2" class="h-6 w-6 animate-spin text-white"></i></div>`; if(typeof lucide !== 'undefined') lucide.createIcons();
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                const searchSource = searchDataCache || []; let combined = []; const queryWords = query.split(/\s+/).filter(w => w);
+                searchSource.forEach(item => {
+                    const searchStr = `${item.name || ''} ${item.mm || ''} ${item.desc_en || ''} ${item.desc_mm || ''} ${item.type || ''}`.toLowerCase();
+                    let score = 0; if (searchStr === query) score = 1000; else if (searchStr.includes(query)) score = 500; else { let matched = 0; queryWords.forEach(w => { if(searchStr.includes(w)) { matched++; score += 50; } }); if(matched === queryWords.length && queryWords.length > 0) score += 200; }
+                    if (score > 0) combined.push({ ...item, score });
+                });
+                combined.sort((a, b) => b.score - a.score); const unique = []; const urls = new Set(); combined.forEach(i => { if(!urls.has(i.url)) { urls.add(i.url); unique.push(i); }});
+                if (unique.length === 0) {
+                    resultsContainer.innerHTML = `<div class="py-8 text-center bg-[#111] border border-white/10 rounded-2xl">
+                        <i data-lucide="search-x" class="h-8 w-8 text-gray-500 mx-auto mb-3"></i><p class="text-white text-sm tracking-wide font-medium mb-1">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p><p class="text-xs text-gray-500 tracking-wide">${currentLang === 'en' ? 'Try searching for alternative keywords.' : 'အခြားသော စကားလုံးများဖြင့် ပြန်လည်ရှာဖွေကြည့်ပါ။'}</p></div>`;
+                    if(typeof lucide !== 'undefined') lucide.createIcons(); return;
+                }
+                const grouped = unique.reduce((acc, item) => { if (!acc[item.type]) acc[item.type] = []; if (acc[item.type].length < 4) acc[item.type].push(item); return acc; }, {});
+                const groupOrder = ['Templates', 'Services', 'Pages & Navigation', 'Company', 'Support & Help'];
+                const sortedKeys = Object.keys(grouped).sort((a, b) => { let idxA = groupOrder.indexOf(a); let idxB = groupOrder.indexOf(b); return (idxA===-1?999:idxA) - (idxB===-1?999:idxB); });
+                let html = '';
+                for (const type of sortedKeys) {
+                    const translatedType = type === 'Templates' ? (currentLang === 'en' ? 'Templates' : 'ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ') : type === 'Services' ? (currentLang === 'en' ? 'Services' : 'ဝန်ဆောင်မှုများ') : type === 'Pages & Navigation' ? (currentLang === 'en' ? 'Pages & Navigation' : 'စာမျက်နှာများ') : type === 'Company' ? (currentLang === 'en' ? 'Company' : 'ကုမ္ပဏီ') : (currentLang === 'en' ? 'Support & Help' : 'အကူအညီ');
+                    html += `<div class="mb-8 last:mb-0 reveal active"><h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">${translatedType} <span class="bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded-full text-[9px]">${grouped[type].length}</span></h4><div class="grid grid-cols-1 gap-2">`;
+                    html += grouped[type].map(item => {
+                        const title = currentLang === 'en' ? (item.name || 'Link') : (item.mm || item.name || 'Link');
+                        const desc = currentLang === 'en' ? (item.desc_en || '') : (item.desc_mm || item.desc_en || '');
+                        const fallbackImg = 'https://placehold.co/150x150/111111/444444?text=IMG';
+                        let finalImgUrl = item.image || fallbackImg; if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', '../');
+                        const imgBlock = item.image ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>` : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'link'}" class="h-5 w-5"></i></div>`;
+                        return `<a href="${item.url}" onclick="toggleSearchOverlay()" class="flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">${imgBlock}<div class="flex-1 min-w-0 z-10"><h5 class="text-sm font-bold font-display tracking-tight text-white group-hover:text-myancode-accent transition-colors truncate">${title}</h5>${desc ? `<p class="text-[11px] font-medium text-gray-400 line-clamp-1 mt-0.5">${desc}</p>` : ''}</div><div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-myancode-accent transition-colors z-10 opacity-0 sm:opacity-100"><i data-lucide="arrow-right" class="h-4 w-4 ml-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i></div></a>`;
+                    }).join('');
+                    html += `</div></div>`;
+                }
+                resultsContainer.innerHTML = html; if(typeof lucide !== 'undefined') lucide.createIcons();
+            }, 250); 
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            window.addEventListener('scroll', () => {
+                const nav = document.getElementById('mainNav');
+                if (window.scrollY > 50) { nav.classList.add('glass-nav-dark'); nav.classList.remove('nav-transparent', 'border-transparent'); } 
+                else { nav.classList.remove('glass-nav-dark'); nav.classList.add('nav-transparent', 'border-transparent'); }
+            });
+        });
+    </script>
+</body>
+</html>
