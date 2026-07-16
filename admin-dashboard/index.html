@@ -65,6 +65,11 @@
         .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
         .status-active { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
         .status-inactive { background-color: rgba(156, 163, 175, 0.1); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.2); }
+        .status-reviewing { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .status-planning { background-color: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
+        .status-developing { background-color: rgba(236, 72, 153, 0.1); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.2); }
+        .status-testing { background-color: rgba(249, 115, 22, 0.1); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.2); }
+        .status-deployed { background-color: rgba(20, 184, 166, 0.1); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.2); }
 
         #sidebar { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         #sidebar.collapsed { width: 80px !important; }
@@ -124,6 +129,11 @@
             <button onclick="switchTab('overview')" id="nav-overview" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOverview">Overview</span>
+            </button>
+
+            <button onclick="switchTab('arch-orders')" id="nav-arch-orders" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="hard-hat" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabArchOrders">Package Orders</span>
             </button>
             
             <button onclick="switchTab('orders')" id="nav-orders" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
@@ -219,6 +229,54 @@
                     </div>
                     <h3 class="text-2xl font-bold font-display text-white mb-3" data-i18n="overviewTitle">Overview Coming Soon</h3>
                     <p class="text-gray-400 text-sm font-medium" data-i18n="overviewDesc">We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.</p>
+                </div>
+            </div>
+
+            <div id="view-arch-orders" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display">
+                            <i data-lucide="hard-hat" class="h-7 w-7 text-myancode-accent"></i> 
+                            <span data-i18n="archMgtTitle">Package Orders Management</span>
+                        </h3>
+                        <div class="flex items-center gap-4 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-64">
+                                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                                <input type="text" id="adminArchSearch" onkeyup="filterAdminArchOrders()" class="w-full pl-10 pr-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Search architecture orders...">
+                            </div>
+                            <select id="adminArchStatusFilter" onchange="filterAdminArchOrders()" class="bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-gray-300 focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer">
+                                <option value="All" data-i18n="filterAll">All Status</option>
+                                <option value="Pending" data-i18n="statPending">Pending</option>
+                                <option value="Reviewing" data-i18n="statReviewing">Reviewing</option>
+                                <option value="Planning" data-i18n="statPlanning">Planning</option>
+                                <option value="Developing" data-i18n="statDeveloping">Developing</option>
+                                <option value="Testing" data-i18n="statTesting">Testing</option>
+                                <option value="Deployed" data-i18n="statDeployed">Deployed</option>
+                                <option value="Cancelled" data-i18n="filterCancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scroll pb-4">
+                        <table class="w-full text-left border-collapse min-w-[1200px]">
+                            <thead>
+                                <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
+                                    <th class="pb-4 pl-4">Order ID</th>
+                                    <th class="pb-4">Client</th>
+                                    <th class="pb-4">Package Base</th>
+                                    <th class="pb-4">Add-ons</th>
+                                    <th class="pb-4">Est. Total</th>
+                                    <th class="pb-4">Status</th>
+                                    <th class="pb-4 pr-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminArchOrdersTableBody" class="text-sm font-medium text-gray-300">
+                                <tr>
+                                    <td colspan="7" class="py-12 text-center text-gray-500 italic">Loading architecture orders...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -448,7 +506,52 @@
         </div>
     </main>
 
-    <!-- Package Modal -->
+    <div id="archOrderModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-8">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-6 sm:p-8 rounded-[2rem] w-full max-w-3xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="archOrderModalContent">
+            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center flex-shrink-0">Package Order Details</h3>
+            
+            <input type="hidden" id="archOrderId">
+            
+            <div class="flex-1 overflow-y-auto custom-scroll pr-2 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Order Status</label>
+                        <select id="archOrderStatus" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors cursor-pointer appearance-none shadow-inner">
+                            <option value="Pending">Pending</option>
+                            <option value="Reviewing">Reviewing</option>
+                            <option value="Planning">Planning</option>
+                            <option value="Developing">Developing</option>
+                            <option value="Testing">Testing</option>
+                            <option value="Deployed">Deployed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Client Contact</label>
+                        <input type="text" id="archOrderClient" disabled class="w-full px-4 py-3 bg-[#111] border border-white/5 rounded-xl text-sm font-mono text-gray-400 cursor-not-allowed">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Admin Notes & Remarks</label>
+                    <textarea id="archOrderNotes" rows="3" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-medium text-white shadow-inner focus:border-white outline-none resize-none" placeholder="Add private notes or remarks for this order..."></textarea>
+                </div>
+                
+                <div class="border-t border-white/10 pt-5">
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Manage Add-ons</label>
+                    <p class="text-xs text-gray-400 mb-4">Modify the features and add-ons attached to this project. Included features cannot be removed.</p>
+                    <div id="archModalAddons" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-3 w-full mt-6 pt-6 border-t border-white/10 flex-shrink-0">
+                <button onclick="closeArchOrderModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
+                <button onclick="submitArchOrderUpdate()" id="btnSubmitArchOrder" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black bg-white hover:bg-gray-200 shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <div id="packageModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-6 sm:p-8 rounded-[2rem] w-full max-w-4xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="packageModalContent">
             <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center flex-shrink-0">Architecture Package</h3>
@@ -498,7 +601,6 @@
                 <div class="border-t border-white/10 pt-5">
                     <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Included Add-ons</label>
                     <div id="pkgAddonsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        <!-- Checkboxes generated dynamically -->
                     </div>
                 </div>
 
@@ -518,7 +620,6 @@
         </div>
     </div>
 
-    <!-- Add-on Modal -->
     <div id="addonModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-6 sm:p-8 rounded-[2rem] w-full max-w-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="addonModalContent">
             <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center flex-shrink-0">Package Add-on</h3>
@@ -827,7 +928,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabOrders: "Plan Orders", tabCoupons: "Coupons", tabSubscribers: "Newsletter", tabSettings: "System Settings", tabPackages: "Packages",
+                menuMain: "Main Menu", tabOverview: "Overview", tabArchOrders: "Package Orders", tabOrders: "Plan Orders", tabCoupons: "Coupons", tabSubscribers: "Newsletter", tabSettings: "System Settings", tabPackages: "Packages",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
@@ -836,17 +937,18 @@
                 profSecurity: "Security & Access", profOldPass: "Current Password", profPass: "New Password", profPassConfirm: "Confirm Password", profUpdatePassBtn: "Update Authentication",
                 cropTitle: "Crop Photo", cropCancel: "Cancel", cropSave: "Save",
                 msgLoggedOut: "Signed out securely.",
+                archMgtTitle: "Package Orders Management",
                 orderMgtTitle: "Order Management", searchOrderAdmin: "Search orders...",
                 filterAll: "All Status", filterPending: "Pending", filterConfirmed: "Confirmed", filterExpired: "Expired", filterCancelled: "Cancelled",
                 thOrder: "Order ID", thCustomer: "Customer", thCompany: "Company", thPlanInfo: "Plan Info", thPayment: "Payment", thStatus: "Status", thActions: "Actions",
                 btnUpdate: "Update", loadingOrders: "Loading orders...", noOrders: "No orders found.",
                 updateStatusTitle: "Update Order Status", lblStatus: "Status", lblMonths: "Active Duration (Months)", lblMonthsDesc: "Required for confirmed orders to calculate expiry date.", btnSave: "Save Changes",
-                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo", viewProof: "View Proof",
+                statPending: "Pending", statReviewing: "Reviewing", statPlanning: "Planning", statDeveloping: "Developing", statTesting: "Testing", statDeployed: "Deployed", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo", viewProof: "View Proof",
                 couponMgtTitle: "Coupon Management", newsletterMgtTitle: "Newsletter Subscribers", pkgMgtTitle: "Architecture Packages", addonMgtTitle: "Package Add-ons"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabOrders: "အော်ဒါများ", tabCoupons: "ကူပွန်များ", tabSubscribers: "သတင်းလွှာစာရင်း", tabSettings: "စနစ် ဆက်တင်များ", tabPackages: "ပက်ကေ့ချ်များ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabArchOrders: "ပက်ကေ့ချ် အော်ဒါများ", tabOrders: "အော်ဒါများ", tabCoupons: "ကူပွန်များ", tabSubscribers: "သတင်းလွှာစာရင်း", tabSettings: "စနစ် ဆက်တင်များ", tabPackages: "ပက်ကေ့ချ်များ",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
@@ -855,12 +957,13 @@
                 profSecurity: "လုံခြုံရေး", profOldPass: "လက်ရှိ စကားဝှက်", profPass: "စကားဝှက်အသစ်", profPassConfirm: "စကားဝှက်အသစ် အတည်ပြုရန်", profUpdatePassBtn: "စကားဝှက် ပြောင်းရန်",
                 cropTitle: "ဓာတ်ပုံဖြတ်မည်", cropCancel: "ပယ်ဖျက်မည်", cropSave: "သိမ်းဆည်းမည်",
                 msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
+                archMgtTitle: "ပက်ကေ့ချ် အော်ဒါ စီမံခန့်ခွဲမှု",
                 orderMgtTitle: "အော်ဒါ စီမံခန့်ခွဲမှု", searchOrderAdmin: "အော်ဒါများ ရှာရန်...",
                 filterAll: "အခြေအနေအားလုံး", filterPending: "စစ်ဆေးဆဲ", filterConfirmed: "အတည်ပြုပြီး", filterExpired: "သက်တမ်းကုန်", filterCancelled: "ပယ်ဖျက်ထားသည်",
                 thOrder: "အော်ဒါ ID", thCustomer: "ဖောက်သည်", thCompany: "ကုမ္ပဏီ", thPlanInfo: "အစီအစဉ်", thPayment: "ငွေပေးချေမှု", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ရန်",
                 btnUpdate: "ပြင်ဆင်မည်", loadingOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noOrders: "အော်ဒါများ မရှိသေးပါ။",
                 updateStatusTitle: "အော်ဒါ အခြေအနေ ပြင်ဆင်ရန်", lblStatus: "အခြေအနေ", lblMonths: "ကာလ (လ)", lblMonthsDesc: "သက်တမ်းကုန်ဆုံးမည့်ရက် တွက်ချက်ရန် လိုအပ်ပါသည်။", btnSave: "သိမ်းဆည်းမည်",
-                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ", viewProof: "ပြေစာကြည့်ရန်",
+                statPending: "စစ်ဆေးဆဲ", statReviewing: "သုံးသပ်ဆဲ", statPlanning: "စီစဉ်နေဆဲ", statDeveloping: "ရေးဆွဲနေဆဲ", statTesting: "စမ်းသပ်ဆဲ", statDeployed: "လွှင့်တင်ပြီး", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ", viewProof: "ပြေစာကြည့်ရန်",
                 couponMgtTitle: "ကူပွန် စီမံခန့်ခွဲမှု", newsletterMgtTitle: "သတင်းလွှာစာရင်းသွင်းသူများ", pkgMgtTitle: "ဝက်ဘ်ဆိုက် ပက်ကေ့ချ်များ", addonMgtTitle: "အပိုလုပ်ဆောင်ချက်များ"
             }
         };
@@ -896,6 +999,7 @@
         let currentSessionTemp = null;
         let currentProfileTemp = null;
         let adminOrders = [];
+        let adminArchOrders = [];
         let adminCoupons = [];
         let adminSubscribers = [];
         let adminPackages = [];
@@ -982,6 +1086,7 @@
             }
 
             fetchAdminOrders();
+            fetchAdminArchOrders();
             fetchAdminCoupons();
             fetchAdminSubscribers();
             fetchAdminPackages();
@@ -1006,6 +1111,18 @@
                         adminOrders = adminOrders.filter(o => o.id !== payload.old.id);
                     }
                     filterAdminOrders(); 
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'package_orders' }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        if (!adminArchOrders.find(o => o.id === payload.new.id)) adminArchOrders.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = adminArchOrders.findIndex(o => o.id === payload.new.id);
+                        if (idx > -1) adminArchOrders[idx] = Object.assign({}, adminArchOrders[idx], payload.new);
+                        else adminArchOrders.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        adminArchOrders = adminArchOrders.filter(o => o.id !== payload.old.id);
+                    }
+                    filterAdminArchOrders();
                 })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'subscribers' }, payload => {
                     if (payload.eventType === 'INSERT') {
@@ -1038,6 +1155,227 @@
                     fetchAdminAddons();
                 })
                 .subscribe();
+        }
+
+        async function fetchAdminArchOrders() {
+            if(!supabaseInstance || !currentUser) return;
+            try {
+                const { data, error } = await supabaseInstance.from('package_orders').select('*').order('created_at', { ascending: false });
+                if(error) throw error;
+                adminArchOrders = data || [];
+                filterAdminArchOrders();
+            } catch(e) { console.error("Error fetching arch orders:", e); }
+        }
+
+        function filterAdminArchOrders() {
+            const search = document.getElementById('adminArchSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('adminArchStatusFilter').value;
+            
+            const filtered = adminArchOrders.filter(o => {
+                const searchStr = `${o.id} ${o.customer_name} ${o.customer_email} ${o.customer_phone} ${o.package_name}`.toLowerCase();
+                const matchSearch = searchStr.includes(search);
+                const matchStatus = statusFilter === 'All' || (o.status || 'Pending') === statusFilter;
+                return matchSearch && matchStatus;
+            });
+            
+            renderAdminArchOrdersTable(filtered);
+        }
+
+        function renderAdminArchOrdersTable(orders) {
+            const tbody = document.getElementById('adminArchOrdersTableBody');
+            
+            if(orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-gray-500 italic">No architecture orders found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = orders.map(order => {
+                let status = order.status || 'Pending';
+                let statusClass = 'status-pending';
+                let statusTrans = dict[currentLang]['stat' + status] || status;
+                
+                if(status === 'Reviewing') statusClass = 'status-reviewing';
+                else if(status === 'Planning') statusClass = 'status-planning';
+                else if(status === 'Developing') statusClass = 'status-developing';
+                else if(status === 'Testing') statusClass = 'status-testing';
+                else if(status === 'Deployed') statusClass = 'status-deployed';
+                else if(status === 'Cancelled') statusClass = 'status-cancelled';
+
+                const orderIdShort = order.id.toString().split('-')[0].substring(0,8).toUpperCase();
+
+                return `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <td class="py-4 pl-4 font-mono font-bold text-white text-xs">#${orderIdShort}</td>
+                    <td class="py-4">
+                        <div class="font-bold text-white">${order.customer_name}</div>
+                        <div class="text-[11px] text-gray-500 font-mono">${order.customer_email}</div>
+                        <div class="text-[10px] text-gray-600 font-mono">${order.customer_phone}</div>
+                    </td>
+                    <td class="py-4">
+                        <div class="font-bold text-white">${order.package_name}</div>
+                        <div class="text-[10px] text-gray-500">Base: ${order.base_price.toLocaleString()} MMK</div>
+                    </td>
+                    <td class="py-4 font-mono text-xs text-gray-400">
+                        ${(order.selected_addons || []).length} Attached
+                    </td>
+                    <td class="py-4 font-bold text-myancode-accent text-sm">
+                        ${order.total_price.toLocaleString()} <span class="text-[10px] font-normal text-gray-500">MMK</span>
+                    </td>
+                    <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
+                    <td class="py-4 pr-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="openArchOrderModal('${order.id}')" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-xs font-bold text-gray-300 hover:text-black">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteArchOrder('${order.id}')" class="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-red-500" title="Delete">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        function openArchOrderModal(id) {
+            const order = adminArchOrders.find(o => o.id === id);
+            if(!order) return;
+
+            document.getElementById('archOrderId').value = order.id;
+            document.getElementById('archOrderStatus').value = order.status || 'Pending';
+            document.getElementById('archOrderClient').value = `${order.customer_name} (${order.customer_phone})`;
+            document.getElementById('archOrderNotes').value = order.admin_notes || '';
+
+            const activePkg = adminPackages.find(p => p.id === order.package_id);
+            const includedAddons = activePkg ? (activePkg.included_addons || []) : [];
+            const orderAddonIds = (order.selected_addons || []).map(a => a.id);
+
+            let html = '';
+            if (adminAddons.length === 0) {
+                html = '<p class="text-xs text-gray-500">No add-ons available in the system.</p>';
+            } else {
+                adminAddons.forEach(addon => {
+                    const isIncluded = includedAddons.includes(addon.id);
+                    const isChecked = isIncluded || orderAddonIds.includes(addon.id);
+                    const disabledAttr = isIncluded ? 'disabled checked' : (isChecked ? 'checked' : '');
+                    const priceLabel = isIncluded ? '<span class="text-green-400 font-bold ml-auto text-[10px]">INCLUDED</span>' : `<span class="text-gray-400 font-mono ml-auto text-[10px]">+${addon.price.toLocaleString()}</span>`;
+
+                    html += `
+                    <label class="flex items-center gap-3 p-3 bg-[#111] border border-white/5 rounded-xl cursor-pointer hover:bg-white/5 transition-colors ${isIncluded ? 'opacity-70' : ''}">
+                        <input type="checkbox" value="${addon.id}" class="arch-addon-cb w-4 h-4 rounded border-gray-600 text-myancode-accent focus:ring-myancode-accent/50 bg-[#222]" ${disabledAttr}>
+                        <div class="flex items-center gap-2 w-full">
+                            <i data-lucide="${addon.icon || 'box'}" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+                            <span class="text-sm font-medium text-white truncate">${addon.name_en}</span>
+                            ${priceLabel}
+                        </div>
+                    </label>`;
+                });
+            }
+            document.getElementById('archModalAddons').innerHTML = html;
+            lucide.createIcons();
+
+            const modal = document.getElementById('archOrderModal');
+            const content = document.getElementById('archOrderModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeArchOrderModal() {
+            const modal = document.getElementById('archOrderModal');
+            const content = document.getElementById('archOrderModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function submitArchOrderUpdate() {
+            const id = document.getElementById('archOrderId').value;
+            const order = adminArchOrders.find(o => o.id === id);
+            if(!order) return;
+
+            const newStatus = document.getElementById('archOrderStatus').value;
+            const newNotes = document.getElementById('archOrderNotes').value.trim();
+
+            const activePkg = adminPackages.find(p => p.id === order.package_id);
+            const includedAddons = activePkg ? (activePkg.included_addons || []) : [];
+
+            let total = order.base_price;
+            let newSelected = [];
+
+            document.querySelectorAll('.arch-addon-cb').forEach(cb => {
+                if(cb.checked || cb.disabled) {
+                    const addon = adminAddons.find(a => a.id === cb.value);
+                    if(addon) {
+                        const isInc = includedAddons.includes(addon.id);
+                        const price = isInc ? 0 : addon.price;
+                        if(!isInc) total += price;
+                        newSelected.push({ id: addon.id, name: addon.name_en, price: price, is_included: isInc });
+                    }
+                }
+            });
+
+            const btn = document.getElementById('btnSubmitArchOrder');
+            btn.disabled = true;
+            showLoader();
+
+            try {
+                const { data, error } = await supabaseInstance.from('package_orders').update({
+                    status: newStatus,
+                    admin_notes: newNotes,
+                    selected_addons: newSelected,
+                    total_price: total
+                }).eq('id', id).select().single();
+
+                if (error) throw error;
+                
+                showToast("Architecture Order updated successfully.");
+                closeArchOrderModal();
+                
+                if (data) {
+                    const idx = adminArchOrders.findIndex(o => o.id === data.id);
+                    if(idx > -1) adminArchOrders[idx] = data;
+                    filterAdminArchOrders();
+                }
+            } catch (err) {
+                showErrorToast(err.message || "Failed to update order.");
+            } finally {
+                btn.disabled = false;
+                hideLoader();
+            }
+        }
+
+        function deleteArchOrder(id) {
+            showConfirmModal(
+                currentLang === 'en' ? 'Delete Order' : 'အော်ဒါဖျက်ရန်',
+                currentLang === 'en' ? 'Are you sure you want to permanently delete this package order?' : 'ဤပက်ကေ့ချ်အော်ဒါကို အပြီးအပိုင်ဖျက်ရန် သေချာပါသလား?',
+                'danger',
+                async () => {
+                    showLoader();
+                    try {
+                        const { data, error } = await supabaseInstance.from('package_orders').delete().eq('id', id).select();
+                        if (error) throw error;
+                        
+                        if (!data || data.length === 0) {
+                            throw new Error("Deletion blocked by Database RLS Policy.");
+                        }
+
+                        showToast(currentLang === 'en' ? 'Order deleted' : 'အော်ဒါဖျက်သိမ်းပြီးပါပြီ');
+                        adminArchOrders = adminArchOrders.filter(order => order.id !== id);
+                        filterAdminArchOrders();
+                    } catch (err) {
+                        showErrorToast(err.message || 'Failed to delete order');
+                    } finally {
+                        hideLoader();
+                    }
+                }
+            );
         }
 
         async function fetchAdminOrders() {
@@ -2052,8 +2390,8 @@
                 if (dict[currentLang][key]) el.placeholder = dict[currentLang][key];
             });
             
-            const titleMap = { 'overview': 'Overview', 'orders': 'Order Management', 'packages': 'Architecture Packages', 'coupons': 'Coupon Management', 'subscribers': 'Newsletter Subscribers', 'settings': 'System Settings' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'packages': 'ပက်ကေ့ချ် စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'subscribers': 'သတင်းလွှာစာရင်းသွင်းသူများ', 'settings': 'စနစ် ဆက်တင်များ' };
+            const titleMap = { 'overview': 'Overview', 'arch-orders': 'Package Orders Management', 'orders': 'Order Management', 'packages': 'Architecture Packages', 'coupons': 'Coupon Management', 'subscribers': 'Newsletter Subscribers', 'settings': 'System Settings' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'arch-orders': 'ပက်ကေ့ချ် အော်ဒါ စီမံခန့်ခွဲမှု', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'packages': 'ပက်ကေ့ချ် စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'subscribers': 'သတင်းလွှာစာရင်းသွင်းသူများ', 'settings': 'စနစ် ဆက်တင်များ' };
             
             let activeTab = window.location.hash.replace('#', '') || 'overview';
             const titleStr = currentLang === 'en' ? (titleMap[activeTab] || 'Dashboard') : (titleMapMM[activeTab] || 'Dashboard');
@@ -2065,6 +2403,7 @@
             localStorage.setItem('myancode_lang', currentLang);
             renderLanguage();
             if(adminOrders.length > 0) filterAdminOrders();
+            if(adminArchOrders.length > 0) filterAdminArchOrders();
         }
 
         function populateSidebar() {
@@ -2168,8 +2507,8 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'orders': 'Order Management', 'packages': 'Architecture Packages', 'coupons': 'Coupon Management', 'subscribers': 'Newsletter Subscribers', 'settings': 'System Settings' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'packages': 'ပက်ကေ့ချ် စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'subscribers': 'သတင်းလွှာစာရင်းသွင်းသူများ', 'settings': 'စနစ် ဆက်တင်များ' };
+            const titleMap = { 'overview': 'Overview', 'arch-orders': 'Package Orders Management', 'orders': 'Order Management', 'packages': 'Architecture Packages', 'coupons': 'Coupon Management', 'subscribers': 'Newsletter Subscribers', 'settings': 'System Settings' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'arch-orders': 'ပက်ကေ့ချ် အော်ဒါ စီမံခန့်ခွဲမှု', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'packages': 'ပက်ကေ့ချ် စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'subscribers': 'သတင်းလွှာစာရင်းသွင်းသူများ', 'settings': 'စနစ် ဆက်တင်များ' };
             const titleStr = currentLang === 'en' ? (titleMap[tabId] || 'Dashboard') : (titleMapMM[tabId] || 'Dashboard');
             document.getElementById('headerTitle').innerText = titleStr;
             
@@ -2361,6 +2700,7 @@
                 const cropperModal = document.getElementById('cropperModal');
                 const confirmModal = document.getElementById('confirmModal');
                 const updateOrderModal = document.getElementById('updateOrderModal');
+                const archOrderModal = document.getElementById('archOrderModal');
                 const createCouponModal = document.getElementById('createCouponModal');
                 const pkgModal = document.getElementById('packageModal');
                 const addonModal = document.getElementById('addonModal');
@@ -2372,6 +2712,7 @@
                     if (cropperModal && !cropperModal.classList.contains('hidden')) cancelCrop();
                     if (confirmModal && !confirmModal.classList.contains('hidden')) closeConfirmModal();
                     if (updateOrderModal && !updateOrderModal.classList.contains('hidden')) closeUpdateOrderModal();
+                    if (archOrderModal && !archOrderModal.classList.contains('hidden')) closeArchOrderModal();
                     if (createCouponModal && !createCouponModal.classList.contains('hidden')) closeCreateCouponModal();
                     if (pkgModal && !pkgModal.classList.contains('hidden')) closePackageModal();
                     if (addonModal && !addonModal.classList.contains('hidden')) closeAddonModal();
@@ -2384,3 +2725,4 @@
     </script>
 </body>
 </html>
+```eof
