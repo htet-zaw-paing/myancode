@@ -94,6 +94,16 @@
         
         #mailRichEditor:empty:before { content: attr(data-placeholder); color: #6b7280; pointer-events: none; display: block; }
         .resize-container { resize: both; overflow: auto; min-width: 300px; max-width: 100%; }
+
+        .plan-radio-card input:checked + div {
+            border-color: #2997ff;
+            background-color: rgba(41, 151, 255, 0.1);
+            box-shadow: 0 0 20px rgba(41, 151, 255, 0.15);
+        }
+        .plan-radio-card input:checked + div .plan-check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-accent selection:text-white flex bg-[#050505] relative text-white">
@@ -222,13 +232,58 @@
 
         <div class="flex-1 overflow-y-auto custom-scroll relative z-10 p-6 sm:p-12" id="mainContentArea">
             
-            <div id="view-overview" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full items-center justify-center min-h-[60vh]">
-                <div class="glass-panel p-12 rounded-[2rem] text-center max-w-lg w-full flex flex-col items-center shadow-2xl border border-white/5 reveal active">
-                    <div class="w-20 h-20 bg-myancode-accent/10 border border-myancode-accent/20 rounded-full flex items-center justify-center mb-6">
-                        <i data-lucide="layout-dashboard" class="w-10 h-10 text-myancode-accent"></i>
+            <div id="view-overview" class="view-section hidden flex-col gap-6 sm:gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                    <div class="glass-panel p-6 sm:p-8 rounded-[2rem] reveal active flex flex-col justify-center relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 opacity-5 pointer-events-none">
+                            <i data-lucide="banknote" class="w-32 h-32"></i>
+                        </div>
+                        <div class="text-gray-400 text-xs font-mono mb-2 uppercase tracking-widest font-bold">Total Revenue</div>
+                        <div class="text-2xl sm:text-3xl font-display font-bold text-myancode-accent tracking-tight" id="ov-revenue">0 <span class="text-sm font-medium text-gray-500">MMK</span></div>
                     </div>
-                    <h3 class="text-2xl font-bold font-display text-white mb-3" data-i18n="overviewTitle">Overview Coming Soon</h3>
-                    <p class="text-gray-400 text-sm font-medium" data-i18n="overviewDesc">We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.</p>
+                    <div class="glass-panel p-6 sm:p-8 rounded-[2rem] reveal active flex flex-col justify-center relative overflow-hidden" style="transition-delay: 100ms;">
+                        <div class="absolute -right-4 -top-4 opacity-5 pointer-events-none">
+                            <i data-lucide="receipt" class="w-32 h-32"></i>
+                        </div>
+                        <div class="text-gray-400 text-xs font-mono mb-2 uppercase tracking-widest font-bold">Plan Orders</div>
+                        <div class="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight" id="ov-plan-orders">0</div>
+                    </div>
+                    <div class="glass-panel p-6 sm:p-8 rounded-[2rem] reveal active flex flex-col justify-center relative overflow-hidden" style="transition-delay: 200ms;">
+                        <div class="absolute -right-4 -top-4 opacity-5 pointer-events-none">
+                            <i data-lucide="hard-hat" class="w-32 h-32"></i>
+                        </div>
+                        <div class="text-gray-400 text-xs font-mono mb-2 uppercase tracking-widest font-bold">Package Orders</div>
+                        <div class="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight" id="ov-arch-orders">0</div>
+                    </div>
+                    <div class="glass-panel p-6 sm:p-8 rounded-[2rem] reveal active flex flex-col justify-center relative overflow-hidden" style="transition-delay: 300ms;">
+                        <div class="absolute -right-4 -top-4 opacity-5 pointer-events-none">
+                            <i data-lucide="users" class="w-32 h-32"></i>
+                        </div>
+                        <div class="text-gray-400 text-xs font-mono mb-2 uppercase tracking-widest font-bold">Active Subscribers</div>
+                        <div class="text-2xl sm:text-3xl font-display font-bold text-green-400 tracking-tight" id="ov-subscribers">0</div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 sm:p-8 rounded-[2.5rem] reveal active mt-2 border border-white/5" style="transition-delay: 400ms;">
+                    <h3 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-3 font-display mb-6">
+                        <i data-lucide="history" class="h-5 w-5 sm:h-6 sm:w-6 text-myancode-accent"></i> 
+                        Recent Plan Orders
+                    </h3>
+                    <div class="overflow-x-auto custom-scroll pb-2">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                                <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
+                                    <th class="pb-4 pl-4">Customer</th>
+                                    <th class="pb-4">Plan Name</th>
+                                    <th class="pb-4">Status</th>
+                                    <th class="pb-4 pr-4 text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ov-recent-orders-table" class="text-sm font-medium text-gray-300">
+                                <tr><td colspan="4" class="py-10 text-center text-gray-500 italic">No recent activity.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -506,52 +561,278 @@
         </div>
     </main>
 
-    <div id="archOrderModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-8">
-        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-6 sm:p-8 rounded-[2rem] w-full max-w-3xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="archOrderModalContent">
-            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center flex-shrink-0">Package Order Details</h3>
+    <!-- CLEAN GRID-BASED ARCH ORDER MODAL -->
+    <div id="archOrderModal" class="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-6 sm:py-8">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-5xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="archOrderModalContent">
+            
+            <div class="px-8 py-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between bg-[#111]/50">
+                <h3 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-myancode-accent/10 flex items-center justify-center border border-myancode-accent/20">
+                        <i data-lucide="edit-3" class="w-5 h-5 text-myancode-accent"></i>
+                    </div>
+                    Manage Package Order
+                </h3>
+                <button onclick="closeArchOrderModal()" class="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors focus:outline-none">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
             
             <input type="hidden" id="archOrderId">
             
-            <div class="flex-1 overflow-y-auto custom-scroll pr-2 space-y-5">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Order Status</label>
-                        <select id="archOrderStatus" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors cursor-pointer appearance-none shadow-inner">
-                            <option value="Pending">Pending</option>
-                            <option value="Reviewing">Reviewing</option>
-                            <option value="Planning">Planning</option>
-                            <option value="Developing">Developing</option>
-                            <option value="Testing">Testing</option>
-                            <option value="Deployed">Deployed</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
+            <div class="flex-1 overflow-y-auto custom-scroll p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    <div class="lg:col-span-5 space-y-6">
+                        <div class="bg-[#111] p-6 rounded-3xl border border-white/5 shadow-inner space-y-5">
+                            <div>
+                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="info" class="w-3.5 h-3.5"></i> Order Status</label>
+                                <select id="archOrderStatus" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-colors cursor-pointer appearance-none shadow-inner">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Reviewing">Reviewing</option>
+                                    <option value="Planning">Planning</option>
+                                    <option value="Developing">Developing</option>
+                                    <option value="Testing">Testing</option>
+                                    <option value="Deployed">Deployed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="user" class="w-3.5 h-3.5"></i> Client Contact</label>
+                                <input type="text" id="archOrderClient" disabled class="w-full px-4 py-3 bg-[#050505]/50 border border-white/5 rounded-xl text-sm font-mono text-gray-500 cursor-not-allowed">
+                            </div>
+
+                            <div class="pt-5 border-t border-white/5">
+                                <label class="block text-[10px] font-bold font-mono text-myancode-accent uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="layers" class="w-3.5 h-3.5"></i> Package Base Plan</label>
+                                <select id="archOrderPackage" onchange="handleArchPackageChange()" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-colors cursor-pointer appearance-none shadow-inner hover:border-myancode-accent/50">
+                                </select>
+                                <p class="text-[10px] text-gray-500 mt-2 font-medium">Changing the package will automatically update the base price and base included features on the right.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-[#111] p-6 rounded-3xl border border-white/5 shadow-inner">
+                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Admin Notes & Remarks</label>
+                            <textarea id="archOrderNotes" rows="4" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-medium text-white shadow-inner focus:border-myancode-accent transition-colors outline-none resize-none custom-scroll" placeholder="Add private notes, links, or client requests here..."></textarea>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Client Contact</label>
-                        <input type="text" id="archOrderClient" disabled class="w-full px-4 py-3 bg-[#111] border border-white/5 rounded-xl text-sm font-mono text-gray-400 cursor-not-allowed">
+
+                    <div class="lg:col-span-7 flex flex-col h-full bg-[#111] p-6 rounded-3xl border border-white/5 shadow-inner relative">
+                        <div class="flex-1 flex flex-col min-h-[300px]">
+                            <div class="mb-4">
+                                <label class="block text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest flex items-center gap-2"><i data-lucide="blocks" class="w-4 h-4 text-myancode-accent"></i> Features & Add-ons</label>
+                                <p class="text-[11px] text-gray-500 mt-1">Select optional features. Features permanently included in the chosen base plan are highlighted and locked.</p>
+                            </div>
+                            
+                            <div id="archModalAddons" class="flex-1 overflow-y-auto custom-scroll pr-2 grid grid-cols-1 sm:grid-cols-2 gap-3 content-start pb-4">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-5 border-t border-white/10 flex justify-between items-center bg-[#0a0a0a] p-5 rounded-2xl border border-myancode-accent/20 shadow-[0_0_20px_rgba(41,151,255,0.05)]">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-bold font-mono text-myancode-accent uppercase tracking-widest mb-1">Total Estimated Price</span>
+                                <span class="text-xs text-gray-500">Base + Optional Add-ons</span>
+                            </div>
+                            <span id="archModalTotalPrice" class="text-2xl font-display font-bold text-white tracking-tight">0 <span class="text-sm font-medium text-gray-500 ml-1">MMK</span></span>
+                        </div>
                     </div>
-                </div>
-                
-                <div>
-                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Admin Notes & Remarks</label>
-                    <textarea id="archOrderNotes" rows="3" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-medium text-white shadow-inner focus:border-white outline-none resize-none" placeholder="Add private notes or remarks for this order..."></textarea>
-                </div>
-                
-                <div class="border-t border-white/10 pt-5">
-                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Manage Add-ons</label>
-                    <p class="text-xs text-gray-400 mb-4">Modify the features and add-ons attached to this project. Included features cannot be removed.</p>
-                    <div id="archModalAddons" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    </div>
+
                 </div>
             </div>
 
-            <div class="flex space-x-3 w-full mt-6 pt-6 border-t border-white/10 flex-shrink-0">
-                <button onclick="closeArchOrderModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
-                <button onclick="submitArchOrderUpdate()" id="btnSubmitArchOrder" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black bg-white hover:bg-gray-200 shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all">Save Changes</button>
+            <div class="px-8 py-5 border-t border-white/10 flex-shrink-0 bg-[#0a0a0a] flex items-center justify-end gap-3 rounded-b-[2.5rem]">
+                <button onclick="closeArchOrderModal()" class="px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent transition-colors">Cancel</button>
+                <button onclick="submitArchOrderUpdate()" id="btnSubmitArchOrder" class="px-8 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black bg-white hover:bg-gray-200 shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all flex items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Save Changes
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- UPGRADED PLAN ORDER MODAL WITH BIGGER UI AND PLAN SELECTOR -->
+    <div id="updateOrderModal" class="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-6 sm:py-8">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-4xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="updateOrderModalContent">
+            
+            <div class="px-8 py-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between bg-[#111]/50">
+                <h3 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-myancode-accent/10 flex items-center justify-center border border-myancode-accent/20">
+                        <i data-lucide="receipt" class="w-5 h-5 text-myancode-accent"></i>
+                    </div>
+                    Manage Plan Order
+                </h3>
+                <button onclick="closeUpdateOrderModal()" class="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors focus:outline-none">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <input type="hidden" id="updOrderId">
+            <input type="hidden" id="updOrderUserId">
+            
+            <div class="flex-1 overflow-y-auto custom-scroll p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    <!-- Left Column: Details -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <div class="bg-[#111] p-6 rounded-3xl border border-white/5 shadow-inner space-y-5">
+                            <div>
+                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="user" class="w-3.5 h-3.5"></i> Customer Details</label>
+                                <input type="text" id="updOrderCustomer" disabled class="w-full px-4 py-3 bg-[#050505]/50 border border-white/5 rounded-xl text-sm font-medium text-gray-400 cursor-not-allowed">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="building" class="w-3.5 h-3.5"></i> Company Name</label>
+                                <input type="text" id="updOrderCompany" disabled class="w-full px-4 py-3 bg-[#050505]/50 border border-white/5 rounded-xl text-sm font-medium text-gray-400 cursor-not-allowed">
+                            </div>
+
+                            <div class="pt-5 border-t border-white/5">
+                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="banknote" class="w-3.5 h-3.5"></i> Current Paid Total</label>
+                                <input type="text" id="updOrderCurrentPrice" disabled class="w-full px-4 py-3 bg-[#050505]/50 border border-white/5 rounded-xl text-sm font-bold text-myancode-accent cursor-not-allowed">
+                                <p class="text-[10px] text-gray-500 mt-2 font-medium">This is the originally recorded total. Plan changes here update access levels, not the paid amount.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Modification -->
+                    <div class="lg:col-span-7 bg-[#111] p-6 rounded-3xl border border-white/5 shadow-inner">
+                        
+                        <div class="mb-6">
+                            <label class="block text-[11px] font-bold font-mono text-myancode-accent uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4"></i> Order Configuration</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblStatus">Order Status</label>
+                                    <select id="updOrderStatus" onchange="toggleMonthsInput()" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-colors cursor-pointer appearance-none shadow-inner">
+                                        <option value="Pending" data-i18n="filterPending">Pending</option>
+                                        <option value="Confirmed" data-i18n="filterConfirmed">Confirmed</option>
+                                        <option value="Expired" data-i18n="filterExpired">Expired</option>
+                                        <option value="Cancelled" data-i18n="filterCancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="updMonthsContainer" class="hidden">
+                                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblMonths">Active Duration (Months)</label>
+                                    <input type="number" id="updOrderMonths" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" min="1" max="36">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 border-t border-white/5">
+                            <label class="block text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2"><i data-lucide="crown" class="w-4 h-4 text-myancode-accent"></i> Assigned Package Plan</label>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer relative plan-radio-card">
+                                    <input type="radio" name="planSelection" value="starter" class="peer sr-only">
+                                    <div class="p-4 rounded-xl border border-white/10 bg-[#050505] transition-all hover:bg-white/5 h-full flex flex-col justify-center relative overflow-hidden">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-bold text-white text-sm">Small Plan</span>
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-myancode-accent opacity-0 transform scale-50 transition-all plan-check-icon absolute top-4 right-4"></i>
+                                        </div>
+                                        <span class="text-[11px] font-mono text-gray-500">Starter</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="cursor-pointer relative plan-radio-card">
+                                    <input type="radio" name="planSelection" value="plus" class="peer sr-only">
+                                    <div class="p-4 rounded-xl border border-white/10 bg-[#050505] transition-all hover:bg-white/5 h-full flex flex-col justify-center relative overflow-hidden">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-bold text-white text-sm">Medium Plan</span>
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-myancode-accent opacity-0 transform scale-50 transition-all plan-check-icon absolute top-4 right-4"></i>
+                                        </div>
+                                        <span class="text-[11px] font-mono text-gray-500">Plus</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="cursor-pointer relative plan-radio-card">
+                                    <input type="radio" name="planSelection" value="pro" class="peer sr-only">
+                                    <div class="p-4 rounded-xl border border-white/10 bg-[#050505] transition-all hover:bg-white/5 h-full flex flex-col justify-center relative overflow-hidden">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-bold text-white text-sm">Large Plan</span>
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-myancode-accent opacity-0 transform scale-50 transition-all plan-check-icon absolute top-4 right-4"></i>
+                                        </div>
+                                        <span class="text-[11px] font-mono text-gray-500">Pro</span>
+                                    </div>
+                                </label>
+
+                                <label class="cursor-pointer relative plan-radio-card">
+                                    <input type="radio" name="planSelection" value="ultra" class="peer sr-only">
+                                    <div class="p-4 rounded-xl border border-white/10 bg-[#050505] transition-all hover:bg-white/5 h-full flex flex-col justify-center relative overflow-hidden">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-bold text-white text-sm">Enterprise Plan</span>
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-myancode-accent opacity-0 transform scale-50 transition-all plan-check-icon absolute top-4 right-4"></i>
+                                        </div>
+                                        <span class="text-[11px] font-mono text-gray-500">Ultra</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-8 py-5 border-t border-white/10 flex-shrink-0 bg-[#0a0a0a] flex items-center justify-end gap-3 rounded-b-[2.5rem]">
+                <button onclick="closeUpdateOrderModal()" class="px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent transition-colors">Cancel</button>
+                <button onclick="submitOrderUpdate()" id="btnSubmitOrderUpdate" class="px-8 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black bg-white hover:bg-gray-200 shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all flex items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Subscriber Modal -->
+    <div id="editSubscriberModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="editSubscriberModalContent">
+            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center">Edit Subscriber Status</h3>
+            
+            <input type="hidden" id="editSubscriberId">
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
+                    <input type="email" id="editSubscriberEmail" disabled class="w-full px-4 py-3 bg-[#050505]/50 border border-white/5 rounded-xl text-sm font-bold text-gray-500 cursor-not-allowed shadow-inner">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Status</label>
+                    <select id="editSubscriberStatus" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors cursor-pointer appearance-none shadow-inner">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex space-x-3 w-full mt-8">
+                <button onclick="closeEditSubscriberModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
+                <button onclick="submitEditSubscriber()" id="btnSubmitEditSubscriber" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all bg-white hover:bg-gray-200">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Subscriber Modal -->
+    <div id="addSubscriberModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="addSubscriberModalContent">
+            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center">Add Subscriber</h3>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
+                    <input type="email" id="newSubscriberEmail" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner" placeholder="user@example.com">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Status</label>
+                    <select id="newSubscriberStatus" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors cursor-pointer appearance-none shadow-inner">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex space-x-3 w-full mt-8">
+                <button onclick="closeAddSubscriberModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
+                <button onclick="submitAddSubscriber()" id="btnSubmitSubscriber" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all bg-white hover:bg-gray-200">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remaining Modals (Package, Addon, Coupon, SendMail, ForcePassword, Confirm, Image Preview, Cropper, Toasts) -->
+    <!-- (unchanged html structure to save text length, but ensuring all exist) -->
     <div id="packageModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-6 sm:p-8 rounded-[2rem] w-full max-w-4xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="packageModalContent">
             <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center flex-shrink-0">Architecture Package</h3>
@@ -677,9 +958,8 @@
         </div>
     </div>
 
-    <div id="createCouponModal" class="fixed inset-0 z-[100000] bg-black/20 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-lg shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden custom-scroll overflow-y-auto max-h-[90vh]" id="createCouponModalContent">
-            <div class="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+    <div id="createCouponModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-lg shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden custom-scroll overflow-y-auto max-h-[90vh]" id="createCouponModalContent">
             
             <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center">Create Coupon</h3>
             
@@ -728,33 +1008,8 @@
         </div>
     </div>
 
-    <div id="addSubscriberModal" class="fixed inset-0 z-[100000] bg-black/20 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="addSubscriberModalContent">
-            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center">Add Subscriber</h3>
-            
-            <div class="space-y-5">
-                <div>
-                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
-                    <input type="email" id="newSubscriberEmail" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner" placeholder="user@example.com">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Status</label>
-                    <select id="newSubscriberStatus" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors cursor-pointer appearance-none shadow-inner">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="flex space-x-3 w-full mt-8">
-                <button onclick="closeAddSubscriberModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
-                <button onclick="submitAddSubscriber()" id="btnSubmitSubscriber" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all bg-white hover:bg-gray-200">Add</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="sendMailModal" class="fixed inset-0 z-[100000] bg-black/20 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 p-6 sm:p-10 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col w-[95vw] lg:max-w-[1000px] h-[90vh] max-h-[90vh]" id="sendMailModalContent">
+    <div id="sendMailModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-6 sm:p-10 rounded-[2rem] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col w-[95vw] lg:max-w-[1000px] h-[90vh] max-h-[90vh]" id="sendMailModalContent">
             
             <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 flex items-center gap-3 shrink-0">
                 <i data-lucide="send" class="text-myancode-accent w-6 h-6"></i> Send Broadcast Email
@@ -807,38 +1062,6 @@
                 <button onclick="submitBroadcastMail()" id="btnSubmitMail" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(41,151,255,0.4)] hover:shadow-[0_0_25px_rgba(41,151,255,0.6)] transition-all bg-myancode-accent hover:bg-blue-500 flex items-center justify-center gap-2">
                     <i data-lucide="send" class="w-4 h-4"></i> Send to All Active
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="updateOrderModal" class="fixed inset-0 z-[100000] bg-black/20 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-[#0a0a0a]/90 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="updateOrderModalContent">
-            <div class="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-            
-            <h3 class="text-xl font-bold font-display tracking-tight text-white mb-6 text-center" data-i18n="updateStatusTitle">Update Order Status</h3>
-            
-            <input type="hidden" id="updOrderId">
-            <input type="hidden" id="updOrderUserId">
-            
-            <div class="space-y-5">
-                <div>
-                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblStatus">Status</label>
-                    <select id="updOrderStatus" onchange="toggleMonthsInput()" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors cursor-pointer appearance-none shadow-inner">
-                        <option value="Pending" data-i18n="filterPending">Pending</option>
-                        <option value="Confirmed" data-i18n="filterConfirmed">Confirmed</option>
-                        <option value="Expired" data-i18n="filterExpired">Expired</option>
-                        <option value="Cancelled" data-i18n="filterCancelled">Cancelled</option>
-                    </select>
-                </div>
-                <div id="updMonthsContainer" class="hidden">
-                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblMonths">Active Duration (Months)</label>
-                    <input type="number" id="updOrderMonths" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-white transition-colors shadow-inner" min="1" max="24">
-                </div>
-            </div>
-
-            <div class="flex space-x-3 w-full mt-8">
-                <button onclick="closeUpdateOrderModal()" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors">Cancel</button>
-                <button onclick="submitOrderUpdate()" id="btnSubmitOrderUpdate" class="flex-1 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all bg-white hover:bg-gray-200">Save</button>
             </div>
         </div>
     </div>
@@ -930,7 +1153,6 @@
                 authCheck: "Verifying authorization...",
                 menuMain: "Main Menu", tabOverview: "Overview", tabArchOrders: "Package Orders", tabOrders: "Plan Orders", tabCoupons: "Coupons", tabSubscribers: "Newsletter", tabSettings: "System Settings", tabPackages: "Packages",
                 btnLogout: "Sign Out",
-                overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
                 profSettings: "System Settings", profSub: "Manage your personal details and security preferences.",
                 profPublic: "Public Profile", profUpload: "Upload", profName: "Full Name", profUpdateBtn: "Save Changes", profRemoveAv: "Remove Icon",
@@ -950,7 +1172,6 @@
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
                 menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabArchOrders: "ပက်ကေ့ချ် အော်ဒါများ", tabOrders: "အော်ဒါများ", tabCoupons: "ကူပွန်များ", tabSubscribers: "သတင်းလွှာစာရင်း", tabSettings: "စနစ် ဆက်တင်များ", tabPackages: "ပက်ကေ့ချ်များ",
                 btnLogout: "အကောင့်ထွက်ရန်",
-                overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
                 profSettings: "အကောင့်ဆက်တင်များ", profSub: "သင့်ကိုယ်ရေးအချက်အလက်များနှင့် လုံခြုံရေးများကို ပြင်ဆင်ပါ။",
                 profPublic: "ကိုယ်ရေးအကျဉ်း", profUpload: "ပြောင်းမည်", profName: "အမည်အပြည့်အစုံ", profUpdateBtn: "အချက်အလက်များ သိမ်းဆည်းရန်", profRemoveAv: "ပုံဖယ်ရှားမည်",
@@ -1095,6 +1316,46 @@
             hideLoader();
         }
 
+        function updateOverviewMetrics() {
+            let totalRev = 0;
+            
+            adminOrders.forEach(o => {
+                if (o.status === 'Confirmed' || o.status === 'Expired') {
+                    totalRev += parseFloat(o.total_price || 0);
+                }
+            });
+            adminArchOrders.forEach(o => {
+                if (o.status !== 'Cancelled') {
+                    totalRev += parseFloat(o.total_price || 0);
+                }
+            });
+            
+            document.getElementById('ov-revenue').innerHTML = `${totalRev.toLocaleString()} <span class="text-sm font-medium text-gray-500 ml-1">MMK</span>`;
+            document.getElementById('ov-plan-orders').innerText = adminOrders.length;
+            document.getElementById('ov-arch-orders').innerText = adminArchOrders.length;
+            
+            const activeSubs = adminSubscribers.filter(s => s.status === 'active').length;
+            document.getElementById('ov-subscribers').innerText = activeSubs;
+
+            const recent = [...adminOrders].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+            const tbody = document.getElementById('ov-recent-orders-table');
+            
+            if(recent.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-gray-500 italic">No recent activity.</td></tr>`;
+            } else {
+                tbody.innerHTML = recent.map(o => {
+                    let statusClass = o.status === 'Confirmed' ? 'text-green-400' : (o.status === 'Pending' ? 'text-yellow-400' : 'text-gray-400');
+                    return `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="py-4 pl-4 text-sm font-bold text-white">${o.username}</td>
+                        <td class="py-4 text-sm text-gray-400 font-medium">${o.plan_name}</td>
+                        <td class="py-4 text-[11px] font-bold uppercase tracking-widest ${statusClass}">${o.status}</td>
+                        <td class="py-4 pr-4 text-sm font-bold text-white text-right">${parseFloat(o.total_price).toLocaleString()} <span class="text-[10px] text-gray-500 font-normal">MMK</span></td>
+                    </tr>`;
+                }).join('');
+            }
+        }
+
         function setupRealtimeSubscription() {
             if (!supabaseInstance) return;
             
@@ -1111,6 +1372,7 @@
                         adminOrders = adminOrders.filter(o => o.id !== payload.old.id);
                     }
                     filterAdminOrders(); 
+                    updateOverviewMetrics();
                 })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'package_orders' }, payload => {
                     if (payload.eventType === 'INSERT') {
@@ -1123,6 +1385,7 @@
                         adminArchOrders = adminArchOrders.filter(o => o.id !== payload.old.id);
                     }
                     filterAdminArchOrders();
+                    updateOverviewMetrics();
                 })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'subscribers' }, payload => {
                     if (payload.eventType === 'INSERT') {
@@ -1135,6 +1398,7 @@
                         adminSubscribers = adminSubscribers.filter(s => s.id !== payload.old.id);
                     }
                     renderAdminSubscribersTable(adminSubscribers);
+                    updateOverviewMetrics();
                 })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, payload => {
                     if (payload.eventType === 'INSERT') {
@@ -1164,6 +1428,7 @@
                 if(error) throw error;
                 adminArchOrders = data || [];
                 filterAdminArchOrders();
+                updateOverviewMetrics();
             } catch(e) { console.error("Error fetching arch orders:", e); }
         }
 
@@ -1247,34 +1512,20 @@
             document.getElementById('archOrderClient').value = `${order.customer_name} (${order.customer_phone})`;
             document.getElementById('archOrderNotes').value = order.admin_notes || '';
 
-            const activePkg = adminPackages.find(p => p.id === order.package_id);
-            const includedAddons = activePkg ? (activePkg.included_addons || []) : [];
+            // Populate packages dropdown dynamically
+            const pkgSelect = document.getElementById('archOrderPackage');
+            let pkgOptions = '';
+            adminPackages.forEach(p => {
+                pkgOptions += `<option value="${p.id}">${p.name_en} (${p.base_price.toLocaleString()} MMK)</option>`;
+            });
+            pkgSelect.innerHTML = pkgOptions;
+            pkgSelect.value = order.package_id || (adminPackages.length > 0 ? adminPackages[0].id : '');
+
+            // Render addons based on whatever package is currently selected above
             const orderAddonIds = (order.selected_addons || []).map(a => a.id);
+            renderArchModalAddons(pkgSelect.value, orderAddonIds);
 
-            let html = '';
-            if (adminAddons.length === 0) {
-                html = '<p class="text-xs text-gray-500">No add-ons available in the system.</p>';
-            } else {
-                adminAddons.forEach(addon => {
-                    const isIncluded = includedAddons.includes(addon.id);
-                    const isChecked = isIncluded || orderAddonIds.includes(addon.id);
-                    const disabledAttr = isIncluded ? 'disabled checked' : (isChecked ? 'checked' : '');
-                    const priceLabel = isIncluded ? '<span class="text-green-400 font-bold ml-auto text-[10px]">INCLUDED</span>' : `<span class="text-gray-400 font-mono ml-auto text-[10px]">+${addon.price.toLocaleString()}</span>`;
-
-                    html += `
-                    <label class="flex items-center gap-3 p-3 bg-[#111] border border-white/5 rounded-xl cursor-pointer hover:bg-white/5 transition-colors ${isIncluded ? 'opacity-70' : ''}">
-                        <input type="checkbox" value="${addon.id}" class="arch-addon-cb w-4 h-4 rounded border-gray-600 text-myancode-accent focus:ring-myancode-accent/50 bg-[#222]" ${disabledAttr}>
-                        <div class="flex items-center gap-2 w-full">
-                            <i data-lucide="${addon.icon || 'box'}" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-                            <span class="text-sm font-medium text-white truncate">${addon.name_en}</span>
-                            ${priceLabel}
-                        </div>
-                    </label>`;
-                });
-            }
-            document.getElementById('archModalAddons').innerHTML = html;
-            lucide.createIcons();
-
+            // Show modal
             const modal = document.getElementById('archOrderModal');
             const content = document.getElementById('archOrderModalContent');
             modal.classList.remove('hidden');
@@ -1282,6 +1533,73 @@
             void modal.offsetWidth;
             modal.classList.remove('opacity-0');
             content.classList.remove('scale-95');
+        }
+
+        function handleArchPackageChange() {
+            const pkgId = document.getElementById('archOrderPackage').value;
+            // Preserve the currently checked non-disabled addons
+            const currentChecked = Array.from(document.querySelectorAll('.arch-addon-cb:checked')).map(cb => cb.value);
+            renderArchModalAddons(pkgId, currentChecked);
+        }
+
+        function renderArchModalAddons(pkgId, selectedIds = []) {
+            const activePkg = adminPackages.find(p => p.id === pkgId);
+            const includedAddons = activePkg ? (activePkg.included_addons || []) : [];
+
+            let html = '';
+            if (adminAddons.length === 0) {
+                html = '<div class="col-span-full p-4 bg-white/5 rounded-xl text-xs text-gray-500 text-center">No add-ons available in the system.</div>';
+            } else {
+                adminAddons.forEach(addon => {
+                    const isIncluded = includedAddons.includes(addon.id);
+                    // Checked if inherently included or explicitly selected
+                    const isChecked = isIncluded || selectedIds.includes(addon.id);
+                    const disabledAttr = isIncluded ? 'disabled checked' : (isChecked ? 'checked' : '');
+                    
+                    const labelStyle = isIncluded ? 'opacity-50 cursor-not-allowed bg-black/50 border-transparent' : 'cursor-pointer hover:bg-white/5 bg-[#0a0a0a] border-white/10 hover:border-myancode-accent/50';
+                    
+                    const priceLabel = isIncluded 
+                        ? '<span class="text-myancode-accent font-bold ml-auto text-[10px] bg-myancode-accent/10 px-2 py-1 rounded-md">INCLUDED</span>' 
+                        : `<span class="text-gray-400 font-mono ml-auto text-[10px]">+${addon.price.toLocaleString()}</span>`;
+
+                    html += `
+                    <label class="flex items-center gap-3 p-3.5 border rounded-2xl transition-all group ${labelStyle}">
+                        <input type="checkbox" value="${addon.id}" onchange="calculateArchModalTotal()" class="arch-addon-cb w-4 h-4 rounded border-gray-600 text-myancode-accent focus:ring-myancode-accent/50 bg-[#222]" ${disabledAttr}>
+                        <div class="flex items-center gap-2.5 w-full">
+                            <div class="w-7 h-7 rounded-lg bg-[#111] border border-white/5 flex items-center justify-center flex-shrink-0 group-hover:border-white/20 transition-colors">
+                                <i data-lucide="${addon.icon || 'box'}" class="w-3.5 h-3.5 ${isIncluded ? 'text-gray-500' : 'text-gray-300'}"></i>
+                            </div>
+                            <span class="text-[13px] font-semibold ${isIncluded ? 'text-gray-500' : 'text-gray-200'} truncate">${addon.name_en}</span>
+                            ${priceLabel}
+                        </div>
+                    </label>`;
+                });
+            }
+            document.getElementById('archModalAddons').innerHTML = html;
+            lucide.createIcons();
+            calculateArchModalTotal();
+        }
+
+        function calculateArchModalTotal() {
+            const pkgId = document.getElementById('archOrderPackage').value;
+            const activePkg = adminPackages.find(p => p.id === pkgId);
+            
+            let total = activePkg ? activePkg.base_price : 0;
+            const includedAddons = activePkg ? (activePkg.included_addons || []) : [];
+
+            document.querySelectorAll('.arch-addon-cb').forEach(cb => {
+                if(cb.checked || cb.disabled) {
+                    const addon = adminAddons.find(a => a.id === cb.value);
+                    if(addon && !includedAddons.includes(addon.id)) {
+                        total += addon.price;
+                    }
+                }
+            });
+
+            const priceEl = document.getElementById('archModalTotalPrice');
+            if (priceEl) {
+                priceEl.innerHTML = `${total.toLocaleString()} <span class="text-[13px] font-medium text-gray-500 ml-1">MMK</span>`;
+            }
         }
 
         function closeArchOrderModal() {
@@ -1302,11 +1620,12 @@
 
             const newStatus = document.getElementById('archOrderStatus').value;
             const newNotes = document.getElementById('archOrderNotes').value.trim();
+            const pkgId = document.getElementById('archOrderPackage').value;
 
-            const activePkg = adminPackages.find(p => p.id === order.package_id);
+            const activePkg = adminPackages.find(p => p.id === pkgId);
             const includedAddons = activePkg ? (activePkg.included_addons || []) : [];
 
-            let total = order.base_price;
+            let total = activePkg ? activePkg.base_price : 0;
             let newSelected = [];
 
             document.querySelectorAll('.arch-addon-cb').forEach(cb => {
@@ -1326,14 +1645,27 @@
             showLoader();
 
             try {
-                const { data, error } = await supabaseInstance.from('package_orders').update({
+                const updatePayload = {
                     status: newStatus,
                     admin_notes: newNotes,
                     selected_addons: newSelected,
                     total_price: total
-                }).eq('id', id).select().single();
+                };
 
-                if (error) throw error;
+                if (activePkg) {
+                    updatePayload.package_id = activePkg.id;
+                    updatePayload.package_name = activePkg.name_en; 
+                    updatePayload.base_price = activePkg.base_price;
+                }
+
+                const { data, error } = await supabaseInstance.from('package_orders').update(updatePayload).eq('id', id).select().single();
+
+                if (error) {
+                    if (error.message && error.message.includes("admin_notes")) {
+                        throw new Error("Missing 'admin_notes' column in database. Please run the SQL snippet in Supabase SQL Editor.");
+                    }
+                    throw error;
+                }
                 
                 showToast("Architecture Order updated successfully.");
                 closeArchOrderModal();
@@ -1342,6 +1674,7 @@
                     const idx = adminArchOrders.findIndex(o => o.id === data.id);
                     if(idx > -1) adminArchOrders[idx] = data;
                     filterAdminArchOrders();
+                    updateOverviewMetrics();
                 }
             } catch (err) {
                 showErrorToast(err.message || "Failed to update order.");
@@ -1369,6 +1702,7 @@
                         showToast(currentLang === 'en' ? 'Order deleted' : 'အော်ဒါဖျက်သိမ်းပြီးပါပြီ');
                         adminArchOrders = adminArchOrders.filter(order => order.id !== id);
                         filterAdminArchOrders();
+                        updateOverviewMetrics();
                     } catch (err) {
                         showErrorToast(err.message || 'Failed to delete order');
                     } finally {
@@ -1403,6 +1737,7 @@
                 }
 
                 filterAdminOrders();
+                updateOverviewMetrics();
 
             } catch (err) {
                 console.error("Error fetching admin orders:", err);
@@ -1477,7 +1812,7 @@
                     <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
                     <td class="py-4 pr-4 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <button onclick="openUpdateOrderModal('${order.id}', '${order.status}', ${order.months}, '${order.user_id}')" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-xs font-bold text-white">
+                            <button onclick="openUpdateOrderModal('${order.id}')" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-xs font-bold text-white">
                                 ${dict[currentLang].btnUpdate}
                             </button>
                             <button onclick="deleteAdminOrder('${order.id}')" class="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-red-500" title="Delete">
@@ -1489,6 +1824,164 @@
             }).join('');
             
             lucide.createIcons();
+        }
+
+        function openUpdateOrderModal(id) {
+            const order = adminOrders.find(o => o.id === id);
+            if(!order) return;
+
+            document.getElementById('updOrderId').value = order.id;
+            document.getElementById('updOrderUserId').value = order.user_id;
+            document.getElementById('updOrderStatus').value = order.status;
+            document.getElementById('updOrderMonths').value = order.months || 1;
+
+            // Details Display
+            document.getElementById('updOrderCustomer').value = `${order.username} (${order.email})`;
+            document.getElementById('updOrderCompany').value = order.company_name || 'N/A';
+            document.getElementById('updOrderCurrentPrice').value = `${parseInt(order.total_price).toLocaleString()} MMK`;
+
+            // Pre-select Current Plan Radio
+            const planId = order.plan_id || 'starter';
+            const radio = document.querySelector(`input[name="planSelection"][value="${planId}"]`);
+            if(radio) radio.checked = true;
+
+            toggleMonthsInput();
+            
+            const modal = document.getElementById('updateOrderModal');
+            const content = document.getElementById('updateOrderModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeUpdateOrderModal() {
+            const modal = document.getElementById('updateOrderModal');
+            const content = document.getElementById('updateOrderModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function toggleMonthsInput() {
+            const status = document.getElementById('updOrderStatus').value;
+            const container = document.getElementById('updMonthsContainer');
+            if (status === 'Confirmed') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        async function submitOrderUpdate() {
+            const id = document.getElementById('updOrderId').value;
+            const userId = document.getElementById('updOrderUserId').value;
+            const status = document.getElementById('updOrderStatus').value;
+            const months = parseInt(document.getElementById('updOrderMonths').value) || 1;
+            
+            // Get selected Plan Tier
+            const selectedPlanRadio = document.querySelector('input[name="planSelection"]:checked');
+            const planId = selectedPlanRadio ? selectedPlanRadio.value : 'starter';
+            
+            const planNames = {
+                'starter': 'Starter (Small) Plan',
+                'plus': 'Plus (Medium) Plan',
+                'pro': 'Pro (Large) Plan',
+                'ultra': 'Ultra (Enterprise) Plan'
+            };
+            const planName = planNames[planId];
+
+            const btn = document.getElementById('btnSubmitOrderUpdate');
+            btn.disabled = true;
+            showLoader();
+
+            try {
+                let updateData = { 
+                    status: status, 
+                    plan_id: planId, 
+                    plan_name: planName, 
+                    updated_at: new Date().toISOString() 
+                };
+                
+                if (status === 'Confirmed') {
+                    // Expire old confirmed plans for this user
+                    await supabaseInstance.from('plan_orders')
+                        .update({ status: 'Expired', updated_at: new Date().toISOString() })
+                        .eq('user_id', userId)
+                        .eq('status', 'Confirmed')
+                        .neq('id', id);
+                        
+                    updateData.confirmed_at = new Date().toISOString();
+                    updateData.months = months;
+                    const expDate = new Date();
+                    expDate.setMonth(expDate.getMonth() + months);
+                    updateData.expires_at = expDate.toISOString();
+                }
+
+                const { data, error } = await supabaseInstance.from('plan_orders').update(updateData).eq('id', id).select().single();
+                if (error) {
+                    if (error.message && (error.message.includes("plan_id") || error.message.includes("plan_name"))) {
+                        throw new Error("Missing plan columns in your database. Please run the provided SQL snippet.");
+                    }
+                    throw error;
+                }
+                
+                showToast("Order plan and status updated successfully.");
+                closeUpdateOrderModal();
+                
+                if (data) {
+                    const idx = adminOrders.findIndex(o => o.id === data.id);
+                    if(idx > -1) adminOrders[idx] = data;
+                    
+                    if (status === 'Confirmed') {
+                        adminOrders.forEach(o => {
+                            if (o.user_id === userId && o.id !== id && o.status === 'Confirmed') {
+                                o.status = 'Expired';
+                            }
+                        });
+                    }
+
+                    filterAdminOrders();
+                    updateOverviewMetrics();
+                }
+            } catch (err) {
+                showErrorToast(err.message || "Failed to update order.");
+            } finally {
+                btn.disabled = false;
+                hideLoader();
+            }
+        }
+        
+        function deleteAdminOrder(id) {
+            showConfirmModal(
+                currentLang === 'en' ? 'Delete Order' : 'အော်ဒါဖျက်ရန်',
+                currentLang === 'en' ? 'Are you sure you want to permanently delete this order? This action cannot be undone.' : 'ဤအော်ဒါကို အပြီးအပိုင်ဖျက်ရန် သေချာပါသလား?',
+                'danger',
+                async () => {
+                    showLoader();
+                    try {
+                        const { data, error } = await supabaseInstance.from('plan_orders').delete().eq('id', id).select();
+                        if (error) throw error;
+                        
+                        if (!data || data.length === 0) {
+                            throw new Error("Deletion blocked by Database RLS Policy. Please check your Supabase rules.");
+                        }
+
+                        showToast(currentLang === 'en' ? 'Order deleted successfully' : 'အော်ဒါဖျက်သိမ်းပြီးပါပြီ');
+                        adminOrders = adminOrders.filter(order => order.id !== id);
+                        filterAdminOrders();
+                        updateOverviewMetrics();
+                    } catch (err) {
+                        showErrorToast(err.message || 'Failed to delete order');
+                    } finally {
+                        hideLoader();
+                    }
+                }
+            );
         }
 
         async function fetchAdminPackages() {
@@ -1762,6 +2255,7 @@
                 } catch(e) { showErrorToast(e.message); } finally { hideLoader(); }
             });
         }
+        
         function deleteAddon(id) {
             showConfirmModal('Delete Add-on', 'Are you sure you want to permanently delete this add-on?', 'danger', async () => {
                 showLoader();
@@ -1844,7 +2338,7 @@
                 
                 adminSubscribers = data || [];
                 renderAdminSubscribersTable(adminSubscribers);
-
+                updateOverviewMetrics();
             } catch (err) {
                 console.error("Error fetching subscribers:", err);
             }
@@ -1869,14 +2363,181 @@
                     <td class="py-4"><span class="status-badge ${statusClass}">${sub.status}</span></td>
                     <td class="py-4 text-gray-500 text-xs font-mono">${dateStr}</td>
                     <td class="py-4 pr-4 text-right">
-                        <button onclick="deleteSubscriber('${sub.id}')" class="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-red-500" title="Delete">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="openEditSubscriberModal('${sub.id}')" class="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-xs font-bold text-white">
+                                Edit
+                            </button>
+                            <button onclick="deleteSubscriber('${sub.id}')" class="p-1.5 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-red-500" title="Delete">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>`;
             }).join('');
             
             lucide.createIcons();
+        }
+
+        function openEditSubscriberModal(id) {
+            const sub = adminSubscribers.find(s => s.id === id);
+            if (!sub) return;
+
+            document.getElementById('editSubscriberId').value = sub.id;
+            document.getElementById('editSubscriberEmail').value = sub.email;
+            document.getElementById('editSubscriberStatus').value = sub.status || 'active';
+
+            const modal = document.getElementById('editSubscriberModal');
+            const content = document.getElementById('editSubscriberModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeEditSubscriberModal() {
+            const modal = document.getElementById('editSubscriberModal');
+            const content = document.getElementById('editSubscriberModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function submitEditSubscriber() {
+            const id = document.getElementById('editSubscriberId').value;
+            const newStatus = document.getElementById('editSubscriberStatus').value;
+            
+            const btn = document.getElementById('btnSubmitEditSubscriber');
+            btn.disabled = true;
+            showLoader();
+
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('subscribers')
+                    .update({ status: newStatus })
+                    .eq('id', id)
+                    .select()
+                    .single();
+                    
+                if (error) throw error;
+                
+                showToast("Subscriber status updated.");
+                closeEditSubscriberModal();
+                
+                if (data) {
+                    const idx = adminSubscribers.findIndex(s => s.id === data.id);
+                    if (idx > -1) adminSubscribers[idx] = data;
+                    renderAdminSubscribersTable(adminSubscribers);
+                    updateOverviewMetrics();
+                }
+            } catch (err) {
+                showErrorToast(err.message || "Failed to update subscriber.");
+            } finally {
+                btn.disabled = false;
+                hideLoader();
+            }
+        }
+
+        function openCreateCouponModal() {
+            document.getElementById('newCouponName').value = '';
+            document.getElementById('newCouponCode').value = '';
+            document.getElementById('newCouponStart').value = '';
+            document.getElementById('newCouponEnd').value = '';
+            document.getElementById('newCouponType').value = 'percent';
+            document.getElementById('newCouponValue').value = '';
+            document.getElementById('newCouponLimit').value = '';
+
+            const modal = document.getElementById('createCouponModal');
+            const content = document.getElementById('createCouponModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeCreateCouponModal() {
+            const modal = document.getElementById('createCouponModal');
+            const content = document.getElementById('createCouponModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function submitCreateCoupon() {
+            const name = document.getElementById('newCouponName').value.trim();
+            const code = document.getElementById('newCouponCode').value.trim().toUpperCase();
+            const start = document.getElementById('newCouponStart').value;
+            const end = document.getElementById('newCouponEnd').value;
+            const type = document.getElementById('newCouponType').value;
+            const value = document.getElementById('newCouponValue').value;
+            const limit = document.getElementById('newCouponLimit').value;
+
+            if (!name || !code || !value) {
+                showErrorToast("Please fill in name, code, and value.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitCreateCoupon');
+            btn.disabled = true;
+            showLoader();
+
+            try {
+                let insertData = {
+                    name: name,
+                    code: code,
+                    discount_type: type,
+                    discount_value: parseFloat(value),
+                };
+                if (start) insertData.start_date = new Date(start).toISOString();
+                if (end) insertData.end_date = new Date(end).toISOString();
+                if (limit) insertData.usage_limit = parseInt(limit);
+
+                const { data, error } = await supabaseInstance.from('coupons').insert([insertData]).select().single();
+                if (error) throw error;
+                
+                showToast("Coupon created successfully.");
+                closeCreateCouponModal();
+                
+                if (data && !adminCoupons.find(c => c.id === data.id)) {
+                    adminCoupons.unshift(data);
+                    renderAdminCouponsTable(adminCoupons);
+                }
+            } catch (err) {
+                showErrorToast(err.message || "Failed to create coupon.");
+            } finally {
+                btn.disabled = false;
+                hideLoader();
+            }
+        }
+
+        function deleteAdminCoupon(id) {
+            showConfirmModal(
+                'Delete Coupon',
+                'Are you sure you want to permanently delete this coupon?',
+                'danger',
+                async () => {
+                    showLoader();
+                    try {
+                        const { error, data } = await supabaseInstance.from('coupons').delete().eq('id', id).select();
+                        if (error) throw error;
+                        
+                        showToast('Coupon deleted successfully');
+                        adminCoupons = adminCoupons.filter(c => c.id !== id);
+                        renderAdminCouponsTable(adminCoupons);
+                    } catch (err) {
+                        showErrorToast(err.message || 'Failed to delete coupon');
+                    } finally {
+                        hideLoader();
+                    }
+                }
+            );
         }
 
         function openAddSubscriberModal() {
@@ -1929,6 +2590,7 @@
                 if (data && !adminSubscribers.find(s => s.id === data.id)) {
                     adminSubscribers.unshift(data);
                     renderAdminSubscribersTable(adminSubscribers);
+                    updateOverviewMetrics();
                 }
             } catch (err) {
                 showErrorToast(err.message || "Failed to add subscriber.");
@@ -1956,6 +2618,7 @@
                         showToast('Subscriber deleted successfully');
                         adminSubscribers = adminSubscribers.filter(s => s.id !== id);
                         renderAdminSubscribersTable(adminSubscribers);
+                        updateOverviewMetrics();
                     } catch (err) {
                         showErrorToast(err.message || 'Failed to delete subscriber');
                     } finally {
@@ -2097,224 +2760,6 @@
                 btn.innerHTML = originalHTML;
                 lucide.createIcons();
             }
-        }
-
-        function openCreateCouponModal() {
-            document.getElementById('newCouponName').value = '';
-            document.getElementById('newCouponCode').value = '';
-            document.getElementById('newCouponStart').value = '';
-            document.getElementById('newCouponEnd').value = '';
-            document.getElementById('newCouponType').value = 'percent';
-            document.getElementById('newCouponValue').value = '';
-            document.getElementById('newCouponLimit').value = '';
-
-            const modal = document.getElementById('createCouponModal');
-            const content = document.getElementById('createCouponModalContent');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-        }
-
-        function closeCreateCouponModal() {
-            const modal = document.getElementById('createCouponModal');
-            const content = document.getElementById('createCouponModalContent');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
-
-        async function submitCreateCoupon() {
-            const name = document.getElementById('newCouponName').value.trim();
-            const code = document.getElementById('newCouponCode').value.trim().toUpperCase();
-            const start = document.getElementById('newCouponStart').value;
-            const end = document.getElementById('newCouponEnd').value;
-            const type = document.getElementById('newCouponType').value;
-            const value = document.getElementById('newCouponValue').value;
-            const limit = document.getElementById('newCouponLimit').value;
-
-            if (!name || !code || !value) {
-                showErrorToast("Please fill in name, code, and value.");
-                return;
-            }
-
-            const btn = document.getElementById('btnSubmitCreateCoupon');
-            btn.disabled = true;
-            showLoader();
-
-            try {
-                let insertData = {
-                    name: name,
-                    code: code,
-                    discount_type: type,
-                    discount_value: parseFloat(value),
-                };
-                if (start) insertData.start_date = new Date(start).toISOString();
-                if (end) insertData.end_date = new Date(end).toISOString();
-                if (limit) insertData.usage_limit = parseInt(limit);
-
-                const { data, error } = await supabaseInstance.from('coupons').insert([insertData]).select().single();
-                if (error) throw error;
-                
-                showToast("Coupon created successfully.");
-                closeCreateCouponModal();
-                
-                if (data && !adminCoupons.find(c => c.id === data.id)) {
-                    adminCoupons.unshift(data);
-                    renderAdminCouponsTable(adminCoupons);
-                }
-            } catch (err) {
-                showErrorToast(err.message || "Failed to create coupon.");
-            } finally {
-                btn.disabled = false;
-                hideLoader();
-            }
-        }
-
-        function deleteAdminCoupon(id) {
-            showConfirmModal(
-                'Delete Coupon',
-                'Are you sure you want to permanently delete this coupon?',
-                'danger',
-                async () => {
-                    showLoader();
-                    try {
-                        const { error, data } = await supabaseInstance.from('coupons').delete().eq('id', id).select();
-                        if (error) throw error;
-                        
-                        showToast('Coupon deleted successfully');
-                        adminCoupons = adminCoupons.filter(c => c.id !== id);
-                        renderAdminCouponsTable(adminCoupons);
-                    } catch (err) {
-                        showErrorToast(err.message || 'Failed to delete coupon');
-                    } finally {
-                        hideLoader();
-                    }
-                }
-            );
-        }
-
-        function openUpdateOrderModal(id, currentStatus, months, userId) {
-            document.getElementById('updOrderId').value = id;
-            document.getElementById('updOrderUserId').value = userId;
-            document.getElementById('updOrderStatus').value = currentStatus;
-            document.getElementById('updOrderMonths').value = months;
-            toggleMonthsInput();
-            
-            const modal = document.getElementById('updateOrderModal');
-            const content = document.getElementById('updateOrderModalContent');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-        }
-
-        function closeUpdateOrderModal() {
-            const modal = document.getElementById('updateOrderModal');
-            const content = document.getElementById('updateOrderModalContent');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
-
-        function toggleMonthsInput() {
-            const status = document.getElementById('updOrderStatus').value;
-            const container = document.getElementById('updMonthsContainer');
-            if (status === 'Confirmed') {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-            }
-        }
-
-        async function submitOrderUpdate() {
-            const id = document.getElementById('updOrderId').value;
-            const userId = document.getElementById('updOrderUserId').value;
-            const status = document.getElementById('updOrderStatus').value;
-            const months = parseInt(document.getElementById('updOrderMonths').value) || 1;
-            
-            const btn = document.getElementById('btnSubmitOrderUpdate');
-            btn.disabled = true;
-            showLoader();
-
-            try {
-                let updateData = { status: status, updated_at: new Date().toISOString() };
-                
-                if (status === 'Confirmed') {
-                    await supabaseInstance.from('plan_orders')
-                        .update({ status: 'Expired', updated_at: new Date().toISOString() })
-                        .eq('user_id', userId)
-                        .eq('status', 'Confirmed')
-                        .neq('id', id);
-                        
-                    updateData.confirmed_at = new Date().toISOString();
-                    updateData.months = months;
-                    const expDate = new Date();
-                    expDate.setMonth(expDate.getMonth() + months);
-                    updateData.expires_at = expDate.toISOString();
-                }
-
-                const { data, error } = await supabaseInstance.from('plan_orders').update(updateData).eq('id', id).select().single();
-                if (error) throw error;
-                
-                showToast("Order status updated successfully.");
-                closeUpdateOrderModal();
-                
-                if (data) {
-                    const idx = adminOrders.findIndex(o => o.id === data.id);
-                    if(idx > -1) adminOrders[idx] = data;
-                    
-                    if (status === 'Confirmed') {
-                        adminOrders.forEach(o => {
-                            if (o.user_id === userId && o.id !== id && o.status === 'Confirmed') {
-                                o.status = 'Expired';
-                            }
-                        });
-                    }
-
-                    filterAdminOrders();
-                }
-            } catch (err) {
-                showErrorToast(err.message || "Failed to update order.");
-            } finally {
-                btn.disabled = false;
-                hideLoader();
-            }
-        }
-        
-        function deleteAdminOrder(id) {
-            showConfirmModal(
-                currentLang === 'en' ? 'Delete Order' : 'အော်ဒါဖျက်ရန်',
-                currentLang === 'en' ? 'Are you sure you want to permanently delete this order? This action cannot be undone.' : 'ဤအော်ဒါကို အပြီးအပိုင်ဖျက်ရန် သေချာပါသလား?',
-                'danger',
-                async () => {
-                    showLoader();
-                    try {
-                        const { data, error } = await supabaseInstance.from('plan_orders').delete().eq('id', id).select();
-                        if (error) throw error;
-                        
-                        if (!data || data.length === 0) {
-                            throw new Error("Deletion blocked by Database RLS Policy. Please apply the provided SQL snippet in Supabase.");
-                        }
-
-                        showToast(currentLang === 'en' ? 'Order deleted successfully' : 'အော်ဒါဖျက်သိမ်းပြီးပါပြီ');
-                        adminOrders = adminOrders.filter(order => order.id !== id);
-                        filterAdminOrders();
-                    } catch (err) {
-                        showErrorToast(err.message || 'Failed to delete order');
-                    } finally {
-                        hideLoader();
-                    }
-                }
-            );
         }
 
         function openImagePreview(url) {
@@ -2706,6 +3151,7 @@
                 const addonModal = document.getElementById('addonModal');
                 const imgModal = document.getElementById('imagePreviewModal');
                 const addSubscriberModal = document.getElementById('addSubscriberModal');
+                const editSubscriberModal = document.getElementById('editSubscriberModal');
                 const sendMailModal = document.getElementById('sendMailModal');
                 
                 if (e.key === 'Escape') {
@@ -2718,6 +3164,7 @@
                     if (addonModal && !addonModal.classList.contains('hidden')) closeAddonModal();
                     if (imgModal && !imgModal.classList.contains('hidden')) closeImagePreview();
                     if (addSubscriberModal && !addSubscriberModal.classList.contains('hidden')) closeAddSubscriberModal();
+                    if (editSubscriberModal && !editSubscriberModal.classList.contains('hidden')) closeEditSubscriberModal();
                     if (sendMailModal && !sendMailModal.classList.contains('hidden')) closeSendMailModal();
                 }
             });

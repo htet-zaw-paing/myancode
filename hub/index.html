@@ -16,6 +16,9 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
+    <!-- Added html2pdf for downloading order details -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -64,6 +67,13 @@
         .status-confirmed { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
         .status-expired { background-color: rgba(156, 163, 175, 0.1); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.2); }
         .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        
+        /* New Statuses for Package Orders */
+        .status-reviewing { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .status-planning { background-color: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
+        .status-developing { background-color: rgba(236, 72, 153, 0.1); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.2); }
+        .status-testing { background-color: rgba(249, 115, 22, 0.1); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.2); }
+        .status-deployed { background-color: rgba(20, 184, 166, 0.1); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.2); }
 
         #sidebar { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         #sidebar.collapsed { width: 80px !important; }
@@ -85,6 +95,12 @@
         #sidebarResizer:hover, .is-resizing { background-color: rgba(41, 151, 255, 0.5); }
         .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
         .dropdown-hidden { opacity: 0; transform: scale(0.96); pointer-events: none; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #pkgPrintableArea, #pkgPrintableArea * { visibility: visible; }
+            #pkgPrintableArea { position: absolute; left: 0; top: 0; width: 100%; height: auto; border: none; box-shadow: none; background: #050505; color: #fff; }
+        }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-accent selection:text-white flex bg-[#050505] relative text-white">
@@ -125,6 +141,11 @@
             <button onclick="switchTab('subscriptions')" id="nav-subscriptions" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="credit-card" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabSubs">Subscriptions</span>
+            </button>
+
+            <button onclick="switchTab('packages')" id="nav-packages" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="hard-hat" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabPackages">My Packages</span>
             </button>
             
             <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
@@ -203,6 +224,7 @@
                 </div>
             </div>
 
+            <!-- Plan Orders Section -->
             <div id="view-subscriptions" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 
                 <div id="activeSubBanner" class="hidden w-full glass-panel rounded-[2rem] border border-green-500/20 bg-gradient-to-r from-green-500/5 to-transparent p-6 sm:p-10 reveal active items-center justify-between gap-6 flex-col sm:flex-row shadow-[0_0_30px_rgba(34,197,94,0.05)]">
@@ -273,6 +295,39 @@
                 </div>
             </div>
 
+            <!-- Updated Package Orders Section -->
+            <div id="view-packages" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display">
+                            <i data-lucide="hard-hat" class="h-7 w-7 text-myancode-accent"></i> 
+                            <span data-i18n="pkgOrderHist">My Package Orders</span>
+                        </h3>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scroll pb-4">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
+                                    <th class="pb-4 pl-4" data-i18n="thOrder">Order ID</th>
+                                    <th class="pb-4" data-i18n="thPkg">Package</th>
+                                    <th class="pb-4" data-i18n="thAddons">Add-ons</th>
+                                    <th class="pb-4" data-i18n="thAmount">Total</th>
+                                    <th class="pb-4" data-i18n="thDate">Date</th>
+                                    <th class="pb-4" data-i18n="thStatus">Status</th>
+                                    <th class="pb-4 pr-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="packageOrdersTableBody" class="text-sm font-medium text-gray-300">
+                                <tr>
+                                    <td colspan="7" class="py-12 text-center text-gray-500 italic" data-i18n="loadingPkgs">Loading your packages...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div id="view-settings" class="view-section hidden flex-col gap-8 max-w-4xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="user-circle" class="h-7 w-7 text-myancode-accent"></i> <span data-i18n="profPublic">Public Profile</span></h3>
@@ -320,6 +375,106 @@
             
         </div>
     </main>
+
+    <!-- NEW Package Details Modal -->
+    <div id="packageDetailModal" class="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-6 sm:py-8">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-4xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="packageDetailModalContent">
+            
+            <!-- Modal Header -->
+            <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between bg-[#111]/50">
+                <h3 class="text-xl sm:text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                        <i data-lucide="file-text" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span data-i18n="detTitle">Order Details</span>
+                </h3>
+                <div class="flex items-center gap-3">
+                    <button onclick="downloadPackageOrderPDF()" id="btnDownloadPdf" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-myancode-accent hover:bg-blue-500 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(41,151,255,0.3)]">
+                        <i data-lucide="download" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> <span class="hidden xs:inline" data-i18n="btnDownloadPdf">Download PDF</span>
+                    </button>
+                    <button onclick="closePackageDetailModal()" class="p-2 sm:p-2.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors focus:outline-none">
+                        <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Body (Scrollable wrapper) -->
+            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-8 bg-[#050505]">
+                
+                <!-- Printable Area -->
+                <div id="pkgPrintableArea" class="bg-[#050505] rounded-3xl p-6 sm:p-10 border border-white/10 relative overflow-visible shadow-inner">
+                    <!-- Decorative Background -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-myancode-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                    
+                    <!-- Invoice Header -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 pb-8 border-b border-white/10 gap-6 relative z-10">
+                        <div>
+                            <img src="../imgs/web-banners/favicon.png" class="h-10 w-10 mb-4" alt="Logo" onerror="this.style.display='none';">
+                            <h2 class="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">Package Order</h2>
+                            <div class="text-sm font-mono text-gray-400 mt-2" id="detOrderId">#ID</div>
+                        </div>
+                        <div class="flex flex-col sm:items-end text-left sm:text-right gap-2">
+                            <div id="detOrderStatus"></div>
+                            <div class="text-xs font-mono text-gray-500" id="detOrderDate">Date</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+                        <!-- Main Info Column -->
+                        <div class="lg:col-span-7 space-y-8">
+                            
+                            <!-- Base Plan Detail -->
+                            <div>
+                                <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <i data-lucide="layers" class="w-4 h-4 text-myancode-accent"></i> <span data-i18n="detBaseInfo">Base Package Information</span>
+                                </h4>
+                                <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 flex justify-between items-center">
+                                    <span class="text-lg font-bold text-white" id="detPkgName">Package Name</span>
+                                    <span class="text-sm font-mono text-gray-400" id="detBasePrice">0 MMK</span>
+                                </div>
+                            </div>
+
+                            <!-- Selected Add-ons -->
+                            <div>
+                                <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <i data-lucide="blocks" class="w-4 h-4 text-myancode-accent"></i> <span data-i18n="detAddons">Selected Add-ons</span>
+                                </h4>
+                                <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 space-y-1" id="detAddonsList">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Right Sidebar Column -->
+                        <div class="lg:col-span-5 space-y-8">
+                            
+                            <!-- Admin Notes -->
+                            <div>
+                                <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <i data-lucide="message-square" class="w-4 h-4 text-myancode-accent"></i> <span data-i18n="detNotes">Admin Remarks & Notes</span>
+                                </h4>
+                                <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 relative">
+                                    <i data-lucide="quote" class="absolute top-4 right-4 w-6 h-6 text-white/5 pointer-events-none"></i>
+                                    <p class="text-sm text-gray-300 leading-relaxed font-medium whitespace-pre-wrap" id="detAdminNotes">Notes go here...</p>
+                                </div>
+                            </div>
+
+                            <!-- Total Price -->
+                            <div class="bg-[#111] border border-myancode-accent/20 rounded-2xl p-6 shadow-[0_0_20px_rgba(41,151,255,0.05)] text-right">
+                                <span class="block text-[10px] font-bold font-mono text-myancode-accent uppercase tracking-widest mb-2" data-i18n="detTotal">Total Estimated Price</span>
+                                <span class="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight block leading-none"><span id="detTotalPrice">0</span> <span class="text-base font-medium text-gray-500 ml-1">MMK</span></span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- End Printable Area -->
+                
+            </div>
+        </div>
+    </div>
+    <!-- End Package Details Modal -->
 
     <div id="forcePasswordModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 px-4">
         <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-500" id="forcePasswordModalContent">
@@ -406,7 +561,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabSubs: "Subscriptions",
+                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabSubs: "Subscriptions", tabPackages: "My Packages",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
@@ -420,11 +575,16 @@
                 filterAll: "All Status", filterPending: "Pending", filterConfirmed: "Confirmed", filterExpired: "Expired", filterCancelled: "Cancelled",
                 thOrder: "Order ID", thPlan: "Plan", thCompany: "Company", thAmount: "Total", thMethod: "Method", thDate: "Date", thStatus: "Status", thProof: "Proof",
                 loadingOrders: "Loading your orders...", noOrders: "No orders found.", viewProof: "View Proof",
-                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo"
+                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo",
+                pkgOrderHist: "My Package Orders", thPkg: "Package", thAddons: "Add-ons",
+                loadingPkgs: "Loading your packages...", noPkgs: "No package orders found.",
+                btnHelp: "Help", btnCall: "Call", btnDetails: "Details", btnDownloadPdf: "Download PDF",
+                detTitle: "Order Details", detBaseInfo: "Base Package Information", detAddons: "Selected Add-ons", detNotes: "Admin Remarks & Notes", detTotal: "Total Estimated Price", noAdminNotes: "No remarks from admin yet.",
+                statReviewing: "Reviewing", statPlanning: "Planning", statDeveloping: "Developing", statTesting: "Testing", statDeployed: "Deployed"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabSubs: "အစီအစဉ်များ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabSubs: "အစီအစဉ်များ", tabPackages: "ပက်ကေ့ချ်များ",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
@@ -438,7 +598,12 @@
                 filterAll: "အခြေအနေအားလုံး", filterPending: "စစ်ဆေးဆဲ", filterConfirmed: "အတည်ပြုပြီး", filterExpired: "သက်တမ်းကုန်", filterCancelled: "ပယ်ဖျက်ထားသည်",
                 thOrder: "အော်ဒါ ID", thPlan: "အစီအစဉ်", thCompany: "ကုမ္ပဏီ", thAmount: "စုစုပေါင်း", thMethod: "ငွေချေမှု", thDate: "ရက်စွဲ", thStatus: "အခြေအနေ", thProof: "ပြေစာ",
                 loadingOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noOrders: "အော်ဒါများ မရှိသေးပါ။", viewProof: "ပြေစာကြည့်ရန်",
-                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ"
+                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ",
+                pkgOrderHist: "မှာယူထားသော ပက်ကေ့ချ်များ", thPkg: "ပက်ကေ့ချ်", thAddons: "အပိုလုပ်ဆောင်ချက်များ",
+                loadingPkgs: "ပက်ကေ့ချ်များ ရှာဖွေနေပါသည်...", noPkgs: "ပက်ကေ့ချ်များ မရှိသေးပါ။",
+                btnHelp: "အကူအညီ", btnCall: "ဆက်သွယ်ရန်", btnDetails: "အသေးစိတ်", btnDownloadPdf: "PDF ဒေါင်းလုပ်",
+                detTitle: "အော်ဒါ အသေးစိတ်", detBaseInfo: "အခြေခံ ပက်ကေ့ချ် အချက်အလက်", detAddons: "ရွေးချယ်ထားသော အပိုလုပ်ဆောင်ချက်များ", detNotes: "စီမံသူ၏ မှတ်ချက်များ", detTotal: "စုစုပေါင်း ခန့်မှန်းကုန်ကျစရိတ်", noAdminNotes: "စီမံသူထံမှ မှတ်ချက် မရှိသေးပါ။",
+                statReviewing: "သုံးသပ်ဆဲ", statPlanning: "စီစဉ်နေဆဲ", statDeveloping: "ရေးဆွဲနေဆဲ", statTesting: "စမ်းသပ်ဆဲ", statDeployed: "လွှင့်တင်ပြီး"
             }
         };
 
@@ -473,6 +638,7 @@
         let currentSessionTemp = null;
         let currentProfileTemp = null;
         let allOrders = [];
+        let myPackageOrders = [];
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
@@ -555,6 +721,7 @@
             }
             
             fetchMyOrders();
+            fetchMyPackageOrders();
             setupRealtimeSubscription();
             hideLoader();
         }
@@ -599,6 +766,23 @@
                     updateActiveSubscriptionBanner(activeOrder);
                     filterOrders();
                 })
+                .on('postgres_changes', { 
+                    event: '*', 
+                    schema: 'public', 
+                    table: 'package_orders',
+                    filter: `user_id=eq.${currentUser.id}`
+                }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        if (!myPackageOrders.find(o => o.id === payload.new.id)) myPackageOrders.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = myPackageOrders.findIndex(o => o.id === payload.new.id);
+                        if (idx > -1) myPackageOrders[idx] = Object.assign({}, myPackageOrders[idx], payload.new);
+                        else myPackageOrders.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        myPackageOrders = myPackageOrders.filter(o => o.id !== payload.old.id);
+                    }
+                    renderPackageOrdersTable(myPackageOrders);
+                })
                 .subscribe();
         }
 
@@ -638,6 +822,25 @@
 
             } catch (err) {
                 console.error("Error fetching orders:", err);
+            }
+        }
+
+        async function fetchMyPackageOrders() {
+            if(!supabaseInstance || !currentUser) return;
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('package_orders')
+                    .select('*')
+                    .or(`user_id.eq.${currentUser.id},customer_email.eq.${currentUser.email}`)
+                    .order('created_at', { ascending: false });
+
+                if(error) throw error;
+                
+                myPackageOrders = data || [];
+                renderPackageOrdersTable(myPackageOrders);
+
+            } catch (err) {
+                console.error("Error fetching package orders:", err);
             }
         }
 
@@ -734,6 +937,157 @@
             lucide.createIcons();
         }
 
+        function renderPackageOrdersTable(orders) {
+            const tbody = document.getElementById('packageOrdersTableBody');
+            
+            if(orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-gray-500 italic">${dict[currentLang].noPkgs}</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = orders.map(order => {
+                const dateStr = new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                
+                let status = order.status || 'Pending';
+                let statusClass = 'status-pending';
+                let statusTrans = dict[currentLang]['stat' + status] || status;
+                
+                if(status === 'Reviewing') statusClass = 'status-reviewing';
+                else if(status === 'Planning') statusClass = 'status-planning';
+                else if(status === 'Developing') statusClass = 'status-developing';
+                else if(status === 'Testing') statusClass = 'status-testing';
+                else if(status === 'Deployed') statusClass = 'status-deployed';
+                else if(status === 'Cancelled') statusClass = 'status-cancelled';
+
+                const addonCount = (order.selected_addons || []).length;
+                const orderIdShort = order.id.toString().split('-')[0].substring(0,8).toUpperCase();
+                
+                const safeNotes = order.admin_notes ? order.admin_notes.replace(/"/g, '&quot;') : '';
+                const notesPreview = safeNotes ? `<div class="mt-1.5 text-[10px] text-myancode-accent flex items-start gap-1.5 max-w-[250px]"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0 mt-[1px]"></i><span class="truncate font-medium" title="${safeNotes}">${safeNotes}</span></div>` : '';
+
+                return `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">#${orderIdShort}</td>
+                    <td class="py-4">
+                        <div class="font-bold text-white">${order.package_name}</div>
+                        ${notesPreview}
+                    </td>
+                    <td class="py-4 text-xs font-mono text-gray-400">${addonCount} Included</td>
+                    <td class="py-4 font-bold text-white">${parseInt(order.total_price).toLocaleString()} <span class="text-[10px] text-gray-500">MMK</span></td>
+                    <td class="py-4 text-xs font-medium text-gray-400">${dateStr}</td>
+                    <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
+                    <td class="py-4 pr-4 text-right">
+                        <div class="flex items-center justify-end gap-2 flex-wrap">
+                            <button onclick="openPackageDetailModal('${order.id}')" class="px-3 py-1.5 rounded-xl bg-white text-black hover:bg-gray-200 transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                                <i data-lucide="layout-template" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline" data-i18n="btnDetails">Details</span>
+                            </button>
+                            <a href="mailto:support@myancode.com?subject=Help with Package Order #${orderIdShort}" class="px-3 py-1.5 rounded-xl bg-myancode-accent/10 border border-myancode-accent/20 hover:bg-myancode-accent hover:text-white transition-all text-xs font-bold text-myancode-accent flex items-center gap-1.5" title="Help / Meeting">
+                                <i data-lucide="life-buoy" class="w-3.5 h-3.5"></i> <span class="hidden xl:inline" data-i18n="btnHelp">Help</span>
+                            </a>
+                            <a href="tel:+959944861000" class="p-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-gray-300" title="Call Us">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+        
+        function openPackageDetailModal(id) {
+            const order = myPackageOrders.find(o => o.id === id);
+            if(!order) return;
+
+            const orderIdShort = order.id.split('-')[0].toUpperCase();
+            document.getElementById('detOrderId').innerText = '#' + orderIdShort;
+            
+            const dt = new Date(order.created_at);
+            document.getElementById('detOrderDate').innerText = dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            let status = order.status || 'Pending';
+            let statusClass = 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
+            if(status === 'Reviewing') statusClass = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+            else if(status === 'Planning') statusClass = 'text-purple-400 bg-purple-500/10 border-purple-500/20';
+            else if(status === 'Developing') statusClass = 'text-pink-400 bg-pink-500/10 border-pink-500/20';
+            else if(status === 'Testing') statusClass = 'text-orange-400 bg-orange-500/10 border-orange-500/20';
+            else if(status === 'Deployed') statusClass = 'text-teal-400 bg-teal-500/10 border-teal-500/20';
+            else if(status === 'Cancelled') statusClass = 'text-red-400 bg-red-500/10 border-red-500/20';
+            
+            let statusTrans = dict[currentLang]['stat' + status] || status;
+            document.getElementById('detOrderStatus').innerHTML = `<span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border inline-block ${statusClass}">${statusTrans}</span>`;
+            
+            document.getElementById('detPkgName').innerText = order.package_name || 'Custom Package';
+            document.getElementById('detBasePrice').innerText = (order.base_price || 0).toLocaleString() + ' MMK';
+
+            const addonsList = document.getElementById('detAddonsList');
+            if(order.selected_addons && order.selected_addons.length > 0) {
+                addonsList.innerHTML = order.selected_addons.map(a => `
+                    <div class="flex justify-between items-center py-2.5 border-b border-white/5 last:border-0 gap-4">
+                        <span class="text-xs sm:text-sm text-gray-300 flex items-center gap-2.5 truncate"><i data-lucide="check-circle-2" class="w-4 h-4 text-myancode-accent shrink-0"></i> <span class="truncate">${a.name}</span></span>
+                        <span class="text-xs sm:text-sm font-mono shrink-0 ${a.is_included ? 'text-gray-500 font-bold' : 'text-gray-300'}">${a.is_included ? 'INCLUDED' : '+'+(a.price||0).toLocaleString()+' MMK'}</span>
+                    </div>
+                `).join('');
+            } else {
+                addonsList.innerHTML = `<div class="text-xs text-gray-500 italic py-2">${currentLang === 'en' ? 'No extra add-ons selected.' : 'အပိုလုပ်ဆောင်ချက်များ မရွေးချယ်ထားပါ။'}</div>`;
+            }
+
+            document.getElementById('detAdminNotes').innerText = order.admin_notes || (dict[currentLang]['noAdminNotes'] || 'No remarks from admin yet.');
+            document.getElementById('detTotalPrice').innerText = (order.total_price || 0).toLocaleString();
+
+            const modal = document.getElementById('packageDetailModal');
+            const content = document.getElementById('packageDetailModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            
+            lucide.createIcons();
+        }
+
+        function closePackageDetailModal() {
+            const modal = document.getElementById('packageDetailModal');
+            const content = document.getElementById('packageDetailModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function downloadPackageOrderPDF() {
+            const element = document.getElementById('pkgPrintableArea');
+            const orderIdText = document.getElementById('detOrderId').innerText.replace('#', '');
+            const opt = {
+                margin:       [0.5, 0.5, 0.5, 0.5],
+                filename:     `MyanCode_Order_${orderIdText}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#050505' },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            
+            const btn = document.getElementById('btnDownloadPdf');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span class="hidden xs:inline">Wait...</span>`;
+            btn.disabled = true;
+            lucide.createIcons();
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                lucide.createIcons();
+                showToast(currentLang === 'en' ? "PDF downloaded successfully!" : "PDF ဒေါင်းလုပ်ဆွဲခြင်း အောင်မြင်ပါသည်");
+            }).catch(err => {
+                console.error("PDF generation failed:", err);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showErrorToast("Failed to generate PDF.");
+                lucide.createIcons();
+            });
+        }
+
         function openImagePreview(url) {
             const modal = document.getElementById('imagePreviewModal');
             const img = document.getElementById('previewModalImg');
@@ -806,6 +1160,13 @@
                 const key = el.getAttribute('data-i18n-placeholder');
                 if (dict[currentLang][key]) el.placeholder = dict[currentLang][key];
             });
+            
+            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ' };
+            
+            let activeTab = window.location.hash.replace('#', '') || 'overview';
+            const titleStr = currentLang === 'en' ? (titleMap[activeTab] || 'Dashboard') : (titleMapMM[activeTab] || 'Dashboard');
+            document.getElementById('headerTitle').innerText = titleStr;
         }
 
         function toggleLang() {
@@ -813,6 +1174,7 @@
             localStorage.setItem('myancode_lang', currentLang);
             renderLanguage();
             filterOrders();
+            renderPackageOrdersTable(myPackageOrders);
         }
 
         function populateSidebar() {
@@ -916,8 +1278,8 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ' };
+            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ' };
             
             const titleStr = currentLang === 'en' ? (titleMap[tabId] || 'Dashboard') : (titleMapMM[tabId] || 'Dashboard');
             document.getElementById('headerTitle').innerText = titleStr;
@@ -1110,11 +1472,13 @@
                 const cropperModal = document.getElementById('cropperModal');
                 const confirmModal = document.getElementById('confirmModal');
                 const imgModal = document.getElementById('imagePreviewModal');
+                const packageDetailModal = document.getElementById('packageDetailModal');
                 
                 if (e.key === 'Escape') {
                     if (!cropperModal.classList.contains('hidden')) cancelCrop();
                     if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
                     if (!imgModal.classList.contains('hidden')) closeImagePreview();
+                    if (!packageDetailModal.classList.contains('hidden')) closePackageDetailModal();
                 }
             });
         });
