@@ -159,7 +159,7 @@
         }
 
         .layout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
-        .checkout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
+        .checkout-width { width: 100%; max-width: 1536px; margin-left: auto; margin-right: auto; }
 
         .user-avatar-global { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease; }
         .group:hover .user-avatar-global { transform: scale(1.1); border-color: #2997ff; box-shadow: 0 8px 24px rgba(41, 151, 255, 0.4); }
@@ -241,8 +241,8 @@
         .toggle-checkbox:disabled + .toggle-label { opacity: 0.5; cursor: not-allowed; }
         
         .addon-card { transition: all 0.3s ease; }
-        .addon-card.selected-addon { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.03); }
-        .addon-card.included-addon { border-color: rgba(74, 222, 128, 0.3); background: rgba(74, 222, 128, 0.05); pointer-events: none; }
+        .addon-card.selected-addon { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.03); }
+        .addon-card.included-addon { border-color: rgba(74, 222, 128, 0.15); background: rgba(74, 222, 128, 0.05); pointer-events: none; }
 
         .step-circle { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .step-line { transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -252,20 +252,6 @@
     </style>
 </head>
 <body class="font-sans selection:bg-white selection:text-black bg-[#050505] flex flex-col min-h-screen">
-
-    <div id="globalLoader" class="fixed inset-0 z-[999999] bg-[#050505] flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="relative w-16 h-16 mb-8 flex items-center justify-center">
-            <i data-lucide="package" class="h-8 w-8 text-white absolute animate-pulse"></i>
-        </div>
-        <div class="w-64 max-w-[80vw]">
-            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div class="w-1/2 h-full bg-white rounded-full animate-[lineAnim_1.5s_infinite]"></div>
-            </div>
-        </div>
-        <div class="mt-6 flex flex-col items-center gap-1 font-mono">
-            <span id="loaderText" class="text-[11px] font-bold tracking-[0.2em] text-gray-400 uppercase" data-i18n="loadAuth">Loading Systems...</span>
-        </div>
-    </div>
 
     <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
         <div class="layout-width">
@@ -469,13 +455,13 @@
         <div class="absolute inset-0 bg-grid-dark pointer-events-none opacity-40 mix-blend-screen"></div>
         <div class="absolute top-0 right-0 w-[40vw] h-[40vw] rounded-full bg-myancode-accent/5 blur-[120px] mix-blend-screen pointer-events-none"></div>
 
-        <div class="checkout-width w-full relative z-10" id="mainAppContent">
+        <div class="checkout-width w-full relative z-10 px-4 sm:px-6 md:px-8" id="mainAppContent">
             
-            <div class="flex flex-col items-center mb-12 text-center">
+            <div class="flex flex-col items-center mb-12 text-center mt-4">
                 <div class="text-[11px] font-bold font-mono text-myancode-accent uppercase tracking-widest mb-4 border border-myancode-accent/30 px-4 py-1.5 rounded-full bg-myancode-accent/5"><span data-i18n="pkgBadge">Build Platform</span></div>
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-white tracking-tight mb-8" data-i18n="pkgTitle">Architecture Packages</h1>
                 
-                <div class="flex items-center justify-center w-full max-w-2xl mx-auto px-4">
+                <div class="flex items-center justify-center w-full max-w-2xl mx-auto">
                     <div class="flex flex-col items-center relative z-10 w-16 cursor-pointer group transition-opacity hover:opacity-80" onclick="navigateStep(1)">
                         <div id="step1-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-white text-black font-bold font-mono text-sm border-2 border-white step-circle shadow-[0_0_15px_rgba(255,255,255,0.4)]">1</div>
                         <span id="step1-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap" data-i18n="step1">Base</span>
@@ -507,13 +493,15 @@
                 </div>
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-8 w-full max-w-[1536px] mx-auto items-start">
+            <div class="flex flex-col lg:flex-row gap-8 w-full max-w-[1536px] mx-auto items-start mt-12">
                 
                 <div class="flex-1 w-full relative min-h-[500px]" id="wizardContainer">
                     
                     <div id="step-1" class="wizard-step active-step w-full bg-[#050505] p-5 sm:p-8 rounded-[2rem] border border-white/10 shadow-xl">
                         <h2 class="text-xl font-bold font-display text-white mb-6 border-b border-white/10 pb-4 flex items-center gap-3"><i data-lucide="layers" class="w-5 h-5 text-gray-400"></i> <span data-i18n="step1Base">Step 1: Select Base Package</span></h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8" id="packagesGrid">
+                            <div class="pkg-card p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#111] skeleton h-[320px]"></div>
+                            <div class="pkg-card p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-white/5 bg-[#111] skeleton h-[320px] hidden md:block"></div>
                         </div>
                         <div class="flex justify-end pt-6 border-t border-white/10 hidden lg:flex">
                             <button onclick="navigateStep(2)" class="bg-white text-black px-10 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors hover:bg-gray-200 btn-hover-effect flex items-center gap-2"><span data-i18n="btnNextMod">Continue to Modules</span> <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
@@ -522,8 +510,21 @@
 
                     <div id="step-2" class="wizard-step w-full bg-[#050505] p-5 sm:p-8 rounded-[2rem] border border-white/10 shadow-xl">
                         <h2 class="text-xl font-bold font-display text-white mb-6 border-b border-white/10 pb-4 flex items-center gap-3"><i data-lucide="blocks" class="w-5 h-5 text-gray-400"></i> <span data-i18n="step2Addons">Step 2: Configure Add-ons</span></h2>
-                        <div class="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden divide-y divide-white/5 mb-8" id="addonsList">
+                        
+                        <div class="relative mb-6 group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="search" class="h-4 w-4 text-gray-500 group-focus-within:text-myancode-accent transition-colors"></i>
+                            </div>
+                            <input type="text" id="addonSearchInput" oninput="renderAddonsList()" class="w-full pl-11 pr-4 py-3.5 custom-input rounded-xl text-[13px] font-medium text-white placeholder-gray-600 focus:bg-[#111] transition-all border-white/10 shadow-sm" placeholder="Search for modules (e.g. Authentication, OTP)..." data-i18n-placeholder="searchAddonsPlaceholder">
                         </div>
+
+                        <div class="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden mb-8 shadow-sm" id="addonsList">
+                            <div class="addon-card p-4 sm:p-5 border-b border-white/5 h-[80px] skeleton"></div>
+                            <div class="addon-card p-4 sm:p-5 border-b border-white/5 h-[80px] skeleton"></div>
+                            <div class="addon-card p-4 sm:p-5 border-b border-white/5 h-[80px] skeleton"></div>
+                            <div class="addon-card p-4 sm:p-5 h-[80px] skeleton hidden sm:block"></div>
+                        </div>
+
                         <div class="flex justify-between items-center pt-6 border-t border-white/10 hidden lg:flex">
                             <button onclick="navigateStep(1)" class="text-gray-400 hover:text-white px-6 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> <span data-i18n="btnBack">Back</span></button>
                             <button onclick="navigateStep(3)" class="bg-white text-black px-10 py-4 rounded-xl text-[13px] font-bold tracking-wide transition-colors hover:bg-gray-200 btn-hover-effect flex items-center gap-2"><span data-i18n="btnNextDet">Continue to Details</span> <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
@@ -619,7 +620,7 @@
             </div>
         </div>
 
-        <div id="voucher-screen" class="hidden w-full max-w-[700px] mx-auto pt-10 pb-20 relative z-20">
+        <div id="voucher-screen" class="hidden w-full max-w-[700px] mx-auto pt-10 pb-20 relative z-20 px-4 sm:px-6 md:px-8">
             <div class="flex flex-col items-center mb-8 text-center">
                 <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
                     <i data-lucide="check" class="w-8 h-8 text-black"></i>
@@ -1316,6 +1317,7 @@
         function renderLanguage() {
             document.documentElement.lang = currentLang; 
             document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[currentLang][key]) el.innerHTML = dict[currentLang][key]; });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[currentLang][key]) el.placeholder = dict[currentLang][key]; });
             updateAuthUI(); renderPackagesGrid(); renderAddonsList(); updateSummary(); updateSummaryButton();
         }
 
@@ -1445,6 +1447,42 @@
             if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
+        function calculateFuzzyScore(query, target) {
+            if (target.includes(query)) return 1.0;
+            const qWords = query.split(/\s+/).filter(w => w.trim());
+            const tWords = target.split(/\s+/).filter(w => w.trim());
+            if (qWords.length === 0 || tWords.length === 0) return 0;
+            let totalScore = 0;
+            qWords.forEach(qw => {
+                let maxWScore = 0;
+                tWords.forEach(tw => {
+                    if (qw.length > 2 && tw.length > 2) {
+                        let commonChars = 0; let twTemp = tw;
+                        for(let i=0; i<qw.length; i++) {
+                            let char = qw[i];
+                            if(twTemp.includes(char)) { commonChars++; twTemp = twTemp.replace(char, ''); }
+                        }
+                        let overlapScore = commonChars / Math.max(qw.length, tw.length);
+                        let a = qw, b = tw; const matrix = [];
+                        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+                        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+                        for (let i = 1; i <= b.length; i++) {
+                            for (let j = 1; j <= a.length; j++) {
+                                if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
+                                else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+                            }
+                        }
+                        let dist = matrix[b.length][a.length];
+                        let distScore = 1 - (dist / Math.max(qw.length, tw.length));
+                        let finalScore = Math.max(overlapScore * 0.5 + distScore * 0.5, distScore);
+                        if (finalScore > maxWScore) maxWScore = finalScore;
+                    } else if (qw === tw) { maxWScore = 1; }
+                });
+                totalScore += maxWScore;
+            });
+            return totalScore / qWords.length;
+        }
+
         function renderAddonsList() {
             const list = document.getElementById('addonsList');
             if(!list || dbAddons.length === 0) return;
@@ -1452,37 +1490,89 @@
             const activePkg = dbPackages.find(p => p.id === activePackageId);
             const includedList = activePkg && activePkg.included_addons ? activePkg.included_addons : [];
 
-            list.innerHTML = dbAddons.map(addon => {
+            const searchInput = document.getElementById('addonSearchInput');
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            let filteredAddons = dbAddons;
+            let isSuggested = false;
+
+            if (query) {
+                filteredAddons = dbAddons.filter(addon => {
+                    const searchStr = `${addon.name_en} ${addon.name_mm} ${addon.description_en} ${addon.description_mm}`.toLowerCase();
+                    return searchStr.includes(query);
+                });
+
+                // Trigger intelligent fuzzy search if standard filtering returns nothing
+                if (filteredAddons.length === 0) {
+                    const scoredAddons = dbAddons.map(addon => {
+                        const searchStr = `${addon.name_en} ${addon.name_mm} ${addon.description_en} ${addon.description_mm}`.toLowerCase();
+                        const score = calculateFuzzyScore(query, searchStr);
+                        return { addon, score };
+                    });
+                    
+                    const matches = scoredAddons.filter(a => a.score >= 0.45).sort((a, b) => b.score - a.score);
+                    if (matches.length > 0) {
+                        filteredAddons = matches.map(m => m.addon);
+                        isSuggested = true;
+                    }
+                }
+            }
+
+            if (filteredAddons.length === 0) {
+                const notFoundText = dict[currentLang].noAddonsFound || "No modules found matching";
+                list.innerHTML = `
+                <div class="py-12 text-center bg-[#0a0a0a] rounded-2xl flex flex-col items-center justify-center">
+                    <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                        <i data-lucide="search-x" class="h-6 w-6 text-gray-500"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400">${notFoundText} <span class="text-white">"${searchInput.value}"</span></p>
+                </div>`;
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+
+            let suggestionHtml = '';
+            if (isSuggested) {
+                const suggestionText = currentLang === 'en' ? `Suggestions based on your search` : `သင်ရှာဖွေထားသည်နှင့် အနီးစပ်ဆုံးရလဒ်များ`;
+                suggestionHtml = `
+                    <div class="px-4 py-2.5 sm:px-6 sm:py-3 bg-myancode-accent/10 border-b border-white/5 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-myancode-accent"></i>
+                        <span class="text-[10px] font-bold font-mono text-myancode-accent tracking-widest uppercase">${suggestionText}</span>
+                    </div>
+                `;
+            }
+
+            list.innerHTML = suggestionHtml + filteredAddons.map(addon => {
                 const name = currentLang === 'en' ? addon.name_en : addon.name_mm;
                 const desc = currentLang === 'en' ? addon.description_en : addon.description_mm;
                 const isIncluded = includedList.includes(addon.id);
                 const isSelected = isIncluded || selectedAddonsList.includes(addon.id);
                 
                 return `
-                <div class="addon-card p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${isIncluded ? 'included-addon' : (isSelected ? 'selected-addon' : 'hover:bg-white/5 cursor-pointer')}" onclick="!${isIncluded} && toggleAddon('${addon.id}')">
-                    <div class="flex items-start gap-4">
+                <div class="addon-card p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 border-b border-white/5 last:border-none ${isIncluded ? 'included-addon' : (isSelected ? 'selected-addon' : 'hover:bg-white/5 cursor-pointer')}" onclick="!${isIncluded} && toggleAddon('${addon.id}')">
+                    <div class="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
                         <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                            <i data-lucide="${addon.icon || 'box'}" class="w-5 h-5 ${isIncluded ? 'text-green-400' : 'text-gray-400'}"></i>
+                            <i data-lucide="${addon.icon || 'box'}" class="w-[18px] h-[18px] ${isIncluded ? 'text-green-400' : 'text-gray-400'}"></i>
                         </div>
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <h4 class="text-sm font-bold text-white font-display tracking-wide">${name}</h4>
-                                ${isIncluded ? `<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest font-mono">${dict[currentLang].featIncluded}</span>` : ''}
+                        <div class="flex-1 min-w-0 pt-0.5">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <h4 class="text-[13px] sm:text-sm font-bold text-white tracking-wide truncate">${name}</h4>
+                                ${isIncluded ? `<span class="bg-green-500/10 text-green-400 border border-green-500/20 px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] font-bold uppercase tracking-wider font-mono leading-none">${dict[currentLang].featIncluded}</span>` : ''}
                             </div>
-                            <p class="text-[12px] text-gray-400 font-medium">${desc}</p>
+                            <p class="text-[11px] sm:text-[12px] text-gray-400 font-medium leading-relaxed sm:line-clamp-none line-clamp-2">${desc}</p>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between w-full sm:w-auto gap-6 sm:mt-0 mt-2 border-t sm:border-0 border-white/5 pt-3 sm:pt-0">
-                        <div class="text-sm font-bold font-mono ${isIncluded ? 'text-green-400' : 'text-white'} text-right whitespace-nowrap">
+                    <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto pl-[52px] sm:pl-0 mt-1 sm:mt-0 gap-4 shrink-0">
+                        <div class="text-[12px] sm:text-sm font-bold font-mono ${isIncluded ? 'text-green-400' : 'text-white'} text-right whitespace-nowrap">
                             ${isIncluded ? '0 MMK' : `+${addon.price.toLocaleString()} MMK`}
                         </div>
                         ${!isIncluded ? `
-                        <label class="relative inline-flex items-center cursor-pointer" onclick="event.stopPropagation();">
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0" onclick="event.stopPropagation();">
                             <input type="checkbox" class="sr-only peer" ${isSelected ? 'checked' : ''} onchange="toggleAddon('${addon.id}')">
-                            <div class="w-11 h-6 bg-[#222] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-myancode-accent border border-white/10 shadow-inner"></div>
+                            <div class="w-9 h-5 sm:w-11 sm:h-6 bg-[#222] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-myancode-accent border border-white/10 shadow-inner"></div>
                         </label>
                         ` : `
-                        <div class="w-11 h-6 flex items-center justify-end"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-500"></i></div>
+                        <div class="w-9 sm:w-11 h-5 sm:h-6 flex items-center justify-end shrink-0"><i data-lucide="check-circle-2" class="w-4 h-4 sm:w-5 sm:h-5 text-green-500"></i></div>
                         `}
                     </div>
                 </div>
@@ -1757,18 +1847,73 @@
 
         async function handleSubscribe(e) {
             e.preventDefault();
-            if (!supabaseInstance) { showErrorToast("Database connection offline."); return; }
-            const emailInput = document.getElementById('newsletterEmail'); const btn = document.getElementById('btnSubscribe');
-            const email = emailInput.value.trim(); const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
-            if (!turnstileResponse) { showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); return; }
+
+            if (!supabaseInstance) {
+                showErrorToast("Database connection offline.");
+                return;
+            }
+
+            const emailInput = document.getElementById('newsletterEmail');
+            const btn = document.getElementById('btnSubscribe');
+            const email = emailInput.value.trim();
+
+            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
+
+            if (!turnstileResponse) {
+                showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။");
+                return;
+            }
+
             if (!email) return;
-            btn.disabled = true; const originalBtnText = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`; if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            btn.disabled = true;
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
             try {
+                if (currentUser && email.toLowerCase() !== currentUser.email.toLowerCase()) {
+                    throw new Error(
+                        currentLang === 'en'
+                            ? "Authorization Error: You may only subscribe using your registered account email."
+                            : "ခွင့်ပြုချက် မရှိပါ: သင်၏ အကောင့် အီးမေးလ်ဖြင့်သာ စာရင်းသွင်းနိုင်ပါသည်။"
+                    );
+                } else if (!currentUser) {
+                    const { data: profileRecord, error: profileErr } = await supabaseInstance
+                        .from('profiles')
+                        .select('email')
+                        .eq('email', email)
+                        .maybeSingle();
+
+                    if (profileErr || !profileRecord) {
+                        throw new Error(
+                            currentLang === 'en'
+                                ? "Verification Failed: The provided email address does not exist in our system or is unauthorized."
+                                : "စစ်ဆေးမှု မအောင်မြင်ပါ: ပေးထားသော အီးမေးလ်သည် ကျွန်ုပ်တို့၏ စနစ်တွင် မရှိပါ သို့မဟုတ် ခွင့်ပြုချက် မရှိပါ။"
+                        );
+                    }
+                }
+
                 const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
-                if (error) { if (error.code === '23505') { showToast(dict[currentLang].msgSubscribedAlready); } else { throw error; } } 
-                else { showToast(dict[currentLang].msgSubscribedSuccess); emailInput.value = ''; if (window.turnstile) turnstile.reset(); }
-            } catch (err) { showErrorToast(err.message || "Subscription processing failed."); } 
-            finally { btn.disabled = false; btn.innerHTML = originalBtnText; }
+
+                if (error) {
+                    if (error.code === '23505') {
+                        showToast(dict[currentLang].msgSubscribedAlready);
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    showToast(dict[currentLang].msgSubscribedSuccess);
+                    emailInput.value = '';
+                    if (window.turnstile) turnstile.reset();
+                }
+
+            } catch (err) {
+                showErrorToast(err.message || "Subscription processing failed.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+            }
         }
 
         function updateHeaderTheme(theme, isScrolled) {

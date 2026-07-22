@@ -96,10 +96,16 @@
         .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
         .dropdown-hidden { opacity: 0; transform: scale(0.96); pointer-events: none; }
         
+        #detAdminNotes a { color: #2997ff; text-decoration: underline; pointer-events: auto; }
+        #detAdminNotes ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.25rem; margin-bottom: 0.25rem; }
+        #detAdminNotes ol { list-style-type: decimal; padding-left: 1.5rem; margin-top: 0.25rem; margin-bottom: 0.25rem; }
+
         @media print {
             body * { visibility: hidden; }
             #pkgPrintableArea, #pkgPrintableArea * { visibility: visible; }
             #pkgPrintableArea { position: absolute; left: 0; top: 0; width: 100%; height: auto; border: none; box-shadow: none; background: #050505; color: #fff; }
+            .print-scroll-expand { height: auto !important; max-height: none !important; overflow: visible !important; }
+            .print-scroll-expand > div { overflow: visible !important; }
         }
     </style>
 </head>
@@ -378,7 +384,7 @@
 
     <!-- NEW Package Details Modal -->
     <div id="packageDetailModal" class="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-6 sm:py-8">
-        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-4xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="packageDetailModalContent">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-5xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="packageDetailModalContent">
             
             <!-- Modal Header -->
             <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between bg-[#111]/50">
@@ -419,9 +425,9 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 relative z-10">
                         <!-- Main Info Column -->
-                        <div class="lg:col-span-7 space-y-8">
+                        <div class="lg:col-span-8 space-y-8">
                             
                             <!-- Base Plan Detail -->
                             <div>
@@ -447,27 +453,30 @@
                         </div>
 
                         <!-- Right Sidebar Column -->
-                        <div class="lg:col-span-5 space-y-8">
+                        <div class="lg:col-span-4 space-y-8">
                             
-                            <!-- Admin Notes -->
-                            <div>
-                                <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <i data-lucide="message-square" class="w-4 h-4 text-myancode-accent"></i> <span data-i18n="detNotes">Admin Remarks & Notes</span>
-                                </h4>
-                                <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 relative">
-                                    <i data-lucide="quote" class="absolute top-4 right-4 w-6 h-6 text-white/5 pointer-events-none"></i>
-                                    <p class="text-sm text-gray-300 leading-relaxed font-medium whitespace-pre-wrap" id="detAdminNotes">Notes go here...</p>
-                                </div>
-                            </div>
-
                             <!-- Total Price -->
-                            <div class="bg-[#111] border border-myancode-accent/20 rounded-2xl p-6 shadow-[0_0_20px_rgba(41,151,255,0.05)] text-right">
+                            <div class="bg-[#111] border border-myancode-accent/20 rounded-2xl p-6 shadow-[0_0_20px_rgba(41,151,255,0.05)] text-left sm:text-right lg:sticky lg:top-0">
                                 <span class="block text-[10px] font-bold font-mono text-myancode-accent uppercase tracking-widest mb-2" data-i18n="detTotal">Total Estimated Price</span>
                                 <span class="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight block leading-none"><span id="detTotalPrice">0</span> <span class="text-base font-medium text-gray-500 ml-1">MMK</span></span>
                             </div>
 
                         </div>
                     </div>
+                    
+                    <!-- Full Width Admin Notes Row -->
+                    <div class="mt-8 relative z-10 pt-8 border-t border-white/10">
+                        <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <i data-lucide="message-square" class="w-4 h-4 text-myancode-accent"></i> <span data-i18n="detNotes">Admin Remarks & Notes</span>
+                        </h4>
+                        <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 sm:p-8 relative h-[300px] flex flex-col print-scroll-expand shadow-inner">
+                            <i data-lucide="quote" class="absolute top-6 right-6 w-8 h-8 text-white/5 pointer-events-none"></i>
+                            <div class="flex-1 overflow-y-auto custom-scroll pr-2 sm:pr-4 z-10 relative">
+                                <div class="text-sm text-gray-300 leading-relaxed font-medium whitespace-pre-wrap break-words" id="detAdminNotes">Notes go here...</div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
                 <!-- End Printable Area -->
                 
@@ -962,7 +971,8 @@
                 const addonCount = (order.selected_addons || []).length;
                 const orderIdShort = order.id.toString().split('-')[0].substring(0,8).toUpperCase();
                 
-                const safeNotes = order.admin_notes ? order.admin_notes.replace(/"/g, '&quot;') : '';
+                const strippedNotes = order.admin_notes ? order.admin_notes.replace(/<[^>]*>?/gm, '') : '';
+                const safeNotes = strippedNotes ? strippedNotes.replace(/"/g, '&quot;') : '';
                 const notesPreview = safeNotes ? `<div class="mt-1.5 text-[10px] text-myancode-accent flex items-start gap-1.5 max-w-[250px]"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0 mt-[1px]"></i><span class="truncate font-medium" title="${safeNotes}">${safeNotes}</span></div>` : '';
 
                 return `
@@ -984,7 +994,7 @@
                             <a href="mailto:support@myancode.com?subject=Help with Package Order #${orderIdShort}" class="px-3 py-1.5 rounded-xl bg-myancode-accent/10 border border-myancode-accent/20 hover:bg-myancode-accent hover:text-white transition-all text-xs font-bold text-myancode-accent flex items-center gap-1.5" title="Help / Meeting">
                                 <i data-lucide="life-buoy" class="w-3.5 h-3.5"></i> <span class="hidden xl:inline" data-i18n="btnHelp">Help</span>
                             </a>
-                            <a href="tel:+959944861000" class="p-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-gray-300" title="Call Us">
+                            <a href="tel:+959795000000" class="p-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-gray-300" title="Call Us">
                                 <i data-lucide="phone" class="w-4 h-4"></i>
                             </a>
                         </div>
@@ -1032,7 +1042,7 @@
                 addonsList.innerHTML = `<div class="text-xs text-gray-500 italic py-2">${currentLang === 'en' ? 'No extra add-ons selected.' : 'အပိုလုပ်ဆောင်ချက်များ မရွေးချယ်ထားပါ။'}</div>`;
             }
 
-            document.getElementById('detAdminNotes').innerText = order.admin_notes || (dict[currentLang]['noAdminNotes'] || 'No remarks from admin yet.');
+            document.getElementById('detAdminNotes').innerHTML = order.admin_notes || (dict[currentLang]['noAdminNotes'] || 'No remarks from admin yet.');
             document.getElementById('detTotalPrice').innerText = (order.total_price || 0).toLocaleString();
 
             const modal = document.getElementById('packageDetailModal');

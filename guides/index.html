@@ -1851,18 +1851,73 @@
 
         async function handleSubscribe(e) {
             e.preventDefault();
-            if (!supabaseInstance) { showErrorToast("Database connection offline."); return; }
-            const emailInput = document.getElementById('newsletterEmail'); const btn = document.getElementById('btnSubscribe');
-            const email = emailInput.value.trim(); const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
-            if (!turnstileResponse) { showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); return; }
+
+            if (!supabaseInstance) {
+                showErrorToast("Database connection offline.");
+                return;
+            }
+
+            const emailInput = document.getElementById('newsletterEmail');
+            const btn = document.getElementById('btnSubscribe');
+            const email = emailInput.value.trim();
+
+            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
+
+            if (!turnstileResponse) {
+                showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။");
+                return;
+            }
+
             if (!email) return;
-            btn.disabled = true; const originalBtnText = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`; if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            btn.disabled = true;
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
             try {
+                if (currentUser && email.toLowerCase() !== currentUser.email.toLowerCase()) {
+                    throw new Error(
+                        currentLang === 'en'
+                            ? "Authorization Error: You may only subscribe using your registered account email."
+                            : "ခွင့်ပြုချက် မရှိပါ: သင်၏ အကောင့် အီးမေးလ်ဖြင့်သာ စာရင်းသွင်းနိုင်ပါသည်။"
+                    );
+                } else if (!currentUser) {
+                    const { data: profileRecord, error: profileErr } = await supabaseInstance
+                        .from('profiles')
+                        .select('email')
+                        .eq('email', email)
+                        .maybeSingle();
+
+                    if (profileErr || !profileRecord) {
+                        throw new Error(
+                            currentLang === 'en'
+                                ? "Verification Failed: The provided email address does not exist in our system or is unauthorized."
+                                : "စစ်ဆေးမှု မအောင်မြင်ပါ: ပေးထားသော အီးမေးလ်သည် ကျွန်ုပ်တို့၏ စနစ်တွင် မရှိပါ သို့မဟုတ် ခွင့်ပြုချက် မရှိပါ။"
+                        );
+                    }
+                }
+
                 const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
-                if (error) { if (error.code === '23505') { showToast(dict[currentLang].msgSubscribedAlready); } else { throw error; } } 
-                else { showToast(dict[currentLang].msgSubscribedSuccess); emailInput.value = ''; if (window.turnstile) turnstile.reset(); }
-            } catch (err) { showErrorToast(err.message || "Subscription processing failed."); } 
-            finally { btn.disabled = false; btn.innerHTML = originalBtnText; }
+
+                if (error) {
+                    if (error.code === '23505') {
+                        showToast(dict[currentLang].msgSubscribedAlready);
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    showToast(dict[currentLang].msgSubscribedSuccess);
+                    emailInput.value = '';
+                    if (window.turnstile) turnstile.reset();
+                }
+
+            } catch (err) {
+                showErrorToast(err.message || "Subscription processing failed.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+            }
         }
 
         async function handleLogout() {

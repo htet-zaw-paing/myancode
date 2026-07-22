@@ -1382,47 +1382,37 @@
 
         async function handleSubscribe(e) {
             e.preventDefault();
-            if (!supabaseInstance) {
-                showErrorToast("Database connection offline.");
-                return;
-            }
-
-            const emailInput = document.getElementById('newsletterEmail');
-            const btn = document.getElementById('btnSubscribe');
-            const email = emailInput.value.trim();
-
-            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
-            if (!turnstileResponse) {
-                showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။");
-                return;
-            }
-
+            if (!supabaseInstance) { showErrorToast("Database connection offline."); return; }
+            const emailInput = document.getElementById('newsletterEmail'); const btn = document.getElementById('btnSubscribe');
+            const email = emailInput.value.trim(); const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            
+            if (!turnstileResponse) { showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); return; }
             if (!email) return;
 
-            btn.disabled = true;
-            const originalBtnText = btn.innerHTML;
+            btn.disabled = true; const originalBtnText = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`;
             if(typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
                 const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
-                
-                if (error) {
+                if (error) { 
                     if (error.code === '23505') { 
-                        showToast(dict[currentLang].msgSubscribedAlready);
-                    } else {
-                        throw error;
-                    }
-                } else {
-                    showToast(dict[currentLang].msgSubscribedSuccess);
-                    emailInput.value = '';
-                    if (window.turnstile) turnstile.reset();
+                        showToast(dict[currentLang].msgSubscribedAlready); 
+                    } else { 
+                        throw error; 
+                    } 
+                } 
+                else { 
+                    showToast(dict[currentLang].msgSubscribedSuccess); 
+                    emailInput.value = ''; 
+                    if (window.turnstile) turnstile.reset(); 
                 }
-            } catch (err) {
-                showErrorToast(err.message || "Subscription processing failed.");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalBtnText;
+            } catch (err) { 
+                showErrorToast(err.message || "Subscription processing failed."); 
+            } 
+            finally { 
+                btn.disabled = false; 
+                btn.innerHTML = originalBtnText; 
             }
         }
 
