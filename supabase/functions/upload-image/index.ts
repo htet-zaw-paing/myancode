@@ -11,48 +11,52 @@ serve(async (req) => {
   }
 
   try {
-    const { imageBase64, extension } = await req.json()
-    
-    if (!imageBase64) throw new Error("No image data provided")
+    const { imageBase64, extension = 'jpg' } = await req.json()
 
-    const githubToken = Deno.env.get('GITHUB_PAT')
-    
-    if(!githubToken) throw new Error("GitHub token not configured on server.")
-
-    const owner = 'myancode'
-    const repo = 'myancode_marketplace'
-    const fileName = `post_${Date.now()}_${Math.random().toString(36).substring(7)}.${extension || 'png'}`
-    const path = `uploads/${fileName}`
-
-    const githubRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${githubToken}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'MyanCode-Marketplace-App',
-        'Accept': 'application/vnd.github.v3+json'
-      },
-      body: JSON.stringify({
-        message: `Auto-upload image ${fileName}`,
-        content: imageBase64
+    if (!imageBase64) {
+      return new Response(JSON.stringify({ error: 'No image data provided' }), { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+        status: 400 
       })
-    })
-
-    if (!githubRes.ok) {
-      const errorData = await githubRes.json()
-      throw new Error(`GitHub API error: ${errorData.message || githubRes.statusText}`)
     }
 
-    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${path}`
+    const IMAGEKIT_PRIVATE_KEY = Deno.env.get('IMAGEKIT_PRIVATE_KEY');
+    if (!IMAGEKIT_PRIVATE_KEY) {
+        throw new Error("ImageKit Private Key not configured in Supabase secrets.");
+    }
 
-    return new Response(
-      JSON.stringify({ url: rawUrl }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    const authHeader = `Basic ${btoa(IMAGEKIT_PRIVATE_KEY + ":")}`;
+    const fileName = `community_post_${Date.now()}.${extension}`;
+
+    const formData = new FormData();
+    formData.append('file', imageBase64); 
+    formData.append('fileName', fileName);
+    formData.append('folder', '/marketplace_posts');
+    formData.append('useUniqueFileName', 'true');
+
+    const response = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
+      method: "POST",
+      headers: {
+        "Authorization": authHeader,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+       throw new Error(result.message || "Failed to upload to ImageKit");
+    }
+
+    return new Response(JSON.stringify({ url: result.url }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    })
+
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    )
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
+    })
   }
 })

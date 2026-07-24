@@ -251,6 +251,7 @@
             <div class="flex-1 glass-panel rounded-full p-1.5 relative flex items-center focus-within:border-white/30 transition-colors h-[42px]">
                 <i data-lucide="search" class="w-4 h-4 text-gray-400 ml-3"></i>
                 <input type="text" id="mobileSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-sm text-white px-3 focus:outline-none placeholder-gray-500 h-full" placeholder="Search posts, tags...">
+                <button id="clearMobileSearchBtn" onclick="clearSearch()" class="hidden p-1.5 text-gray-400 hover:text-white transition-colors mr-1 rounded-full hover:bg-white/10 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <button onclick="scrollToComposer()" class="flex-shrink-0 w-[42px] h-[42px] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors shadow-sm">
                 <i data-lucide="plus" class="w-5 h-5"></i>
@@ -514,6 +515,7 @@
                         <div class="glass-panel rounded-full p-2 relative flex items-center focus-within:border-white/30 transition-colors">
                             <i data-lucide="search" class="w-4 h-4 text-gray-400 ml-3"></i>
                             <input type="text" id="localSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-sm text-white px-3 py-1.5 focus:outline-none placeholder-gray-500" placeholder="Search posts, tags...">
+                            <button id="clearLocalSearchBtn" onclick="clearSearch()" class="hidden p-1 text-gray-400 hover:text-white transition-colors mr-1 rounded-full hover:bg-white/10 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
                         </div>
                         <div id="desktopSearchSuggestions" class="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-white/10 rounded-2xl shadow-xl hidden max-h-64 overflow-y-auto no-scrollbar"></div>
                     </div>
@@ -837,6 +839,50 @@
         let hasInitialShuffled = false;
         let postOrderMap = new Map();
 
+        const BANNED_WORDS = [
+                // English
+                'fuck', 'fucking', 'motherfucker', 'mf', 'shit', 'bullshit',
+                'bitch', 'bitches', 'asshole', 'ass', 'cunt', 'dick', 'cock',
+                'pussy', 'whore', 'slut', 'bastard', 'retard', 'retarded',
+                'faggot', 'fag', 'nigger', 'nigga', 'chink', 'gook', 'spic',
+                'kike', 'raghead', 'wetback', 'cracker', 'tranny', 'dyke',
+                'kys', 'kill yourself', 'go die', 'suicide', 'gay', 
+
+                // Burmese profanity
+                'လီး', 'လီးပဲ', 'လီးစုပ်', 'လီးကြီး', 'လီးမဲ',
+                'စောက်', 'စောက်ရူး', 'စောက်ကောင်', 'စောက်ဖုတ်',
+                'စောက်ပတ်', 'စောက်ခွက်', 'စောက်ရမ်း',
+                'ဖာ', 'ဖာသည်', 'ဖာမ', 'ဖာခေါင်း',
+                'မအေလိုး', 'အေလိုး', 'အလိုး', 'အဖုတ်',
+                'ခွေးမသား', 'ခွေးသား', 'ခွေးကောင်',
+                'ငလိုး', 'ငလိုးမ', 'ငါးမသား',
+                'အရူး', 'ငတုံး', 'ငပေါ', 'ငမိုက်',
+
+                // Burmese hate / slurs
+                'ကုလား', 'ကုလားမ', 'ကုလားကောင်',
+                'လူမဲ', 'လူဖြူကောင်',
+                'တရုတ်ကောင်', 'တရုတ်မ',
+                'ဘင်္ဂလီ', 'ရိုဟင်ဂျာ',
+                'ချင်းကောင်', 'ကချင်ကောင်',
+                'ရှမ်းကောင်', 'ကရင်ကောင်',
+                'မွန်ကောင်', 'ရခိုင်ကောင်', 'အခြောက်', 'ဂေး'
+            ];
+
+        function containsBannedWords(text) {
+            const lowerText = text.toLowerCase();
+            const cleanText = lowerText.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+            
+            for (let word of BANNED_WORDS) {
+                if (/^[a-z]+$/.test(word)) {
+                    const regex = new RegExp(`\\b${word}\\b`, 'i');
+                    if (regex.test(cleanText)) return true;
+                } else {
+                    if (cleanText.includes(word)) return true;
+                }
+            }
+            return false;
+        }
+
         async function initCommunity() {
             renderInitialSkeletons();
             if (supabaseInstance) {
@@ -896,14 +942,31 @@
                     const statsMobile = document.getElementById('textStatsMobile');
                     const btn = document.getElementById('btnPublishPost');
                     
-                    if(statsMobile) statsMobile.innerText = `${words}/3000 words • ${letters}/18000 chars`;
-                    
-                    if (words > 3000 || letters > 18000) {
-                        if(statsMobile) { statsMobile.classList.add('text-red-500'); statsMobile.classList.remove('text-gray-500'); }
-                        if(btn) btn.disabled = true;
+                    const hasBannedWords = containsBannedWords(text);
+
+                    if (words > 3000 || letters > 18000 || hasBannedWords) {
+                        if (hasBannedWords) {
+                            if(statsMobile) {
+                                statsMobile.innerText = currentLang === 'en' ? "Notice: Your content does not meet community standards." : "သတိပေးချက် - သင်၏အကြောင်းအရာသည် Community စံနှုန်းများနှင့် မကိုက်ညီပါ။";
+                                statsMobile.classList.add('text-orange-500'); 
+                                statsMobile.classList.remove('text-gray-500', 'text-red-500');
+                            }
+                            if(btn) btn.style.display = 'none';
+                        } else {
+                            if(statsMobile) { 
+                                statsMobile.innerText = `${words}/3000 words • ${letters}/18000 chars`;
+                                statsMobile.classList.add('text-red-500'); 
+                                statsMobile.classList.remove('text-gray-500', 'text-orange-500'); 
+                            }
+                            if(btn) { btn.style.display = 'block'; btn.disabled = true; }
+                        }
                     } else {
-                        if(statsMobile) { statsMobile.classList.remove('text-red-500'); statsMobile.classList.add('text-gray-500'); }
-                        if(btn) btn.disabled = false;
+                        if(statsMobile) { 
+                            statsMobile.innerText = `${words}/3000 words • ${letters}/18000 chars`;
+                            statsMobile.classList.remove('text-red-500', 'text-orange-500'); 
+                            statsMobile.classList.add('text-gray-500'); 
+                        }
+                        if(btn) { btn.style.display = 'block'; btn.disabled = false; }
                     }
                 });
             }
@@ -1641,7 +1704,7 @@
         function updateImagePreview() {
             const container = document.getElementById('imagePreviewContainer'); const countText = document.getElementById('imageCountText'); countText.innerText = `${selectedImages.length}/5`;
             if (selectedImages.length === 0) { container.classList.add('hidden'); container.innerHTML = ''; return; }
-            container.classList.remove('hidden'); container.innerHTML = selectedImages.map((file, idx) => `<div class="image-preview-item"><img src="${URL.createObjectURL(file)}"><div class="image-preview-remove" onclick="removeImage(${idx})"><i data-lucide="x" class="w-3 h-3"></i></div></div>`).join('');
+            container.classList.remove('hidden'); container.innerHTML = selectedImages.map((file, idx) => `<div class="image-preview-item"><img src="${URL.createObjectURL(file)}" loading="lazy" decoding="async"><div class="image-preview-remove" onclick="removeImage(${idx})"><i data-lucide="x" class="w-3 h-3"></i></div></div>`).join('');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
@@ -1651,21 +1714,24 @@
                 reader.onload = event => {
                     const img = new Image(); img.src = event.target.result;
                     img.onload = () => {
-                        const canvas = document.createElement('canvas'); const MAX = 1200; let w = img.width; let h = img.height;
+                        const canvas = document.createElement('canvas'); const MAX = 2560; let w = img.width; let h = img.height;
                         if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } }
-                        canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/jpeg', 0.8).split(',')[1]);
+                        canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); 
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.98).split(',')[1]);
                     }; img.onerror = error => reject(error);
                 }; reader.onerror = error => reject(error);
             });
         }
 
-        async function uploadImagesToGitHub() {
+        async function uploadImagesToImageKit() {
             if (selectedImages.length === 0) return []; const uploadedUrls = [];
             for (let i = 0; i < selectedImages.length; i++) {
                 try {
                     const base64Content = await compressImage(selectedImages[i]);
-                    const { data, error } = await supabaseInstance.functions.invoke('upload-image', { body: { imageBase64: base64Content, extension: 'jpg' } });
+                    const { data, error } = await supabaseInstance.functions.invoke('upload-image', { body: { imageBase64: base64Content, extension: 'jpg', provider: 'imagekit' } });
                     if (error || (data && data.error)) throw new Error("Upload failed."); if (data && data.url) uploadedUrls.push(data.url);
                 } catch (err) { throw err; }
             } return uploadedUrls;
@@ -1701,11 +1767,16 @@
             if (words > 3000 || letters > 18000) { showErrorToast("Post exceeds word or letter limits."); return; }
             if (raw === '' || raw === '<br>') { showErrorToast("Post cannot be empty."); return; }
             
+            if (containsBannedWords(textContent)) {
+                customConfirm("Your post contains restricted vocabulary. To maintain a safe, professional, and respectful environment for all members, please revise your content before publishing.", "Community Guidelines Notice");
+                return;
+            }
+            
             const confirmed = await customConfirm("Publish this post to the community?", "Publish Post"); if (!confirmed) return;
             let safeContent = window.DOMPurify ? DOMPurify.sanitize(raw, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span'], ALLOWED_ATTR: ['href', 'target', 'rel'] }) : raw;
             const btn = document.getElementById('btnPublishPost'); btn.disabled = true; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 spinner"></i>`; if (typeof lucide !== 'undefined') lucide.createIcons();
             try {
-                const imageUrls = await uploadImagesToGitHub();
+                const imageUrls = await uploadImagesToImageKit();
                 const postData = { user_id: currentUser.id, author_name: currentUser.name, author_avatar: currentUser.avatar_url, author_role: currentUser.role, content: safeContent, images: imageUrls, hashtags: extractHashtags(safeContent) };
                 const { error } = await supabaseInstance.from('marketplace_posts').insert([postData]); if (error) throw new Error();
                 editor.innerHTML = ''; selectedImages = []; updateImagePreview(); showToast("Published successfully!");
@@ -1790,7 +1861,7 @@
             
             const html = sorted.map(p => {
                 const engCount = (p.marketplace_likes?.length || 0) + (p.marketplace_comments?.[0]?.count || 0);
-                const avatar = p.author_avatar ? `<img src="${p.author_avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1.5 text-gray-500"></i>`;
+                const avatar = p.author_avatar ? `<img src="${p.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1.5 text-gray-500"></i>`;
                 let safeContent = window.DOMPurify ? DOMPurify.sanitize(p.content, { ALLOWED_TAGS: [] }) : p.content.replace(/<[^>]*>?/gm, '');
                 let title = safeContent.length > 40 ? safeContent.substring(0, 40) + '...' : safeContent;
 
@@ -1852,10 +1923,32 @@
             if (el) el.classList.add('hidden');
         }
 
+        function clearSearch() {
+            const deskInput = document.getElementById('localSearchInput');
+            const mobInput = document.getElementById('mobileSearchInput');
+            if (deskInput) { deskInput.value = ''; }
+            if (mobInput) { mobInput.value = ''; }
+            
+            const clearDesk = document.getElementById('clearLocalSearchBtn');
+            const clearMob = document.getElementById('clearMobileSearchBtn');
+            if (clearDesk) clearDesk.classList.add('hidden');
+            if (clearMob) clearMob.classList.add('hidden');
+            
+            hideSuggestions('desktopSearchSuggestions');
+            hideSuggestions('mobileSearchSuggestions');
+            renderFeed('');
+        }
+
         function handleLocalSearch(e) {
             const query = e.target.value.toLowerCase().trim();
             const isMobile = e.target.id === 'mobileSearchInput';
             const suggestionsBox = document.getElementById(isMobile ? 'mobileSearchSuggestions' : 'desktopSearchSuggestions');
+            const clearBtn = document.getElementById(isMobile ? 'clearMobileSearchBtn' : 'clearLocalSearchBtn');
+
+            if (clearBtn) {
+                if (query.length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
 
             clearTimeout(searchTimeout);
 
@@ -1959,7 +2052,7 @@
         }
 
         function buildPostHTML(post, isDetailModal = false) {
-            const dateStr = timeAgo(post.created_at); const avatar = post.author_avatar ? `<img src="${post.author_avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-400"></i>`;
+            const dateStr = timeAgo(post.created_at); const avatar = post.author_avatar ? `<img src="${post.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-400"></i>`;
             const isOwner = currentUser && currentUser.id === post.user_id; const isSaved = currentUser && post.marketplace_saves && post.marketplace_saves.some(s => s.user_id === currentUser.id); const isLiked = currentUser && post.marketplace_likes && post.marketplace_likes.some(l => l.user_id === currentUser.id);
             const commentCount = post.marketplace_comments?.[0]?.count || 0; const likeCount = post.marketplace_likes?.length || 0; 
             let safeContent = window.DOMPurify ? DOMPurify.sanitize(post.content) : post.content;
@@ -1967,7 +2060,14 @@
             let imageGridHTML = '';
             if (post.images && post.images.length > 0) {
                 const count = Math.min(post.images.length, 5); const gridClass = `img-grid-${count}`; imageGridHTML = `<div class="${gridClass} mt-4 mb-2">`;
-                post.images.slice(0, 5).forEach((imgUrl, idx) => { imageGridHTML += `<img src="${imgUrl}" loading="lazy" class="grid-img-cell ${count === 3 && idx === 0 ? 'tall' : ''}" onclick="openImageViewer('${imgUrl}')">`; }); imageGridHTML += `</div>`;
+                post.images.slice(0, 5).forEach((imgUrl, idx) => { 
+                    let displayUrl = imgUrl;
+                    if (imgUrl.includes('ik.imagekit.io')) {
+                        displayUrl += (displayUrl.includes('?') ? '&' : '?') + 'tr=w-1000,q-90';
+                    }
+                    imageGridHTML += `<img src="${displayUrl}" loading="lazy" decoding="async" class="grid-img-cell ${count === 3 && idx === 0 ? 'tall' : ''}" onclick="openImageViewer('${imgUrl}')">`; 
+                }); 
+                imageGridHTML += `</div>`;
             }
 
             let strippedContent = safeContent.replace(/<[^>]*>?/gm, '');
@@ -1998,8 +2098,8 @@
                         </div>
                     </div>
                     <div class="relative">
-                        <button onclick="togglePostOptions('${post.id}', event)" class="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
-                        <div id="opts-${post.id}" class="hidden absolute right-0 mt-2 w-40 bg-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-xl z-30 py-1 overflow-hidden origin-top-right">
+                        <button onclick="togglePostOptions('${isDetailModal ? 'opts-modal-' + post.id : 'opts-' + post.id}', event)" class="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+                        <div id="${isDetailModal ? 'opts-modal-' + post.id : 'opts-' + post.id}" class="hidden absolute right-0 mt-2 w-40 bg-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-xl z-30 py-1 overflow-hidden origin-top-right">
                             ${isOwner ? `<button onclick="deletePost('${post.id}')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-[#ff3b30] hover:bg-white/10 flex items-center gap-2"><i data-lucide="trash" class="w-4 h-4"></i> Delete</button>` : ''}
                             <button onclick="reportPost('${post.id}')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-orange-400 hover:bg-white/10 flex items-center gap-2"><i data-lucide="flag" class="w-4 h-4"></i> Report</button>
                         </div>
@@ -2027,7 +2127,7 @@
             </div>`;
         }
 
-        function togglePostOptions(id, event) { if (event) { event.preventDefault(); event.stopPropagation(); } document.querySelectorAll('[id^="opts-"]').forEach(m => { if (m.id !== `opts-${id}`) m.classList.add('hidden'); }); document.getElementById(`opts-${id}`).classList.toggle('hidden'); }
+        function togglePostOptions(targetId, event) { if (event) { event.preventDefault(); event.stopPropagation(); } document.querySelectorAll('[id^="opts-"]').forEach(m => { if (m.id !== targetId) m.classList.add('hidden'); }); const el = document.getElementById(targetId); if(el) el.classList.toggle('hidden'); }
         document.addEventListener('click', (e) => { if (!e.target.closest('button[onclick^="togglePostOptions"]')) document.querySelectorAll('[id^="opts-"]').forEach(m => m.classList.add('hidden')); });
 
         async function toggleLikePost(postId, btnEl) {
@@ -2112,7 +2212,7 @@
         }
 
         function renderSingleComment(c, postId, rootId, isReply = false, isInline = false) {
-            const avatar = c.author_avatar ? `<img src="${c.author_avatar}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1 text-gray-500"></i>`;
+            const avatar = c.author_avatar ? `<img src="${c.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1 text-gray-500"></i>`;
             const isLiked = currentUser && c.marketplace_comment_likes && c.marketplace_comment_likes.some(l => l.user_id === currentUser.id); const likeCount = c.marketplace_comment_likes ? c.marketplace_comment_likes.length : 0;
             let safeContent = window.DOMPurify ? DOMPurify.sanitize(c.content) : c.content;
             const avatarSize = isReply ? "w-6 h-6 sm:w-7 sm:h-7" : "w-8 h-8 sm:w-9 sm:h-9"; const bgClass = isReply ? "bg-black/20 border border-white/5" : "bg-white/[0.04] backdrop-blur-md border border-white/[0.08]";
