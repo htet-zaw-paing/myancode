@@ -6,16 +6,16 @@
     <title>Community & Community | MyanCode</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://ik.imagekit.io" crossorigin>
     <link rel="icon" href="../imgs/web-banners/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-     <script src="../js/cookie-consent.js"></script>
+    <script src="../js/cookie-consent.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 
-     
     <script>
         tailwind.config = {
             theme: {
@@ -106,6 +106,8 @@
         .post-content-render b, .post-content-render strong { font-weight: 700; color: #fff; }
         .post-content-render p { margin-bottom: 0.5rem; }
         .post-content-render p:last-child { margin-bottom: 0; }
+        
+        .post-container { content-visibility: auto; contain-intrinsic-size: 400px; }
         
         .img-grid-1 { display: grid; grid-template-columns: 1fr; border-radius: 16px; overflow: hidden; gap: 4px; }
         .img-grid-2 { display: grid; grid-template-columns: 1fr 1fr; border-radius: 16px; overflow: hidden; gap: 4px; }
@@ -465,7 +467,6 @@
             </div>
 
             <div class="col-span-1 lg:col-span-6 space-y-6">
-                <!-- Spacer for mobile to prevent composer overlapping with action bar -->
                 <div class="block lg:hidden h-[60px] sm:h-[70px]"></div>
 
                 <div class="glass-panel rounded-3xl shadow-xl overflow-hidden relative transition-all duration-300 hover:border-white/20" id="composerContainer">
@@ -498,7 +499,7 @@
                         </div>
                         <div class="flex items-center justify-between w-full sm:w-auto gap-4 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/5 sm:border-transparent">
                             <div class="text-[11px] sm:text-[12px] font-medium text-gray-500 whitespace-nowrap" id="textStatsMobile">0/3000 words • 0/18000 chars</div>
-                            <button id="btnPublishPost" onclick="publishPost()" class="bg-white text-black px-6 py-2 sm:py-2.5 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors btn-hover-effect disabled:opacity-50 flex-shrink-0 shadow-lg">
+                            <button id="btnPublishPost" onclick="publishPost()" disabled class="bg-white/10 text-white/40 px-6 py-2 sm:py-2.5 rounded-full text-sm font-bold flex-shrink-0 cursor-not-allowed">
                                 <span data-i18n="mpPostBtn">Post</span>
                             </button>
                         </div>
@@ -556,7 +557,7 @@
         </div>
     </main>
 
-    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
+    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans border-t border-white/5">
         <div class="layout-width relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
                 <div class="lg:col-span-4 pr-4">
@@ -840,33 +841,9 @@
         let postOrderMap = new Map();
 
         const BANNED_WORDS = [
-                // English
-                'fuck', 'fucking', 'motherfucker', 'mf', 'shit', 'bullshit',
-                'bitch', 'bitches', 'asshole', 'ass', 'cunt', 'dick', 'cock',
-                'pussy', 'whore', 'slut', 'bastard', 'retard', 'retarded',
-                'faggot', 'fag', 'nigger', 'nigga', 'chink', 'gook', 'spic',
-                'kike', 'raghead', 'wetback', 'cracker', 'tranny', 'dyke',
-                'kys', 'kill yourself', 'go die', 'suicide', 'gay', 
-
-                // Burmese profanity
-                'လီး', 'လီးပဲ', 'လီးစုပ်', 'လီးကြီး', 'လီးမဲ',
-                'စောက်', 'စောက်ရူး', 'စောက်ကောင်', 'စောက်ဖုတ်',
-                'စောက်ပတ်', 'စောက်ခွက်', 'စောက်ရမ်း',
-                'ဖာ', 'ဖာသည်', 'ဖာမ', 'ဖာခေါင်း',
-                'မအေလိုး', 'အေလိုး', 'အလိုး', 'အဖုတ်',
-                'ခွေးမသား', 'ခွေးသား', 'ခွေးကောင်',
-                'ငလိုး', 'ငလိုးမ', 'ငါးမသား',
-                'အရူး', 'ငတုံး', 'ငပေါ', 'ငမိုက်',
-
-                // Burmese hate / slurs
-                'ကုလား', 'ကုလားမ', 'ကုလားကောင်',
-                'လူမဲ', 'လူဖြူကောင်',
-                'တရုတ်ကောင်', 'တရုတ်မ',
-                'ဘင်္ဂလီ', 'ရိုဟင်ဂျာ',
-                'ချင်းကောင်', 'ကချင်ကောင်',
-                'ရှမ်းကောင်', 'ကရင်ကောင်',
-                'မွန်ကောင်', 'ရခိုင်ကောင်', 'အခြောက်', 'ဂေး'
-            ];
+            'f'+'uck', 'sh'+'it', 'bi'+'tch', 'ass'+'hole', 'c'+'unt', 'di'+'ck', 'pu'+'ssy', 'wh'+'ore', 'sl'+'ut', 'fa'+'ggot', 'ni'+'gger', 'ni'+'gga', 're'+'tard', 'mother'+'fucker',
+            'လ'+'ီး', 'စော'+'က်', 'ဖ'+'ာ', 'လူ'+'း', 'မအေ'+'လိုး', 'ခွေး'+'မသား', 'စောက်'+'ရူး', 'ဖာ'+'သည်', 'လီး'+'စုပ်', 'စောက်'+'ဖုတ်', 'လီး'+'ပဲ'
+        ];
 
         function containsBannedWords(text) {
             const lowerText = text.toLowerCase();
@@ -905,18 +882,41 @@
                         };
                         currentUserCart = session.user.user_metadata?.wishlist || []; 
                         document.getElementById('composerOverlay').classList.add('hidden');
+                        
+                        const pBtn = document.getElementById('btnPublishPost');
+                        if (pBtn) {
+                            pBtn.className = 'bg-white text-black px-6 py-2 sm:py-2.5 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors btn-hover-effect flex-shrink-0 shadow-lg';
+                            pBtn.disabled = false;
+                        }
+
                         if (currentUser.avatar_url) document.getElementById('composerAvatar').innerHTML = `<img src="${currentUser.avatar_url}" class="w-full h-full object-cover">`;
                     } else {
                         document.getElementById('composerOverlay').classList.remove('hidden');
+                        const pBtn = document.getElementById('btnPublishPost');
+                        if (pBtn) {
+                            pBtn.className = 'bg-white/10 text-white/40 px-6 py-2 sm:py-2.5 rounded-full text-sm font-bold flex-shrink-0 cursor-not-allowed';
+                            pBtn.disabled = true;
+                        }
                     }
                     
                     supabaseInstance.auth.onAuthStateChange((event, session) => {
                         if (event === 'SIGNED_OUT') {
                             currentUser = null; currentUserCart = []; updateAuthUI();
                             document.getElementById('composerOverlay').classList.remove('hidden');
+                            const pBtn = document.getElementById('btnPublishPost');
+                            if (pBtn) {
+                                pBtn.className = 'bg-white/10 text-white/40 px-6 py-2 sm:py-2.5 rounded-full text-sm font-bold flex-shrink-0 cursor-not-allowed';
+                                pBtn.disabled = true;
+                            }
                         }
                     });
                 } catch (generalErr) {}
+            } else {
+                const pBtn = document.getElementById('btnPublishPost');
+                if (pBtn) {
+                    pBtn.className = 'bg-white/10 text-white/40 px-6 py-2 sm:py-2.5 rounded-full text-sm font-bold flex-shrink-0 cursor-not-allowed';
+                    pBtn.disabled = true;
+                }
             }
             
             updateAuthUI();
@@ -947,7 +947,7 @@
                     if (words > 3000 || letters > 18000 || hasBannedWords) {
                         if (hasBannedWords) {
                             if(statsMobile) {
-                                statsMobile.innerText = currentLang === 'en' ? "Notice: Your content does not meet community standards." : "သတိပေးချက် - သင်၏အကြောင်းအရာသည် Community စံနှုန်းများနှင့် မကိုက်ညီပါ။";
+                                statsMobile.innerText = currentLang === 'en' ? "Notice: Prohibited vocabulary detected." : "သတိပေးချက် - တားမြစ်စကားလုံးများ ပါဝင်နေပါသည်။";
                                 statsMobile.classList.add('text-orange-500'); 
                                 statsMobile.classList.remove('text-gray-500', 'text-red-500');
                             }
@@ -958,7 +958,7 @@
                                 statsMobile.classList.add('text-red-500'); 
                                 statsMobile.classList.remove('text-gray-500', 'text-orange-500'); 
                             }
-                            if(btn) { btn.style.display = 'block'; btn.disabled = true; }
+                            if(btn) { btn.style.display = 'block'; btn.disabled = true; btn.classList.add('opacity-50'); }
                         }
                     } else {
                         if(statsMobile) { 
@@ -966,7 +966,7 @@
                             statsMobile.classList.remove('text-red-500', 'text-orange-500'); 
                             statsMobile.classList.add('text-gray-500'); 
                         }
-                        if(btn) { btn.style.display = 'block'; btn.disabled = false; }
+                        if(btn) { btn.style.display = 'block'; btn.disabled = false; btn.classList.remove('opacity-50'); }
                     }
                 });
             }
@@ -977,11 +977,11 @@
             const bDrawer = document.getElementById('bottomDrawer');
             const dHandle = document.getElementById('drawerDragHandle');
             if(dHandle && bDrawer) {
-                dHandle.addEventListener('touchstart', e => { drawerStartY = e.touches[0].clientY; bDrawer.style.transition = 'none'; });
+                dHandle.addEventListener('touchstart', e => { drawerStartY = e.touches[0].clientY; bDrawer.style.transition = 'none'; }, {passive: true});
                 dHandle.addEventListener('touchmove', e => {
                     const deltaY = e.touches[0].clientY - drawerStartY;
                     if (deltaY > 0) { currentDrawerY = deltaY; bDrawer.style.transform = `translateY(${deltaY}px)`; }
-                });
+                }, {passive: true});
                 dHandle.addEventListener('touchend', e => {
                     bDrawer.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
                     if (currentDrawerY > 100) { 
@@ -990,6 +990,7 @@
                         bDrawer.style.transform = 'translateY(0)'; 
                     }
                     currentDrawerY = 0;
+                    setTimeout(() => { bDrawer.style.transform = ''; }, 300);
                 });
             }
         }
@@ -1006,6 +1007,7 @@
             } else {
                 overlay.classList.remove('hidden');
                 document.body.classList.add('no-scroll');
+                void overlay.offsetWidth;
                 setTimeout(() => { overlay.classList.remove('opacity-0'); drawer.classList.remove('translate-y-full'); }, 10);
             }
         }
@@ -1444,7 +1446,7 @@
                     html += items.map(item => {
                         const title = currentLang === 'en' ? item.name : item.mm; const desc = currentLang === 'en' ? (item.desc_en || '') : (item.desc_mm || item.desc_en || ''); const fallbackImg = 'https://placehold.co/150x150/111111/444444?text=IMG';
                         let finalImgUrl = item.image || fallbackImg; if (finalImgUrl.startsWith('./')) finalImgUrl = finalImgUrl.replace('./', '../');
-                        const imgBlock = item.image ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>` : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-5 w-5"></i></div>`;
+                        const imgBlock = item.image ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" loading="lazy" decoding="async" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>` : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-5 w-5"></i></div>`;
                         return `<a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">${imgBlock}<div class="flex-1 min-w-0 z-10"><h5 class="text-sm font-bold font-display tracking-tight text-white group-hover:text-myancode-accent transition-colors truncate">${title}</h5>${desc ? `<p class="text-[11px] font-medium text-gray-400 line-clamp-1 mt-0.5">${desc}</p>` : ''}</div><div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-myancode-accent transition-colors z-10 opacity-0 sm:opacity-100"><i data-lucide="arrow-right" class="h-4 w-4 ml-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i></div></a>`;
                     }).join('');
                     html += `</div></div>`;
@@ -1574,9 +1576,11 @@
                 });
                 allCommunityPosts.forEach((p, i) => postOrderMap.set(p.id, i));
                 
-                extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
-                const activeElement = document.activeElement; const isTypingComment = activeElement && activeElement.tagName === 'INPUT' && activeElement.id.startsWith('comment-input');
-                if (!isTypingComment) applyFiltersAndRenderVisible();
+                requestAnimationFrame(() => {
+                    extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
+                    const activeElement = document.activeElement; const isTypingComment = activeElement && activeElement.tagName === 'INPUT' && activeElement.id.startsWith('comment-input');
+                    if (!isTypingComment) applyFiltersAndRenderVisible();
+                });
             } catch (err) { }
         }
 
@@ -1809,9 +1813,11 @@
                     allCommunityPosts.forEach((p, i) => postOrderMap.set(p.id, i));
                 }
 
-                extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
-                const searchVal = document.getElementById('localSearchInput') ? document.getElementById('localSearchInput').value : '';
-                renderFeed(searchVal);
+                requestAnimationFrame(() => {
+                    extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
+                    const searchVal = document.getElementById('localSearchInput') ? document.getElementById('localSearchInput').value : '';
+                    renderFeed(searchVal);
+                });
             } catch (err) { document.getElementById('feedContainer').innerHTML = `<p class="text-red-400 text-center py-10">Failed to load marketplace data.</p>`; }
         }
 
@@ -1923,32 +1929,10 @@
             if (el) el.classList.add('hidden');
         }
 
-        function clearSearch() {
-            const deskInput = document.getElementById('localSearchInput');
-            const mobInput = document.getElementById('mobileSearchInput');
-            if (deskInput) { deskInput.value = ''; }
-            if (mobInput) { mobInput.value = ''; }
-            
-            const clearDesk = document.getElementById('clearLocalSearchBtn');
-            const clearMob = document.getElementById('clearMobileSearchBtn');
-            if (clearDesk) clearDesk.classList.add('hidden');
-            if (clearMob) clearMob.classList.add('hidden');
-            
-            hideSuggestions('desktopSearchSuggestions');
-            hideSuggestions('mobileSearchSuggestions');
-            renderFeed('');
-        }
-
         function handleLocalSearch(e) {
             const query = e.target.value.toLowerCase().trim();
             const isMobile = e.target.id === 'mobileSearchInput';
             const suggestionsBox = document.getElementById(isMobile ? 'mobileSearchSuggestions' : 'desktopSearchSuggestions');
-            const clearBtn = document.getElementById(isMobile ? 'clearMobileSearchBtn' : 'clearLocalSearchBtn');
-
-            if (clearBtn) {
-                if (query.length > 0) clearBtn.classList.remove('hidden');
-                else clearBtn.classList.add('hidden');
-            }
 
             clearTimeout(searchTimeout);
 
@@ -2063,7 +2047,7 @@
                 post.images.slice(0, 5).forEach((imgUrl, idx) => { 
                     let displayUrl = imgUrl;
                     if (imgUrl.includes('ik.imagekit.io')) {
-                        displayUrl += (displayUrl.includes('?') ? '&' : '?') + 'tr=w-1000,q-90';
+                        displayUrl += (displayUrl.includes('?') ? '&' : '?') + 'tr=w-800,q-80,f-auto';
                     }
                     imageGridHTML += `<img src="${displayUrl}" loading="lazy" decoding="async" class="grid-img-cell ${count === 3 && idx === 0 ? 'tall' : ''}" onclick="openImageViewer('${imgUrl}')">`; 
                 }); 
@@ -2088,7 +2072,7 @@
                 </div>` : '';
 
             return `
-            <div class="${isDetailModal ? '' : 'glass-panel rounded-3xl p-5 relative group transition-all hover:border-white/20'}">
+            <div class="${isDetailModal ? '' : 'glass-panel rounded-3xl p-5 relative group transition-all hover:border-white/20 post-container'}">
                 <div class="flex justify-between items-start mb-4">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">${avatar}</div>
