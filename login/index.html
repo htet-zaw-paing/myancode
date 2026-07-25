@@ -6,8 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Login - MyanCode</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <script>
+        (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="aCrBjVYTYclX4JQldZG3x";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
     <link rel="icon" href="../favicon.png">
     <link rel="icon" href="../favicon.ico" />
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
@@ -68,6 +72,7 @@
             }
         }
     </script>
+    
     <style>
         html,
         body {
@@ -499,7 +504,7 @@
                         class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white">
                         <i data-lucide="shopping-bag"
                             class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110"></i>
-                        <span id="wishlist-count"
+                        <span id="cart-count"
                             class="absolute -top-1.5 -right-2 bg-white text-black text-[9px] font-bold font-mono h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
                     </button>
 
@@ -525,7 +530,7 @@
 
                     <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
 
-                    <a href=".`./contact-us/"
+                    <a href="../contact-us/"
                         class="hidden md:flex items-center justify-center px-5 py-2 bg-myancode-accent text-white text-[11px] uppercase tracking-wider font-bold hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:shadow-[0_0_20px_rgba(41,151,255,0.5)] transform hover:-translate-y-0.5"
                         data-i18n="btnHireUs">
                         Book Now
@@ -1268,6 +1273,52 @@
     </div>
 
     <script>
+        function resolveRedirect(role) {
+            const r = role ? role.toLowerCase() : 'client';
+            const dashboardRoutes = {
+                'founder': '../founder-dashboard/',
+                'admin': '../admin-dashboard/',
+                'moderator': '../moderator-dashboard/',
+                'developer': '../developer-dashboard/',
+                'partner': '../partner-dashboard/',
+                'client': '../hub/',
+                'user': '../hub/'
+            };
+            let defaultDash = dashboardRoutes[r] || '../hub/';
+            
+            let saved = sessionStorage.getItem('smart_redirect');
+            if (saved) {
+                return saved;
+            }
+            return defaultDash;
+        }
+
+        function captureRedirectIntent() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let intent = urlParams.get('redirect');
+            
+            const excludePaths = ['/login', '/register', '/forgot-password', '/reset-password', '/auth', 'type=recovery'];
+            
+            if (!intent && document.referrer) {
+                try {
+                    const ref = new URL(document.referrer);
+                    if (ref.origin === window.location.origin) {
+                        const isExcluded = excludePaths.some(path => ref.href.toLowerCase().includes(path));
+                        if (!isExcluded) {
+                            intent = ref.pathname + ref.search + ref.hash;
+                        }
+                    }
+                } catch(e) {}
+            }
+            
+            if (intent) {
+                const isExcluded = excludePaths.some(path => intent.toLowerCase().includes(path));
+                if (!isExcluded) {
+                    sessionStorage.setItem('smart_redirect', intent);
+                }
+            }
+        }
+
         function initIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); }
         initIcons();
 
@@ -1552,15 +1603,7 @@
                         }
 
                         const isAuthRedirect = hashStr.includes('access_token=') || hashStr.includes('provider=google') || hashStr.includes('provider=github');
-                        const dashboardRoutes = {
-                            'founder': 'https://admin.myancode.com/founder/',
-                            'admin': '../admin-dashboard/',
-                            'moderator': '../moderator-dashboard/',
-                            'partner': '../partner-dashboard/',
-                            'developer': '../developer-dashboard/',
-                            'client': '../hub/'
-                        };
-                        const destination = dashboardRoutes[trueRole] || '../';
+                        const destination = resolveRedirect(trueRole);
 
                         if (event === 'SIGNED_IN' || isAuthRedirect) {
                             const formEl = document.getElementById('loginFormCard');
@@ -1568,6 +1611,7 @@
                             showLoader('redirectingHome');
 
                             setTimeout(() => {
+                                sessionStorage.removeItem('smart_redirect');
                                 window.location.replace(destination);
                             }, 800);
                             return;
@@ -1584,16 +1628,8 @@
                             showLoader('redirectingHome');
 
                             setTimeout(() => {
-                                let redirectUrl = document.referrer;
-                                try {
-                                    const refUrl = new URL(redirectUrl);
-                                    if (!redirectUrl || redirectUrl.includes('login') || redirectUrl.includes('register') || refUrl.origin !== window.location.origin) {
-                                        redirectUrl = destination;
-                                    }
-                                } catch (e) {
-                                    redirectUrl = destination;
-                                }
-                                window.location.replace(redirectUrl);
+                                sessionStorage.removeItem('smart_redirect');
+                                window.location.replace(destination);
                             }, 1500);
                         }
 
@@ -2548,10 +2584,16 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
+                let intent = sessionStorage.getItem('smart_redirect');
+                let cleanUrl = window.location.origin + window.location.pathname;
+                if (intent) {
+                    cleanUrl += '?redirect=' + encodeURIComponent(intent);
+                }
+
                 const { error } = await supabaseInstance.auth.signInWithOtp({
                     email: email,
                     options: {
-                        emailRedirectTo: window.location.origin + window.location.pathname
+                        emailRedirectTo: cleanUrl
                     }
                 });
 
@@ -2601,16 +2643,10 @@
                 } else if (data && data.user) {
                     r = (data.user.app_metadata?.role || data.user.user_metadata?.role || 'client').toLowerCase();
                 }
-                const dashboardRoutes = {
-                    'founder': '../founder-dashboard/',
-                    'admin': '../admin-dashboard/',
-                    'moderator': '../moderator-dashboard/',
-                    'partner': '../partner-dashboard/',
-                    'developer': '../developer-dashboard/',
-                    'client': '../hub/'
-                };
+                const destination = resolveRedirect(r);
                 setTimeout(() => {
-                    window.location.href = dashboardRoutes[r] || '../hub/';
+                    sessionStorage.removeItem('smart_redirect');
+                    window.location.href = destination;
                 }, 800);
             } catch (err) {
                 window.isUpdatingPassword = false;
@@ -2635,7 +2671,11 @@
             
             showLoader('loadingAuth');
             try {
-                const cleanUrl = window.location.origin + window.location.pathname;
+                let intent = sessionStorage.getItem('smart_redirect');
+                let cleanUrl = window.location.origin + window.location.pathname;
+                if (intent) {
+                    cleanUrl += '?redirect=' + encodeURIComponent(intent);
+                }
                 
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'google',
@@ -2664,7 +2704,11 @@
 
             showLoader('loadingAuth');
             try {
-                const cleanUrl = window.location.origin + window.location.pathname;
+                let intent = sessionStorage.getItem('smart_redirect');
+                let cleanUrl = window.location.origin + window.location.pathname;
+                if (intent) {
+                    cleanUrl += '?redirect=' + encodeURIComponent(intent);
+                }
 
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'github',
@@ -2772,6 +2816,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            captureRedirectIntent();
             setActiveNavLinks();
             renderLanguage();
 

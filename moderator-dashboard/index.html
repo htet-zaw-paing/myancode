@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Moderator - MyanCode</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <script>
+        (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="aCrBjVYTYclX4JQldZG3x";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
     <link rel="icon" href="../imgs/web-banners/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
@@ -68,6 +72,12 @@
         #sidebarResizer:hover, .is-resizing { background-color: rgba(41, 151, 255, 0.5); }
         .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
         .dropdown-hidden { opacity: 0; transform: scale(0.96); pointer-events: none; }
+        
+        /* Status Badges */
+        .status-pending { background-color: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+        .status-confirmed { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .status-completed { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-accent selection:text-white flex bg-[#050505] relative text-white">
@@ -103,6 +113,11 @@
             <button onclick="switchTab('overview')" id="nav-overview" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOverview">Overview</span>
+            </button>
+
+            <button onclick="switchTab('appointments')" id="nav-appointments" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="calendar-clock" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabAppointments">Appointments</span>
             </button>
 
             <button onclick="switchTab('community')" id="nav-community" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
@@ -188,6 +203,50 @@
                     </div>
                     <h3 class="text-2xl font-bold font-display text-white mb-3" data-i18n="overviewTitle">Overview Coming Soon</h3>
                     <p class="text-gray-400 text-sm font-medium" data-i18n="overviewDesc">We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.</p>
+                </div>
+            </div>
+
+            <div id="view-appointments" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display"><i data-lucide="calendar-clock" class="h-7 w-7 text-myancode-accent"></i> <span data-i18n="apptTitle">Appointment Requests</span></h3>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                                <input type="text" id="searchAppointmentsInput" onkeyup="handleApptSearch()" placeholder="Search names, emails..." class="w-full pl-10 pr-4 py-2.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner">
+                            </div>
+                            <select id="filterAppointmentsStatus" onchange="handleApptFilter()" class="px-4 py-2.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto custom-scroll border border-white/5 rounded-2xl bg-[#0a0a0a]">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-mono bg-white/5">
+                                    <th class="py-4 px-6 font-bold w-1/4">Client Details</th>
+                                    <th class="py-4 px-6 font-bold w-1/4">Requested Time</th>
+                                    <th class="py-4 px-6 font-bold w-1/6">Status</th>
+                                    <th class="py-4 px-6 font-bold w-1/6 text-center">Submitted</th>
+                                    <th class="py-4 px-6 font-bold w-1/6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody" class="divide-y divide-white/5 text-sm">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3 text-gray-400"></i>
+                                        Loading appointments...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -316,6 +375,78 @@
         </div>
     </div>
 
+    <div id="appointmentModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeAppointmentModal()">
+        <div class="glass-panel border border-white/10 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-[2.5rem] flex-shrink-0">
+                <h3 class="text-xl sm:text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3"><i data-lucide="calendar-check" class="h-6 w-6 text-myancode-accent"></i> Appointment Details</h3>
+                <button onclick="closeAppointmentModal()" class="p-2.5 text-gray-400 hover:text-white bg-black/50 hover:bg-white/10 border border-white/10 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 sm:p-8 overflow-y-auto custom-scroll flex-1 text-gray-300 space-y-6">
+                <input type="hidden" id="modalApptId">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Full Name</label>
+                        <div id="modalApptName" class="text-white font-bold text-base bg-[#0a0a0a] border border-white/5 p-3 rounded-xl"></div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Email</label>
+                        <div id="modalApptEmail" class="text-white font-medium text-sm bg-[#0a0a0a] border border-white/5 p-3 rounded-xl break-all"></div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Phone</label>
+                        <div id="modalApptPhone" class="text-white font-medium text-sm bg-[#0a0a0a] border border-white/5 p-3 rounded-xl"></div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Social Links</label>
+                        <div id="modalApptSocial" class="text-white font-medium text-sm bg-[#0a0a0a] border border-white/5 p-3 rounded-xl break-all min-h-[46px]"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Requested Time</label>
+                        <div id="modalApptTime" class="text-white font-bold text-sm bg-[#0a0a0a] border border-white/5 p-3 rounded-xl text-myancode-accent"></div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Submitted On</label>
+                        <div id="modalApptCreated" class="text-gray-400 font-medium text-sm bg-[#0a0a0a] border border-white/5 p-3 rounded-xl"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Meeting Address</label>
+                    <div id="modalApptAddress" class="text-gray-300 font-medium text-sm bg-[#0a0a0a] border border-white/5 p-4 rounded-xl min-h-[60px] whitespace-pre-wrap"></div>
+                </div>
+
+                <div class="pt-4 border-t border-white/10">
+                    <label class="block text-[11px] font-bold font-mono text-myancode-accent uppercase tracking-widest mb-3">Moderator Controls</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-2">Update Status</label>
+                            <select id="modalApptStatus" class="w-full px-4 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer">
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[10px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-2">Remarks / Notes</label>
+                            <textarea id="modalApptRemarks" rows="3" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors custom-scroll resize-none" placeholder="Add internal notes or moderator remarks here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 sm:p-8 border-t border-white/10 bg-white/5 rounded-b-[2.5rem] flex flex-col sm:flex-row justify-end gap-4 flex-shrink-0">
+                <button onclick="closeAppointmentModal()" class="px-8 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors w-full sm:w-auto">Cancel</button>
+                <button onclick="saveAppointmentUpdates()" id="btnSaveAppt" class="px-10 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-myancode-accent text-white shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:bg-blue-600 transition-colors btn-hover-effect w-full sm:w-auto flex justify-center items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="confirmModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeConfirmModal()">
         <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent" onclick="event.stopPropagation()">
             <div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6">
@@ -402,9 +533,10 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabCommunity: "Community Management", tabAccess: "Access Control",
+                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabCommunity: "Community Management", tabAccess: "Access Control", tabAppointments: "Appointments Management",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
+                apptTitle: "Appointment Requests",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
                 profSettings: "System Settings", profSub: "Manage your personal details and security preferences.",
                 profPublic: "Public Profile", profUpload: "Upload", profName: "Full Name", profUpdateBtn: "Save Changes", profRemoveAv: "Remove Icon",
@@ -415,9 +547,10 @@
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabCommunity: "Community စီမံခန့်ခွဲမှု", tabAccess: "ဝင်ရောက်ခွင့် ထိန်းချုပ်မှု",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabAppointments: "ရက်ချိန်းများ", tabSettings: "စနစ် ဆက်တင်များ", tabCommunity: "Community စီမံခန့်ခွဲမှု", tabAccess: "ဝင်ရောက်ခွင့် ထိန်းချုပ်မှု",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
+                apptTitle: "ရက်ချိန်း တောင်းဆိုမှုများ",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
                 profSettings: "အကောင့်ဆက်တင်များ", profSub: "သင့်ကိုယ်ရေးအချက်အလက်များနှင့် လုံခြုံရေးများကို ပြင်ဆင်ပါ။",
                 profPublic: "ကိုယ်ရေးအကျဉ်း", profUpload: "ပြောင်းမည်", profName: "အမည်အပြည့်အစုံ", profUpdateBtn: "အချက်အလက်များ သိမ်းဆည်းရန်", profRemoveAv: "ပုံဖယ်ရှားမည်",
@@ -458,6 +591,13 @@
         let currentUser = null;
         let currentSessionTemp = null;
         let currentProfileTemp = null;
+        
+        let allAppointments = [];
+        let currentApptSearch = '';
+        let currentApptFilter = 'all';
+
+        let allLockedAccounts = [];
+        let allReportedPosts = [];
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
@@ -540,19 +680,62 @@
             if (!supabaseInstance) return;
             
             supabaseInstance.channel('moderator_reports')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'marketplace_reports' }, payload => {
-                    const activeView = document.getElementById('view-community');
-                    if (activeView && !activeView.classList.contains('hidden')) {
-                        fetchReportedPosts(true); 
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'marketplace_reports' }, async payload => {
+                    if (payload.eventType === 'INSERT') {
+                        const { data } = await supabaseInstance.from('marketplace_reports').select(`
+                            id, reason, status, created_at, post_id, reporter_id,
+                            marketplace_posts!fk_marketplace_reports_post_id ( content, author_name )
+                        `).eq('id', payload.new.id).single();
+                        if (data) allReportedPosts.unshift(data);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = allReportedPosts.findIndex(r => r.id === payload.new.id);
+                        if (idx > -1) Object.assign(allReportedPosts[idx], payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        allReportedPosts = allReportedPosts.filter(r => r.id !== payload.old.id);
                     }
+                    
+                    const activeView = document.getElementById('view-community');
+                    if (activeView && !activeView.classList.contains('hidden')) renderReportedPostsTable();
                 })
                 .subscribe();
 
             supabaseInstance.channel('moderator_lockouts')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'auth_lockouts' }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        allLockedAccounts.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = allLockedAccounts.findIndex(a => a.email === payload.new.email);
+                        if (idx > -1) Object.assign(allLockedAccounts[idx], payload.new);
+                        else allLockedAccounts.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        allLockedAccounts = allLockedAccounts.filter(a => a.email !== payload.old.email);
+                    }
+                    
                     const activeView = document.getElementById('view-access');
-                    if (activeView && !activeView.classList.contains('hidden')) {
-                        fetchLockedAccounts(true); 
+                    if (activeView && !activeView.classList.contains('hidden')) renderLockedAccountsTable();
+                })
+                .subscribe();
+                
+            supabaseInstance.channel('moderator_appointments')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'contact_appointments' }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        allAppointments.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = allAppointments.findIndex(a => a.id === payload.new.id);
+                        if (idx > -1) Object.assign(allAppointments[idx], payload.new);
+                        else allAppointments.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        allAppointments = allAppointments.filter(a => a.id !== payload.old.id);
+                    }
+                    
+                    const activeView = document.getElementById('view-appointments');
+                    if (activeView && !activeView.classList.contains('hidden')) renderAppointmentsTable();
+
+                    const modalIdInput = document.getElementById('modalApptId');
+                    const modal = document.getElementById('appointmentModal');
+                    if (modalIdInput && modalIdInput.value === payload.new?.id && !modal.classList.contains('hidden')) {
+                        document.getElementById('modalApptStatus').value = payload.new.status;
+                        document.getElementById('modalApptRemarks').value = payload.new.remarks || '';
                     }
                 })
                 .subscribe();
@@ -716,13 +899,225 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'community': 'Community Management', 'access': 'Access Control' };
+            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'community': 'Community Management', 'access': 'Access Control', 'appointments': 'Appointments Management' };
             document.getElementById('headerTitle').innerText = titleMap[tabId] || 'Dashboard';
             
-            if (tabId === 'community') fetchReportedPosts();
-            if (tabId === 'access') fetchLockedAccounts();
+            if (tabId === 'community' && allReportedPosts.length === 0) fetchReportedPosts();
+            if (tabId === 'access' && allLockedAccounts.length === 0) fetchLockedAccounts();
+            if (tabId === 'appointments' && allAppointments.length === 0) fetchAppointments();
 
             if(window.innerWidth < 1024 && sidebarOpen) toggleMobileMenu();
+        }
+
+        async function fetchAppointments(isSilent = false) {
+            if(!supabaseInstance) return;
+            const tbody = document.getElementById('appointmentsTableBody');
+            
+            if (!isSilent) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading appointments...</td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+            
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('contact_appointments')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                allAppointments = data || [];
+                renderAppointmentsTable();
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+
+        function handleApptSearch() {
+            currentApptSearch = document.getElementById('searchAppointmentsInput').value.toLowerCase().trim();
+            renderAppointmentsTable();
+        }
+
+        function handleApptFilter() {
+            currentApptFilter = document.getElementById('filterAppointmentsStatus').value;
+            renderAppointmentsTable();
+        }
+
+        function renderAppointmentsTable() {
+            const tbody = document.getElementById('appointmentsTableBody');
+            
+            let filtered = allAppointments.filter(appt => {
+                const matchesFilter = currentApptFilter === 'all' || appt.status === currentApptFilter;
+                const searchStr = `${appt.full_name} ${appt.email} ${appt.phone} ${appt.address || ''}`.toLowerCase();
+                const matchesSearch = !currentApptSearch || searchStr.includes(currentApptSearch);
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="calendar-x" class="w-6 h-6 text-gray-400"></i></div><p class="font-medium">No appointments found matching your criteria.</p></td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(appt => {
+                const reqDate = new Date(appt.appointment_time);
+                const subDate = new Date(appt.created_at);
+                
+                const fReqDate = reqDate.toLocaleDateString() + '<br><span class="text-xs text-gray-400">' + reqDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span>';
+                const fSubDate = subDate.toLocaleDateString() + '<br><span class="text-xs text-gray-400">' + subDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span>';
+
+                let statusBadge = '';
+                if(appt.status === 'pending') statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest status-pending">Pending</span>';
+                else if(appt.status === 'confirmed') statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest status-confirmed">Confirmed</span>';
+                else if(appt.status === 'completed') statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest status-completed">Completed</span>';
+                else if(appt.status === 'cancelled') statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest status-cancelled">Cancelled</span>';
+
+                return `
+                    <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                        <td class="px-6 py-4 align-top w-1/4">
+                            <div class="font-bold text-white mb-1 truncate">${appt.full_name}</div>
+                            <div class="text-[11px] text-gray-400 font-mono truncate">${appt.email}</div>
+                            <div class="text-[11px] text-gray-500 font-mono mt-0.5 truncate">${appt.phone}</div>
+                        </td>
+                        <td class="px-6 py-4 align-top w-1/4 text-sm font-medium text-white">
+                            ${fReqDate}
+                        </td>
+                        <td class="px-6 py-4 align-top w-1/6">
+                            ${statusBadge}
+                        </td>
+                        <td class="px-6 py-4 align-top w-1/6 text-sm font-mono text-gray-400 text-center">
+                            ${fSubDate}
+                        </td>
+                        <td class="px-6 py-4 align-top text-right">
+                            <div class="flex justify-end gap-2 opacity-100 sm:opacity-50 sm:group-hover:opacity-100 transition-opacity">
+                                <button onclick="openAppointmentModal('${appt.id}')" class="h-9 w-9 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="View & Edit">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="deleteAppointment('${appt.id}')" class="h-9 w-9 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Delete">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function openAppointmentModal(id) {
+            const appt = allAppointments.find(a => a.id === id);
+            if(!appt) return;
+
+            document.getElementById('modalApptId').value = appt.id;
+            document.getElementById('modalApptName').innerText = appt.full_name;
+            document.getElementById('modalApptEmail').innerText = appt.email;
+            document.getElementById('modalApptPhone').innerText = appt.phone;
+            
+            const socialEl = document.getElementById('modalApptSocial');
+            socialEl.innerText = appt.social_links || 'Not provided';
+            if(appt.social_links && appt.social_links.trim()) {
+                socialEl.classList.add('text-myancode-accent');
+                socialEl.classList.remove('text-gray-500');
+            } else {
+                socialEl.classList.remove('text-myancode-accent');
+                socialEl.classList.add('text-gray-500');
+            }
+
+            const reqD = new Date(appt.appointment_time);
+            document.getElementById('modalApptTime').innerHTML = `${reqD.toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})} at ${reqD.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            
+            const subD = new Date(appt.created_at);
+            document.getElementById('modalApptCreated').innerText = `${subD.toLocaleDateString()} ${subD.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+            const addressEl = document.getElementById('modalApptAddress');
+            addressEl.innerText = appt.address || 'No specific location provided (Online/Remote).';
+            if(appt.address) addressEl.classList.replace('text-gray-500', 'text-gray-300');
+            else addressEl.classList.replace('text-gray-300', 'text-gray-500');
+
+            document.getElementById('modalApptStatus').value = appt.status;
+            document.getElementById('modalApptRemarks').value = appt.remarks || '';
+
+            const modal = document.getElementById('appointmentModal');
+            const content = modal.querySelector('div');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeAppointmentModal() {
+            const modal = document.getElementById('appointmentModal');
+            const content = modal.querySelector('div');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function saveAppointmentUpdates() {
+            const id = document.getElementById('modalApptId').value;
+            const newStatus = document.getElementById('modalApptStatus').value;
+            const newRemarks = document.getElementById('modalApptRemarks').value.trim();
+            const btn = document.getElementById('btnSaveAppt');
+
+            if(!id) return;
+
+            btn.disabled = true;
+            const orig = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-white"></i>`;
+            lucide.createIcons();
+
+            try {
+                const { error } = await supabaseInstance
+                    .from('contact_appointments')
+                    .update({ status: newStatus, remarks: newRemarks })
+                    .eq('id', id);
+
+                if(error) throw error;
+                
+                const idx = allAppointments.findIndex(a => a.id === id);
+                if (idx > -1) {
+                    allAppointments[idx].status = newStatus;
+                    allAppointments[idx].remarks = newRemarks;
+                    renderAppointmentsTable();
+                }
+                
+                showToast("Appointment successfully updated.");
+                closeAppointmentModal();
+            } catch(e) {
+                showErrorToast("Update Failed: " + (e.message || "Could not update appointment."));
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+                lucide.createIcons();
+            }
+        }
+
+        function deleteAppointment(id) {
+            showConfirmModal("Delete Appointment", "Are you sure you want to permanently delete this appointment request? This cannot be undone.", "danger", async () => {
+                showLoader();
+                try {
+                    const { error } = await supabaseInstance
+                        .from('contact_appointments')
+                        .delete()
+                        .eq('id', id);
+
+                    if(error) throw error;
+                    
+                    allAppointments = allAppointments.filter(a => a.id !== id);
+                    renderAppointmentsTable();
+                    
+                    showToast("Appointment deleted.");
+                } catch(e) {
+                    showErrorToast("Deletion Failed: " + (e.message || "Unknown error"));
+                } finally {
+                    hideLoader();
+                }
+            });
         }
 
         async function fetchLockedAccounts(isSilent = false) {
@@ -738,57 +1133,66 @@
                 const { data, error } = await supabaseInstance
                     .from('auth_lockouts')
                     .select('*')
-                    .or('failed_attempts.gt.0,lockout_until.gt.' + new Date().toISOString())
                     .order('last_attempt', { ascending: false });
 
                 if (error) throw error;
-                
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="shield-check" class="w-6 h-6 text-green-400"></i></div><p class="font-medium">No locked accounts found.</p></td></tr>';
-                    if(typeof lucide !== 'undefined') lucide.createIcons();
-                    return;
-                }
-
-                const now = new Date().getTime();
-
-                tbody.innerHTML = data.map(acc => {
-                    const lockoutTime = acc.lockout_until ? new Date(acc.lockout_until).getTime() : 0;
-                    const isPermanentlyLocked = acc.failed_attempts >= 21;
-                    const isTemporarilyLocked = lockoutTime > now;
-                    let statusHtml = '<span class="text-gray-400 font-bold">Active (Warning)</span>';
-                    
-                    if (isPermanentlyLocked) {
-                        statusHtml = '<span class="text-red-500 font-bold">Permanently Blocked</span>';
-                    } else if (isTemporarilyLocked) {
-                        statusHtml = `<span class="text-orange-400 font-bold">Locked</span>`;
-                    }
-
-                    return `
-                        <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
-                            <td class="px-6 py-4 align-top w-1/3">
-                                <div class="font-bold text-white mb-1 truncate">${acc.email}</div>
-                                <div class="text-[11px] text-gray-500 font-mono">Last attempt: ${new Date(acc.last_attempt).toLocaleString()}</div>
-                            </td>
-                            <td class="px-6 py-4 align-top w-1/6">
-                                <div class="text-sm ${acc.failed_attempts >= 21 ? 'text-red-400' : 'text-orange-300'} font-bold">${acc.failed_attempts}</div>
-                            </td>
-                            <td class="px-6 py-4 align-top w-1/3">
-                                ${statusHtml}
-                            </td>
-                            <td class="px-6 py-4 align-top text-right">
-                                <button onclick="unblockAccount('${acc.email}')" class="px-4 py-2 text-green-400 hover:text-white bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 rounded-xl transition-all shadow-sm inline-flex items-center gap-2 hover:scale-105" title="Unblock & Reset">
-                                    <i data-lucide="unlock" class="w-4 h-4"></i> <span data-i18n="unblockAcc">Unblock</span>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-                if(typeof lucide !== 'undefined') lucide.createIcons();
+                allLockedAccounts = data || [];
+                renderLockedAccountsTable();
 
             } catch (err) {
                 tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
                 if(typeof lucide !== 'undefined') lucide.createIcons();
             }
+        }
+
+        function renderLockedAccountsTable() {
+            const tbody = document.getElementById('lockedAccountsTableBody');
+            const now = new Date().getTime();
+            
+            const filtered = allLockedAccounts.filter(acc => {
+                const lockoutTime = acc.lockout_until ? new Date(acc.lockout_until).getTime() : 0;
+                return acc.failed_attempts > 0 || lockoutTime > now;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="shield-check" class="w-6 h-6 text-green-400"></i></div><p class="font-medium">No locked accounts found.</p></td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(acc => {
+                const lockoutTime = acc.lockout_until ? new Date(acc.lockout_until).getTime() : 0;
+                const isPermanentlyLocked = acc.failed_attempts >= 21;
+                const isTemporarilyLocked = lockoutTime > now;
+                let statusHtml = '<span class="text-gray-400 font-bold">Active (Warning)</span>';
+                
+                if (isPermanentlyLocked) {
+                    statusHtml = '<span class="text-red-500 font-bold">Permanently Blocked</span>';
+                } else if (isTemporarilyLocked) {
+                    statusHtml = `<span class="text-orange-400 font-bold">Locked</span>`;
+                }
+
+                return `
+                    <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                        <td class="px-6 py-4 align-top w-1/3">
+                            <div class="font-bold text-white mb-1 truncate">${acc.email}</div>
+                            <div class="text-[11px] text-gray-500 font-mono">Last attempt: ${new Date(acc.last_attempt).toLocaleString()}</div>
+                        </td>
+                        <td class="px-6 py-4 align-top w-1/6">
+                            <div class="text-sm ${acc.failed_attempts >= 21 ? 'text-red-400' : 'text-orange-300'} font-bold">${acc.failed_attempts}</div>
+                        </td>
+                        <td class="px-6 py-4 align-top w-1/3">
+                            ${statusHtml}
+                        </td>
+                        <td class="px-6 py-4 align-top text-right">
+                            <button onclick="unblockAccount('${acc.email}')" class="px-4 py-2 text-green-400 hover:text-white bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 rounded-xl transition-all shadow-sm inline-flex items-center gap-2 hover:scale-105" title="Unblock & Reset">
+                                <i data-lucide="unlock" class="w-4 h-4"></i> <span data-i18n="unblockAcc">Unblock</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function unblockAccount(email) {
@@ -907,69 +1311,77 @@
                     post_id,
                     reporter_id,
                     marketplace_posts!fk_marketplace_reports_post_id ( content, author_name )
-                `).eq('status', 'pending').order('created_at', { ascending: false });
+                `).order('created_at', { ascending: false });
 
                 if (error) {
                     throw new Error(error.message || "Failed to load reports");
                 }
                 
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="check" class="w-6 h-6 text-green-400"></i></div><p class="font-medium">No pending reports.</p><p class="text-xs mt-1 opacity-70">The community is clean.</p></td></tr>';
-                    if(typeof lucide !== 'undefined') lucide.createIcons();
-                    return;
-                }
-
-                tbody.innerHTML = data.map(report => {
-                    const hasPost = !!report.marketplace_posts;
-                    let contentSnippet = '<span class="text-red-400 italic text-xs">Post already deleted</span>';
-                    let author = 'Unknown';
-                    
-                    if (hasPost) {
-                        contentSnippet = report.marketplace_posts.content.replace(/<[^>]*>?/gm, '').trim();
-                        if(contentSnippet.length > 80) contentSnippet = contentSnippet.substring(0, 80) + '...';
-                        author = report.marketplace_posts.author_name;
-                    }
-
-                    const dateObj = new Date(report.created_at);
-                    const formattedDate = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                    return `
-                        <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
-                            <td class="px-6 py-4 align-top w-1/4">
-                                <div class="font-bold text-white mb-1 capitalize">${report.reason || 'Reported'}</div>
-                                <div class="text-[11px] text-gray-500 font-mono">${formattedDate}</div>
-                            </td>
-                            <td class="px-6 py-4 align-top w-2/4">
-                                <div class="text-sm text-gray-300 mb-1 break-words">${contentSnippet}</div>
-                                ${hasPost ? `<div class="text-xs text-gray-500 font-medium">By <span class="text-gray-400 font-bold">${author}</span></div>` : ''}
-                            </td>
-                            <td class="px-6 py-4 align-top text-xs font-mono text-gray-400 truncate max-w-[120px]" title="${report.reporter_id}">
-                                ${report.reporter_id.substring(0, 8)}...
-                            </td>
-                            <td class="px-6 py-4 align-top text-right">
-                                <div class="flex justify-end gap-2 opacity-100 sm:opacity-50 sm:group-hover:opacity-100 transition-opacity">
-                                    ${hasPost ? `
-                                    <button onclick="viewReportedPost('${report.post_id}')" class="h-9 w-9 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="View Full Post">
-                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                    </button>
-                                    ` : ''}
-                                    <button onclick="deleteReportedPost('${report.post_id}', '${report.id}', ${!hasPost})" class="h-9 w-9 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="${hasPost ? 'Delete Post & Report' : 'Dismiss Deleted Post'}">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                    <button onclick="dismissReport('${report.id}')" class="h-9 w-9 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Ignore Report">
-                                        <i data-lucide="check" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-                if(typeof lucide !== 'undefined') lucide.createIcons();
+                allReportedPosts = data || [];
+                renderReportedPostsTable();
 
             } catch (err) {
                 tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
                 if(typeof lucide !== 'undefined') lucide.createIcons();
             }
+        }
+
+        function renderReportedPostsTable() {
+            const tbody = document.getElementById('reportedPostsTableBody');
+            const pendingReports = allReportedPosts.filter(r => r.status === 'pending');
+
+            if (pendingReports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="check" class="w-6 h-6 text-green-400"></i></div><p class="font-medium">No pending reports.</p><p class="text-xs mt-1 opacity-70">The community is clean.</p></td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+
+            tbody.innerHTML = pendingReports.map(report => {
+                const hasPost = !!report.marketplace_posts;
+                let contentSnippet = '<span class="text-red-400 italic text-xs">Post already deleted</span>';
+                let author = 'Unknown';
+                
+                if (hasPost) {
+                    contentSnippet = report.marketplace_posts.content.replace(/<[^>]*>?/gm, '').trim();
+                    if(contentSnippet.length > 80) contentSnippet = contentSnippet.substring(0, 80) + '...';
+                    author = report.marketplace_posts.author_name;
+                }
+
+                const dateObj = new Date(report.created_at);
+                const formattedDate = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                return `
+                    <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                        <td class="px-6 py-4 align-top w-1/4">
+                            <div class="font-bold text-white mb-1 capitalize">${report.reason || 'Reported'}</div>
+                            <div class="text-[11px] text-gray-500 font-mono">${formattedDate}</div>
+                        </td>
+                        <td class="px-6 py-4 align-top w-2/4">
+                            <div class="text-sm text-gray-300 mb-1 break-words">${contentSnippet}</div>
+                            ${hasPost ? `<div class="text-xs text-gray-500 font-medium">By <span class="text-gray-400 font-bold">${author}</span></div>` : ''}
+                        </td>
+                        <td class="px-6 py-4 align-top text-xs font-mono text-gray-400 truncate max-w-[120px]" title="${report.reporter_id}">
+                            ${report.reporter_id.substring(0, 8)}...
+                        </td>
+                        <td class="px-6 py-4 align-top text-right">
+                            <div class="flex justify-end gap-2 opacity-100 sm:opacity-50 sm:group-hover:opacity-100 transition-opacity">
+                                ${hasPost ? `
+                                <button onclick="viewReportedPost('${report.post_id}')" class="h-9 w-9 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="View Full Post">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                ` : ''}
+                                <button onclick="deleteReportedPost('${report.post_id}', '${report.id}', ${!hasPost})" class="h-9 w-9 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="${hasPost ? 'Delete Post & Report' : 'Dismiss Deleted Post'}">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="dismissReport('${report.id}')" class="h-9 w-9 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Ignore Report">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         async function deleteReportedPost(postId, reportId, isPostAlreadyDeleted) {
@@ -1307,12 +1719,14 @@
                 const confirmModal = document.getElementById('confirmModal');
                 const postPreviewModal = document.getElementById('postPreviewModal');
                 const banUserModal = document.getElementById('banUserModal');
+                const appointmentModal = document.getElementById('appointmentModal');
                 
                 if (e.key === 'Escape') {
                     if (!cropperModal.classList.contains('hidden')) cancelCrop();
                     if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
                     if (!postPreviewModal.classList.contains('hidden')) closePostPreviewModal();
                     if (!banUserModal.classList.contains('hidden')) closeBanUserModal();
+                    if (!appointmentModal.classList.contains('hidden')) closeAppointmentModal();
                 }
             });
         });

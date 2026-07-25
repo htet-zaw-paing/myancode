@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hub- MyanCode</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <script>
+        (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="aCrBjVYTYclX4JQldZG3x";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
     <link rel="icon" href="../imgs/web-banners/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
@@ -62,11 +66,13 @@
         .avatar-upload-container:hover .avatar-upload-overlay { opacity: 1; cursor: pointer; }
         .cropper-view-box, .cropper-face { border-radius: 50%; }
 
+        /* Status Badges */
         .status-badge { display: inline-flex; align-items: center; justify-content: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
         .status-pending { background-color: rgba(234, 179, 8, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
         .status-confirmed { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
         .status-expired { background-color: rgba(156, 163, 175, 0.1); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.2); }
         .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .status-completed { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
         
         /* New Statuses for Package Orders */
         .status-reviewing { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
@@ -154,6 +160,12 @@
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabPackages">My Packages</span>
             </button>
             
+            <!-- Added Appointments Tab -->
+            <button onclick="switchTab('appointments')" id="nav-appointments" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="calendar-clock" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabAppointments">Appointments</span>
+            </button>
+            
             <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabSettings">System Settings</span>
@@ -220,6 +232,7 @@
 
         <div class="flex-1 overflow-y-auto custom-scroll relative z-10 p-6 sm:p-12" id="mainContentArea">
             
+            <!-- Overview -->
             <div id="view-overview" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full items-center justify-center min-h-[60vh]">
                 <div class="glass-panel p-12 rounded-[2rem] text-center max-w-lg w-full flex flex-col items-center shadow-2xl border border-white/5 reveal active">
                     <div class="w-20 h-20 bg-myancode-accent/10 border border-myancode-accent/20 rounded-full flex items-center justify-center mb-6">
@@ -230,9 +243,39 @@
                 </div>
             </div>
 
+            <!-- Appointments View -->
+            <div id="view-appointments" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display">
+                            <i data-lucide="calendar-clock" class="h-7 w-7 text-myancode-accent"></i> 
+                            <span data-i18n="apptHist">My Consultations</span>
+                        </h3>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scroll pb-4">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
+                            <thead>
+                                <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
+                                    <th class="pb-4 pl-4" data-i18n="thOrder">ID</th>
+                                    <th class="pb-4" data-i18n="thApptDate">Requested Time</th>
+                                    <th class="pb-4" data-i18n="thApptSubmitted">Submitted On</th>
+                                    <th class="pb-4" data-i18n="thApptStatus">Status</th>
+                                    <th class="pb-4 pr-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody" class="text-sm font-medium text-gray-300">
+                                <tr>
+                                    <td colspan="5" class="py-12 text-center text-gray-500 italic" data-i18n="loadingAppts">Loading appointments...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- Plan Orders Section -->
             <div id="view-subscriptions" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
-                
                 <div id="activeSubBanner" class="hidden w-full glass-panel rounded-[2rem] border border-green-500/20 bg-gradient-to-r from-green-500/5 to-transparent p-6 sm:p-10 reveal active items-center justify-between gap-6 flex-col sm:flex-row shadow-[0_0_30px_rgba(34,197,94,0.05)]">
                     <div class="flex items-center gap-6 w-full sm:w-auto">
                         <div class="w-16 h-16 rounded-full bg-[#050505] border border-white/10 flex items-center justify-center shrink-0 p-3" id="activeSubIconWrapper">
@@ -301,7 +344,7 @@
                 </div>
             </div>
 
-            <!-- Updated Package Orders Section -->
+            <!-- Package Orders Section -->
             <div id="view-packages" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
@@ -334,6 +377,7 @@
                 </div>
             </div>
 
+            <!-- Settings -->
             <div id="view-settings" class="view-section hidden flex-col gap-8 max-w-4xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="user-circle" class="h-7 w-7 text-myancode-accent"></i> <span data-i18n="profPublic">Public Profile</span></h3>
@@ -382,11 +426,10 @@
         </div>
     </main>
 
-    <!-- NEW Package Details Modal -->
+    <!-- Package Details Modal -->
     <div id="packageDetailModal" class="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-6 sm:py-8">
         <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-5xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="packageDetailModalContent">
             
-            <!-- Modal Header -->
             <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between bg-[#111]/50">
                 <h3 class="text-xl sm:text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
@@ -404,15 +447,10 @@
                 </div>
             </div>
             
-            <!-- Modal Body (Scrollable wrapper) -->
             <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-8 bg-[#050505]">
-                
-                <!-- Printable Area -->
                 <div id="pkgPrintableArea" class="bg-[#050505] rounded-3xl p-6 sm:p-10 border border-white/10 relative overflow-visible shadow-inner">
-                    <!-- Decorative Background -->
                     <div class="absolute top-0 right-0 w-64 h-64 bg-myancode-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                     
-                    <!-- Invoice Header -->
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 pb-8 border-b border-white/10 gap-6 relative z-10">
                         <div>
                             <img src="../imgs/web-banners/favicon.png" class="h-10 w-10 mb-4" alt="Logo" onerror="this.style.display='none';">
@@ -426,10 +464,7 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 relative z-10">
-                        <!-- Main Info Column -->
                         <div class="lg:col-span-8 space-y-8">
-                            
-                            <!-- Base Plan Detail -->
                             <div>
                                 <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <i data-lucide="layers" class="w-4 h-4 text-myancode-accent"></i> <span data-i18n="detBaseInfo">Base Package Information</span>
@@ -439,32 +474,23 @@
                                     <span class="text-sm font-mono text-gray-400" id="detBasePrice">0 MMK</span>
                                 </div>
                             </div>
-
-                            <!-- Selected Add-ons -->
                             <div>
                                 <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <i data-lucide="blocks" class="w-4 h-4 text-myancode-accent"></i> <span data-i18n="detAddons">Selected Add-ons</span>
                                 </h4>
                                 <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 space-y-1" id="detAddonsList">
-                                    <!-- Rendered dynamically -->
                                 </div>
                             </div>
-
                         </div>
 
-                        <!-- Right Sidebar Column -->
                         <div class="lg:col-span-4 space-y-8">
-                            
-                            <!-- Total Price -->
                             <div class="bg-[#111] border border-myancode-accent/20 rounded-2xl p-6 shadow-[0_0_20px_rgba(41,151,255,0.05)] text-left sm:text-right lg:sticky lg:top-0">
                                 <span class="block text-[10px] font-bold font-mono text-myancode-accent uppercase tracking-widest mb-2" data-i18n="detTotal">Total Estimated Price</span>
                                 <span class="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight block leading-none"><span id="detTotalPrice">0</span> <span class="text-base font-medium text-gray-500 ml-1">MMK</span></span>
                             </div>
-
                         </div>
                     </div>
                     
-                    <!-- Full Width Admin Notes Row -->
                     <div class="mt-8 relative z-10 pt-8 border-t border-white/10">
                         <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <i data-lucide="message-square" class="w-4 h-4 text-myancode-accent"></i> <span data-i18n="detNotes">Admin Remarks & Notes</span>
@@ -478,13 +504,11 @@
                     </div>
 
                 </div>
-                <!-- End Printable Area -->
-                
             </div>
         </div>
     </div>
-    <!-- End Package Details Modal -->
 
+    <!-- Security & Confirm Modals -->
     <div id="forcePasswordModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 px-4">
         <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-500" id="forcePasswordModalContent">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
@@ -518,6 +542,7 @@
         </div>
     </div>
 
+    <!-- Toasts & Image Utilities -->
     <div id="toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
         <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
         <span id="toast-msg">Success!</span>
@@ -570,7 +595,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabSubs: "Subscriptions", tabPackages: "My Packages",
+                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabSubs: "Subscriptions", tabPackages: "My Packages", tabAppointments: "Appointments",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
@@ -584,16 +609,17 @@
                 filterAll: "All Status", filterPending: "Pending", filterConfirmed: "Confirmed", filterExpired: "Expired", filterCancelled: "Cancelled",
                 thOrder: "Order ID", thPlan: "Plan", thCompany: "Company", thAmount: "Total", thMethod: "Method", thDate: "Date", thStatus: "Status", thProof: "Proof",
                 loadingOrders: "Loading your orders...", noOrders: "No orders found.", viewProof: "View Proof",
-                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo",
+                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo", statCompleted: "Completed",
                 pkgOrderHist: "My Package Orders", thPkg: "Package", thAddons: "Add-ons",
                 loadingPkgs: "Loading your packages...", noPkgs: "No package orders found.",
                 btnHelp: "Help", btnCall: "Call", btnDetails: "Details", btnDownloadPdf: "Download PDF",
                 detTitle: "Order Details", detBaseInfo: "Base Package Information", detAddons: "Selected Add-ons", detNotes: "Admin Remarks & Notes", detTotal: "Total Estimated Price", noAdminNotes: "No remarks from admin yet.",
-                statReviewing: "Reviewing", statPlanning: "Planning", statDeveloping: "Developing", statTesting: "Testing", statDeployed: "Deployed"
+                statReviewing: "Reviewing", statPlanning: "Planning", statDeveloping: "Developing", statTesting: "Testing", statDeployed: "Deployed",
+                apptHist: "My Consultations", thApptDate: "Requested Time", thApptSubmitted: "Submitted On", thApptStatus: "Status", loadingAppts: "Loading appointments...", noAppts: "No appointments found.", btnCancelAppt: "Cancel Booking"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabSubs: "အစီအစဉ်များ", tabPackages: "ပက်ကေ့ချ်များ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabSubs: "အစီအစဉ်များ", tabPackages: "ပက်ကေ့ချ်များ", tabAppointments: "ရက်ချိန်းများ",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
@@ -607,12 +633,13 @@
                 filterAll: "အခြေအနေအားလုံး", filterPending: "စစ်ဆေးဆဲ", filterConfirmed: "အတည်ပြုပြီး", filterExpired: "သက်တမ်းကုန်", filterCancelled: "ပယ်ဖျက်ထားသည်",
                 thOrder: "အော်ဒါ ID", thPlan: "အစီအစဉ်", thCompany: "ကုမ္ပဏီ", thAmount: "စုစုပေါင်း", thMethod: "ငွေချေမှု", thDate: "ရက်စွဲ", thStatus: "အခြေအနေ", thProof: "ပြေစာ",
                 loadingOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noOrders: "အော်ဒါများ မရှိသေးပါ။", viewProof: "ပြေစာကြည့်ရန်",
-                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ",
+                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ", statCompleted: "ပြီးစီးသည်",
                 pkgOrderHist: "မှာယူထားသော ပက်ကေ့ချ်များ", thPkg: "ပက်ကေ့ချ်", thAddons: "အပိုလုပ်ဆောင်ချက်များ",
                 loadingPkgs: "ပက်ကေ့ချ်များ ရှာဖွေနေပါသည်...", noPkgs: "ပက်ကေ့ချ်များ မရှိသေးပါ။",
                 btnHelp: "အကူအညီ", btnCall: "ဆက်သွယ်ရန်", btnDetails: "အသေးစိတ်", btnDownloadPdf: "PDF ဒေါင်းလုပ်",
                 detTitle: "အော်ဒါ အသေးစိတ်", detBaseInfo: "အခြေခံ ပက်ကေ့ချ် အချက်အလက်", detAddons: "ရွေးချယ်ထားသော အပိုလုပ်ဆောင်ချက်များ", detNotes: "စီမံသူ၏ မှတ်ချက်များ", detTotal: "စုစုပေါင်း ခန့်မှန်းကုန်ကျစရိတ်", noAdminNotes: "စီမံသူထံမှ မှတ်ချက် မရှိသေးပါ။",
-                statReviewing: "သုံးသပ်ဆဲ", statPlanning: "စီစဉ်နေဆဲ", statDeveloping: "ရေးဆွဲနေဆဲ", statTesting: "စမ်းသပ်ဆဲ", statDeployed: "လွှင့်တင်ပြီး"
+                statReviewing: "သုံးသပ်ဆဲ", statPlanning: "စီစဉ်နေဆဲ", statDeveloping: "ရေးဆွဲနေဆဲ", statTesting: "စမ်းသပ်ဆဲ", statDeployed: "လွှင့်တင်ပြီး",
+                apptHist: "မှာယူထားသော ရက်ချိန်းများ", thApptDate: "တွေ့ဆုံမည့် အချိန်", thApptSubmitted: "တင်သွင်းခဲ့သည့်ရက်", thApptStatus: "အခြေအနေ", loadingAppts: "ရက်ချိန်းများ ရှာဖွေနေပါသည်...", noAppts: "ရက်ချိန်းများ မရှိသေးပါ။", btnCancelAppt: "ပယ်ဖျက်မည်"
             }
         };
 
@@ -648,6 +675,7 @@
         let currentProfileTemp = null;
         let allOrders = [];
         let myPackageOrders = [];
+        let myAppointments = [];
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
@@ -731,6 +759,7 @@
             
             fetchMyOrders();
             fetchMyPackageOrders();
+            fetchMyAppointments();
             setupRealtimeSubscription();
             hideLoader();
         }
@@ -792,6 +821,24 @@
                     }
                     renderPackageOrdersTable(myPackageOrders);
                 })
+                .on('postgres_changes', { 
+                    event: '*', 
+                    schema: 'public', 
+                    table: 'contact_appointments'
+                }, payload => {
+                    if ((payload.new && payload.new.email === currentUser.email) || (payload.old && payload.old.email === currentUser.email)) {
+                        if (payload.eventType === 'INSERT') {
+                            if (!myAppointments.find(a => a.id === payload.new.id)) myAppointments.unshift(payload.new);
+                        } else if (payload.eventType === 'UPDATE') {
+                            const idx = myAppointments.findIndex(a => a.id === payload.new.id);
+                            if (idx > -1) myAppointments[idx] = Object.assign({}, myAppointments[idx], payload.new);
+                            else myAppointments.unshift(payload.new);
+                        } else if (payload.eventType === 'DELETE') {
+                            myAppointments = myAppointments.filter(a => a.id !== payload.old.id);
+                        }
+                        renderAppointmentsTable(myAppointments);
+                    }
+                })
                 .subscribe();
         }
 
@@ -850,6 +897,23 @@
 
             } catch (err) {
                 console.error("Error fetching package orders:", err);
+            }
+        }
+
+        async function fetchMyAppointments() {
+            if(!supabaseInstance || !currentUser) return;
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('contact_appointments')
+                    .select('*')
+                    .eq('email', currentUser.email)
+                    .order('created_at', { ascending: false });
+
+                if(error) throw error;
+                myAppointments = data || [];
+                renderAppointmentsTable(myAppointments);
+            } catch (err) {
+                console.error("Error fetching appointments:", err);
             }
         }
 
@@ -1003,6 +1067,79 @@
             }).join('');
             
             lucide.createIcons();
+        }
+
+        function renderAppointmentsTable(appts) {
+            const tbody = document.getElementById('appointmentsTableBody');
+            
+            if(appts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-gray-500 italic">${dict[currentLang].noAppts}</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = appts.map(appt => {
+                const reqDate = new Date(appt.appointment_time).toLocaleString();
+                const subDate = new Date(appt.created_at).toLocaleDateString();
+                
+                let statusClass = 'status-pending';
+                let rawStatus = appt.status || 'pending';
+                let formattedStatus = rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
+                let statusTrans = dict[currentLang]['stat' + formattedStatus] || formattedStatus;
+
+                if(rawStatus === 'confirmed') statusClass = 'status-confirmed';
+                else if(rawStatus === 'completed') statusClass = 'status-completed';
+                else if(rawStatus === 'cancelled') statusClass = 'status-cancelled';
+
+                let actionHtml = '';
+                if(rawStatus === 'pending' || rawStatus === 'confirmed') {
+                    actionHtml = `<button onclick="cancelAppointment('${appt.id}')" class="px-3 py-1.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-sm"><i data-lucide="x-circle" class="w-3.5 h-3.5 shrink-0"></i> <span class="hidden sm:inline" data-i18n="btnCancelAppt">${dict[currentLang].btnCancelAppt}</span></button>`;
+                } else {
+                    actionHtml = `<span class="text-[10px] font-mono text-gray-600 font-bold uppercase tracking-widest px-3">--</span>`;
+                }
+
+                return `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">#${appt.id.split('-')[0].toUpperCase()}</td>
+                    <td class="py-4 font-bold text-white">${reqDate}</td>
+                    <td class="py-4 text-xs font-medium text-gray-400">${subDate}</td>
+                    <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
+                    <td class="py-4 pr-4 text-right flex justify-end">${actionHtml}</td>
+                </tr>`;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        function cancelAppointment(id) {
+            showConfirmModal(
+                currentLang === 'en' ? "Cancel Booking" : "ရက်ချိန်းပယ်ဖျက်မည်", 
+                currentLang === 'en' ? "Are you sure you want to permanently cancel this consultation booking?" : "ဤရက်ချိန်းကို ပယ်ဖျက်ရန် သေချာပါသလား?", 
+                "danger", 
+                async () => {
+                    showLoader();
+                    try {
+                        const { error } = await supabaseInstance
+                            .from('contact_appointments')
+                            .update({ status: 'cancelled' })
+                            .eq('id', id)
+                            .eq('email', currentUser.email); 
+                        
+                        if(error) throw error;
+
+                        const idx = myAppointments.findIndex(a => a.id === id);
+                        if (idx > -1) {
+                            myAppointments[idx].status = 'cancelled';
+                            renderAppointmentsTable(myAppointments);
+                        }
+
+                        showToast(currentLang === 'en' ? "Booking successfully cancelled." : "ရက်ချိန်းပယ်ဖျက်လိုက်ပါပြီ။");
+                    } catch(e) {
+                        showErrorToast(e.message || "Failed to cancel booking.");
+                    } finally {
+                        hideLoader();
+                    }
+                }
+            );
         }
         
         function openPackageDetailModal(id) {
@@ -1171,8 +1308,8 @@
                 if (dict[currentLang][key]) el.placeholder = dict[currentLang][key];
             });
             
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ' };
+            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages', 'appointments': 'Appointments' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ', 'appointments': 'ရက်ချိန်းများ' };
             
             let activeTab = window.location.hash.replace('#', '') || 'overview';
             const titleStr = currentLang === 'en' ? (titleMap[activeTab] || 'Dashboard') : (titleMapMM[activeTab] || 'Dashboard');
@@ -1185,6 +1322,7 @@
             renderLanguage();
             filterOrders();
             renderPackageOrdersTable(myPackageOrders);
+            renderAppointmentsTable(myAppointments);
         }
 
         function populateSidebar() {
@@ -1288,8 +1426,8 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ' };
+            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages', 'appointments': 'Appointments' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ', 'appointments': 'ရက်ချိန်းများ' };
             
             const titleStr = currentLang === 'en' ? (titleMap[tabId] || 'Dashboard') : (titleMapMM[tabId] || 'Dashboard');
             document.getElementById('headerTitle').innerText = titleStr;

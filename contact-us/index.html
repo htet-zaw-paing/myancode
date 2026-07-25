@@ -6,8 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Contact Us - MyanCode</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <script>
+        (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="aCrBjVYTYclX4JQldZG3x";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
     <link rel="icon" href="../favicon.png">
     <link rel="icon" href="../favicon.ico" />
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
@@ -171,6 +175,15 @@
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
         .animation-delay-2000 { animation-delay: 2s; }
         .animation-delay-4000 { animation-delay: 4s; }
+        
+        .color-scheme-dark {
+            color-scheme: dark;
+        }
+        
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -389,7 +402,7 @@
         <div id="wishlistItemsContainer" class="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-4"></div>
         <div class="p-6 border-t border-white/10 bg-white/5">
             <div class="flex justify-between items-center mb-6"><span class="text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest" data-i18n="wlTotal">Est. Total</span><span class="text-xl font-bold font-display text-white" id="wishlistTotal">0 MMK</span></div>
-            <button onclick="proceedToCheckout()" class="w-full bg-white text-black py-4 rounded-xl text-sm font-bold tracking-wide hover:bg-gray-200 transition flex items-center justify-center gap-2 btn-hover-effect">
+            <button onclick="proceedToCheckout()" class="w-full bg-white text-black py-4 rounded-none text-sm font-bold tracking-wide hover:bg-gray-200 transition flex items-center justify-center gap-2 border border-white/20">
                 <span data-i18n="btnCheckout">Proceed to Checkout</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </button>
         </div>
@@ -405,123 +418,246 @@
         <div class="absolute top-1/3 right-1/4 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] bg-purple-500/10 rounded-full mix-blend-screen filter blur-[80px] sm:blur-[120px] opacity-30 animate-blob animation-delay-2000 pointer-events-none z-10"></div>
         <div class="absolute -bottom-10 left-1/3 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-blue-500/10 rounded-full mix-blend-screen filter blur-[80px] sm:blur-[120px] opacity-30 animate-blob animation-delay-4000 pointer-events-none z-10"></div>
 
-        <div class="relative z-20 text-center max-w-3xl mx-auto px-4 sm:px-6 w-full pt-12 sm:pt-20 pb-12 sm:pb-20">
-            <div class="inline-flex items-center justify-center px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-6 animate-float shadow-[0_4px_12px_rgba(255,255,255,0.05)]">
-                <i data-lucide="headset" class="h-4 w-4 text-white mr-2"></i>
+        <!-- =================== DYNAMIC HERO SECTION =================== -->
+        <div id="contactHeroSection" class="relative z-20 text-center max-w-3xl mx-auto px-4 sm:px-6 w-full pt-12 sm:pt-20 pb-12 sm:pb-20 transition-all duration-500 block opacity-100">
+            <div class="inline-flex items-center justify-center px-4 py-2 border-l-2 border-myancode-accent bg-transparent mb-6 shadow-sm">
                 <span class="text-[10px] font-bold tracking-widest font-mono uppercase text-white" data-i18n="contactBadge">Enterprise Support</span>
             </div>
-            <h1 class="text-5xl sm:text-6xl md:text-7xl font-display font-bold tracking-tight text-white mb-6 leading-tight" data-i18n="contactTitle">Get in Touch</h1>
+            <h1 class="text-5xl sm:text-6xl md:text-7xl font-display font-bold tracking-tight text-white mb-6 leading-tight uppercase" data-i18n="contactTitle">Get in Touch</h1>
             <p class="text-base sm:text-lg text-gray-400 font-medium leading-relaxed max-w-2xl mx-auto" data-i18n="contactDesc">Whether you have a technical question, a business inquiry, or just want to explore our enterprise solutions, our team is ready to assist you round the clock.</p>
         </div>
 
-        <div class="relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20">
+        <!-- =================== CHOICE VIEW (INITIAL) =================== -->
+        <div id="choiceView" class="relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 block transition-all duration-500">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 max-w-5xl mx-auto">
+                <!-- Choice 1: Let us contact you -->
+                <button onclick="toggleContactView('appointmentView')" class="text-left bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-12 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:-translate-y-1 hover:border-myancode-accent/50 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500 pointer-events-none">
+                        <i data-lucide="calendar-clock" class="w-40 h-40 text-myancode-accent"></i>
+                    </div>
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-[#111] border border-white/10 rounded-none mb-8 relative z-10 text-white group-hover:bg-myancode-accent group-hover:border-myancode-accent transition-colors duration-300">
+                        <i data-lucide="calendar-plus" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-4 relative z-10" data-i18n="optConsultTitle">Request an Executive Consultation</h3>
+                    <p class="text-sm font-medium text-gray-400 mb-8 relative z-10 leading-relaxed" data-i18n="optConsultDesc">Allow our specialized representatives to contact you at your preferred convenience for a detailed discussion regarding your infrastructure or business requirements.</p>
+                    <div class="mt-auto flex items-center text-xs font-bold tracking-widest font-mono uppercase text-myancode-accent group-hover:text-white transition-colors">
+                        <span data-i18n="btnBookAppt">Schedule Appointment</span> <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+
+                <!-- Choice 2: I want to contact you -->
+                <button onclick="toggleContactView('directContactView')" class="text-left bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-12 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:-translate-y-1 hover:border-white/40 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500 pointer-events-none">
+                        <i data-lucide="phone-outgoing" class="w-40 h-40 text-white"></i>
+                    </div>
+                    <div class="inline-flex items-center justify-center w-14 h-14 bg-[#111] border border-white/10 rounded-none mb-8 relative z-10 text-white group-hover:bg-white group-hover:text-black transition-colors duration-300">
+                        <i data-lucide="contact" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-4 relative z-10" data-i18n="optDirectTitle">Access Direct Directories</h3>
+                    <p class="text-sm font-medium text-gray-400 mb-8 relative z-10 leading-relaxed" data-i18n="optDirectDesc">Reach out to our specific departments, direct lines, or executive board immediately. Select this option to view our comprehensive contact catalog.</p>
+                    <div class="mt-auto flex items-center text-xs font-bold tracking-widest font-mono uppercase text-gray-400 group-hover:text-white transition-colors">
+                        <span data-i18n="btnViewDirs">View Directories</span> <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- =================== APPOINTMENT FORM VIEW =================== -->
+        <div id="appointmentView" class="hidden relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 transition-all duration-500">
+            <div class="max-w-4xl mx-auto">
+                <button onclick="toggleContactView('choiceView')" class="mb-8 flex items-center text-[11px] font-bold font-mono tracking-widest uppercase text-gray-400 hover:text-white transition-colors group">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"></i> <span data-i18n="btnBackOptions">Return to Options</span>
+                </button>
+
+                <div class="bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-12 relative overflow-hidden shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
+                    <div class="mb-10 border-b border-white/10 pb-8">
+                        <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-3 uppercase" data-i18n="formApptTitle">Consultation Request Form</h3>
+                        <p class="text-sm font-medium text-gray-400 leading-relaxed" data-i18n="formApptDesc">Please provide your comprehensive details. Appointments must be scheduled at least 12 hours in advance.</p>
+                    </div>
+
+                    <form id="appointmentForm" onsubmit="handleAppointmentSubmit(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblFullName">Full Legal Name</label>
+                                <input type="text" id="apptName" required autocomplete="name" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblEmail">Email Address</label>
+                                <input type="email" id="apptEmail" required autocomplete="email" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblPhone">Contact Number</label>
+                                <input type="tel" id="apptPhone" required autocomplete="tel" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblApptTime">Preferred Appointment Time</label>
+                                <input type="datetime-local" id="apptTime" required class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600 appearance-none color-scheme-dark">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblSocials">Social Chat Links (Optional)</label>
+                            <input type="text" id="apptSocials" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600" placeholder="e.g. t.me/username">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblAddress">Meeting Location / Address (Optional)</label>
+                            <textarea id="apptAddress" rows="3" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600 resize-none" placeholder="Enter physical location for outside meeting..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblRemarks">Additional Remarks / Notes (Optional)</label>
+                            <textarea id="apptRemarks" rows="4" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600 resize-none" placeholder="Any specific requirements or topics to discuss..."></textarea>
+                        </div>
+                        
+                        <div class="pt-6">
+                            <button type="submit" id="btnSubmitAppt" class="w-full bg-white text-black py-4 rounded-none text-xs font-mono font-bold tracking-widest uppercase hover:bg-gray-200 transition border border-white/20 flex justify-center items-center gap-2">
+                                <span data-i18n="btnSubmitAppt">Submit Request</span> <i data-lucide="send" class="w-4 h-4 ml-1"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================== SUCCESS VIEW =================== -->
+        <div id="successView" class="hidden relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 transition-all duration-500">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-[#0a0a0a] border border-white/10 border-t-2 border-t-myancode-accent rounded-none p-10 sm:p-16 relative overflow-hidden shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)] text-center flex flex-col items-center">
+                    
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-[#111] border border-myancode-accent/30 rounded-none mb-8 relative z-10 text-myancode-accent">
+                        <i data-lucide="check" class="w-8 h-8"></i>
+                    </div>
+                    
+                    <h3 class="text-3xl sm:text-4xl font-display font-bold tracking-tight text-white mb-4 relative z-10 uppercase" data-i18n="succTitle">Consultation Request Confirmed</h3>
+                    
+                    <p class="text-sm font-medium text-gray-400 mb-10 relative z-10 leading-relaxed max-w-xl mx-auto" data-i18n="succDesc">Your executive consultation request has been officially recorded in our secure system. Our team will review your requirements and align with your preferred schedule. You can monitor the real-time status of your appointment via your User Hub dashboard.</p>
+                    
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto relative z-10">
+                        <a href="../hub/" class="w-full sm:w-auto px-8 py-4 bg-myancode-accent hover:bg-blue-600 text-white border border-myancode-accent text-[11px] font-bold font-mono tracking-widest uppercase transition-colors flex items-center justify-center gap-2 group shadow-[0_0_15px_rgba(41,151,255,0.3)]">
+                            <span data-i18n="btnToHub">Navigate to User Hub</span> <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                        </a>
+                        <button onclick="toggleContactView('choiceView')" class="w-full sm:w-auto px-8 py-4 bg-[#111] hover:bg-white/10 text-white border border-white/20 text-[11px] font-bold font-mono tracking-widest uppercase transition-colors flex items-center justify-center gap-2">
+                            <span data-i18n="btnReturnOpt">Return to Options</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================== DIRECT CONTACT VIEW =================== -->
+        <div id="directContactView" class="hidden relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 transition-all duration-500">
+            <div class="max-w-5xl mx-auto mb-8">
+                <button onclick="toggleContactView('choiceView')" class="flex items-center text-[11px] font-bold font-mono tracking-widest uppercase text-gray-400 hover:text-white transition-colors group">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"></i> <span data-i18n="btnBackOptions">Return to Options</span>
+                </button>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto">
                 
-                <div class="bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 sm:p-10 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)]">
+                <div class="bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-10 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:border-myancode-accent/30 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500 pointer-events-none">
                         <i data-lucide="phone-call" class="w-32 h-32 text-white"></i>
                     </div>
-                    <div class="inline-flex items-center justify-center w-12 h-12 bg-white/5 border border-white/10 rounded-full mb-6 relative z-10 text-white group-hover:bg-myancode-accent transition-colors duration-300">
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-[#111] border border-white/10 rounded-none mb-6 relative z-10 text-white group-hover:bg-myancode-accent group-hover:border-myancode-accent transition-colors duration-300">
                         <i data-lucide="phone" class="w-5 h-5"></i>
                     </div>
                     <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-3 relative z-10" data-i18n="cardPhoneTitle">Direct Lines</h3>
                     <p class="text-sm font-medium text-gray-400 mb-8 relative z-10" data-i18n="cardPhoneDesc">Available Monday to Friday, 9:00 AM - 6:00 PM (MMT). Reach out to our operators directly.</p>
                     
                     <div class="flex flex-col gap-4 mt-auto relative z-10">
-                        <a href="tel:+959944861000" class="flex items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
+                        <a href="tel:+959944861000" class="flex items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
                             <span class="font-medium text-lg tracking-wide text-white">+959 944 861 000</span>
                             <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors"></i>
                         </a>
-                        <a href="tel:+959456751882" class="flex items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
+                        <a href="tel:+959456751882" class="flex items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
                             <span class="font-medium text-lg tracking-wide text-white">+959 456 751 882</span>
                             <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors"></i>
                         </a>
-                        <a href="tel:+959456396242" class="flex items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
+                        <a href="tel:+959456396242" class="flex items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
                             <span class="font-medium text-lg tracking-wide text-white">+959 456 396 242</span>
                             <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors"></i>
                         </a>
-                        <a href="tel:+959782611101" class="flex items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
+                        <a href="tel:+959782611101" class="flex items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
                             <span class="font-medium text-lg tracking-wide text-white">+959 782 611 101</span>
                             <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors"></i>
                         </a>
-                        <a href="tel:+959761861934" class="flex items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
+                        <a href="tel:+959761861934" class="flex items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
                             <span class="font-medium text-lg tracking-wide text-white">+959 761 861 934</span>
                             <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors"></i>
                         </a>
-                        <a href="tel:+959982064643" class="flex items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
+                        <a href="tel:+959982064643" class="flex items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-myancode-accent/50 transition-all group/btn">
                             <span class="font-medium text-lg tracking-wide text-white">+959 982 064 643</span>
                             <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors"></i>
                         </a>
                     </div>
                 </div>
 
-                <div class="bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 sm:p-10 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)]">
+                <div class="bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-10 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:border-white/30 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500 pointer-events-none">
                         <i data-lucide="mail-open" class="w-32 h-32 text-white"></i>
                     </div>
-                    <div class="inline-flex items-center justify-center w-12 h-12 bg-white/5 border border-white/10 rounded-full mb-6 relative z-10 text-white group-hover:bg-myancode-accent transition-colors duration-300">
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-[#111] border border-white/10 rounded-none mb-6 relative z-10 text-white group-hover:bg-white group-hover:text-black transition-colors duration-300">
                         <i data-lucide="at-sign" class="w-5 h-5"></i>
                     </div>
                     <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-3 relative z-10" data-i18n="cardEmailTitle">Email Directories</h3>
                     <p class="text-sm font-medium text-gray-400 mb-8 relative z-10" data-i18n="cardEmailDesc">Select the appropriate department for a faster response. We usually reply within 24 hours.</p>
                     
                     <div class="flex flex-col gap-4 mt-auto relative z-10">
-                        <a href="mailto:hello@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn gap-2">
+                        <a href="mailto:hello@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-white/40 transition-all group/btn gap-2">
                             <div>
                                 <span class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest block mb-1" data-i18n="lblGeneral">General & Sales</span>
                                 <span class="font-medium text-base tracking-wide text-white">hello@myancode.com</span>
                             </div>
-                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors self-end sm:self-auto hidden xs:block"></i>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-white transition-colors self-end sm:self-auto hidden xs:block"></i>
                         </a>
-                        <a href="mailto:contact@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn gap-2">
+                        <a href="mailto:contact@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-white/40 transition-all group/btn gap-2">
                             <div>
                                 <span class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest block mb-1" data-i18n="lblGeneral">General & Sales</span>
                                 <span class="font-medium text-base tracking-wide text-white">contact@myancode.com</span>
                             </div>
-                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors self-end sm:self-auto hidden xs:block"></i>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-white transition-colors self-end sm:self-auto hidden xs:block"></i>
                         </a>
-                        <a href="mailto:support@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn gap-2">
+                        <a href="mailto:support@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-white/40 transition-all group/btn gap-2">
                             <div>
                                 <span class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest block mb-1" data-i18n="lblSupport">Technical Support</span>
                                 <span class="font-medium text-base tracking-wide text-white">support@myancode.com</span>
                             </div>
-                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors self-end sm:self-auto hidden xs:block"></i>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-white transition-colors self-end sm:self-auto hidden xs:block"></i>
                         </a>
-                        <a href="mailto:report@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn gap-2">
+                        <a href="mailto:report@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-white/40 transition-all group/btn gap-2">
                             <div>
                                 <span class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest block mb-1" data-i18n="lblReport">Report & Recommendations</span>
                                 <span class="font-medium text-base tracking-wide text-white">report@myancode.com</span>
                             </div>
-                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors self-end sm:self-auto hidden xs:block"></i>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-white transition-colors self-end sm:self-auto hidden xs:block"></i>
                         </a>
-                        <a href="mailto:help@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#0a0a0a] hover:bg-[#111] rounded-xl border border-white/10 hover:border-myancode-accent/50 transition-all group/btn gap-2">
+                        <a href="mailto:help@myancode.com" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#050505] hover:bg-[#111] rounded-none border border-white/10 hover:border-white/40 transition-all group/btn gap-2">
                             <div>
                                 <span class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest block mb-1" data-i18n="lblHelp">Account & Billing</span>
                                 <span class="font-medium text-base tracking-wide text-white">help@myancode.com</span>
                             </div>
-                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-myancode-accent transition-colors self-end sm:self-auto hidden xs:block"></i>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-500 group-hover/btn:text-white transition-colors self-end sm:self-auto hidden xs:block"></i>
                         </a>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-[#111]/90 to-[#1a1a1a]/90 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 sm:p-10 flex flex-col md:col-span-2 group relative overflow-hidden transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)]">
+                <div class="bg-[#111] border border-white/10 rounded-none p-8 sm:p-10 flex flex-col md:col-span-2 group relative overflow-hidden transition-all duration-400 hover:border-myancode-accent/40 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500 pointer-events-none">
                         <i data-lucide="briefcase" class="w-40 h-40 text-myancode-accent"></i>
                     </div>
                     <div class="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between relative z-10">
                         <div class="flex-1 max-w-xl">
-                            <div class="inline-flex items-center justify-center w-10 h-10 bg-white/10 border border-white/20 rounded-full mb-5 text-white shadow-md">
+                            <div class="inline-flex items-center justify-center w-10 h-10 bg-[#050505] border border-white/20 rounded-none mb-5 text-white shadow-md">
                                 <i data-lucide="award" class="w-4 h-4"></i>
                             </div>
-                            <h3 class="text-2xl font-display font-bold tracking-tight text-white mb-2" data-i18n="cardFounderTitle">Strategic & Executive Inquiries</h3>
+                            <h3 class="text-2xl font-display font-bold tracking-tight text-white mb-2 uppercase" data-i18n="cardFounderTitle">Strategic & Executive Inquiries</h3>
                             <p class="text-sm text-gray-400 font-medium mb-0 leading-relaxed" data-i18n="cardFounderDesc">For high-level business proposals and strategic partnerships, connect directly with the Founder & CEO of Myancode for executive-level communication.</p>
                         </div>
-                        <a href="mailto:contact@htetzawpaing.site" class="w-full md:w-auto flex items-center justify-between gap-4 p-5 bg-white rounded-2xl border border-white/10 shadow-sm hover:shadow-lg transition-all group/btn shrink-0">
+                        <a href="mailto:contact@htetzawpaing.site" class="w-full md:w-auto flex items-center justify-between gap-4 p-5 bg-white rounded-none border border-white/10 shadow-sm transition-all group/btn shrink-0 hover:bg-gray-200">
                             <div class="flex flex-col">
                                 <span class="text-[10px] font-bold font-mono text-myancode-accent uppercase tracking-widest block mb-1">Direct Email</span>
                                 <span class="font-semibold text-base sm:text-lg tracking-wide text-black">contact@htetzawpaing.site</span>
                             </div>
-                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center group-hover/btn:bg-black group-hover/btn:text-white transition-colors text-black">
+                            <div class="w-10 h-10 rounded-none bg-black flex items-center justify-center text-white transition-transform group-hover/btn:scale-110">
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </div>
                         </a>
@@ -531,47 +667,47 @@
 
             <div class="mt-16 sm:mt-24 max-w-5xl mx-auto">
                 <div class="text-center mb-10">
-                    <h3 class="text-xl sm:text-2xl font-display font-bold tracking-tight text-white" data-i18n="socialTitle">Our Communities</h3>
+                    <h3 class="text-xl sm:text-2xl font-display font-bold tracking-tight text-white uppercase" data-i18n="socialTitle">Our Communities</h3>
                     <p class="text-sm font-medium text-gray-400 mt-2" data-i18n="socialDesc">Connect with us on your favorite platforms for the latest updates.</p>
                 </div>
                 
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
-                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#111]/80 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-[#1877F2]/50 hover:bg-[#1877F2]/10 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.3)] shadow-sm">
-                        <img src="../imgs/web-banners/facebook.png" alt="Facebook" class="w-10 h-10 object-contain mb-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
-                        <span class="text-sm font-semibold text-white">Facebook</span>
+                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#0a0a0a] rounded-none border border-white/10 hover:border-[#1877F2]/50 hover:bg-[#1877F2]/10 transition-all group shadow-sm">
+                        <img src="../imgs/web-banners/facebook.png" alt="Facebook" class="w-10 h-10 object-contain mb-3 rounded-none group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors">Facebook</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#111]/80 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-white/50 hover:bg-white/10 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.3)] shadow-sm">
-                        <img src="../imgs/web-banners/tiktok.png" alt="TikTok" class="w-10 h-10 object-contain mb-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
-                        <span class="text-sm font-semibold text-white">TikTok</span>
+                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#0a0a0a] rounded-none border border-white/10 hover:border-white/50 hover:bg-white/10 transition-all group shadow-sm">
+                        <img src="../imgs/web-banners/tiktok.png" alt="TikTok" class="w-10 h-10 object-contain mb-3 rounded-none group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors">TikTok</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#111]/80 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/10 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.3)] shadow-sm">
-                        <img src="../imgs/web-banners/linkedin.png" alt="LinkedIn" class="w-10 h-10 object-contain mb-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
-                        <span class="text-sm font-semibold text-white">LinkedIn</span>
+                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#0a0a0a] rounded-none border border-white/10 hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/10 transition-all group shadow-sm">
+                        <img src="../imgs/web-banners/linkedin.png" alt="LinkedIn" class="w-10 h-10 object-contain mb-3 rounded-none group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors">LinkedIn</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#111]/80 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-[#229ED9]/50 hover:bg-[#229ED9]/10 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.3)] shadow-sm">
-                        <img src="../imgs/web-banners/github.png" alt="Telegram" class="w-10 h-10 object-contain mb-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
-                        <span class="text-sm font-semibold text-white">GitHub</span>
+                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#0a0a0a] rounded-none border border-white/10 hover:border-[#229ED9]/50 hover:bg-[#229ED9]/10 transition-all group shadow-sm">
+                        <img src="../imgs/web-banners/github.png" alt="Telegram" class="w-10 h-10 object-contain mb-3 rounded-none group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors">GitHub</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#111]/80 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-[#E4405F]/50 hover:bg-[#E4405F]/10 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.3)] shadow-sm">
-                        <img src="../imgs/web-banners/instagram.png" alt="Instagram" class="w-10 h-10 object-contain mb-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
-                        <span class="text-sm font-semibold text-white">Instagram</span>
+                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#0a0a0a] rounded-none border border-white/10 hover:border-[#E4405F]/50 hover:bg-[#E4405F]/10 transition-all group shadow-sm">
+                        <img src="../imgs/web-banners/instagram.png" alt="Instagram" class="w-10 h-10 object-contain mb-3 rounded-none group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors">Instagram</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#111]/80 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-[#5865F2]/50 hover:bg-[#5865F2]/10 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.3)] shadow-sm">
-                        <img src="../imgs/web-banners/discord.png" alt="Discord" class="w-10 h-10 object-contain mb-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
-                        <span class="text-sm font-semibold text-white">Discord</span>
+                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#0a0a0a] rounded-none border border-white/10 hover:border-[#5865F2]/50 hover:bg-[#5865F2]/10 transition-all group shadow-sm">
+                        <img src="../imgs/web-banners/discord.png" alt="Discord" class="w-10 h-10 object-contain mb-3 rounded-none group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors">Discord</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#111]/80 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-[#5865F2]/50 hover:bg-[#5865F2]/10 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.3)] shadow-sm">
-                        <img src="../imgs/web-banners/telegram.png" alt="Discord" class="w-10 h-10 object-contain mb-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
-                        <span class="text-sm font-semibold text-white">Telegram</span>
+                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#0a0a0a] rounded-none border border-white/10 hover:border-[#5865F2]/50 hover:bg-[#5865F2]/10 transition-all group shadow-sm">
+                        <img src="../imgs/web-banners/telegram.png" alt="Telegram" class="w-10 h-10 object-contain mb-3 rounded-none group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors">Telegram</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#111]/80 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-[#5865F2]/50 hover:bg-[#5865F2]/10 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.3)] shadow-sm">
-                        <img src="../imgs/web-banners/messenger.png" alt="Discord" class="w-10 h-10 object-contain mb-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
-                        <span class="text-sm font-semibold text-white">Messenger</span>
+                    <a href="#" class="flex flex-col items-center justify-center p-6 bg-[#0a0a0a] rounded-none border border-white/10 hover:border-[#5865F2]/50 hover:bg-[#5865F2]/10 transition-all group shadow-sm">
+                        <img src="../imgs/web-banners/messenger.png" alt="Messenger" class="w-10 h-10 object-contain mb-3 rounded-none group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/10">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors">Messenger</span>
                     </a>
                 </div>
             </div>
-
         </div>
+
     </main>
 
     <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
@@ -758,6 +894,35 @@
                 contactBadge: "Enterprise Support",
                 contactTitle: "Get in Touch",
                 contactDesc: "Whether you have a technical question, a business inquiry, or just want to explore our enterprise solutions, our team is ready to assist you round the clock.",
+                
+                // Contact Choice Keys
+                optConsultTitle: "Request an Executive Consultation",
+                optConsultDesc: "Allow our specialized representatives to contact you at your preferred convenience for a detailed discussion regarding your infrastructure or business requirements.",
+                btnBookAppt: "Schedule Appointment",
+                optDirectTitle: "Access Direct Directories",
+                optDirectDesc: "Reach out to our specific departments, direct lines, or executive board immediately. Select this option to view our comprehensive contact catalog.",
+                btnViewDirs: "View Directories",
+                btnBackOptions: "Return to Options",
+
+                // Appointment Form Keys
+                formApptTitle: "Consultation Request Form",
+                formApptDesc: "Please provide your comprehensive details. Appointments must be scheduled at least 12 hours in advance.",
+                lblFullName: "Full Legal Name",
+                lblPhone: "Contact Number",
+                lblAddress: "Meeting Location / Address (Optional)",
+                lblSocials: "Social Chat Links (Optional)",
+                lblApptTime: "Preferred Appointment Time",
+                lblRemarks: "Additional Remarks / Notes (Optional)",
+                btnSubmitAppt: "Submit Request",
+                msgApptSuccess: "Your consultation request has been officially recorded. We will contact you at the designated time.",
+                errTime12hr: "The preferred time must be at least 12 hours from the current time.",
+                
+                // Success View Keys
+                succTitle: "Consultation Request Confirmed",
+                succDesc: "Your executive consultation request has been officially recorded in our secure system. Our team will review your requirements and align with your preferred schedule. You can monitor the real-time status of your appointment via your User Hub dashboard.",
+                btnToHub: "Navigate to User Hub",
+                btnReturnOpt: "Return to Options",
+
                 cardPhoneTitle: "Direct Lines", cardPhoneDesc: "Available Monday to Friday, 9:00 AM - 6:00 PM (MMT). Reach out to our operators directly.",
                 cardEmailTitle: "Email Directories", cardEmailDesc: "Select the appropriate department for a faster response. We usually reply within 24 hours.",
                 lblGeneral: "General & Sales", lblSupport: "Technical Support", lblHelp: "Account & Billing", lblReport: "Report & Recommendations",
@@ -790,6 +955,35 @@
                 contactBadge: "အဆင့်မြင့် ဝန်ဆောင်မှုအကူအညီ",
                 contactTitle: "ဆက်သွယ်ရန်",
                 contactDesc: "နည်းပညာပိုင်းဆိုင်ရာ မေးခွန်းများ၊ စီးပွားရေးပိုင်းဆိုင်ရာ ဆွေးနွေးမှုများနှင့် ဝန်ဆောင်မှုများအကြောင်း သိရှိလိုပါက အချိန်မရွေး ဆက်သွယ်မေးမြန်းနိုင်ပါသည်။",
+
+                // Contact Choice Keys (MM)
+                optConsultTitle: "ကိုယ်စားလှယ်နှင့် တိုင်ပင်ဆွေးနွေးရန်",
+                optConsultDesc: "ကျွန်ုပ်တို့၏ ကျွမ်းကျင်ကိုယ်စားလှယ်များမှ သင့်ထံသို့ သတ်မှတ်ထားသော အချိန်တွင် တိုက်ရိုက်ဆက်သွယ်ပေးပါမည်။",
+                btnBookAppt: "ရက်ချိန်းယူမည်",
+                optDirectTitle: "တိုက်ရိုက် ဆက်သွယ်ရန်",
+                optDirectDesc: "သက်ဆိုင်ရာ ဌာနများ၊ ဖုန်းလိုင်းများနှင့် တာဝန်ရှိသူများထံသို့ ယခုချက်ချင်း တိုက်ရိုက် ဆက်သွယ်နိုင်ပါသည်။",
+                btnViewDirs: "ဖုန်းနှင့် အီးမေးလ်များ ကြည့်ရန်",
+                btnBackOptions: "နောက်သို့ ပြန်သွားရန်",
+
+                // Appointment Form Keys (MM)
+                formApptTitle: "ဆွေးနွေးတိုင်ပင်ရန် ဖောင်",
+                formApptDesc: "ကျေးဇူးပြု၍ လိုအပ်သော အချက်အလက်များကို ဖြည့်စွက်ပေးပါ။ အချိန်ကို အနည်းဆုံး ၁၂ နာရီ ကြိုတင် ရွေးချယ်ပေးရပါမည်။",
+                lblFullName: "အမည်အပြည့်အစုံ",
+                lblPhone: "ဆက်သွယ်ရန် ဖုန်းနံပါတ်",
+                lblAddress: "တွေ့ဆုံမည့် နေရာ / လိပ်စာ (ရွေးချယ်ရန်)",
+                lblSocials: "လူမှုကွန်ရက် လင့်ခ်များ (Messenger, Telegram စသည်)",
+                lblApptTime: "ဆက်သွယ်ရမည့် အချိန်",
+                lblRemarks: "အခြားမှတ်ချက်များ (ရွေးချယ်ရန်)",
+                btnSubmitAppt: "ပေးပို့မည်",
+                msgApptSuccess: "သင့်၏ တောင်းဆိုမှုကို လက်ခံရရှိပါပြီ။ သတ်မှတ်ထားသော အချိန်တွင် ဆက်သွယ်ပေးပါမည်။",
+                errTime12hr: "အချိန်ကို အနည်းဆုံး ယခုအချိန်မှ ၁၂ နာရီ နောက်ဆုတ်၍ ရွေးချယ်ပေးပါ။",
+                
+                // Success View Keys
+                succTitle: "ရက်ချိန်းတောင်းဆိုမှု အောင်မြင်ပါသည်",
+                succDesc: "သင့်၏ ဆွေးနွေးတိုင်ပင်ရန် ရက်ချိန်းတောင်းဆိုမှုကို ကျွန်ုပ်တို့၏စနစ်တွင် မှတ်တမ်းတင်ထားပြီးဖြစ်ပါသည်။ သင့်အချက်အလက်များကို စစ်ဆေးပြီးနောက် ဆက်သွယ်ပေးပါမည်။ သင့်ရက်ချိန်း၏ အခြေအနေကို User Hub (ဗဟိုဌာန) တွင် အချိန်မရွေး ဝင်ရောက်စစ်ဆေးနိုင်ပါသည်။",
+                btnToHub: "ဗဟိုဌာနသို့ သွားရန်",
+                btnReturnOpt: "ရွေးချယ်စရာများသို့ ပြန်သွားရန်",
+
                 cardPhoneTitle: "ဖုန်းဖြင့် ဆက်သွယ်ရန်", cardPhoneDesc: "တနင်္လာ မှ သောကြာ၊ နံနက် ၉ နာရီ မှ ညနေ ၆ နာရီ အတွင်း ဆက်သွယ်နိုင်ပါသည်။",
                 cardEmailTitle: "အီးမေးလ် လိပ်စာများ", cardEmailDesc: "လိုအပ်သော ဌာနကို ရွေးချယ်ပြီး ဆက်သွယ်ပါ။ ၂၄ နာရီအတွင်း အကြောင်းပြန်ပေးပါသည်။",
                 lblGeneral: "ယေဘုယျနှင့် အရောင်း", lblSupport: "နည်းပညာ အကူအညီ", lblHelp: "အကောင့်နှင့် ငွေပေးချေမှု", lblReport: "အစီရင်ခံနှင့် အကြံပြုချက်များ",
@@ -844,6 +1038,13 @@
                         role: trueRole
                     };
                     currentUserCart = session.user.user_metadata?.wishlist || [];
+                    
+                    // Autofill form if logged in
+                    const apptName = document.getElementById('apptName');
+                    const apptEmail = document.getElementById('apptEmail');
+                    if (apptName && !apptName.value) apptName.value = currentUser.name;
+                    if (apptEmail && !apptEmail.value) apptEmail.value = currentUser.email;
+
                 } else {
                     currentUser = null;
                     currentUserCart = [];
@@ -852,6 +1053,120 @@
             });
         } else {
             updateAuthUI();
+        }
+
+        function toggleContactView(viewId) {
+            const views = ['choiceView', 'directContactView', 'appointmentView', 'successView'];
+            const hero = document.getElementById('contactHeroSection');
+            
+            views.forEach(id => {
+                if(id !== viewId) {
+                    const el = document.getElementById(id);
+                    if(el) {
+                        el.classList.add('hidden');
+                        el.classList.remove('block');
+                        el.style.opacity = '0';
+                        el.style.transform = 'translateY(10px)';
+                    }
+                }
+            });
+
+            if (viewId === 'choiceView') {
+                if (hero) {
+                    hero.classList.remove('hidden');
+                    hero.classList.add('block');
+                    setTimeout(() => {
+                        hero.style.opacity = '1';
+                        hero.style.transform = 'translateY(0)';
+                    }, 10);
+                }
+            } else {
+                if (hero) {
+                    hero.style.opacity = '0';
+                    hero.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        hero.classList.add('hidden');
+                        hero.classList.remove('block');
+                    }, 300);
+                }
+            }
+
+            const target = document.getElementById(viewId);
+            if(target) {
+                target.classList.remove('hidden');
+                target.classList.add('block');
+                
+                if(viewId === 'appointmentView') {
+                    const now = new Date();
+                    now.setHours(now.getHours() + 12);
+                    const tzOffset = now.getTimezoneOffset() * 60000;
+                    const localISOTime = (new Date(now - tzOffset)).toISOString().slice(0, 16);
+                    document.getElementById('apptTime').min = localISOTime;
+                }
+
+                setTimeout(() => {
+                    target.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                    target.style.opacity = '1';
+                    target.style.transform = 'translateY(0)';
+                }, 10);
+            }
+            
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        async function handleAppointmentSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitAppt');
+            
+            const fullName = document.getElementById('apptName').value.trim();
+            const email = document.getElementById('apptEmail').value.trim();
+            const phone = document.getElementById('apptPhone').value.trim();
+            const timeVal = document.getElementById('apptTime').value;
+            const socials = document.getElementById('apptSocials').value.trim();
+            const address = document.getElementById('apptAddress').value.trim();
+            const remarks = document.getElementById('apptRemarks').value.trim();
+
+            if(!fullName || !email || !phone || !timeVal) return;
+
+            const inputTime = new Date(timeVal);
+            const now = new Date();
+            const diffHours = (inputTime - now) / (1000 * 60 * 60);
+
+            if (diffHours < 12) {
+                showErrorToast(dict[currentLang].errTime12hr || "Appointment must be at least 12 hours in advance.");
+                return;
+            }
+
+            btn.disabled = true;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-black"></i>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            try {
+                if (!supabaseInstance) throw new Error("Database offline.");
+                
+                const { error } = await supabaseInstance.from('contact_appointments').insert([{
+                    full_name: fullName,
+                    email: email,
+                    phone: phone,
+                    appointment_time: inputTime.toISOString(),
+                    social_links: socials,
+                    address: address,
+                    remarks: remarks
+                }]);
+
+                if (error) throw error;
+
+                document.getElementById('appointmentForm').reset();
+                toggleContactView('successView');
+
+            } catch (err) {
+                showErrorToast(err.message || "Failed to submit request.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
         }
 
         function renderLanguage() {
