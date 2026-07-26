@@ -1323,6 +1323,11 @@
                 } catch(e) {}
             }
             
+            // Aggressive fallback: if referrer is blocked by browser policies, check if we already have one saved
+            if (!intent) {
+                intent = sessionStorage.getItem('smart_redirect');
+            }
+            
             if (intent) {
                 const isExcluded = excludePaths.some(path => intent.toLowerCase().includes(path));
                 if (!isExcluded) {
@@ -2603,9 +2608,8 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
-                // Remove ?redirect params to ensure Supabase Redirect Allow list doesn't block the request. 
-                // We rely on localStorage intent instead which captures the required info prior.
-                let cleanUrl = window.location.origin + window.location.pathname;
+                // Remove ?redirect params and ensure strict trailing slash match for Supabase whitelist
+                let cleanUrl = window.location.origin + '/login/';
 
                 const { error } = await supabaseInstance.auth.signInWithOtp({
                     email: email,
@@ -2697,8 +2701,8 @@
                     localStorage.setItem('smart_redirect_data', JSON.stringify(redirectData));
                 }
                 
-                // Keep redirectTo absolutely clean to prevent Supabase rejecting it and dumping the user at site root
-                let cleanUrl = window.location.origin + window.location.pathname;
+                // Strictly format the callback to match Supabase Allow List exactly
+                let cleanUrl = window.location.origin.replace(/\/$/, '') + '/login/';
                 
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'google',
@@ -2734,7 +2738,8 @@
                     localStorage.setItem('smart_redirect_data', JSON.stringify(redirectData));
                 }
 
-                let cleanUrl = window.location.origin + window.location.pathname;
+                // Strictly format the callback to match Supabase Allow List exactly
+                let cleanUrl = window.location.origin.replace(/\/$/, '') + '/login/';
 
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'github',
