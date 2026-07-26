@@ -1286,6 +1286,18 @@
             };
             let defaultDash = dashboardRoutes[r] || '../hub/';
             
+            try {
+                const savedData = localStorage.getItem('smart_redirect_data');
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    if (parsed.url && parsed.timestamp && (Date.now() - parsed.timestamp < 2 * 60 * 60 * 1000)) {
+                        return parsed.url;
+                    } else {
+                        localStorage.removeItem('smart_redirect_data');
+                    }
+                }
+            } catch (e) {}
+            
             let saved = sessionStorage.getItem('smart_redirect');
             if (saved) {
                 return saved;
@@ -1314,6 +1326,11 @@
             if (intent) {
                 const isExcluded = excludePaths.some(path => intent.toLowerCase().includes(path));
                 if (!isExcluded) {
+                    const redirectData = {
+                        url: intent,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('smart_redirect_data', JSON.stringify(redirectData));
                     sessionStorage.setItem('smart_redirect', intent);
                 }
             }
@@ -1611,6 +1628,7 @@
                             showLoader('redirectingHome');
 
                             setTimeout(() => {
+                                localStorage.removeItem('smart_redirect_data');
                                 sessionStorage.removeItem('smart_redirect');
                                 window.location.replace(destination);
                             }, 800);
@@ -1628,6 +1646,7 @@
                             showLoader('redirectingHome');
 
                             setTimeout(() => {
+                                localStorage.removeItem('smart_redirect_data');
                                 sessionStorage.removeItem('smart_redirect');
                                 window.location.replace(destination);
                             }, 1500);
@@ -2584,11 +2603,9 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
-                let intent = sessionStorage.getItem('smart_redirect');
+                // Remove ?redirect params to ensure Supabase Redirect Allow list doesn't block the request. 
+                // We rely on localStorage intent instead which captures the required info prior.
                 let cleanUrl = window.location.origin + window.location.pathname;
-                if (intent) {
-                    cleanUrl += '?redirect=' + encodeURIComponent(intent);
-                }
 
                 const { error } = await supabaseInstance.auth.signInWithOtp({
                     email: email,
@@ -2644,7 +2661,9 @@
                     r = (data.user.app_metadata?.role || data.user.user_metadata?.role || 'client').toLowerCase();
                 }
                 const destination = resolveRedirect(r);
+                
                 setTimeout(() => {
+                    localStorage.removeItem('smart_redirect_data');
                     sessionStorage.removeItem('smart_redirect');
                     window.location.href = destination;
                 }, 800);
@@ -2671,11 +2690,15 @@
             
             showLoader('loadingAuth');
             try {
-                let intent = sessionStorage.getItem('smart_redirect');
-                let cleanUrl = window.location.origin + window.location.pathname;
-                if (intent) {
-                    cleanUrl += '?redirect=' + encodeURIComponent(intent);
+                // Ensure the intent is safely tucked into localStorage
+                let currentIntent = sessionStorage.getItem('smart_redirect');
+                if (currentIntent) {
+                    const redirectData = { url: currentIntent, timestamp: Date.now() };
+                    localStorage.setItem('smart_redirect_data', JSON.stringify(redirectData));
                 }
+                
+                // Keep redirectTo absolutely clean to prevent Supabase rejecting it and dumping the user at site root
+                let cleanUrl = window.location.origin + window.location.pathname;
                 
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'google',
@@ -2704,11 +2727,14 @@
 
             showLoader('loadingAuth');
             try {
-                let intent = sessionStorage.getItem('smart_redirect');
-                let cleanUrl = window.location.origin + window.location.pathname;
-                if (intent) {
-                    cleanUrl += '?redirect=' + encodeURIComponent(intent);
+                // Ensure intent stays within localStorage domain
+                let currentIntent = sessionStorage.getItem('smart_redirect');
+                if (currentIntent) {
+                    const redirectData = { url: currentIntent, timestamp: Date.now() };
+                    localStorage.setItem('smart_redirect_data', JSON.stringify(redirectData));
                 }
+
+                let cleanUrl = window.location.origin + window.location.pathname;
 
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'github',
@@ -2728,6 +2754,11 @@
             if (supabaseInstance) {
                 await supabaseInstance.auth.signOut();
             }
+            
+            // Wipe intents when a legitimate log-out forces them back
+            localStorage.removeItem('smart_redirect_data');
+            sessionStorage.removeItem('smart_redirect');
+            
             hideLoader();
             showToast(dict[currentLang].msgLoggedOut);
         }
