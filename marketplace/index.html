@@ -497,6 +497,14 @@
                         <div class="flex items-center gap-3"><i data-lucide="file-search" class="w-4 h-4 text-emerald-400"></i> <span>Data Extractor</span></div>
                         <span class="text-[9px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">Smart</span>
                     </button>
+                    <button onclick="toggleBottomDrawer(); filterFeed('mine')" class="w-full flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 text-white text-sm font-medium transition-all hover:bg-white/10 rounded-xl mt-2">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i> <span>Edit My Posts</span>
+                    </button>
+                    <button onclick="toggleTheme()" class="w-full flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 text-white text-sm font-medium transition-all hover:bg-white/10 rounded-xl theme-switcher-btn">
+                        <i data-lucide="sun" class="w-4 h-4 hidden dark-icon text-orange-400"></i>
+                        <i data-lucide="moon" class="w-4 h-4 light-icon text-blue-400"></i>
+                        <span class="theme-text">Light Mode</span>
+                    </button>
                 </nav>
             </div>
 
@@ -515,11 +523,7 @@
         </div>
     </div>
 
-    <!-- Theme Switcher Floating Button -->
-    <button onclick="toggleTheme()" class="fixed bottom-6 left-6 z-[90] w-12 h-12 rounded-full bg-[#111] border border-white/10 text-white shadow-2xl flex items-center justify-center hover:bg-white/10 transition-all sm:bottom-8 sm:left-8 theme-switcher-btn" title="Toggle Light/Dark Mode">
-        <i data-lucide="sun" class="w-5 h-5 hidden dark-icon text-orange-400"></i>
-        <i data-lucide="moon" class="w-5 h-5 light-icon text-blue-400"></i>
-    </button>
+
 
     <main class="flex-grow pt-24 sm:pt-28 pb-24 w-full relative z-10 text-white min-h-screen">
         <div class="layout-width relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
@@ -558,6 +562,14 @@
                             <button onclick="openDataExtractor()" class="w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-500/10 to-transparent hover:from-emerald-500/20 border border-emerald-500/20 text-white text-sm font-medium transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(16,185,129,0.15)]">
                                 <div class="flex items-center gap-3"><i data-lucide="file-search" class="w-4 h-4 text-emerald-400"></i> <span>Data Extractor</span></div>
                                 <span class="text-[9px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">Smart</span>
+                            </button>
+                            <button onclick="filterFeed('mine')" class="w-full flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 text-white text-sm font-medium transition-all hover:bg-white/10 rounded-xl mt-2">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i> <span>Edit My Posts</span>
+                            </button>
+                            <button onclick="toggleTheme()" class="w-full flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 text-white text-sm font-medium transition-all hover:bg-white/10 rounded-xl theme-switcher-btn">
+                                <i data-lucide="sun" class="w-4 h-4 hidden dark-icon text-orange-400"></i>
+                                <i data-lucide="moon" class="w-4 h-4 light-icon text-blue-400"></i>
+                                <span class="theme-text">Light Mode</span>
                             </button>
                         </nav>
                     </div>
@@ -666,6 +678,11 @@
     </main>
 
     <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
+        <div class="absolute inset-0">
+            <img src="../imgs/web-banners/banner1.jpg" class="w-full h-full object-cover select-none pointer-events-none">
+        </div>
+        <div class="absolute inset-0 bg-black/30"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/75"></div>
         <div class="layout-width relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
                 <div class="lg:col-span-4 pr-4">
@@ -1245,7 +1262,7 @@
         let currentUserCart = []; 
         if (window.supabase) supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        let selectedImages = []; let allCommunityPosts = []; let currentFilter = 'all';
+        let selectedImages = []; let existingImagesForEdit = []; let allCommunityPosts = []; let currentFilter = 'all';
         let currentFilteredPosts = []; let displayedPostsCount = 5; const POSTS_PER_PAGE = 5; let feedObserver = null;
         let activeReplyAuthor = {}; let activeReplyParentId = {};
         window.currentPostComments = []; window.expandedRepliesCount = {};
@@ -1397,14 +1414,18 @@
         function toggleTheme() {
             const isLight = document.body.classList.toggle('light-mode-active');
             localStorage.setItem('myancode_theme', isLight ? 'light' : 'dark');
-            const mobTexts = document.querySelectorAll('.theme-text-mob');
-            mobTexts.forEach(el => { el.innerText = isLight ? 'Dark Mode' : 'Light Mode'; });
+            const themeTexts = document.querySelectorAll('.theme-text');
+            themeTexts.forEach(el => { el.innerText = isLight ? 'Dark Mode' : 'Light Mode'; });
         }
         
         document.addEventListener('DOMContentLoaded', () => { 
             // Initialize Theme
             const savedTheme = localStorage.getItem('myancode_theme');
-            if (savedTheme === 'light') { document.body.classList.add('light-mode-active'); }
+            if (savedTheme === 'light') { 
+                document.body.classList.add('light-mode-active'); 
+                const themeTexts = document.querySelectorAll('.theme-text');
+                themeTexts.forEach(el => { el.innerText = 'Dark Mode'; });
+            }
             
             initCommunity(); 
         });
@@ -1507,7 +1528,7 @@
                             }
                             if(btn) btn.style.display = 'none';
                         } else {
-                            if(statsMobile) { 
+                            if(statsMobile) {
                                 statsMobile.innerText = `${words}/3000 words • ${letters}/18000 chars`;
                                 statsMobile.classList.add('text-red-500'); 
                                 statsMobile.classList.remove('text-gray-500', 'text-orange-500'); 
@@ -1520,7 +1541,17 @@
                             statsMobile.classList.remove('text-red-500', 'text-orange-500'); 
                             statsMobile.classList.add('text-gray-500'); 
                         }
-                        if(btn) { btn.style.display = 'block'; btn.disabled = false; btn.classList.remove('opacity-50'); }
+                        if(btn) { 
+                            btn.style.display = 'block'; 
+                            // Only disable if empty AND not editing
+                            if (!isEditingPost && (text.trim() === '' || text.trim() === '<br>')) {
+                                btn.disabled = true;
+                                btn.classList.add('opacity-50');
+                            } else {
+                                btn.disabled = false;
+                                btn.classList.remove('opacity-50');
+                            }
+                        }
                     }
                 });
             }
@@ -2258,11 +2289,40 @@
             files.forEach(file => { if (file.type.startsWith('image/')) selectedImages.push(file); });
             updateImagePreview(); e.target.value = '';
         }
-        function removeImage(index) { selectedImages.splice(index, 1); updateImagePreview(); }
+        function removeImage(index) { 
+            selectedImages.splice(index, 1); 
+            updateImagePreview(); 
+        }
+        function removeExistingImage(index) {
+            existingImagesForEdit.splice(index, 1);
+            updateImagePreview();
+        }
         function updateImagePreview() {
-            const container = document.getElementById('imagePreviewContainer'); const countText = document.getElementById('imageCountText'); countText.innerText = `${selectedImages.length}/5`;
-            if (selectedImages.length === 0) { container.classList.add('hidden'); container.innerHTML = ''; return; }
-            container.classList.remove('hidden'); container.innerHTML = selectedImages.map((file, idx) => `<div class="image-preview-item"><img src="${URL.createObjectURL(file)}" loading="lazy" decoding="async"><div class="image-preview-remove" onclick="removeImage(${idx})"><i data-lucide="x" class="w-3 h-3"></i></div></div>`).join('');
+            const container = document.getElementById('imagePreviewContainer'); 
+            const countText = document.getElementById('imageCountText'); 
+            const totalCount = selectedImages.length + existingImagesForEdit.length;
+            countText.innerText = `${totalCount}/5`;
+            
+            if (totalCount === 0) { 
+                container.classList.add('hidden'); 
+                container.innerHTML = ''; 
+                return; 
+            }
+            
+            container.classList.remove('hidden'); 
+            
+            let html = '';
+            // Render existing images first
+            existingImagesForEdit.forEach((url, idx) => {
+                html += `<div class="image-preview-item"><img src="${url}" loading="lazy" decoding="async"><div class="image-preview-remove" onclick="removeExistingImage(${idx})"><i data-lucide="x" class="w-3 h-3"></i></div></div>`;
+            });
+            
+            // Render new selected images
+            selectedImages.forEach((file, idx) => {
+                html += `<div class="image-preview-item"><img src="${URL.createObjectURL(file)}" loading="lazy" decoding="async"><div class="image-preview-remove" onclick="removeImage(${idx})"><i data-lucide="x" class="w-3 h-3"></i></div></div>`;
+            });
+            
+            container.innerHTML = html;
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
@@ -2330,18 +2390,61 @@
                 return;
             }
             
-            const confirmed = await customConfirm("Publish this post to the community?", "Publish Post"); if (!confirmed) return;
+            const confirmMsg = isEditingPost ? "Update this post?" : "Publish this post to the community?";
+            const confirmTitle = isEditingPost ? "Update Post" : "Publish Post";
+            const confirmed = await customConfirm(confirmMsg, confirmTitle); if (!confirmed) return;
+            
             let safeContent = window.DOMPurify ? DOMPurify.sanitize(raw, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span'], ALLOWED_ATTR: ['href', 'target', 'rel'] }) : raw;
             const btn = document.getElementById('btnPublishPost'); btn.disabled = true; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 spinner"></i>`; if (typeof lucide !== 'undefined') lucide.createIcons();
+            
             try {
-                const imageUrls = await uploadImagesToImageKit();
-                const postData = { user_id: currentUser.id, author_name: currentUser.name, author_avatar: currentUser.avatar_url, author_role: currentUser.role, content: safeContent, images: imageUrls, hashtags: extractHashtags(safeContent) };
-                const { error } = await supabaseInstance.from('marketplace_posts').insert([postData]); if (error) throw new Error();
-                editor.innerHTML = ''; selectedImages = []; updateImagePreview(); showToast("Published successfully!");
-                document.getElementById('textStatsMobile').innerText = `0/3000 words • 0/18000 chars`;
+                let imageUrls = [];
+                
+                // Upload new images if any
+                const newUploadedUrls = selectedImages.length > 0 ? await uploadImagesToImageKit() : [];
+                
+                if (isEditingPost) {
+                    // Combine retained existing images and new uploads
+                    imageUrls = [...existingImagesForEdit, ...newUploadedUrls];
+                } else {
+                    imageUrls = newUploadedUrls;
+                }
+
+                const postData = { 
+                    content: safeContent, 
+                    images: imageUrls, 
+                    hashtags: extractHashtags(safeContent),
+                    updated_at: new Date().toISOString()
+                };
+
+                if (isEditingPost) {
+                    const { error } = await supabaseInstance.from('marketplace_posts').update(postData).eq('id', editingPostId);
+                    if (error) throw error;
+                    showToast("Updated successfully!");
+                    cancelEdit();
+                } else {
+                    postData.user_id = currentUser.id;
+                    postData.author_name = currentUser.name;
+                    postData.author_avatar = currentUser.avatar_url;
+                    postData.author_role = currentUser.role;
+                    const { error } = await supabaseInstance.from('marketplace_posts').insert([postData]);
+                    if (error) throw error;
+                    editor.innerHTML = ''; selectedImages = []; updateImagePreview(); showToast("Published successfully!");
+                    document.getElementById('textStatsMobile').innerText = `0/3000 words • 0/18000 chars`;
+                }
                 await fetchPosts();
-            } catch (err) { showErrorToast("Failed to publish post."); }
-            finally { btn.disabled = false; btn.innerHTML = `<span class="hidden sm:inline" data-i18n="mpPostBtn">Post</span><span class="sm:hidden">Post</span>`; if (typeof lucide !== 'undefined') lucide.createIcons(); }
+            } catch (err) { 
+                showErrorToast(isEditingPost ? "Failed to update post." : "Failed to publish post."); 
+            }
+            finally { 
+                btn.disabled = false; 
+                if (isEditingPost) {
+                    btn.innerHTML = `<span data-i18n="mpUpdateBtn">Update</span>`;
+                } else {
+                    btn.innerHTML = `<span class="hidden sm:inline" data-i18n="mpPostBtn">Post</span><span class="sm:hidden">Post</span>`; 
+                }
+                if (typeof lucide !== 'undefined') lucide.createIcons(); 
+            }
         }
 
         async function fetchPosts() {
@@ -2630,6 +2733,7 @@
             const dateStr = timeAgo(post.created_at); const avatar = post.author_avatar ? `<img src="${post.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-400"></i>`;
             const isOwner = currentUser && currentUser.id === post.user_id; const isSaved = currentUser && post.marketplace_saves && post.marketplace_saves.some(s => s.user_id === currentUser.id); const isLiked = currentUser && post.marketplace_likes && post.marketplace_likes.some(l => l.user_id === currentUser.id);
             const commentCount = post.marketplace_comments?.[0]?.count || 0; const likeCount = post.marketplace_likes?.length || 0; 
+            const editedBadge = post.updated_at ? `<span class="text-[9px] bg-white/10 text-gray-400 px-1.5 py-0.5 rounded ml-2 font-mono uppercase tracking-tighter">Edited (${timeAgo(post.updated_at)})</span>` : '';
             let safeContent = window.DOMPurify ? DOMPurify.sanitize(post.content) : post.content;
             
             let imageGridHTML = '';
@@ -2668,13 +2772,14 @@
                     <div class="flex items-center gap-3">
                         <div class="w-11 h-11 rounded-full bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">${avatar}</div>
                         <div>
-                            <h4 class="text-sm font-bold tracking-wide text-white flex items-center">${post.author_name} ${getRoleBadge(post.author_role)}</h4>
+                            <h4 class="text-sm font-bold tracking-wide text-white flex items-center">${post.author_name} ${getRoleBadge(post.author_role)} ${editedBadge}</h4>
                             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-0.5">${dateStr}</p>
                         </div>
                     </div>
                     <div class="relative">
                         <button onclick="togglePostOptions('${isDetailModal ? 'opts-modal-' + post.id : 'opts-' + post.id}', event)" class="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10 border border-transparent"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
                         <div id="${isDetailModal ? 'opts-modal-' + post.id : 'opts-' + post.id}" class="hidden absolute right-0 mt-2 w-40 bg-[#111]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl z-30 py-2 px-1 overflow-hidden origin-top-right">
+                            ${isOwner ? `<button onclick="editPost('${post.id}')" class="w-full rounded-xl text-left px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-emerald-400 hover:bg-white/10 flex items-center gap-2 transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i> Edit</button>` : ''}
                             ${isOwner ? `<button onclick="deletePost('${post.id}')" class="w-full rounded-xl text-left px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-[#ff3b30] hover:bg-white/10 flex items-center gap-2 transition-colors"><i data-lucide="trash" class="w-4 h-4"></i> Delete</button>` : ''}
                             <button onclick="reportPost('${post.id}')" class="w-full rounded-xl text-left px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-orange-400 hover:bg-white/10 flex items-center gap-2 transition-colors"><i data-lucide="flag" class="w-4 h-4"></i> Report</button>
                         </div>
@@ -2724,9 +2829,78 @@
             try { if (isSaved) await supabaseInstance.from('marketplace_saves').delete().match({ post_id: postId, user_id: currentUser.id }); else await supabaseInstance.from('marketplace_saves').insert([{ post_id: postId, user_id: currentUser.id }]); } catch (e) { }
         }
 
+        let isEditingPost = false;
+        let editingPostId = null;
+
+        async function editPost(postId) {
+            const post = allCommunityPosts.find(p => p.id === postId);
+            if (!post) return;
+            
+            isEditingPost = true;
+            editingPostId = postId;
+            
+            const editor = document.getElementById('postEditor');
+            editor.innerHTML = post.content;
+            
+            // Handle images
+            selectedImages = [];
+            existingImagesForEdit = post.images ? [...post.images] : [];
+            updateImagePreview();
+            
+            // Scroll to composer
+            document.getElementById('composerContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Update UI to show we are editing
+            const btn = document.getElementById('btnPublishPost');
+            btn.innerHTML = `<span data-i18n="mpUpdateBtn">Update</span>`;
+            btn.disabled = false;
+            btn.classList.remove('cursor-not-allowed', 'bg-white/10', 'text-white/40');
+            btn.classList.add('bg-white', 'text-black');
+            
+            // Add a cancel button if not already there
+            if (!document.getElementById('btnCancelEdit')) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.id = 'btnCancelEdit';
+                cancelBtn.className = 'px-4 py-2 sm:py-2.5 text-xs uppercase tracking-widest font-bold border border-white/10 text-white hover:bg-white/10 transition-colors ml-2';
+                cancelBtn.innerText = 'Cancel';
+                cancelBtn.onclick = cancelEdit;
+                btn.parentNode.insertBefore(cancelBtn, btn);
+            }
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function cancelEdit() {
+            isEditingPost = false;
+            editingPostId = null;
+            const editor = document.getElementById('postEditor');
+            editor.innerHTML = '';
+            selectedImages = [];
+            existingImagesForEdit = [];
+            updateImagePreview();
+            
+            const btn = document.getElementById('btnPublishPost');
+            btn.innerHTML = `<span data-i18n="mpPostBtn">Post</span>`;
+            btn.disabled = true;
+            btn.classList.add('cursor-not-allowed', 'bg-white/10', 'text-white/40');
+            btn.classList.remove('bg-white', 'text-black');
+            
+            const cancelBtn = document.getElementById('btnCancelEdit');
+            if (cancelBtn) cancelBtn.remove();
+        }
+
         async function deletePost(postId) {
             const confirmed = await customConfirm("Delete this post?", "Delete Post"); if (!confirmed) return;
-            try { await supabaseInstance.from('marketplace_posts').delete().eq('id', postId); showToast("Deleted."); allCommunityPosts = allCommunityPosts.filter(p => p.id !== postId); applyFiltersAndRenderVisible(); closePostDetail(); } catch (e) { showErrorToast("Failed."); }
+            try { 
+                const { error } = await supabaseInstance.from('marketplace_posts').delete().eq('id', postId); 
+                if (error) throw error;
+                showToast("Deleted."); 
+                allCommunityPosts = allCommunityPosts.filter(p => p.id !== postId); 
+                applyFiltersAndRenderVisible(); 
+                closePostDetail(); 
+            } catch (e) { 
+                showErrorToast("Failed to delete post."); 
+            }
         }
 
         async function reportPost(postId) {
