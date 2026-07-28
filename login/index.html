@@ -2639,6 +2639,10 @@
                 currentLockoutTime = 0;
                 await clearLockoutDB(email);
 
+                // Success! The onAuthStateChange listener will handle the redirection automatically
+                // but we'll show a quick success message first
+                showToast(currentLang === 'en' ? "Login successful! Redirecting..." : "အကောင့်ဝင်ခြင်း အောင်မြင်ပါသည်။ လမ်းညွှန်နေပါသည်...");
+
             } catch (err) {
                 hideLoader();
                 loginBtn.disabled = false;
@@ -2773,6 +2777,12 @@
                 // Remove ?redirect params and ensure strict trailing slash match for Supabase whitelist
                 let cleanUrl = window.location.origin + '/login/';
 
+                // If there's a redirect intent, append it as a query param to the callback URL
+                let currentIntent = sessionStorage.getItem('smart_redirect');
+                if (currentIntent) {
+                    cleanUrl += '?redirect=' + encodeURIComponent(currentIntent);
+                }
+
                 const { error } = await supabaseInstance.auth.signInWithOtp({
                     email: email,
                     options: {
@@ -2866,6 +2876,11 @@
                 // Strictly format the callback to match Supabase Allow List exactly
                 let cleanUrl = window.location.origin.replace(/\/$/, '') + '/login/';
                 
+                // If there's a redirect intent, append it as a query param to the callback URL
+                if (currentIntent) {
+                    cleanUrl += '?redirect=' + encodeURIComponent(currentIntent);
+                }
+                
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
@@ -2902,6 +2917,11 @@
 
                 // Strictly format the callback to match Supabase Allow List exactly
                 let cleanUrl = window.location.origin.replace(/\/$/, '') + '/login/';
+
+                // If there's a redirect intent, append it as a query param to the callback URL
+                if (currentIntent) {
+                    cleanUrl += '?redirect=' + encodeURIComponent(currentIntent);
+                }
 
                 const { data, error } = await supabaseInstance.auth.signInWithOAuth({
                     provider: 'github',
