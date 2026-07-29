@@ -78,6 +78,20 @@
         .status-confirmed { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
         .status-completed { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
         .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        /* Drag and Drop overrides */
+        .drag-over { border-color: #2997ff !important; background-color: rgba(41, 151, 255, 0.1) !important; }
+        
+        /* Rich Text Editor Styles */
+        .editor-content { outline: none; padding: 10px; }
+        .editor-content ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .editor-content a { color: #2997ff; text-decoration: none; }
+        .editor-content b, .editor-content strong { font-weight: 700; color: #fff; }
+        .editor-content i, .editor-content em { font-style: italic; }
+        .editor-content u { text-decoration: underline; }
+        
+        /* Custom Select Arrow */
+        .custom-select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1.25rem center; background-size: 1em; }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-accent selection:text-white flex bg-[#050505] relative text-white">
@@ -113,6 +127,11 @@
             <button onclick="switchTab('overview')" id="nav-overview" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOverview">Overview</span>
+            </button>
+
+            <button onclick="switchTab('templates')" id="nav-templates" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="layout" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabTemplates">Website Templates</span>
             </button>
 
             <button onclick="switchTab('appointments')" id="nav-appointments" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
@@ -206,6 +225,47 @@
                 </div>
             </div>
 
+            <!-- Website Templates -->
+            <div id="view-templates" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display"><i data-lucide="layout" class="h-7 w-7 text-myancode-accent"></i> <span>Template Manager</span></h3>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                                <input type="text" id="searchTemplatesInput" onkeyup="handleTemplateSearch()" placeholder="Search templates..." class="w-full pl-10 pr-4 py-2.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner">
+                            </div>
+                            <button onclick="openTemplateModal()" class="flex justify-center items-center gap-2 px-6 py-2.5 bg-myancode-accent text-white rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:bg-blue-600 transition-colors btn-hover-effect">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Add New Template
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto custom-scroll border border-white/5 rounded-2xl bg-[#0a0a0a]">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-mono bg-white/5">
+                                    <th class="py-4 px-6 font-bold w-16">Image</th>
+                                    <th class="py-4 px-6 font-bold w-1/3">Template Name & Category</th>
+                                    <th class="py-4 px-6 font-bold">Price</th>
+                                    <th class="py-4 px-6 font-bold">Developer</th>
+                                    <th class="py-4 px-6 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="templatesTableBody" class="divide-y divide-white/5 text-sm">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3 text-gray-400"></i>
+                                        Loading templates...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div id="view-appointments" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b border-white/10 pb-6">
@@ -216,7 +276,7 @@
                                 <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
                                 <input type="text" id="searchAppointmentsInput" onkeyup="handleApptSearch()" placeholder="Search names, emails..." class="w-full pl-10 pr-4 py-2.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner">
                             </div>
-                            <select id="filterAppointmentsStatus" onchange="handleApptFilter()" class="px-4 py-2.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer">
+                            <select id="filterAppointmentsStatus" onchange="handleApptFilter()" class="px-4 py-2.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer custom-select">
                                 <option value="all">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
@@ -357,6 +417,166 @@
         </div>
     </main>
 
+    <!-- Modals -->
+
+    <!-- Template Modal -->
+    <div id="templateModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeTemplateModal()">
+        <div class="glass-panel border border-white/10 rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-[2.5rem] flex-shrink-0">
+                <h3 class="text-xl sm:text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3" id="templateModalTitle"><i data-lucide="layout" class="h-6 w-6 text-myancode-accent"></i> Add New Template</h3>
+                <button onclick="closeTemplateModal()" class="p-2.5 text-gray-400 hover:text-white bg-black/50 hover:bg-white/10 border border-white/10 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 sm:p-8 overflow-y-auto custom-scroll flex-1 text-gray-300 space-y-8">
+                <input type="hidden" id="tplId">
+                
+                <!-- Basic Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Template Name *</label>
+                        <input type="text" id="tplName" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="E.g., E-Commerce Pro">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Slug (URL) *</label>
+                        <input type="text" id="tplSlug" oninput="debounceCheckSlug()" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="e-commerce-pro">
+                        <p id="slugStatus" class="text-[10px] mt-2 hidden"></p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Short Description</label>
+                        <input type="text" id="tplShortDesc" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="A brief catchy description">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Full Description</label>
+                        <div class="flex items-center gap-1 p-2 bg-[#111] border border-white/10 border-b-0 rounded-t-xl overflow-x-auto no-scrollbar">
+                            <button type="button" onclick="formatTemplateDoc('bold')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatTemplateDoc('italic')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatTemplateDoc('underline')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Underline"><i data-lucide="underline" class="w-4 h-4"></i></button>
+                            <div class="w-px h-4 bg-white/20 mx-1"></div>
+                            <button type="button" onclick="formatTemplateDoc('insertUnorderedList')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="addTemplateLink()" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Link"><i data-lucide="link" class="w-4 h-4"></i></button>
+                        </div>
+                        <div id="tplDesc" contenteditable="true" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-b-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors min-h-[150px] max-h-[300px] overflow-y-auto custom-scroll editor-content" placeholder="Detailed information about the template..."></div>
+                    </div>
+                </div>
+
+                <!-- Attributes -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Category</label>
+                        <select id="tplCategorySelect" onchange="handleCategoryChange()" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner custom-select max-h-[200px] overflow-y-auto">
+                            <!-- Populated via JS -->
+                        </select>
+                        <input type="text" id="tplCategoryCustom" class="hidden mt-3 w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Enter custom category...">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Price (MMK) *</label>
+                        <input type="number" id="tplPrice" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Discount Price (Optional)</label>
+                        <input type="number" id="tplDiscount" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="E.g., 50000">
+                    </div>
+                </div>
+
+                <!-- Arrays / Multi-select -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="relative">
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Technologies</label>
+                        <div class="w-full min-h-[48px] px-3 py-2 bg-[#050505] border border-white/10 rounded-xl flex flex-wrap gap-2 items-center cursor-text shadow-inner" onclick="document.getElementById('techInput').focus()">
+                            <div id="techPills" class="flex flex-wrap gap-2"></div>
+                            <input type="text" id="techInput" onkeyup="handleTechSearch(event)" onfocus="showTechDropdown()" class="bg-transparent border-none outline-none text-sm text-white flex-1 min-w-[120px]" placeholder="Search or add...">
+                        </div>
+                        <div id="techDropdown" class="hidden absolute top-full left-0 right-0 mt-2 max-h-48 overflow-y-auto bg-[#111] border border-white/10 rounded-xl shadow-xl z-50 custom-scroll py-2"></div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Features (Comma separated)</label>
+                        <input type="text" id="tplFeatures" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Responsive, SEO Friendly, Dark Mode">
+                    </div>
+                    <div class="relative">
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Tags</label>
+                        <div class="w-full min-h-[48px] px-3 py-2 bg-[#050505] border border-white/10 rounded-xl flex flex-wrap gap-2 items-center cursor-text shadow-inner" onclick="document.getElementById('tagInput').focus()">
+                            <div id="tagPills" class="flex flex-wrap gap-2"></div>
+                            <input type="text" id="tagInput" onkeyup="handleTagSearch(event)" onfocus="showTagDropdown()" class="bg-transparent border-none outline-none text-sm text-white flex-1 min-w-[120px]" placeholder="Search tags...">
+                        </div>
+                        <div id="tagDropdown" class="hidden absolute top-full left-0 right-0 mt-2 max-h-48 overflow-y-auto bg-[#111] border border-white/10 rounded-xl shadow-xl z-50 custom-scroll py-2"></div>
+                    </div>
+                </div>
+
+                <!-- URLs & Contact -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Live Demo URL</label>
+                        <input type="url" id="tplDemo" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Developer Name/Org</label>
+                        <input type="text" id="tplDev" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="MyanCode Team">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Contact Info</label>
+                        <input type="text" id="tplContact" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Email or Phone">
+                    </div>
+                </div>
+
+                <!-- File Uploads -->
+                <div class="pt-4 border-t border-white/10">
+                    <h4 class="text-sm font-bold tracking-tight text-white mb-6 font-display">Media Assets</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Thumbnail -->
+                        <div>
+                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Thumbnail Image (1:1 or 4:3)</label>
+                            <div id="dropThumb" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[160px] relative overflow-hidden" onclick="document.getElementById('inputThumb').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'thumb')">
+                                <div id="uiThumbDef" class="flex flex-col items-center">
+                                    <i data-lucide="upload-cloud" class="w-8 h-8 text-gray-400 mb-2"></i>
+                                    <p class="text-xs text-gray-400 font-medium">Drag & Drop or Click to upload</p>
+                                </div>
+                                <img id="previewThumb" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl" src="" alt="Thumbnail">
+                            </div>
+                            <input type="file" id="inputThumb" class="hidden" accept="image/*" onchange="handleFileSelect(event, 'thumb')">
+                            <button id="btnRemoveThumb" onclick="removeImageFile('thumb')" class="hidden mt-2 text-[10px] text-red-400 font-bold uppercase tracking-widest hover:text-red-300">Remove</button>
+                        </div>
+                        
+                        <!-- Cover -->
+                        <div>
+                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Cover Image (16:9)</label>
+                            <div id="dropCover" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[160px] relative overflow-hidden" onclick="document.getElementById('inputCover').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'cover')">
+                                <div id="uiCoverDef" class="flex flex-col items-center">
+                                    <i data-lucide="image" class="w-8 h-8 text-gray-400 mb-2"></i>
+                                    <p class="text-xs text-gray-400 font-medium">Drag & Drop or Click to upload</p>
+                                </div>
+                                <img id="previewCover" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl" src="" alt="Cover">
+                            </div>
+                            <input type="file" id="inputCover" class="hidden" accept="image/*" onchange="handleFileSelect(event, 'cover')">
+                            <button id="btnRemoveCover" onclick="removeImageFile('cover')" class="hidden mt-2 text-[10px] text-red-400 font-bold uppercase tracking-widest hover:text-red-300">Remove</button>
+                        </div>
+                    </div>
+
+                    <!-- Gallery -->
+                    <div class="mt-8">
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Gallery Images (Up to 8 photos)</label>
+                        <div id="dropGallery" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[120px]" onclick="document.getElementById('inputGallery').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'gallery')">
+                            <i data-lucide="images" class="w-8 h-8 text-gray-400 mb-2"></i>
+                            <p class="text-xs text-gray-400 font-medium">Drag & Drop or Click to upload multiple photos</p>
+                        </div>
+                        <input type="file" id="inputGallery" class="hidden" accept="image/*" multiple onchange="handleFileSelect(event, 'gallery')">
+                        
+                        <!-- Gallery Preview Container -->
+                        <div id="galleryPreviewContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 empty:hidden"></div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="p-6 sm:p-8 border-t border-white/10 bg-white/5 rounded-b-[2.5rem] flex flex-col sm:flex-row justify-end gap-4 flex-shrink-0">
+                <button onclick="closeTemplateModal()" class="px-8 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors w-full sm:w-auto">Cancel</button>
+                <button onclick="saveTemplate()" id="btnSaveTemplate" disabled class="px-10 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-myancode-accent text-white shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors btn-hover-effect w-full sm:w-auto flex justify-center items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> <span id="lblSaveTemplate">Save Template</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Existing Modals -->
     <div id="forcePasswordModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 px-4">
         <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-500" id="forcePasswordModalContent">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
@@ -525,7 +745,33 @@
         </div>
     </div>
 
+    <div id="customPromptModal" class="fixed inset-0 z-[200000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeCustomPrompt(false)">
+        <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
+                <i data-lucide="link" class="h-8 w-8 text-myancode-accent"></i>
+            </div>
+            <h3 class="text-2xl font-bold font-display tracking-tight text-white mb-3 text-center" id="promptTitle">Input</h3>
+            <p class="text-[13px] font-medium text-gray-400 mb-8 leading-relaxed text-center" id="promptMessage"></p>
+            <div class="space-y-6">
+                <div>
+                    <input type="text" id="promptInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-myancode-accent shadow-inner" onkeypress="if(event.key==='Enter') closeCustomPrompt(true)">
+                </div>
+                <div class="flex space-x-4 w-full">
+                    <button onclick="closeCustomPrompt(false)" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors">Cancel</button>
+                    <button onclick="closeCustomPrompt(true)" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-[0_0_15px_rgba(41,151,255,0.3)] transition-colors bg-myancode-accent hover:bg-blue-600 btn-hover-effect">Add Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        const AVAILABLE_CATEGORIES = ['Business', 'Portfolio', 'E-commerce', 'SaaS', 'Landing Page', 'Agency', 'Blog', 'Restaurant', 'Education', 'Healthcare', 'Real Estate', 'Finance', 'Technology', 'Travel', 'Booking', 'Dashboard', 'AI', 'Marketplace', 'Personal'];
+        const AVAILABLE_TECHS = ['HTML5', 'CSS3', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Vue.js', 'Angular', 'Tailwind CSS', 'Bootstrap', 'Node.js', 'Express.js', 'Laravel', 'PHP', 'Python', 'Django', 'PostgreSQL', 'MySQL', 'Supabase', 'Firebase'];
+        const AVAILABLE_TAGS = ['modern', 'minimal', 'responsive', 'mobile', 'dark-mode', 'light-mode', 'seo', 'fast', 'animation', 'clean', 'premium', 'professional', 'corporate', 'business', 'startup', 'agency', 'saas', 'ecommerce', 'shop', 'store', 'marketplace', 'portfolio', 'personal', 'blog', 'news', 'magazine', 'landing-page', 'dashboard', 'admin', 'crm', 'booking', 'reservation', 'restaurant', 'food', 'hotel', 'travel', 'education', 'school', 'healthcare', 'medical', 'finance', 'banking', 'fintech', 'real-estate', 'property', 'technology', 'ai', 'chatbot', 'crypto', 'web3', 'social', 'community', 'authentication', 'api', 'cms', 'database', 'multilingual', 'translation', 'rtl', 'accessibility', 'customizable', 'component', 'ui', 'ux', 'creative', 'luxury', 'elegant', 'glassmorphism', 'futuristic', 'developer', 'designer', 'frontend', 'backend', 'fullstack', 'tailwind', 'bootstrap', 'react', 'nextjs', 'vue', 'angular', 'nodejs', 'laravel', 'php', 'python'];
+
+        let selectedTechs = [];
+        let selectedTags = [];
+
         lucide.createIcons();
 
         const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' style='background-color:%23111111;'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E";
@@ -533,7 +779,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabCommunity: "Community Management", tabAccess: "Access Control", tabAppointments: "Appointments Management",
+                menuMain: "Main Menu", tabOverview: "Overview", tabTemplates: "Website Templates", tabSettings: "System Settings", tabCommunity: "Community Management", tabAccess: "Access Control", tabAppointments: "Appointments Management",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 apptTitle: "Appointment Requests",
@@ -547,7 +793,7 @@
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabAppointments: "ရက်ချိန်းများ", tabSettings: "စနစ် ဆက်တင်များ", tabCommunity: "Community စီမံခန့်ခွဲမှု", tabAccess: "ဝင်ရောက်ခွင့် ထိန်းချုပ်မှု",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabTemplates: "ဝက်ဘ်ဆိုက်ပုံစံများ", tabAppointments: "ရက်ချိန်းများ", tabSettings: "စနစ် ဆက်တင်များ", tabCommunity: "Community စီမံခန့်ခွဲမှု", tabAccess: "ဝင်ရောက်ခွင့် ထိန်းချုပ်မှု",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 apptTitle: "ရက်ချိန်း တောင်းဆိုမှုများ",
@@ -598,6 +844,13 @@
 
         let allLockedAccounts = [];
         let allReportedPosts = [];
+
+        // Templates Variables
+        let allTemplates = [];
+        let currentTemplateSearch = '';
+        let templateThumbFile = null;
+        let templateCoverFile = null;
+        let templateGalleryFiles = [];
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
@@ -737,6 +990,12 @@
                         document.getElementById('modalApptStatus').value = payload.new.status;
                         document.getElementById('modalApptRemarks').value = payload.new.remarks || '';
                     }
+                })
+                .subscribe();
+
+            supabaseInstance.channel('moderator_templates')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'website_templates' }, payload => {
+                    fetchTemplates(true);
                 })
                 .subscribe();
         }
@@ -899,15 +1158,669 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'community': 'Community Management', 'access': 'Access Control', 'appointments': 'Appointments Management' };
+            const titleMap = { 
+                'overview': 'Overview', 
+                'templates': 'Website Templates',
+                'settings': 'System Settings', 
+                'community': 'Community Management', 
+                'access': 'Access Control', 
+                'appointments': 'Appointments Management' 
+            };
             document.getElementById('headerTitle').innerText = titleMap[tabId] || 'Dashboard';
             
+            if (tabId === 'templates' && allTemplates.length === 0) fetchTemplates();
             if (tabId === 'community' && allReportedPosts.length === 0) fetchReportedPosts();
             if (tabId === 'access' && allLockedAccounts.length === 0) fetchLockedAccounts();
             if (tabId === 'appointments' && allAppointments.length === 0) fetchAppointments();
 
             if(window.innerWidth < 1024 && sidebarOpen) toggleMobileMenu();
         }
+
+        /* -------------------------------------------------------------------------- */
+        /*                          WEBSITE TEMPLATES LOGIC                           */
+        /* -------------------------------------------------------------------------- */
+
+        // Rich Text Editor Functions
+        function formatTemplateDoc(cmd, value = null) {
+            document.execCommand(cmd, false, value);
+            document.getElementById('tplDesc').focus();
+        }
+
+        let promptResolve = null;
+        let savedSelection = null;
+
+        function customPrompt(message, placeholder = "", title = "Input Required") {
+            // Save the current text selection so it isn't lost when focusing the modal input
+            if (window.getSelection && window.getSelection().rangeCount > 0) {
+                savedSelection = window.getSelection().getRangeAt(0);
+            } else {
+                savedSelection = null;
+            }
+            
+            const modal = document.getElementById('customPromptModal');
+            const modalInner = modal.querySelector('.glass-panel');
+            document.getElementById('promptMessage').innerText = message;
+            document.getElementById('promptTitle').innerText = title;
+            const input = document.getElementById('promptInput');
+            input.placeholder = placeholder;
+            input.value = '';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalInner.classList.remove('scale-95');
+                input.focus();
+            }, 10);
+            
+            return new Promise(resolve => { promptResolve = resolve; });
+        }
+
+        function closeCustomPrompt(isSubmit) {
+            const modal = document.getElementById('customPromptModal');
+            const modalInner = modal.querySelector('.glass-panel');
+            const input = document.getElementById('promptInput');
+            
+            modal.classList.add('opacity-0');
+            modalInner.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                
+                // Restore the text selection before resolving so execCommand applies to it
+                if (savedSelection) {
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(savedSelection);
+                }
+                
+                if (promptResolve) {
+                    promptResolve(isSubmit ? input.value.trim() : null);
+                }
+            }, 300);
+        }
+
+        async function addTemplateLink() {
+            const url = await customPrompt('Enter link URL (e.g. https://google.com):', 'https://', 'Add Link');
+            if (url) formatTemplateDoc('createLink', url);
+        }
+
+        // Slug Validation Logic
+        let slugTimeout;
+        function debounceCheckSlug() {
+            clearTimeout(slugTimeout);
+            document.getElementById('slugStatus').classList.add('hidden');
+            document.getElementById('btnSaveTemplate').disabled = true;
+            slugTimeout = setTimeout(checkSlug, 500);
+        }
+
+        async function checkSlug() {
+            const slugInput = document.getElementById('tplSlug');
+            let slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            slugInput.value = slug; 
+            
+            const statusEl = document.getElementById('slugStatus');
+            const saveBtn = document.getElementById('btnSaveTemplate');
+            const currentId = document.getElementById('tplId').value;
+            
+            if(!slug) {
+                statusEl.innerHTML = '<span class="text-red-400">Slug is required.</span>';
+                statusEl.classList.remove('hidden');
+                saveBtn.disabled = true;
+                return;
+            }
+            
+            statusEl.innerHTML = '<span class="text-gray-400"><i data-lucide="loader-2" class="w-3 h-3 animate-spin inline"></i> Checking availability...</span>';
+            statusEl.classList.remove('hidden');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+            
+            try {
+                let query = supabaseInstance.from('website_templates').select('id').eq('slug', slug);
+                if (currentId) query = query.neq('id', currentId);
+                
+                const { data, error } = await query;
+                if(error) throw error;
+                
+                if (data.length > 0) {
+                    const suggested = slug + '-' + Math.floor(Math.random() * 1000);
+                    statusEl.innerHTML = `<span class="text-red-400 flex items-center gap-1.5 mt-1"><i data-lucide="x-circle" class="w-3 h-3"></i> Slug taken. Try: <strong class="cursor-pointer underline text-white" onclick="document.getElementById('tplSlug').value='${suggested}'; checkSlug();">${suggested}</strong></span>`;
+                    saveBtn.disabled = true;
+                } else {
+                    statusEl.innerHTML = `<span class="text-green-400 flex items-center gap-1.5 mt-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Slug is available!</span>`;
+                    saveBtn.disabled = false;
+                }
+            } catch(err) {
+                statusEl.innerHTML = `<span class="text-red-400">Error checking slug.</span>`;
+            }
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // Category Selection
+        function populateCategories(selectedCat) {
+            const sel = document.getElementById('tplCategorySelect');
+            const custom = document.getElementById('tplCategoryCustom');
+            sel.innerHTML = '<option value="" disabled selected>Select a Category</option>' + 
+                AVAILABLE_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('') +
+                '<option value="other">Other (Custom)</option>';
+            
+            if (selectedCat) {
+                if (AVAILABLE_CATEGORIES.includes(selectedCat)) {
+                    sel.value = selectedCat;
+                    custom.classList.add('hidden');
+                    custom.value = '';
+                } else {
+                    sel.value = 'other';
+                    custom.classList.remove('hidden');
+                    custom.value = selectedCat;
+                }
+            } else {
+                sel.value = '';
+                custom.classList.add('hidden');
+                custom.value = '';
+            }
+        }
+
+        function handleCategoryChange() {
+            const val = document.getElementById('tplCategorySelect').value;
+            const custom = document.getElementById('tplCategoryCustom');
+            if (val === 'other') {
+                custom.classList.remove('hidden');
+                custom.focus();
+            } else {
+                custom.classList.add('hidden');
+            }
+        }
+
+        // Technologies Logic
+        function renderTechPills() {
+            document.getElementById('techPills').innerHTML = selectedTechs.map((t, i) => `<span class="bg-white/10 text-gray-300 text-[11px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">${t} <button onclick="removeTech(${i}); event.stopPropagation();" class="hover:text-red-400 transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button></span>`).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        function removeTech(index) {
+            selectedTechs.splice(index, 1); renderTechPills();
+        }
+        function addTech(val) {
+            val = val.trim();
+            if(val && !selectedTechs.includes(val)) { selectedTechs.push(val); renderTechPills(); }
+            document.getElementById('techInput').value = '';
+            document.getElementById('techDropdown').classList.add('hidden');
+        }
+        function handleTechSearch(e) {
+            if(e.key === 'Enter') {
+                e.preventDefault();
+                if (e.target.value.trim()) addTech(e.target.value);
+                return;
+            }
+            showTechDropdown();
+        }
+        function showTechDropdown() {
+            const val = document.getElementById('techInput').value.toLowerCase().trim();
+            const dd = document.getElementById('techDropdown');
+            let filtered = AVAILABLE_TECHS.filter(t => t.toLowerCase().includes(val) && !selectedTechs.includes(t));
+            
+            if (filtered.length === 0 && !val) {
+                dd.classList.add('hidden'); return;
+            }
+            
+            let html = filtered.map(t => `<div class="px-4 py-2 hover:bg-white/10 cursor-pointer text-sm text-gray-300 transition-colors" onclick="addTech('${t}')">${t}</div>`).join('');
+            
+            if (val && !AVAILABLE_TECHS.some(t => t.toLowerCase() === val)) {
+                html = `<div class="px-4 py-2 hover:bg-white/10 cursor-pointer text-sm text-myancode-accent font-bold transition-colors" onclick="addTech('${val}')">Add custom: "${val}"</div>` + html;
+            }
+            
+            dd.innerHTML = html || '<div class="px-4 py-2 text-sm text-gray-500">No matches found</div>';
+            dd.classList.remove('hidden');
+        }
+
+        // Tags Logic
+        function renderTagPills() {
+            document.getElementById('tagPills').innerHTML = selectedTags.map((t, i) => `<span class="bg-white/10 text-gray-300 text-[11px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">${t} <button onclick="removeTag(${i}); event.stopPropagation();" class="hover:text-red-400 transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button></span>`).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        function removeTag(index) {
+            selectedTags.splice(index, 1); renderTagPills();
+        }
+        function addTag(val) {
+            val = val.trim().toLowerCase();
+            if(val && AVAILABLE_TAGS.includes(val) && !selectedTags.includes(val)) { selectedTags.push(val); renderTagPills(); }
+            document.getElementById('tagInput').value = '';
+            document.getElementById('tagDropdown').classList.add('hidden');
+        }
+        function handleTagSearch(e) {
+            if(e.key === 'Enter') {
+                e.preventDefault();
+                addTag(e.target.value);
+                return;
+            }
+            showTagDropdown();
+        }
+        function showTagDropdown() {
+            const val = document.getElementById('tagInput').value.toLowerCase().trim();
+            const dd = document.getElementById('tagDropdown');
+            let filtered = AVAILABLE_TAGS.filter(t => t.includes(val) && !selectedTags.includes(t));
+            
+            if (filtered.length === 0) {
+                dd.innerHTML = '<div class="px-4 py-2 text-sm text-gray-500">No matching valid tags</div>';
+            } else {
+                dd.innerHTML = filtered.map(t => `<div class="px-4 py-2 hover:bg-white/10 cursor-pointer text-sm text-gray-300 transition-colors" onclick="addTag('${t}')">${t}</div>`).join('');
+            }
+            dd.classList.remove('hidden');
+        }
+
+        // Close dropdowns on document click
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('#techInput') && !e.target.closest('#techDropdown')) {
+                const td = document.getElementById('techDropdown');
+                if(td) td.classList.add('hidden');
+            }
+            if(!e.target.closest('#tagInput') && !e.target.closest('#tagDropdown')) {
+                const gd = document.getElementById('tagDropdown');
+                if(gd) gd.classList.add('hidden');
+            }
+        });
+
+
+        async function fetchTemplates(isSilent = false) {
+            if(!supabaseInstance) return;
+            const tbody = document.getElementById('templatesTableBody');
+            
+            if (!isSilent) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading templates...</td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+            
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('website_templates')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                allTemplates = data || [];
+                renderTemplatesTable();
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+
+        function handleTemplateSearch() {
+            currentTemplateSearch = document.getElementById('searchTemplatesInput').value.toLowerCase().trim();
+            renderTemplatesTable();
+        }
+
+        function renderTemplatesTable() {
+            const tbody = document.getElementById('templatesTableBody');
+            
+            let filtered = allTemplates.filter(tpl => {
+                const searchStr = `${tpl.template_name} ${tpl.slug} ${tpl.category} ${tpl.developer_name}`.toLowerCase();
+                return !currentTemplateSearch || searchStr.includes(currentTemplateSearch);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="layout-template" class="w-6 h-6 text-gray-400"></i></div><p class="font-medium">No templates found.</p></td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(tpl => {
+                const thumb = tpl.thumbnail_url || 'https://placehold.co/100x100/111/333?text=No+Img';
+                const priceFmt = Number(tpl.price).toLocaleString() + ' MMK';
+                const discFmt = tpl.discount_price ? `<br><span class="text-red-400 text-xs">${Number(tpl.discount_price).toLocaleString()} MMK (Sale)</span>` : '';
+                
+                return `
+                    <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                        <td class="px-6 py-4 align-top w-16">
+                            <img src="${thumb}" class="w-12 h-12 object-cover rounded-xl border border-white/10" alt="Thumb">
+                        </td>
+                        <td class="px-6 py-4 align-top w-1/3">
+                            <div class="font-bold text-white mb-1 truncate">${tpl.template_name}</div>
+                            <div class="text-[11px] text-gray-400 font-mono truncate">/${tpl.slug}</div>
+                            <div class="text-[11px] text-myancode-accent font-bold mt-1 uppercase tracking-widest">${tpl.category || 'Uncategorized'}</div>
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <div class="font-bold text-sm text-white">${priceFmt}</div>
+                            ${discFmt}
+                        </td>
+                        <td class="px-6 py-4 align-top text-sm font-medium text-gray-300">
+                            ${tpl.developer_name || 'MyanCode'}
+                        </td>
+                        <td class="px-6 py-4 align-top text-right">
+                            <div class="flex justify-end gap-2 opacity-100 sm:opacity-50 sm:group-hover:opacity-100 transition-opacity">
+                                <button onclick="openTemplateModal('${tpl.id}')" class="h-9 w-9 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Edit Template">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="deleteTemplate('${tpl.id}')" class="h-9 w-9 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Delete Template">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function openTemplateModal(id = null) {
+            templateThumbFile = null;
+            templateCoverFile = null;
+            templateGalleryFiles = [];
+            selectedTechs = [];
+            selectedTags = [];
+            
+            resetUploadUI('thumb');
+            resetUploadUI('cover');
+            document.getElementById('galleryPreviewContainer').innerHTML = '';
+            document.getElementById('slugStatus').classList.add('hidden');
+            
+            if (id) {
+                const tpl = allTemplates.find(t => t.id === id);
+                if(!tpl) return;
+                document.getElementById('templateModalTitle').innerHTML = '<i data-lucide="edit" class="h-6 w-6 text-myancode-accent"></i> Edit Template';
+                document.getElementById('tplId').value = tpl.id;
+                document.getElementById('tplName').value = tpl.template_name || '';
+                document.getElementById('tplSlug').value = tpl.slug || '';
+                document.getElementById('tplShortDesc').value = tpl.short_description || '';
+                document.getElementById('tplDesc').innerHTML = tpl.description || '';
+                
+                populateCategories(tpl.category);
+                
+                selectedTechs = tpl.technologies || [];
+                selectedTags = tpl.tags || [];
+                renderTechPills();
+                renderTagPills();
+                
+                document.getElementById('tplPrice').value = tpl.price || '';
+                document.getElementById('tplDiscount').value = tpl.discount_price || '';
+                document.getElementById('tplFeatures').value = (tpl.features || []).join(', ');
+                document.getElementById('tplDemo').value = tpl.live_demo_url || '';
+                document.getElementById('tplDev').value = tpl.developer_name || '';
+                document.getElementById('tplContact').value = tpl.contact_info || '';
+
+                if (tpl.thumbnail_url) setPreviewUI('thumb', tpl.thumbnail_url);
+                if (tpl.cover_url) setPreviewUI('cover', tpl.cover_url);
+                
+                if (tpl.gallery_urls && tpl.gallery_urls.length > 0) {
+                    const cont = document.getElementById('galleryPreviewContainer');
+                    cont.innerHTML = tpl.gallery_urls.map(url => `
+                        <div class="relative rounded-xl overflow-hidden border border-white/20 h-24 group">
+                            <img src="${url}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span class="text-[10px] font-bold uppercase tracking-widest">Existing</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                document.getElementById('lblSaveTemplate').innerText = 'Update Template';
+                document.getElementById('btnSaveTemplate').disabled = false;
+            } else {
+                document.getElementById('templateModalTitle').innerHTML = '<i data-lucide="plus-circle" class="h-6 w-6 text-myancode-accent"></i> Add New Template';
+                document.getElementById('tplId').value = '';
+                document.getElementById('tplName').value = '';
+                document.getElementById('tplSlug').value = '';
+                document.getElementById('tplShortDesc').value = '';
+                document.getElementById('tplDesc').innerHTML = '';
+                
+                populateCategories('');
+                renderTechPills();
+                renderTagPills();
+                
+                document.getElementById('tplPrice').value = '';
+                document.getElementById('tplDiscount').value = '';
+                document.getElementById('tplFeatures').value = '';
+                document.getElementById('tplDemo').value = '';
+                document.getElementById('tplDev').value = '';
+                document.getElementById('tplContact').value = '';
+                document.getElementById('lblSaveTemplate').innerText = 'Create Template';
+                document.getElementById('btnSaveTemplate').disabled = true; // wait for slug check
+            }
+
+            const modal = document.getElementById('templateModal');
+            const content = modal.querySelector('.glass-panel');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                lucide.createIcons();
+            }, 10);
+        }
+
+        function closeTemplateModal() {
+            const modal = document.getElementById('templateModal');
+            const content = modal.querySelector('.glass-panel');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        // --- Drag and Drop File Handlers ---
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+        }
+        function handleDrop(e, type) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            processFiles(files, type);
+        }
+        function handleFileSelect(e, type) {
+            const files = e.target.files;
+            processFiles(files, type);
+        }
+
+        function processFiles(files, type) {
+            if(!files || files.length === 0) return;
+            
+            const MAX_SIZE = 5 * 1024 * 1024; // 5MB limit per image
+            
+            if (type === 'gallery') {
+                for (let i = 0; i < files.length; i++) {
+                    if (templateGalleryFiles.length >= 8) {
+                        showErrorToast("Maximum 8 images allowed for gallery.");
+                        break;
+                    }
+                    if (files[i].size > MAX_SIZE) {
+                        showErrorToast(`Image ${files[i].name} exceeds 5MB limit.`);
+                        continue;
+                    }
+                    if (files[i].type.startsWith('image/')) {
+                        templateGalleryFiles.push(files[i]);
+                    }
+                }
+                renderGalleryPreview();
+            } else {
+                // Thumb or Cover (Single file)
+                const file = files[0];
+                if (file.size > MAX_SIZE) {
+                    showErrorToast(`Image exceeds 5MB limit.`);
+                    return;
+                }
+                if (file.type.startsWith('image/')) {
+                    if (type === 'thumb') templateThumbFile = file;
+                    if (type === 'cover') templateCoverFile = file;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        setPreviewUI(type, ev.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+
+        function setPreviewUI(type, src) {
+            document.getElementById(`ui${type.charAt(0).toUpperCase() + type.slice(1)}Def`).classList.add('hidden');
+            const img = document.getElementById(`preview${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            img.src = src;
+            img.classList.remove('hidden');
+            document.getElementById(`btnRemove${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.remove('hidden');
+        }
+
+        function resetUploadUI(type) {
+            document.getElementById(`ui${type.charAt(0).toUpperCase() + type.slice(1)}Def`).classList.remove('hidden');
+            const img = document.getElementById(`preview${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            img.src = '';
+            img.classList.add('hidden');
+            document.getElementById(`btnRemove${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('hidden');
+            if(type === 'thumb') templateThumbFile = null;
+            if(type === 'cover') templateCoverFile = null;
+            document.getElementById(`input${type.charAt(0).toUpperCase() + type.slice(1)}`).value = '';
+        }
+
+        function removeImageFile(type) {
+            if(type === 'thumb' || type === 'cover') {
+                resetUploadUI(type);
+            }
+        }
+
+        function removeGalleryItem(index) {
+            templateGalleryFiles.splice(index, 1);
+            renderGalleryPreview();
+        }
+
+        function renderGalleryPreview() {
+            const container = document.getElementById('galleryPreviewContainer');
+            container.innerHTML = templateGalleryFiles.map((f, idx) => `
+                <div class="relative rounded-xl overflow-hidden border border-white/20 h-24 group">
+                    <img src="${URL.createObjectURL(f)}" class="w-full h-full object-cover">
+                    <button onclick="removeGalleryItem(${idx})" class="absolute top-1 right-1 bg-black/70 hover:bg-red-500 text-white rounded-full p-1 transition-colors">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // --- Save Template CRUD ---
+        async function saveTemplate() {
+            const id = document.getElementById('tplId').value;
+            const name = document.getElementById('tplName').value.trim();
+            const slug = document.getElementById('tplSlug').value.trim();
+            const price = document.getElementById('tplPrice').value.trim();
+
+            const catSelect = document.getElementById('tplCategorySelect').value;
+            const catCustom = document.getElementById('tplCategoryCustom').value.trim();
+            const finalCategory = catSelect === 'other' ? catCustom : catSelect;
+            
+            if (!finalCategory) { showErrorToast("Please select or enter a category."); return; }
+            if(!name || !slug || !price) { showErrorToast("Template Name, Slug, and Price are required."); return; }
+            if(selectedTechs.length === 0) { showErrorToast("Please add at least one technology."); return; }
+
+            const btn = document.getElementById('btnSaveTemplate');
+            btn.disabled = true;
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-white"></i> Processing...`;
+            lucide.createIcons();
+
+            try {
+                const processArr = (str) => str ? str.split(',').map(s => s.trim()).filter(s => s) : [];
+                const featsArr = processArr(document.getElementById('tplFeatures').value);
+                const finalDesc = document.getElementById('tplDesc').innerHTML.trim();
+                
+                const payload = {
+                    template_name: name,
+                    slug: slug,
+                    short_description: document.getElementById('tplShortDesc').value.trim(),
+                    description: finalDesc,
+                    category: finalCategory,
+                    price: parseFloat(price) || 0,
+                    discount_price: document.getElementById('tplDiscount').value ? parseFloat(document.getElementById('tplDiscount').value) : null,
+                    technologies: [...selectedTechs],
+                    features: featsArr,
+                    tags: [...selectedTags],
+                    live_demo_url: document.getElementById('tplDemo').value.trim(),
+                    developer_name: document.getElementById('tplDev').value.trim(),
+                    contact_info: document.getElementById('tplContact').value.trim()
+                };
+
+                // Real ImageKit compression and upload logic
+                if (templateThumbFile) {
+                    payload.thumbnail_url = await uploadSingleImageToImageKit(templateThumbFile);
+                }
+                if (templateCoverFile) {
+                    payload.cover_url = await uploadSingleImageToImageKit(templateCoverFile);
+                }
+                if (templateGalleryFiles.length > 0) {
+                    const gUrls = [];
+                    for(let f of templateGalleryFiles) {
+                        gUrls.push(await uploadSingleImageToImageKit(f));
+                    }
+                    payload.gallery_urls = gUrls; 
+                }
+
+                if (id) {
+                    const { error } = await supabaseInstance.from('website_templates').update(payload).eq('id', id);
+                    if(error) throw error;
+                    showToast("Template updated successfully.");
+                } else {
+                    const { error } = await supabaseInstance.from('website_templates').insert([payload]);
+                    if(error) throw error;
+                    showToast("Template created successfully.");
+                }
+
+                closeTemplateModal();
+                fetchTemplates(true);
+            } catch(e) {
+                showErrorToast("Error: " + (e.message || "Failed to save template."));
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHTML;
+                lucide.createIcons();
+            }
+        }
+
+        async function deleteTemplate(id) {
+            showConfirmModal("Delete Template", "Are you sure you want to delete this template? This action is permanent.", "danger", async () => {
+                showLoader();
+                try {
+                    const { error } = await supabaseInstance.from('website_templates').delete().eq('id', id);
+                    if(error) throw error;
+                    showToast("Template deleted successfully.");
+                    fetchTemplates(true);
+                } catch(e) {
+                    showErrorToast("Error: " + (e.message || "Failed to delete template."));
+                } finally {
+                    hideLoader();
+                }
+            });
+        }
+
+        // Image Upload (No compression, original quality with 5MB limit enforced above)
+        function getBase64Original(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader(); 
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function uploadSingleImageToImageKit(file) {
+            try {
+                const base64Content = await getBase64Original(file);
+                const ext = file.name.split('.').pop() || 'jpg';
+                const { data, error } = await supabaseInstance.functions.invoke('upload-image', { 
+                    body: { imageBase64: base64Content, extension: ext, provider: 'imagekit' } 
+                });
+                if (error || (data && data.error)) throw new Error("Image upload failed."); 
+                return data.url;
+            } catch (err) { throw err; }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                          APPOINTMENTS LOGIC                                */
+        /* -------------------------------------------------------------------------- */
 
         async function fetchAppointments(isSilent = false) {
             if(!supabaseInstance) return;
@@ -1720,6 +2633,7 @@
                 const postPreviewModal = document.getElementById('postPreviewModal');
                 const banUserModal = document.getElementById('banUserModal');
                 const appointmentModal = document.getElementById('appointmentModal');
+                const templateModal = document.getElementById('templateModal');
                 
                 if (e.key === 'Escape') {
                     if (!cropperModal.classList.contains('hidden')) cancelCrop();
@@ -1727,6 +2641,7 @@
                     if (!postPreviewModal.classList.contains('hidden')) closePostPreviewModal();
                     if (!banUserModal.classList.contains('hidden')) closeBanUserModal();
                     if (!appointmentModal.classList.contains('hidden')) closeAppointmentModal();
+                    if (templateModal && !templateModal.classList.contains('hidden')) closeTemplateModal();
                 }
             });
         });
