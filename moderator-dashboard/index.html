@@ -765,7 +765,7 @@
     </div>
 
     <script>
-        const AVAILABLE_CATEGORIES = ['Business', 'Portfolio', 'E-commerce', , 'Personal', 'Sport & Gaming', 'SaaS', 'Landing Page', 'Agency', 'Blog', 'Restaurant', 'Education', 'Healthcare', 'Goverment', 'Finance', 'Technology', 'Travel', 'Booking', 'Dashboard', 'AI', 'Marketplace'];
+        const AVAILABLE_CATEGORIES = ['Business', 'Portfolio', 'E-commerce', 'SaaS', 'Landing Page', 'Agency', 'Blog', 'Restaurant', 'Education', 'Healthcare', 'Real Estate', 'Finance', 'Technology', 'Travel', 'Booking', 'Dashboard', 'AI', 'Marketplace', 'Personal', 'Sport'];
         const AVAILABLE_TECHS = ['HTML5', 'CSS3', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Vue.js', 'Angular', 'Tailwind CSS', 'Bootstrap', 'Node.js', 'Express.js', 'Laravel', 'PHP', 'Python', 'Django', 'PostgreSQL', 'MySQL', 'Supabase', 'Firebase'];
         const AVAILABLE_TAGS = ['modern', 'minimal', 'responsive', 'mobile', 'dark-mode', 'light-mode', 'seo', 'fast', 'animation', 'clean', 'premium', 'professional', 'corporate', 'business', 'startup', 'agency', 'saas', 'ecommerce', 'shop', 'store', 'marketplace', 'portfolio', 'personal', 'blog', 'news', 'magazine', 'landing-page', 'dashboard', 'admin', 'crm', 'booking', 'reservation', 'restaurant', 'food', 'hotel', 'travel', 'education', 'school', 'healthcare', 'medical', 'finance', 'banking', 'fintech', 'real-estate', 'property', 'technology', 'ai', 'chatbot', 'crypto', 'web3', 'social', 'community', 'authentication', 'api', 'cms', 'database', 'multilingual', 'translation', 'rtl', 'accessibility', 'customizable', 'component', 'ui', 'ux', 'creative', 'luxury', 'elegant', 'glassmorphism', 'futuristic', 'developer', 'designer', 'frontend', 'backend', 'fullstack', 'tailwind', 'bootstrap', 'react', 'nextjs', 'vue', 'angular', 'nodejs', 'laravel', 'php', 'python'];
 
@@ -851,6 +851,7 @@
         let templateThumbFile = null;
         let templateCoverFile = null;
         let templateGalleryFiles = [];
+        let existingGalleryUrls = [];
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
@@ -1506,6 +1507,7 @@
             templateThumbFile = null;
             templateCoverFile = null;
             templateGalleryFiles = [];
+            existingGalleryUrls = [];
             selectedTechs = [];
             selectedTags = [];
             
@@ -1542,16 +1544,9 @@
                 if (tpl.cover_url) setPreviewUI('cover', tpl.cover_url);
                 
                 if (tpl.gallery_urls && tpl.gallery_urls.length > 0) {
-                    const cont = document.getElementById('galleryPreviewContainer');
-                    cont.innerHTML = tpl.gallery_urls.map(url => `
-                        <div class="relative rounded-xl overflow-hidden border border-white/20 h-24 group">
-                            <img src="${url}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span class="text-[10px] font-bold uppercase tracking-widest">Existing</span>
-                            </div>
-                        </div>
-                    `).join('');
+                    existingGalleryUrls = [...tpl.gallery_urls];
                 }
+                renderGalleryPreview();
                 
                 document.getElementById('lblSaveTemplate').innerText = 'Update Template';
                 document.getElementById('btnSaveTemplate').disabled = false;
@@ -1689,17 +1684,43 @@
             renderGalleryPreview();
         }
 
+        function removeExistingGalleryItem(index) {
+            existingGalleryUrls.splice(index, 1);
+            renderGalleryPreview();
+        }
+
         function renderGalleryPreview() {
             const container = document.getElementById('galleryPreviewContainer');
-            container.innerHTML = templateGalleryFiles.map((f, idx) => `
+            let html = '';
+            
+            // Existing Images from Database
+            html += existingGalleryUrls.map((url, idx) => `
                 <div class="relative rounded-xl overflow-hidden border border-white/20 h-24 group">
-                    <img src="${URL.createObjectURL(f)}" class="w-full h-full object-cover">
-                    <button onclick="removeGalleryItem(${idx})" class="absolute top-1 right-1 bg-black/70 hover:bg-red-500 text-white rounded-full p-1 transition-colors">
+                    <img src="${url}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeExistingGalleryItem(${idx}); event.stopPropagation();" class="absolute top-1 right-1 bg-black/70 hover:bg-red-500 text-white rounded-full p-1 transition-colors z-10">
                         <i data-lucide="x" class="w-3 h-3"></i>
                     </button>
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-white">Existing</span>
+                    </div>
                 </div>
             `).join('');
-            lucide.createIcons();
+
+            // Newly Uploaded Files
+            html += templateGalleryFiles.map((f, idx) => `
+                <div class="relative rounded-xl overflow-hidden border border-white/20 h-24 group">
+                    <img src="${URL.createObjectURL(f)}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeGalleryItem(${idx}); event.stopPropagation();" class="absolute top-1 right-1 bg-black/70 hover:bg-red-500 text-white rounded-full p-1 transition-colors z-10">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-white">New</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+            if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         // --- Save Template CRUD ---
@@ -1751,13 +1772,14 @@
                 if (templateCoverFile) {
                     payload.cover_url = await uploadSingleImageToImageKit(templateCoverFile);
                 }
+                
+                let gUrls = [...existingGalleryUrls];
                 if (templateGalleryFiles.length > 0) {
-                    const gUrls = [];
                     for(let f of templateGalleryFiles) {
                         gUrls.push(await uploadSingleImageToImageKit(f));
                     }
-                    payload.gallery_urls = gUrls; 
                 }
+                payload.gallery_urls = gUrls;
 
                 if (id) {
                     const { error } = await supabaseInstance.from('website_templates').update(payload).eq('id', id);
