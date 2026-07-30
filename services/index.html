@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Website Templates | MyanCode</title>
+    <title>Premium Services | MyanCode</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -19,6 +19,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -32,6 +33,15 @@
                     },
                     colors: {
                         myancode: { black: '#050505', gray: '#111111', darkgray: '#222222', blue: '#0066CC', accent: '#2997ff' }
+                    },
+                    animation: {
+                        'marquee': 'marquee 30s linear infinite',
+                    },
+                    keyframes: {
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
                     }
                 }
             }
@@ -44,13 +54,17 @@
         html[lang="mm"] body { font-family: 'Inter', 'Noto Sans Myanmar', sans-serif; font-size: 14px; line-height: 2.2; }
         html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 { font-family: 'Jost', 'Noto Sans Myanmar', sans-serif; }
         html[lang="mm"] .uppercase, html[lang="mm"] .capitalize { text-transform: none; }
+        html[lang="mm"] .tracking-widest, html[lang="mm"] .tracking-wide, html[lang="mm"] .tracking-\[0\.4em\] { letter-spacing: normal; }
         html[lang="mm"] .font-mono { font-family: '"JetBrains Mono"', 'Noto Sans Myanmar', monospace; }
+        .layout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
         
-        .layout-width { width: 100%; padding-left: 1.5rem; padding-right: 1.5rem; max-width: 1536px; margin-left: auto; margin-right: auto; }
-        @media (min-width: 640px) { .layout-width { padding-left: 2rem; padding-right: 2rem; } }
-        @media (min-width: 1024px) { .layout-width { padding-left: 3rem; padding-right: 3rem; } }
+        .glass-panel {
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+            border-radius: 0px !important;
+        }
         
-        .glass-panel { background: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5); border-radius: 0px !important; }
         .glass-nav-dark { background: rgba(5, 5, 5, 0.8) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
         .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
         
@@ -64,8 +78,10 @@
         
         .search-overlay { clip-path: circle(0% at 85% 5%); opacity: 0; pointer-events: none; transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease; }
         .search-overlay.open { clip-path: circle(150% at 85% 5%); opacity: 1; pointer-events: auto; }
-        @media (max-width: 640px) { .search-overlay { clip-path: circle(0px at calc(100% - 80px) 30px); } .search-overlay.open { clip-path: circle(150% at calc(100% - 80px) 30px); } }
-        
+        @media (max-width: 640px) {
+            .search-overlay { clip-path: circle(0px at calc(100% - 80px) 30px); }
+            .search-overlay.open { clip-path: circle(150% at calc(100% - 80px) 30px); }
+        }
         .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
         .drawer-overlay.open { opacity: 1; pointer-events: auto; }
         .drawer-left { transform: translateX(-100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -78,112 +94,141 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .bg-grid-dark { background-size: 50px 50px; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px); }
-        .user-avatar-global { transition: all 0.3s ease; }
-        .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
-
         .ambient-glow { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; opacity: 0.15; }
         .glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(41, 151, 255, 0.15); }
         .glow-2 { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(88, 86, 214, 0.15); }
 
-        body.light-mode-active main::before { content: ''; position: absolute; top: 80px; left: 0; right: 0; bottom: 0; background-color: #f8fafc; z-index: 0; border-top: 1px solid #e2e8f0; }
-        @media (max-width: 639px) { body.light-mode-active main::before { top: 64px; } }
-        body.light-mode-active .ambient-glow { display: none; }
-        body.light-mode-active main > div { z-index: 10; position: relative; }
-        body.light-mode-active main .text-white { color: #0f172a !important; }
-        body.light-mode-active main .text-gray-400 { color: #64748b !important; }
-        body.light-mode-active main .text-gray-300 { color: #475569 !important; }
-        body.light-mode-active main .text-gray-500 { color: #94a3b8 !important; }
-        body.light-mode-active main .bg-\[\#111\]\/60, body.light-mode-active main .bg-\[\#111\]\/80, body.light-mode-active main .bg-\[\#111\] { background-color: #ffffff !important; border-color: #e2e8f0 !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important; }
-        body.light-mode-active main .border-white\/10, body.light-mode-active main .border-white\/5 { border-color: #e2e8f0 !important; }
-        body.light-mode-active main .bg-white\/5 { background-color: #f1f5f9 !important; }
-        body.light-mode-active main .bg-white\/10 { background-color: #e2e8f0 !important; }
-        body.light-mode-active main .hover\:bg-white\/5:hover { background-color: #e2e8f0 !important; color: #0f172a !important; }
-        body.light-mode-active main .bg-white { background-color: #0f172a !important; color: #ffffff !important; }
-        body.light-mode-active main .bg-white:hover { background-color: #1e293b !important; }
-        
-        .template-card {
-            background: linear-gradient(145deg, rgba(15, 17, 21, 0.8) 0%, rgba(8, 9, 10, 0.95) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        /* ULTRA PREMIUM & FORMAL UI OVERRIDES - SERVICES CONTENT */
+        .service-card {
+            background: linear-gradient(145deg, rgba(15, 17, 21, 0.9) 0%, rgba(8, 9, 10, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 24px;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+        }
+        .service-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(41, 151, 255, 0.2);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(41, 151, 255, 0.05);
+        }
+        .service-card:hover::before { opacity: 1; }
+        .service-card.unavailable { opacity: 0.7; filter: grayscale(50%); }
+
+        .filter-panel {
+            background: linear-gradient(145deg, rgba(15, 17, 21, 0.85) 0%, rgba(8, 9, 10, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+            box-shadow: 0 8px 30px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 110px;
+        }
+
+        .custom-checkbox {
+            appearance: none;
+            width: 18px; height: 18px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            background: rgba(0,0,0,0.2);
+            cursor: pointer;
             position: relative;
+            transition: all 0.2s ease;
         }
-        .template-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(41, 151, 255, 0.3);
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9), 0 0 30px rgba(41, 151, 255, 0.1);
+        .custom-checkbox:checked {
+            background: #2997ff;
+            border-color: #2997ff;
         }
-        .template-img-container {
-            width: 100%;
-            aspect-ratio: 16/10;
-            overflow: hidden;
-            position: relative;
-            background: #111;
+        .custom-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px; top: 2px;
+            width: 5px; height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
         }
-        .template-img-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .template-card:hover .template-img-container img {
-            transform: scale(1.05);
-        }
-        .template-tag {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #ccc;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
+
         .modern-btn-primary {
-            background: linear-gradient(135deg, #2997ff 0%, #0066CC 100%);
+            background: linear-gradient(135deg, #1d4ed8 0%, #003a8c 100%);
             color: #ffffff !important;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(41, 151, 255, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(29, 78, 216, 0.2), inset 0 1px 0 rgba(255,255,255,0.1);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            border: none;
+            border: 1px solid rgba(41, 151, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
             font-weight: 700;
         }
         .modern-btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(41, 151, 255, 0.5);
-            filter: brightness(1.1);
+            box-shadow: 0 8px 25px rgba(29, 78, 216, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.15);
         }
-        .modern-btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            color: #ffffff;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            font-weight: 600;
-        }
-        .modern-btn-secondary:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+        .modern-btn-primary:active:not(:disabled) { transform: translateY(1px); }
+        .modern-btn-primary:disabled {
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: none;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: not-allowed;
         }
 
-        body.light-mode-active .template-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05); }
-        body.light-mode-active .template-card:hover { border-color: #cbd5e1; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); }
-        body.light-mode-active .template-tag { background: #f1f5f9; border-color: #e2e8f0; color: #475569; }
-        body.light-mode-active .modern-btn-secondary { background: #f8fafc; border-color: #e2e8f0; color: #0f172a; }
-        body.light-mode-active .modern-btn-secondary:hover:not(:disabled) { background: #e2e8f0; border-color: #cbd5e1; }
+        .price-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .price-input:focus { border-color: #2997ff; }
+
+        .search-container { position: relative; }
+        .search-suggestions {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: rgba(15, 17, 21, 0.95); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            margin-top: 8px; max-height: 300px; overflow-y: auto; z-index: 50;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+        }
+        .search-container.active .search-suggestions { opacity: 1; pointer-events: auto; }
+
+        .custom-select {
+            appearance: none;
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 8px 32px 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.5)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+        .custom-select:focus { border-color: #2997ff; }
         
         .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
         @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        body.light-mode-active .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; }
-        
-        select.custom-select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
-        body.light-mode-active select.custom-select { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); }
+
     </style>
 </head>
 
@@ -200,6 +245,7 @@
         <span id="error-toast-msg"></span>
     </div>
 
+    <!-- DO NOT TOUCH HEADER START -->
     <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
         <div class="layout-width">
             <div class="flex justify-between items-center h-16 sm:h-20">
@@ -214,8 +260,8 @@
                 
                 <div class="hidden xl:flex space-x-6 2xl:space-x-8 text-[12px] capitalize tracking-wide font-bold items-center h-full">
                     <a href="../package/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/package/" data-i18n="navStudio">Packages</a>
-                    <a href="../services/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/services/" data-i18n="navServices">Services</a>
-                    <a href="../templates/" class="text-myancode-accent font-bold active-nav-item nav-link" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../services/" class="text-myancode-accent font-bold active-nav-item nav-link" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    <a href="../templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
                     <a href="../marketplace/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/marketplace/" data-i18n="navCommunity">Community</a>
                     <a href="../developers/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/developers/" data-i18n="navDevelopers">Developers</a>
                     <a href="../plan-purchase/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/pricing/" data-i18n="navPricing">Pricing</a>
@@ -288,7 +334,7 @@
             </div>
         </div>
     </nav>
-
+    
     <div id="searchOverlay" class="fixed inset-0 z-[100] bg-[#0a0a0a]/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
         <div class="layout-width pt-10">
             <div class="flex justify-end"><button onclick="toggleSearchOverlay()" class="p-2 text-gray-400 hover:text-white transition-colors rounded-full bg-white/5 border border-white/10 hover:bg-white/10"><i data-lucide="x" class="h-5 w-5"></i></button></div>
@@ -328,7 +374,7 @@
             
             <div class="space-y-6 text-base font-semibold text-white tracking-wide flex-1">
                 <a href="../package/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navStudio">Packages</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="../services/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../services/" class="flex justify-between items-center text-myancode-accent transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-myancode-accent"></i></a>
                 <a href="../templates/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
                 <a href="../marketplace/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navCommunity">Community</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
                 <a href="../developers/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navDevelopers">Developers</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
@@ -402,151 +448,117 @@
             </button>
         </div>
     </div>
+    <!-- DO NOT TOUCH HEADER END -->
 
-    <main class="flex-grow pb-24 w-full relative z-10 text-white min-h-screen">
-        
-        <div class="relative w-full h-[60vh] min-h-[480px] mb-12 sm:mb-16 flex items-end">
-            <div class="absolute inset-0 z-0">
-                <img src="../imgs/web-banners/templates.jpg" class="w-full h-full object-cover" alt="Hero Background">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent"></div>
-                <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-transparent"></div>
-                <div class="absolute inset-0 bg-black/20"></div>
-            </div>
+    <!-- MAIN SERVICES CONTENT -->
+    <main class="flex-grow pt-32 sm:pt-40 pb-24 w-full relative z-10 text-white min-h-screen">
+        <div class="layout-width">
             
-            <div class="layout-width relative z-10 w-full pb-16 pt-32">
-                <div class="max-w-3xl">
-                    <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold font-display tracking-tight text-white mb-4 sm:mb-6 drop-shadow-lg" data-i18n="heroTitle">Enterprise-Grade Website Templates</h1>
-                    <p class="text-[15px] sm:text-[17px] text-gray-300 leading-relaxed font-medium max-w-2xl drop-shadow" data-i18n="heroDesc">
-                        Accelerate your digital presence with our premium, high-performance website architectures. Designed for scale, optimized for conversion.
-                    </p>
-                </div>
+            <!-- Hero Section -->
+            <div class="text-center mb-16 max-w-3xl mx-auto">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-white tracking-tight mb-6">Enterprise Services</h1>
+                <p class="text-gray-400 text-sm sm:text-base leading-relaxed">Elevate your digital presence with our premium, scalable solutions designed for modern businesses. From deep SEO optimization to full-scale domain management.</p>
             </div>
-        </div>
 
-        <div class="layout-width relative">
-            
-            <div id="filterToolbar" class="sticky top-[76px] sm:top-[92px] z-[45] bg-[#0a0a0a]/95 backdrop-blur-2xl border border-white/10 rounded-[20px] p-4 sm:p-5 mb-10 shadow-2xl transition-all duration-500 transform-gpu w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
-                <div class="xl:hidden flex items-center justify-between cursor-pointer w-full select-none" onclick="document.getElementById('filterWrap').classList.toggle('hidden'); document.getElementById('filterWrap').classList.toggle('flex'); document.getElementById('filterIcon').classList.toggle('text-myancode-accent');">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="menu" id="filterIcon" class="w-5 h-5 text-gray-400 transition-colors"></i>
-                        <span class="text-[13px] font-bold text-white tracking-wide font-sans">Search & Filters</span>
+                <!-- Filters Sidebar -->
+                <div class="lg:col-span-3">
+                    <div class="filter-panel p-6 sticky top-28">
+                        
+                        <!-- Search Box -->
+                        <div class="mb-8">
+                            <h3 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Search</h3>
+                            <div class="search-container group" id="localSearchContainer">
+                                <div class="relative flex items-center">
+                                    <i data-lucide="search" class="absolute left-3 w-4 h-4 text-gray-400"></i>
+                                    <input type="text" id="serviceSearchInput" onkeyup="handleRobustSearch()" autocomplete="off" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-10 text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors" placeholder="Find services, SEO, tech...">
+                                    <button onclick="clearServiceSearch()" id="clearServiceSearchBtn" class="absolute right-3 hidden text-gray-400 hover:text-white transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+                                </div>
+                                <!-- Auto-suggest Dropdown -->
+                                <div class="search-suggestions" id="serviceSearchSuggestions"></div>
+                            </div>
+                        </div>
+
+                        <!-- Categories -->
+                        <div class="mb-8">
+                            <h3 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Categories</h3>
+                            <div class="space-y-2 max-h-48 overflow-y-auto custom-scroll pr-2" id="categoryFilters">
+                                <!-- Populated dynamically -->
+                                <div class="text-sm text-gray-500"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></div>
+                            </div>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-8">
+                            <h3 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Price Range (MMK)</h3>
+                            <div class="flex items-center gap-3">
+                                <input type="number" id="minPriceFilter" onchange="applyFilters()" placeholder="Min" class="price-input">
+                                <span class="text-gray-500">-</span>
+                                <input type="number" id="maxPriceFilter" onchange="applyFilters()" placeholder="Max" class="price-input">
+                            </div>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="mb-8">
+                            <h3 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Availability</h3>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" id="activeOnlyFilter" onchange="applyFilters()" class="custom-checkbox" checked>
+                                <span class="text-sm text-gray-300 group-hover:text-white transition-colors">Show Active Only</span>
+                            </label>
+                        </div>
+                        
+                        <button onclick="resetAllFilters()" class="w-full py-2.5 rounded-xl border border-white/10 text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+                            Reset Filters
+                        </button>
                     </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
                 </div>
 
-                <div id="filterWrap" class="hidden xl:flex flex-col xl:flex-row items-center justify-between gap-4 w-full mt-4 xl:mt-0 transition-all">
-                    <div class="relative w-full xl:w-[400px]">
-                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500"></i>
-                        <input type="text" id="templateSearch" oninput="handleSearchRecommendations(event); handleTemplateFilter()" autocomplete="off" class="w-full pl-11 pr-4 py-3 bg-[#111] border border-white/10 rounded-xl text-[13px] font-medium text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Search templates, categories, tech...">
-                        
-                        <div id="searchRecommendations" class="absolute top-full left-0 right-0 mt-2 bg-[#181a20]/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-[50] hidden max-h-64 overflow-y-auto no-scrollbar"></div>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row flex-wrap items-center gap-4 w-full xl:w-auto">
-                        <div class="relative w-full sm:w-[150px]">
-                            <select id="techFilter" onchange="handleTemplateFilter()" class="custom-select w-full pl-4 pr-10 py-3 bg-[#111] border border-white/10 rounded-xl text-[13px] font-medium text-white focus:outline-none focus:border-myancode-accent transition-colors cursor-pointer shadow-inner">
-                                <option value="all">All Tech</option>
-                                <option value="react">React</option>
-                                <option value="nextjs">Next.js</option>
-                                <option value="vue">Vue</option>
-                                <option value="angular">Angular</option>
-                                <option value="html">HTML/CSS</option>
-                                <option value="tailwind">Tailwind</option>
-                                <option value="php">PHP</option>
-                                <option value="laravel">Laravel</option>
-                            </select>
+                <!-- Products Grid Area -->
+                <div class="lg:col-span-9 flex flex-col">
+                    
+                    <!-- Top Bar: Result Count & Sorting -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-white/5">
+                        <div class="text-sm text-gray-400 font-medium">
+                            Showing <span class="text-white font-bold" id="resultCount">0</span> services
                         </div>
-
-                        <div class="relative w-full sm:w-[160px]">
-                            <select id="categoryFilter" onchange="handleTemplateFilter()" class="custom-select w-full pl-4 pr-10 py-3 bg-[#111] border border-white/10 rounded-xl text-[13px] font-medium text-white focus:outline-none focus:border-myancode-accent transition-colors cursor-pointer shadow-inner">
-                                <option value="all" data-i18n="catAll">All Categories</option>
-                                <option value="business">Business</option>
-                                <option value="portfolio">Portfolio</option>
-                                <option value="e-commerce">E-commerce</option>
-                                <option value="saas">SaaS</option>
-                                <option value="landing page">Landing Page</option>
-                                <option value="agency">Agency</option>
-                                <option value="blog">Blog</option>
-                                <option value="restaurant">Restaurant</option>
-                                <option value="education">Education</option>
-                                <option value="healthcare">Healthcare</option>
-                                <option value="real estate">Real Estate</option>
-                                <option value="finance">Finance</option>
-                                <option value="technology">Technology</option>
-                                <option value="travel">Travel</option>
-                                <option value="booking">Booking</option>
-                                <option value="dashboard">Dashboard</option>
-                                <option value="ai">AI</option>
-                                <option value="marketplace">Marketplace</option>
-                                <option value="personal">Personal</option>
-                                <option value="sport">Sport</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-
-                        <div class="relative w-full sm:w-[180px]">
-                            <select id="sortFilter" onchange="handleTemplateFilter()" class="custom-select w-full pl-4 pr-10 py-3 bg-[#111] border border-white/10 rounded-xl text-[13px] font-medium text-white focus:outline-none focus:border-myancode-accent transition-colors cursor-pointer shadow-inner">
-                                <option value="newest" data-i18n="sortNewest">Newest Arrivals</option>
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <span class="text-xs text-gray-500 font-medium hidden sm:block">Sort by:</span>
+                            <select id="sortSelect" onchange="applyFilters()" class="custom-select w-full sm:w-48">
+                                <option value="newest">Newest Arrivals</option>
                                 <option value="price_low">Price: Low to High</option>
                                 <option value="price_high">Price: High to Low</option>
-                                <option value="popular">Most Popular</option>
+                                <option value="name_asc">Name: A to Z</option>
                             </select>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div id="templatesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
-                <div class="template-card h-[400px]">
-                    <div class="w-full h-48 skeleton"></div>
-                    <div class="p-6 space-y-4">
-                        <div class="h-6 skeleton w-3/4 rounded-full"></div>
-                        <div class="h-4 skeleton w-full rounded-full"></div>
-                        <div class="h-4 skeleton w-5/6 rounded-full"></div>
-                        <div class="pt-4 flex justify-between">
-                            <div class="h-8 skeleton w-1/3 rounded-full"></div>
-                            <div class="h-8 skeleton w-1/3 rounded-full"></div>
-                        </div>
+                    <!-- Grid -->
+                    <div id="servicesGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 flex-1 min-h-[500px] content-start">
+                        <!-- Skeletons -->
+                        <div class="service-card h-[400px] p-0"><div class="h-[200px] w-full skeleton rounded-t-24"></div><div class="p-6 space-y-4"><div class="h-4 w-1/3 skeleton rounded-full"></div><div class="h-6 w-3/4 skeleton rounded-full"></div><div class="h-4 w-full skeleton rounded-full mt-4"></div><div class="h-4 w-5/6 skeleton rounded-full"></div></div></div>
+                        <div class="service-card h-[400px] p-0"><div class="h-[200px] w-full skeleton rounded-t-24"></div><div class="p-6 space-y-4"><div class="h-4 w-1/3 skeleton rounded-full"></div><div class="h-6 w-3/4 skeleton rounded-full"></div><div class="h-4 w-full skeleton rounded-full mt-4"></div><div class="h-4 w-5/6 skeleton rounded-full"></div></div></div>
+                        <div class="service-card h-[400px] p-0"><div class="h-[200px] w-full skeleton rounded-t-24"></div><div class="p-6 space-y-4"><div class="h-4 w-1/3 skeleton rounded-full"></div><div class="h-6 w-3/4 skeleton rounded-full"></div><div class="h-4 w-full skeleton rounded-full mt-4"></div><div class="h-4 w-5/6 skeleton rounded-full"></div></div></div>
                     </div>
-                </div>
-                <div class="template-card h-[400px] hidden sm:flex">
-                    <div class="w-full h-48 skeleton"></div>
-                    <div class="p-6 space-y-4">
-                        <div class="h-6 skeleton w-3/4 rounded-full"></div>
-                        <div class="h-4 skeleton w-full rounded-full"></div>
-                        <div class="h-4 skeleton w-5/6 rounded-full"></div>
-                        <div class="pt-4 flex justify-between">
-                            <div class="h-8 skeleton w-1/3 rounded-full"></div>
-                            <div class="h-8 skeleton w-1/3 rounded-full"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="template-card h-[400px] hidden md:flex">
-                    <div class="w-full h-48 skeleton"></div>
-                    <div class="p-6 space-y-4">
-                        <div class="h-6 skeleton w-3/4 rounded-full"></div>
-                        <div class="h-4 skeleton w-full rounded-full"></div>
-                        <div class="h-4 skeleton w-5/6 rounded-full"></div>
-                        <div class="pt-4 flex justify-between">
-                            <div class="h-8 skeleton w-1/3 rounded-full"></div>
-                            <div class="h-8 skeleton w-1/3 rounded-full"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="emptyState" class="hidden text-center py-20 bg-[#0a0a0a] border border-white/5 rounded-3xl mt-8">
-                <i data-lucide="package-open" class="w-16 h-16 text-gray-600 mx-auto mb-6"></i>
-                <h3 class="text-xl font-bold text-white mb-2" data-i18n="emptyTitle">No templates found</h3>
-                <p class="text-gray-400 text-sm max-w-md mx-auto" data-i18n="emptyDesc">We couldn't find any templates matching your current filter criteria. Try adjusting your search or category.</p>
-                <button onclick="resetFilters()" class="mt-6 modern-btn-secondary px-6 py-2.5 text-xs uppercase tracking-widest font-bold">Clear Filters</button>
-            </div>
 
+                    <!-- Pagination / Empty State placeholders (handled via JS) -->
+                    <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center flex-1">
+                        <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+                            <i data-lucide="search-x" class="w-8 h-8 text-gray-500"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">No Services Found</h3>
+                        <p class="text-sm text-gray-400 max-w-sm">We couldn't find any services matching your current filters. Try adjusting your search criteria.</p>
+                        <button onclick="resetAllFilters()" class="mt-6 modern-btn-primary px-6 py-2.5 text-xs">Clear Filters</button>
+                    </div>
+
+                </div>
+
+            </div>
         </div>
     </main>
 
-    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
+    <!-- DO NOT TOUCH FOOTER START -->
+    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans border-t border-white/5">
         <div class="absolute inset-0">
             <img src="../imgs/web-banners/banner1.jpg" class="w-full h-full object-cover select-none pointer-events-none">
         </div>
@@ -950,47 +962,7 @@
             </div>
         </div>
     </footer>
-
-    <div id="customConfirmModal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-[#0a0a0a] border border-white/10 p-8 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300 rounded-[24px]">
-            <h4 class="text-xl font-bold uppercase tracking-wider text-white mb-3" id="confirmTitle">Confirm</h4>
-            <p class="text-[14px] text-gray-300 mb-8 font-medium leading-relaxed" id="confirmMessage"></p>
-            <div class="flex justify-end gap-4">
-                <button onclick="closeCustomConfirm(false)" class="modern-btn-secondary px-6 py-2.5 text-[11px] tracking-widest uppercase font-bold">Cancel</button>
-                <button onclick="closeCustomConfirm(true)" class="modern-btn-primary px-6 py-2.5 text-[11px] tracking-widest uppercase font-bold">Confirm</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="customPromptModal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-[#0a0a0a] border border-white/10 p-8 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300 rounded-[24px]">
-            <h4 class="text-xl font-bold uppercase tracking-wider text-white mb-3" id="promptTitle">Input</h4>
-            <p class="text-[14px] text-gray-300 mb-6 font-medium leading-relaxed" id="promptMessage"></p>
-            <input type="text" id="promptInput" class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors mb-8 shadow-inner" onkeypress="if(event.key==='Enter') closeCustomPrompt(true)">
-            <div class="flex justify-end gap-4">
-                <button onclick="closeCustomPrompt(false)" class="modern-btn-secondary px-6 py-2.5 text-[11px] tracking-widest uppercase font-bold">Cancel</button>
-                <button onclick="closeCustomPrompt(true)" class="modern-btn-primary px-6 py-2.5 text-[11px] tracking-widest uppercase font-bold">Submit</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="jsonStudioModal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-[#0a0a0a] border border-white/10 rounded-[24px] w-full max-w-3xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center p-6 border-b border-white/10">
-                <h4 class="text-[13px] font-bold uppercase tracking-widest text-white flex items-center gap-3"><div class="p-1.5 bg-myancode-accent/20 rounded-md"><i data-lucide="braces" class="w-4 h-4 text-myancode-accent"></i></div> JSON Studio</h4>
-                <button onclick="closeJsonStudio()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <div id="dataExtractorModal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-[#0a0a0a] border border-white/10 rounded-[24px] w-full max-w-3xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center p-6 border-b border-white/10">
-                <h4 class="text-[13px] font-bold uppercase tracking-widest text-white flex items-center gap-3"><div class="p-1.5 bg-emerald-500/20 rounded-md"><i data-lucide="file-search" class="w-4 h-4 text-emerald-400"></i></div> Smart Data Extractor</h4>
-                <button onclick="closeDataExtractor()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-        </div>
-    </div>
+    <!-- DO NOT TOUCH FOOTER END -->
 
     <script>
         function initIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); }
@@ -1011,9 +983,7 @@
                 polClient: "Customer Policy", polStudio: "Packages Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
                 ftFollow: "Follow Us", ftCopyright: "© 2026 MyanCode Inc. All rights reserved.",
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrLogout: "Sign Out",
-                msgLoggedOut: "Signed out securely.", loadingInit: "Loading...", msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
-                heroTitle: "Enterprise-Grade Website Templates", heroDesc: "Accelerate your digital presence with our premium, high-performance website architectures. Designed for scale, optimized for conversion.",
-                catAll: "All Categories", sortNewest: "Newest Arrivals", emptyTitle: "No templates found", emptyDesc: "We couldn't find any templates matching your current filter criteria."
+                msgLoggedOut: "Signed out securely.", loadingInit: "Loading...", msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list."
             },
             mm: {
                 navAbout: "ကျွန်ုပ်တို့အကြောင်း", navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ", navMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
@@ -1029,32 +999,34 @@
                 polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
                 ftFollow: "နောက်ဆုံးရသတင်းများ", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။",
                 hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrLogout: "အကောင့်ထွက်ရန်",
-                msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။",
-                heroTitle: "အဆင့်မြင့် ဝက်ဘ်ဆိုက် ဒီဇိုင်းများ", heroDesc: "လုပ်ငန်းသုံးအတွက် အထူးထုတ်လုပ်ထားသော အရည်အသွေးမြင့် ဝက်ဘ်ဆိုက်ပုံစံများဖြင့် သင့်လုပ်ငန်းကို အရှိန်မြှင့်တင်ပါ။",
-                catAll: "အမျိုးအစား အားလုံး", sortNewest: "အသစ်ဆုံးများ", emptyTitle: "ဝက်ဘ်ဆိုက်ပုံစံများ မတွေ့ပါ", emptyDesc: "ရှာဖွေမှုနှင့် ကိုက်ညီသော ဝက်ဘ်ဆိုက်ပုံစံများ မရှိသေးပါ။"
+                msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။"
             }
         };
 
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
-        let currentUser = null;
-        let currentUserCart = []; 
-        let allTemplates = [];
-        let filteredTemplates = [];
-
         const SUPABASE_URL = 'https://dnretdraqjwdiwxccmpd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucmV0ZHJhcWp3ZGl3eGNjbXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Mjk1OTgsImV4cCI6MjA5NDUwNTU5OH0.gmXci7KsgPRFvVtRzY2F--qV5TshCPejf580JTJpl20';
+        
         let supabaseInstance = null;
+        let currentUser = null;
+        let currentUserCart = []; 
         if (window.supabase) supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Header Integration Global Vars
+        let searchDebounceTimer;
+        let searchTimeout;
+
+        // Services Logic Vars
+        let allServices = [];
+        let filteredServices = [];
+        let uniqueCategories = new Set();
+        let selectedCategories = new Set();
+
         document.addEventListener('DOMContentLoaded', () => { 
-            const savedTheme = localStorage.getItem('myancode_theme');
-            if (savedTheme === 'light') { document.body.classList.add('light-mode-active'); }
-            
-            initPage(); 
+            initServicesPage(); 
         });
 
-        async function initPage() {
-            renderLanguage();
+        async function initServicesPage() {
             if (supabaseInstance) {
                 try {
                     const { data: { session } } = await supabaseInstance.auth.getSession();
@@ -1078,206 +1050,357 @@
                     });
                 } catch (generalErr) {}
             }
+            
             updateAuthUI();
             setActiveNavLinks();
-            await fetchTemplates();
+            renderLanguage();
+
+            await fetchServicesData();
         }
 
-        async function fetchTemplates() {
-            if (!supabaseInstance) return;
+        /* -------------------------------------------------------------------------- */
+        /*                          SERVICES LOGIC                                    */
+        /* -------------------------------------------------------------------------- */
+
+        async function fetchServicesData() {
+            if (!supabaseInstance) {
+                document.getElementById('servicesGrid').innerHTML = '<div class="col-span-full py-10 text-center text-red-500">Failed to connect to database.</div>';
+                return;
+            }
+
             try {
+                // We fetch all services, filtering availability logic will happen locally
                 const { data, error } = await supabaseInstance
-                    .from('website_templates')
+                    .from('website_services')
                     .select('*')
                     .order('created_at', { ascending: false });
-                
+
                 if (error) throw error;
-                allTemplates = data || [];
-                handleTemplateFilter(); 
+                allServices = data || [];
+                
+                // Extract unique categories for filter
+                allServices.forEach(s => {
+                    if (s.category) uniqueCategories.add(s.category);
+                });
+                renderCategoryFilters();
+
+                // Initial Render
+                applyFilters();
+
             } catch (err) {
-                document.getElementById('templatesGrid').innerHTML = `<p class="text-red-400 font-bold col-span-full text-center">Failed to load templates from server.</p>`;
-        }
-    }
-
-    function handleTemplateFilter() {
-        const searchInput = document.getElementById('templateSearch').value.toLowerCase().trim();
-        const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
-        const techFilter = document.getElementById('techFilter') ? document.getElementById('techFilter').value.toLowerCase() : 'all';
-        const sortFilter = document.getElementById('sortFilter').value;
-
-        const searchTerms = searchInput.split(/\s+/).filter(w => w);
-
-        filteredTemplates = allTemplates.filter(t => {
-            let matchSearch = true;
-            
-            if (searchTerms.length > 0) {
-                const searchTarget = [
-                    t.template_name,
-                    t.category,
-                    t.short_description,
-                    ...(t.technologies || []),
-                    ...(t.tags || [])
-                ].filter(Boolean).join(' ').toLowerCase();
-
-                matchSearch = searchTerms.every(term => searchTarget.includes(term));
+                console.error("Error fetching services:", err);
+                document.getElementById('servicesGrid').innerHTML = `<div class="col-span-full py-10 text-center text-red-400 border border-red-500/20 bg-red-500/10 rounded-2xl"><i data-lucide="alert-triangle" class="w-8 h-8 mx-auto mb-2"></i> Failed to load services. Please try refreshing.</div>`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             }
+        }
+
+        function renderCategoryFilters() {
+            const container = document.getElementById('categoryFilters');
+            if (uniqueCategories.size === 0) {
+                container.innerHTML = '<span class="text-xs text-gray-500 italic">No categories available</span>';
+                return;
+            }
+
+            let html = Array.from(uniqueCategories).sort().map(cat => `
+                <label class="flex items-center gap-3 cursor-pointer group py-1">
+                    <input type="checkbox" value="${cat}" onchange="toggleCategoryFilter(this)" class="custom-checkbox">
+                    <span class="text-sm text-gray-300 group-hover:text-white transition-colors truncate">${cat}</span>
+                </label>
+            `).join('');
             
-            const matchCategory = categoryFilter === 'all' || (t.category && t.category.toLowerCase() === categoryFilter);
-            const matchTech = techFilter === 'all' || (t.technologies && t.technologies.some(tech => tech.toLowerCase().includes(techFilter)));
-            
-            return matchSearch && matchCategory && matchTech;
+            container.innerHTML = html;
+        }
+
+        function toggleCategoryFilter(checkbox) {
+            if (checkbox.checked) {
+                selectedCategories.add(checkbox.value);
+            } else {
+                selectedCategories.delete(checkbox.value);
+            }
+            applyFilters();
+        }
+
+        function getSimilarityScore(a, b) {
+            if (a.length === 0) return b.length; if (b.length === 0) return a.length; 
+            const matrix = []; for (let i = 0; i <= b.length; i++) matrix[i] = [i]; for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
+                    else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+                }
+            } return matrix[b.length][a.length];
+        }
+
+        function handleRobustSearch() {
+            const query = document.getElementById('serviceSearchInput').value.toLowerCase().trim();
+            const suggestionsBox = document.getElementById('serviceSearchSuggestions');
+            const searchContainer = document.getElementById('localSearchContainer');
+            const clearBtn = document.getElementById('clearServiceSearchBtn');
+
+            if (query.length > 0) {
+                clearBtn.classList.remove('hidden');
+                searchContainer.classList.add('active');
+                
+                // Build Auto-suggestions
+                const queryWords = query.split(/\s+/).filter(w => w);
+                
+                function getScore(targetStr) {
+                    targetStr = (targetStr || '').toLowerCase();
+                    if (!targetStr) return 0;
+                    if (targetStr === query) return 1500; 
+                    if (targetStr.includes(query)) return 1000; 
+                    
+                    let matchedWords = 0; let score = 0;
+                    for (const qWord of queryWords) {
+                        if (targetStr.includes(qWord)) { matchedWords++; score += 200; } else {
+                            const wordsInTarget = targetStr.split(/[\s,.\-_]+/);
+                            for (const tWord of wordsInTarget) {
+                                if (!tWord) continue; const dist = getSimilarityScore(qWord, tWord); const maxAllowed = Math.max(1, Math.floor(qWord.length / 3));
+                                if (dist <= maxAllowed) { matchedWords++; score += 150 - (dist * 30); break; }
+                            }
+                        }
+                    }
+                    if (matchedWords === queryWords.length && queryWords.length > 0) return score + 500;
+                    if (matchedWords > 0) return score; return 0;
+                }
+
+                let scoredServices = allServices.map(s => {
+                    const searchStr = `${s.service_name} ${s.category} ${(s.tags || []).join(' ')} ${(s.features || []).join(' ')}`;
+                    return { ...s, score: getScore(searchStr) };
+                }).filter(s => s.score > 0).sort((a, b) => b.score - a.score);
+
+                if (scoredServices.length > 0) {
+                    let html = `<div class="p-2">`;
+                    scoredServices.slice(0, 5).forEach(s => {
+                        const thumb = s.thumbnail_url || 'https://placehold.co/40x40/111/333?text=S';
+                        html += `
+                            <div onclick="selectSuggestion('${s.service_name.replace(/'/g, "\\'")}')" class="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border-b border-white/5 last:border-0">
+                                <img src="${thumb}" class="w-8 h-8 rounded object-cover border border-white/10">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm text-white font-bold truncate">${s.service_name}</div>
+                                    <div class="text-[10px] text-gray-500 uppercase tracking-widest truncate">${s.category}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                    suggestionsBox.innerHTML = html;
+                } else {
+                    suggestionsBox.innerHTML = `<div class="p-4 text-center text-xs text-gray-500">No matching services found.</div>`;
+                }
+
+            } else {
+                clearBtn.classList.add('hidden');
+                searchContainer.classList.remove('active');
+            }
+
+            // Immediately apply main filters based on search input
+            applyFilters();
+        }
+
+        function selectSuggestion(name) {
+            document.getElementById('serviceSearchInput').value = name;
+            document.getElementById('localSearchContainer').classList.remove('active');
+            applyFilters();
+        }
+
+        function clearServiceSearch() {
+            document.getElementById('serviceSearchInput').value = '';
+            document.getElementById('localSearchContainer').classList.remove('active');
+            document.getElementById('clearServiceSearchBtn').classList.add('hidden');
+            applyFilters();
+        }
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('localSearchContainer');
+            if (container && !container.contains(e.target)) {
+                container.classList.remove('active');
+            }
         });
 
-        if (sortFilter === 'newest') {
-            filteredTemplates.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        } else if (sortFilter === 'price_low') {
-                filteredTemplates.sort((a, b) => {
-                    const priceA = a.discount_price || a.price;
-                    const priceB = b.discount_price || b.price;
-                    return priceA - priceB;
-                });
-            } else if (sortFilter === 'price_high') {
-                filteredTemplates.sort((a, b) => {
-                    const priceA = a.discount_price || a.price;
-                    const priceB = b.discount_price || b.price;
-                    return priceB - priceA;
-                });
-            } else if (sortFilter === 'popular') {
-                filteredTemplates.sort((a, b) => (b.popularity_score || 0) - (a.popularity_score || 0));
-            }
-
-            renderTemplates();
+        function resetAllFilters() {
+            document.getElementById('serviceSearchInput').value = '';
+            document.getElementById('clearServiceSearchBtn').classList.add('hidden');
+            document.getElementById('minPriceFilter').value = '';
+            document.getElementById('maxPriceFilter').value = '';
+            document.getElementById('activeOnlyFilter').checked = true;
+            document.getElementById('sortSelect').value = 'newest';
+            
+            selectedCategories.clear();
+            document.querySelectorAll('#categoryFilters input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            applyFilters();
         }
 
-        function renderTemplates() {
-            const grid = document.getElementById('templatesGrid');
-            const emptyState = document.getElementById('emptyState');
+        function applyFilters() {
+            const query = document.getElementById('serviceSearchInput').value.toLowerCase().trim();
+            const minPrice = parseFloat(document.getElementById('minPriceFilter').value);
+            const maxPrice = parseFloat(document.getElementById('maxPriceFilter').value);
+            const activeOnly = document.getElementById('activeOnlyFilter').checked;
+            const sortMode = document.getElementById('sortSelect').value;
 
-            if (filteredTemplates.length === 0) {
+            // Filter logic
+            filteredServices = allServices.filter(s => {
+                // 1. Status Filter
+                if (activeOnly && s.status !== 'active') return false;
+
+                // 2. Category Filter
+                if (selectedCategories.size > 0 && !selectedCategories.has(s.category)) return false;
+
+                // 3. Price Filter (Use discount price if available, else normal price)
+                const currentPrice = s.discount_price ? parseFloat(s.discount_price) : parseFloat(s.price);
+                if (!isNaN(minPrice) && currentPrice < minPrice) return false;
+                if (!isNaN(maxPrice) && currentPrice > maxPrice) return false;
+
+                // 4. Search Filter (Simple exact match logic for main view)
+                if (query) {
+                    const searchStr = `${s.service_name} ${s.category} ${(s.tags || []).join(' ')} ${(s.features || []).join(' ')} ${s.short_description || ''}`.toLowerCase();
+                    // Just check if all query words exist in the search string for the main view filter
+                    const queryWords = query.split(/\s+/).filter(w => w);
+                    const matchesAll = queryWords.every(qw => searchStr.includes(qw));
+                    if (!matchesAll) return false;
+                }
+
+                return true;
+            });
+
+            // Sorting logic
+            filteredServices.sort((a, b) => {
+                if (sortMode === 'newest') {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                } else if (sortMode === 'price_low') {
+                    const priceA = a.discount_price ? parseFloat(a.discount_price) : parseFloat(a.price);
+                    const priceB = b.discount_price ? parseFloat(b.discount_price) : parseFloat(b.price);
+                    return priceA - priceB;
+                } else if (sortMode === 'price_high') {
+                    const priceA = a.discount_price ? parseFloat(a.discount_price) : parseFloat(a.price);
+                    const priceB = b.discount_price ? parseFloat(b.discount_price) : parseFloat(b.price);
+                    return priceB - priceA;
+                } else if (sortMode === 'name_asc') {
+                    return (a.service_name || '').localeCompare(b.service_name || '');
+                }
+                return 0;
+            });
+
+            renderServicesGrid();
+        }
+
+        function renderServicesGrid() {
+            const grid = document.getElementById('servicesGrid');
+            const emptyState = document.getElementById('emptyState');
+            const countEl = document.getElementById('resultCount');
+            
+            countEl.innerText = filteredServices.length;
+
+            if (filteredServices.length === 0) {
                 grid.classList.add('hidden');
                 emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
                 return;
             }
 
             grid.classList.remove('hidden');
             emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
 
-            const oneMonthAgo = new Date();
-            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            const now = new Date();
 
-            grid.innerHTML = filteredTemplates.map(t => {
-                const thumb = t.thumbnail_url || 'https://placehold.co/800x500/111111/333333?text=No+Image';
-                const isDiscounted = t.discount_price && t.discount_price < t.price;
-                const priceHTML = isDiscounted 
-                    ? `<span class="text-[12px] text-gray-500 line-through font-mono">${Number(t.price).toLocaleString()}</span><span class="text-[15px] font-bold text-myancode-accent font-mono ml-1.5">${Number(t.discount_price).toLocaleString()} MMK</span>`
-                    : `<span class="text-[15px] font-bold text-white font-mono">${Number(t.price).toLocaleString()} MMK</span>`;
+            let html = filteredServices.map(s => {
+                // Check if < 30 days old for NEW badge
+                const createdAt = new Date(s.created_at);
+                const diffTime = Math.abs(now - createdAt);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const isNew = diffDays <= 30;
+
+                const isUnavailable = s.status === 'unavailable';
                 
-                const tagsHTML = (t.technologies || []).slice(0, 3).map(tech => `<span class="template-tag">${tech}</span>`).join('');
+                const thumb = s.thumbnail_url || s.cover_url || 'https://placehold.co/600x400/111/333?text=No+Image';
+                const originalPrice = parseFloat(s.price);
+                const hasDiscount = s.discount_price && parseFloat(s.discount_price) < originalPrice;
+                const activePrice = hasDiscount ? parseFloat(s.discount_price) : originalPrice;
                 
-                const safeName = t.template_name.replace(/'/g, "\\'");
+                // Badges HTML
+                let badgesHtml = '';
+                if (isNew && !isUnavailable) {
+                    badgesHtml += `<span class="bg-myancode-accent text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-lg tracking-widest uppercase">New Arrival</span>`;
+                }
+                if (hasDiscount && !isUnavailable) {
+                    const discountPercent = Math.round(((originalPrice - activePrice) / originalPrice) * 100);
+                    badgesHtml += `<span class="bg-red-500/90 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-lg tracking-widest uppercase">${discountPercent}% OFF</span>`;
+                }
+                if (isUnavailable) {
+                    badgesHtml += `<span class="bg-gray-500/90 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-lg tracking-widest uppercase">Unavailable</span>`;
+                }
 
-                const createdDate = new Date(t.created_at);
-                const isNew = createdDate > oneMonthAgo;
-                const newBadgeHTML = isNew ? `<div class="absolute top-4 left-4 z-20 bg-black/60 backdrop-blur-md text-white text-[9px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/10 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3 h-3 text-emerald-400"></i> New</div>` : '';
+                // Price HTML
+                let priceHtml = '';
+                if (activePrice === 0) {
+                    priceHtml = `<div class="text-xl font-bold text-white tracking-tight">Free</div>`;
+                } else if (hasDiscount) {
+                    priceHtml = `
+                        <div class="flex flex-col">
+                            <div class="text-gray-500 line-through text-xs">${originalPrice.toLocaleString()} MMK</div>
+                            <div class="text-xl font-bold text-white tracking-tight">${activePrice.toLocaleString()} MMK</div>
+                        </div>
+                    `;
+                } else {
+                    priceHtml = `<div class="text-xl font-bold text-white tracking-tight">${originalPrice.toLocaleString()} MMK</div>`;
+                }
+
+                let actionHtml = '';
+                if (isUnavailable) {
+                    actionHtml = `<button disabled class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 border border-white/5 cursor-not-allowed"><i data-lucide="shopping-bag" class="w-4 h-4"></i></button>`;
+                } else {
+                    const safeName = s.service_name ? s.service_name.replace(/'/g, "\\'") : '';
+                    actionHtml = `<button onclick="toggleWishlist('${s.id}', '${safeName}', ${activePrice}); event.preventDefault(); event.stopPropagation();" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-myancode-accent hover:text-white border border-white/10 flex items-center justify-center transition-all text-gray-300 shadow-sm" title="Add to Bag"><i data-lucide="shopping-bag" class="w-4 h-4"></i></button>`;
+                }
+
+                const detailUrl = `../service-detail/?slug=${s.slug}`;
 
                 return `
-                <div class="template-card group flex flex-col h-full">
-                    ${newBadgeHTML}
-                    ${t.is_recommended ? `<div class="absolute top-4 right-4 z-20 bg-myancode-accent/90 backdrop-blur-md text-white text-[9px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/20">Recommended</div>` : ''}
-                    
-                    <a href="../template-detail/?slug=${t.slug}" class="template-img-container block flex-shrink-0">
-                        <img src="${thumb}" alt="${t.template_name}" loading="lazy">
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                            <span class="bg-white text-black px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-xl flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">View Details <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+                <a href="${detailUrl}" class="service-card group ${isUnavailable ? 'unavailable' : ''}">
+                    <!-- Image Area -->
+                    <div class="relative aspect-[4/3] overflow-hidden bg-[#111] flex-shrink-0">
+                        <img src="${thumb}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="${s.service_name}">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                        <div class="absolute top-4 left-4 flex flex-col gap-2 z-10 items-start">
+                            ${badgesHtml}
                         </div>
-                    </a>
-                    <div class="p-6 flex flex-col flex-1">
-                        <div class="flex flex-wrap gap-1.5 mb-4">${tagsHTML}</div>
-                        <h3 class="text-lg font-bold font-display text-white mb-2 leading-tight tracking-tight group-hover:text-myancode-accent transition-colors line-clamp-1">${t.template_name}</h3>
-                        <p class="text-[13px] text-gray-400 mb-6 flex-1 line-clamp-2 leading-relaxed">${t.short_description || t.description || 'Premium website template by MyanCode.'}</p>
+                    </div>
+                    
+                    <!-- Content Area -->
+                    <div class="p-6 sm:p-8 flex flex-col flex-1 relative z-10">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold font-mono text-myancode-accent tracking-widest uppercase">${s.category || 'Service'}</span>
+                        </div>
                         
-                        <div class="mt-auto pt-5 border-t border-white/5">
-                            <div class="mb-4">
-                                <span class="block text-[9px] uppercase tracking-widest text-gray-500 font-bold mb-1">Single License</span>
-                                <div class="flex items-baseline flex-wrap">
-                                    ${priceHTML}
-                                </div>
-                            </div>
+                        <h3 class="text-xl font-bold font-display text-white mb-2 leading-tight tracking-tight">${s.service_name}</h3>
+                        
+                        <p class="text-sm text-gray-400 line-clamp-2 mb-6 flex-1">${s.short_description || 'Professional digital service.'}</p>
+                        
+                        <!-- Bottom Bar -->
+                        <div class="flex items-end justify-between mt-auto pt-5 border-t border-white/10">
+                            ${priceHtml}
                             <div class="flex gap-2">
-                                <button onclick="toggleWishlist('${t.id}', '${safeName}', ${t.discount_price || t.price})" class="h-11 w-11 flex-shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all text-gray-300 group/btn shadow-inner" title="Add to Bag">
-                                    <i data-lucide="shopping-bag" class="w-4.5 h-4.5 group-hover/btn:scale-110 transition-transform"></i>
-                                </button>
-                                <a href="../checkout/?product=${t.slug}" class="h-11 flex-1 rounded-xl modern-btn-primary flex items-center justify-center text-[11px] uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(41,151,255,0.2)] hover:shadow-[0_0_20px_rgba(41,151,255,0.4)]">
-                                    Buy Now
-                                </a>
+                                ${actionHtml}
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Subtle hover gradient overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-tr from-myancode-accent/0 to-myancode-accent/0 group-hover:from-myancode-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"></div>
+                </a>
                 `;
             }).join('');
-            
+
+            grid.innerHTML = html;
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-    function resetFilters() {
-        document.getElementById('templateSearch').value = '';
-        document.getElementById('categoryFilter').value = 'all';
-        const tf = document.getElementById('techFilter');
-        if (tf) tf.value = 'all';
-        document.getElementById('sortFilter').value = 'newest';
-        handleTemplateFilter();
-    }
-
-    function handleSearchRecommendations(e) {
-        const query = e.target.value.toLowerCase().trim();
-        const suggBox = document.getElementById('searchRecommendations');
-        if (!suggBox) return;
-        
-        if (!query) {
-            suggBox.classList.add('hidden');
-            return;
-        }
-
-        let matches = new Set();
-        allTemplates.forEach(t => {
-            if (t.template_name && t.template_name.toLowerCase().includes(query)) matches.add(t.template_name);
-            if (t.category && t.category.toLowerCase().includes(query)) matches.add(t.category);
-            if (t.technologies) t.technologies.forEach(tech => { if (tech.toLowerCase().includes(query)) matches.add(tech); });
-            if (t.tags) t.tags.forEach(tag => { if (tag.toLowerCase().includes(query)) matches.add(tag); });
-        });
-
-        const suggestions = Array.from(matches).slice(0, 6);
-        
-        if (suggestions.length > 0) {
-            suggBox.innerHTML = suggestions.map(s => `
-                <div class="px-4 py-3 hover:bg-white/10 cursor-pointer text-sm text-gray-300 transition-colors border-b border-white/5 last:border-0 flex items-center gap-3" onclick="applySearchSuggestion('${s.replace(/'/g, "\\'")}')">
-                    <i data-lucide="search" class="w-4 h-4 text-myancode-accent"></i>
-                    <span class="font-medium">${s}</span>
-                </div>
-            `).join('');
-            suggBox.classList.remove('hidden');
-            if(typeof lucide !== 'undefined') lucide.createIcons();
-        } else {
-            suggBox.classList.add('hidden');
-        }
-    }
-
-    function applySearchSuggestion(val) {
-        document.getElementById('templateSearch').value = val;
-        document.getElementById('searchRecommendations').classList.add('hidden');
-        handleTemplateFilter();
-    }
-
-        function toggleMobileMenu() {
-            const drawer = document.getElementById('mobileDrawer');
-            if(!drawer.classList.contains('open')) { 
-                const wishlistD = document.getElementById('wishlistDrawer'); const wishlistO = document.getElementById('wishlistOverlay'); 
-                if(wishlistD) wishlistD.classList.remove('open'); if(wishlistO) wishlistO.classList.remove('open'); 
-            }
-            drawer.classList.toggle('open');
-            if(drawer.classList.contains('open')) document.body.classList.add('no-scroll'); else document.body.classList.remove('no-scroll');
-        }
+        /* -------------------------------------------------------------------------- */
+        /*                          HEADER / FOOTER UTILS                             */
+        /* -------------------------------------------------------------------------- */
 
         function renderLanguage() {
             document.documentElement.lang = currentLang; 
@@ -1297,7 +1420,6 @@
         function setLanguage(lang) {
             currentLang = lang; localStorage.setItem('myancode_lang', currentLang);
             renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden');
-            if (allTemplates.length > 0) renderTemplates(); 
         }
 
         function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
@@ -1308,12 +1430,26 @@
             if (!desktopAuth || !containerMob) return;
             
             if (currentUser) {
-                const roleBadgesDict = { 'founder': '../imgs/web-banners/founder-badge.png', 'admin': '../imgs/web-banners/verified-admin.png', 'moderator': '../imgs/web-banners/verified-moderator.png', 'partner': '../imgs/web-banners/verified-partner.png', 'developer': '../imgs/web-banners/verified-developer.png', 'client': '' };
-                const dashboardConfigs = { 'founder': { label: 'Workplace (Founder)', url: '../founder-dashboard/' }, 'admin': { label: 'Workplace (Admin)', url: '../admin-dashboard/' }, 'moderator': { label: 'Workplace (Moderator)', url: '../moderator-dashboard/' }, 'partner': { label: 'Collaboration', url: '../partner-dashboard/' }, 'developer': { label: 'Console', url: '../developer-dashboard/' }, 'client': { label: 'My Hub', url: '../hub/' } };
+                const roleBadgesDict = {
+                    'founder': '../imgs/web-banners/founder-badge.png',
+                    'admin': '../imgs/web-banners/verified-admin.png',
+                    'moderator': '../imgs/web-banners/verified-moderator.png',
+                    'partner': '../imgs/web-banners/verified-partner.png',
+                    'developer': '../imgs/web-banners/verified-developer.png',
+                    'client': '' 
+                };
+                const dashboardConfigs = {
+                    'founder': { label: 'Workplace (Founder)', url: '../founder-dashboard/' },
+                    'admin': { label: 'Workplace (Admin)', url: '../admin-dashboard/' },
+                    'moderator': { label: 'Workplace (Moderator)', url: '../moderator-dashboard/' },
+                    'partner': { label: 'Collaboration', url: '../partner-dashboard/' },
+                    'developer': { label: 'Console', url: '../developer-dashboard/' },
+                    'client': { label: 'My Hub', url: '../hub/' } 
+                };
                 const userRole = (currentUser.role || 'client').toLowerCase();
                 const badgeSrc = roleBadgesDict[userRole];
                 const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
-                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" alt="${userRole} verified" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
+                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" alt="${userRole} verified" title="Verified ${userRole}" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
                 const dashConfig = dashboardConfigs[userRole] || dashboardConfigs['client'];
                 const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 text-white"></i>`;
                 const mobileAvatarHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-white/10 shadow-sm">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-accent"></i>`;
@@ -1406,12 +1542,12 @@
         }
 
         function toggleWishlist(id, name, price) {
-            if (!currentUser) { showErrorToast(currentLang === 'en' ? "Please login first" : "ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ"); return; }
+            if (!currentUser) return;
             const isStaff = ['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role);
             if (isStaff) { showErrorToast(currentLang === 'en' ? "Access Denied: Staff members cannot add to bag." : "ဝန်ထမ်းများ စာရင်းသို့ ထည့်ခွင့်မရှိပါ။"); return; }
             const index = currentUserCart.findIndex(i => i.id === id);
             if (index > -1) { currentUserCart.splice(index, 1); showToast(dict[currentLang].removeFromWishlist + " Successful"); } 
-            else { currentUserCart.push({ id, name, price, type: 'template' }); showToast(currentLang === 'en' ? "Added to Cart" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
+            else { currentUserCart.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to Bag" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
             syncWishlistToSupabase(); updateWishlistCount();
             const wDrawer = document.getElementById('wishlistDrawer');
             if(wDrawer && wDrawer.classList.contains('open')) renderWishlistItems();
@@ -1444,15 +1580,25 @@
                 total += item.price;
                 return `
                 <div class="flex justify-between items-center p-4 bg-[#111] border border-white/10 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                    <div>
-                        <h4 class="font-bold text-sm mb-1 truncate max-w-[150px] text-white">${item.name}</h4>
+                    <div class="min-w-0 pr-4">
+                        <h4 class="font-bold text-sm mb-1 truncate text-white">${item.name}</h4>
                         <span class="text-xs font-bold text-gray-400">${item.price.toLocaleString()} MMK</span>
                     </div>
-                    <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-xs font-bold text-red-400 hover:text-red-300 bg-red-500/10 rounded-lg px-3 py-1.5 transition-colors">${dict[currentLang].removeFromWishlist}</button>
+                    <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-xs font-bold text-red-400 hover:text-red-300 bg-red-500/10 rounded-lg px-3 py-1.5 transition-colors flex-shrink-0">${dict[currentLang].removeFromWishlist}</button>
                 </div>
             `}).join('');
             if (totalDisplay) totalDisplay.textContent = `${total.toLocaleString()} MMK`;
             if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            if(!drawer.classList.contains('open')) { 
+                const wishlistD = document.getElementById('wishlistDrawer'); const wishlistO = document.getElementById('wishlistOverlay'); 
+                if(wishlistD) wishlistD.classList.remove('open'); if(wishlistO) wishlistO.classList.remove('open'); 
+            }
+            drawer.classList.toggle('open');
+            if(drawer.classList.contains('open')) document.body.classList.add('no-scroll'); else document.body.classList.remove('no-scroll');
         }
 
         function toggleLangDropdown(e) {
@@ -1461,23 +1607,18 @@
         }
 
         function toggleProfile(e) {
-        e.stopPropagation(); const profDrop = document.getElementById('profileDropdown');
-        if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
-    }
-
-    document.addEventListener('click', (e) => {
-        const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
-        if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
-        const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
-        if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
-        
-        const suggBox = document.getElementById('searchRecommendations');
-        if (suggBox && !suggBox.classList.contains('hidden') && !e.target.closest('#templateSearch') && !e.target.closest('#searchRecommendations')) {
-            suggBox.classList.add('hidden');
+            e.stopPropagation(); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
         }
-    });
 
-    function showToast(msg) {
+        document.addEventListener('click', (e) => {
+            const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
+            if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
+            const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
+            if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
+        });
+
+        function showToast(msg) {
             const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg;
             toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
         }
@@ -1488,7 +1629,7 @@
         }
 
         function updateHeaderTheme(theme, isScrolled) {
-            const nav = document.getElementById('mainNav'); const navTextElements = document.querySelectorAll('.nav-link, .nav-icon');
+            const nav = document.getElementById('mainNav'); const navTextElements = document.querySelectorAll('.nav-link, .nav-icon, #navLogoText');
             if (isScrolled) {
                 nav.classList.add('glass-nav-dark'); nav.classList.remove('nav-transparent', 'border-transparent');
                 navTextElements.forEach(el => { 
@@ -1504,26 +1645,12 @@
             }
         }
 
-        let lastScrollTop = 0;
         window.addEventListener('scroll', () => { 
             const scrollThreshold = 50; 
-            const currentScrollY = window.scrollY || window.pageYOffset;
+            const currentScrollY = window.scrollY;
             const isScrolled = currentScrollY > scrollThreshold; 
             updateHeaderTheme('dark', isScrolled); 
-            
-            const toolbar = document.getElementById('filterToolbar');
-            if (toolbar) {
-                if (currentScrollY > lastScrollTop && currentScrollY > 350) {
-                    toolbar.style.transform = 'translateY(-150%)';
-                    toolbar.style.opacity = '0';
-                    toolbar.style.pointerEvents = 'none';
-                } else {
-                    toolbar.style.transform = 'translateY(0)';
-                    toolbar.style.opacity = '1';
-                    toolbar.style.pointerEvents = 'auto';
-                }
-            }
-            lastScrollTop = currentScrollY <= 0 ? 0 : currentScrollY;
+            window.lastScrollY = currentScrollY;
         });
 
         function toggleSearchOverlay() {
@@ -1532,12 +1659,156 @@
                 document.body.classList.add('no-scroll'); setTimeout(() => document.getElementById('megaSearchInput').focus(), 100); 
             } else { 
                 document.body.classList.remove('no-scroll'); 
+                setTimeout(() => { 
+                    document.getElementById('megaSearchInput').value = ''; 
+                    document.getElementById('megaSearchResults').innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint}</p>`; 
+                }, 400); 
             }
         }
-        
+
+        const SUPER_STATIC_PAGES = [
+            { title_en: 'Packages', title_mm: 'စတူဒီယို', url: '../package/', icon: 'code-2', type: 'Pages & Navigation', desc_en: 'Custom development & enterprise solutions', desc_mm: 'စိတ်ကြိုက်ရေးဆွဲခြင်း' },
+            { title_en: 'Templates', title_mm: 'ဝက်ဘ်ဆိုက်များ', url: '../templates/', icon: 'layout-template', type: 'Pages & Navigation', desc_en: 'Pre-built high-quality website templates', desc_mm: 'အသင့်သုံး ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ' },
+            { title_en: 'Services', title_mm: 'ဝန်ဆောင်မှုများ', url: '../services/', icon: 'briefcase', type: 'Pages & Navigation', desc_en: 'Explore all our digital services', desc_mm: 'ဒီဂျစ်တယ် ဝန်ဆောင်မှုများ' },
+            { title_en: 'Maintenance', title_mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', url: '../maintenance/', icon: 'shield-check', type: 'Pages & Navigation', desc_en: 'Long-term maintenance plans', desc_mm: 'ပြုပြင်ထိန်းသိမ်းရေး အစီအစဉ်များ' },
+            { title_en: 'Help Center', title_mm: 'အကူအညီဌာန', url: '../help/', icon: 'help-circle', type: 'Support & Help', desc_en: 'Get help with our products', desc_mm: 'အကူအညီရယူရန်' },
+            { title_en: 'FAQs', title_mm: 'အမေးများသောမေးခွန်းများ', url: '../faq/', icon: 'message-circle-question', type: 'Support & Help', desc_en: 'Frequently asked questions', desc_mm: 'အမေးများသော မေးခွန်းများ' },
+            { title_en: 'Guides', title_mm: 'လမ်းညွှန်များ', url: '../guides/', icon: 'book-open', type: 'Support & Help', desc_en: 'Step-by-step documentation', desc_mm: 'အသုံးပြုနည်း လမ်းညွှန်များ' },
+            { title_en: 'About', title_mm: 'ကျွန်ုပ်တို့အကြောင်း', url: '../about-us/', icon: 'info', type: 'Company', desc_en: 'Learn more about MyanCode', desc_mm: 'MyanCode အကြောင်း' },
+            { title_en: 'Contact Us', title_mm: 'ဆက်သွယ်ရန်', url: '../contact-us/', icon: 'phone', type: 'Company', desc_en: 'Get in touch with our team', desc_mm: 'ဆက်သွယ်ရန်' },
+            { title_en: 'Updates & News', title_mm: 'သတင်းနှင့် အသစ်များ', url: '../updates-news/', icon: 'newspaper', type: 'Company', desc_en: 'Latest announcements', desc_mm: 'နောက်ဆုံးရသတင်းများ' },
+            { title_en: 'Careers', title_mm: 'အလုပ်အကိုင်များ', url: '../careers/', icon: 'users', type: 'Company', desc_en: 'Join the MyanCode team', desc_mm: 'အလုပ်အကိုင် အခွင့်အလမ်းများ' },
+            { title_en: 'Customer Policy', title_mm: 'ဖောက်သည် မူဝါဒ', url: '../legal/#client-policy', icon: 'shield', type: 'Policies & Legal', desc_en: 'Rules for our customers', desc_mm: 'ဖောက်သည်များအတွက် စည်းမျဉ်းများ' },
+            { title_en: 'Privacy Policy', title_mm: 'ကိုယ်ရေးအချက်အလက် မူဝါဒ', url: '../legal/#privacy-policy', icon: 'lock', type: 'Policies & Legal', desc_en: 'How we protect your data', desc_mm: 'အချက်အလက် လုံခြုံရေး' },
+            { title_en: 'Terms of Service', title_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ', url: '../legal/#terms-of-service', icon: 'file-text', type: 'Policies & Legal', desc_en: 'Usage terms and conditions', desc_mm: 'အသုံးပြုမှု စည်းမျဉ်းများ' },
+            { title_en: 'Refund Policy', title_mm: 'ငွေပြန်အမ်းရေး မူဝါဒ', url: '../legal/#refund-policy', icon: 'refresh-ccw', type: 'Policies & Legal', desc_en: 'Our refund guidelines', desc_mm: 'ငွေပြန်အမ်းရေး စည်းမျဉ်းများ' },
+            { title_en: 'Payment Policy', title_mm: 'ငွေပေးချေမှု မူဝါဒ', url: '../legal/#payment-policy', icon: 'credit-card', type: 'Policies & Legal', desc_en: 'Accepted payment methods', desc_mm: 'ငွေပေးချေမှု စနစ်များ' },
+            { title_en: 'Packages Policy', title_mm: 'စတူဒီယို မူဝါဒ', url: '../legal/#package-policy', icon: 'briefcase', type: 'Policies & Legal', desc_en: 'Guidelines for studio services', desc_mm: 'စတူဒီယို စည်းမျဉ်းများ' },
+            { title_en: 'Template Policy', title_mm: 'ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ', url: '../legal/#template-policy', icon: 'layout-template', type: 'Policies & Legal', desc_en: 'Rules for template usage', desc_mm: 'ပုံစံများအတွက် စည်းမျဉ်းများ' },
+            { title_en: 'Service Policy', title_mm: 'ဝန်ဆောင်မှု မူဝါဒ', url: '../legal/#service-policy', icon: 'settings', type: 'Policies & Legal', desc_en: 'General service terms', desc_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ' },
+            { title_en: 'User Hub', title_mm: 'ဗဟိုဌာန', url: '../hub/', icon: 'layout-dashboard', type: 'User Dashboard', desc_en: 'Manage your projects and orders', desc_mm: 'ပရောဂျက်များ စီမံရန်' }
+        ];
+
+        function getCategoryIcon(c) {
+            let icon = c.icon ? c.icon.trim().toLowerCase() : ''; const name = (c.name_en || '').toLowerCase();
+            if (icon.includes('service') || name.includes('service')) return 'briefcase';
+            if (icon.includes('portfolio') || name.includes('personal') || icon.includes('personal')) return 'user';
+            if (icon.includes('business') || name.includes('business') || name.includes('corporate')) return 'building-2';
+            if (icon.includes('ecommerce') || name.includes('commerce') || name.includes('shop') || icon.includes('shop')) return 'shopping-bag';
+            if (icon.includes('education') || name.includes('education') || icon.includes('edu')) return 'book-open';
+            if (icon.includes('event') || name.includes('event')) return 'calendar';
+            if (icon.includes('blog') || name.includes('blog')) return 'file-text';
+            if (icon.includes('health') || name.includes('health') || name.includes('medical') || icon.includes('medical')) return 'activity';
+            if (icon.includes('food') || name.includes('food') || name.includes('hospitality')) return 'coffee';
+            if (icon.includes('creative') || name.includes('creative') || name.includes('media')) return 'palette';
+            return icon ? icon : 'layout';
+        }
+
+        async function handleMegaSearch(e) {
+            const query = e.target.value.toLowerCase().trim(); const resultsContainer = document.getElementById('megaSearchResults');
+            if (!query) { clearTimeout(searchDebounceTimer); resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint}</p>`; return; }
+            resultsContainer.innerHTML = `<div class="flex justify-center py-6"><i data-lucide="loader-2" class="h-6 w-6 animate-spin text-white"></i></div>`;
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(async () => {
+                let combined = []; const queryWords = query.split(/\s+/).filter(w => w);
+                function getScore(targetStr) {
+                    targetStr = targetStr.toLowerCase();
+                    if (targetStr === query) return 1500; if (targetStr.includes(query)) return 1000; 
+                    let matchedWords = 0; let score = 0;
+                    for (const qWord of queryWords) {
+                        if (targetStr.includes(qWord)) { matchedWords++; score += 200; } else {
+                            const wordsInTarget = targetStr.split(/[\s,.\-_]+/);
+                            for (const tWord of wordsInTarget) {
+                                if (!tWord) continue; const dist = getSimilarityScore(qWord, tWord); const maxAllowed = Math.max(1, Math.floor(qWord.length / 3));
+                                if (dist <= maxAllowed) { matchedWords++; score += 150 - (dist * 30); break; }
+                            }
+                        }
+                    }
+                    if (matchedWords === queryWords.length && queryWords.length > 0) return score + 500;
+                    if (matchedWords > 0) return score; return 0;
+                }
+
+                SUPER_STATIC_PAGES.forEach(p => {
+                    const searchStr = `${p.title_en} ${p.title_mm} ${p.desc_en} ${p.desc_mm} ${p.type}`;
+                    const score = getScore(searchStr);
+                    if (score > 0) combined.push({ type: p.type, name: p.title_en, mm: p.title_mm, icon: p.icon, desc_en: p.desc_en, desc_mm: p.desc_mm, url: p.url, action: null, score: score });
+                });
+
+                if (supabaseInstance) {
+                    const promises = [];
+                    promises.push(
+                        supabaseInstance.from('pkg_categories').select('id, name_en, name_mm, icon').then(({data}) => {
+                            if(data) data.forEach(c => {
+                                const score = getScore(`${c.name_en} ${c.name_mm} Website Foundations category`);
+                                if(score > 0) combined.push({ id: c.id, type: 'Website Foundations', name: c.name_en, mm: c.name_mm || c.name_en, icon: getCategoryIcon(c), desc_en: 'Explore this package in our Packages', desc_mm: 'ဝယ်ယူရန် ဤနေရာကို နှိပ်ပါ', url: '../package/', action: null, score: score });
+                            });
+                        })
+                    );
+                    promises.push(
+                        supabaseInstance.from('pkg_features').select('id, name_en, name_mm, feature_type').then(({data}) => {
+                            if(data) data.forEach(f => {
+                                const score = getScore(`${f.name_en} ${f.name_mm} Features Systems`);
+                                if(score > 0) combined.push({ id: f.id, type: 'Features & Systems', name: f.name_en, mm: f.name_mm || f.name_en, icon: 'cpu', desc_en: 'Enterprise system feature available in builder', desc_mm: 'ထည့်သွင်းအသုံးပြုနိုင်သော စနစ်', url: '../package/', action: null, score: score });
+                            });
+                        })
+                    );
+                    promises.push(
+                        supabaseInstance.from('website_services').select('*').then(({data}) => {
+                            if(data) data.forEach(s => {
+                                const searchStr = `${s.service_name} ${s.short_description} ${s.category} Service`;
+                                const score = getScore(searchStr);
+                                if(score > 0) combined.push({ id: s.id, type: 'Services', name: s.service_name, mm: s.service_name, icon: 'briefcase', desc_en: s.short_description || 'Professional digital service offering', desc_mm: s.short_description || 'ကျွမ်းကျင်သော ဒီဂျစ်တယ် ဝန်ဆောင်မှု', url: `../service-detail/?slug=${s.slug}`, action: null, score: score + 50 });
+                            });
+                        })
+                    );
+                    promises.push(
+                        supabaseInstance.from('website_templates').select('*').then(({data}) => {
+                            const products = data || [];
+                            products.forEach(item => {
+                                const searchStr = [item.template_name || '', item.short_description || '', item.category || '', item.slug || ''].join(' ');
+                                const score = getScore(searchStr);
+                                if (score > 0) {
+                                    combined.push({ id: item.id, type: 'Templates', name: item.template_name, mm: item.template_name, icon: 'layout', image: item.thumbnail_url || item.cover_url, desc_en: `${item.price ? Number(item.price).toLocaleString() + ' MMK - ' : ''}${item.short_description || 'Premium Website Template'}`, desc_mm: `${item.price ? Number(item.price).toLocaleString() + ' MMK - ' : ''}${item.short_description || 'အဆင့်မြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းပုံစံ'}`, url: `../template-detail/?slug=${item.slug}`, action: null, score: score });
+                                }
+                            });
+                        })
+                    );
+                    try { await Promise.allSettled(promises); } catch (err) { console.error(err); }
+                }
+
+                const uniqueCombined = []; const urls = new Set();
+                combined.sort((a, b) => b.score - a.score).forEach(item => { if(!urls.has(item.url)) { urls.add(item.url); uniqueCombined.push(item); } }); combined = uniqueCombined;
+                if (combined.length === 0) {
+                    resultsContainer.innerHTML = `<div class="py-8 text-center border border-white/10 bg-[#111] rounded-2xl"><i data-lucide="search-x" class="h-8 w-8 text-gray-500 mx-auto mb-3"></i><p class="text-white text-sm tracking-wide font-medium mb-1">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p><p class="text-xs text-gray-500 tracking-wide">Try searching for alternative keywords.</p></div>`;
+                    if(typeof lucide !== 'undefined') lucide.createIcons(); return;
+                }
+
+                const groupOrder = ['Website Foundations', 'Templates', 'Services', 'Features & Systems', 'Pages & Navigation', 'User Dashboard', 'Company', 'Policies & Legal', 'Support & Help'];
+                const grouped = combined.reduce((acc, item) => { if (!acc[item.type]) acc[item.type] = []; if (acc[item.type].length < 4) acc[item.type].push(item); return acc; }, {});
+                const sortedKeys = Object.keys(grouped).sort((a, b) => { let idxA = groupOrder.indexOf(a); let idxB = groupOrder.indexOf(b); if (idxA === -1) idxA = 999; if (idxB === -1) idxB = 999; return idxA - idxB; });
+                
+                let html = '';
+                for (const type of sortedKeys) {
+                    const items = grouped[type];
+                    html += `<div class="mb-8 last:mb-0 reveal active"><h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">${type} <span class="bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded-full text-[9px]">${items.length}</span></h4><div class="grid grid-cols-1 gap-2">`;
+                    html += items.map(item => {
+                        const title = currentLang === 'en' ? item.name : item.mm; const desc = currentLang === 'en' ? (item.desc_en || '') : (item.desc_mm || item.desc_en || ''); const fallbackImg = 'https://placehold.co/150x150/111111/444444?text=IMG';
+                        let finalImgUrl = item.image || fallbackImg; if (finalImgUrl.startsWith('./')) finalImgUrl = finalImgUrl.replace('./', '../');
+                        const imgBlock = item.image ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" loading="lazy" decoding="async" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>` : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-5 w-5"></i></div>`;
+                        return `<a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">${imgBlock}<div class="flex-1 min-w-0 z-10"><h5 class="text-sm font-bold font-display tracking-tight text-white group-hover:text-myancode-accent transition-colors truncate">${title}</h5>${desc ? `<p class="text-[11px] font-medium text-gray-400 line-clamp-1 mt-0.5">${desc}</p>` : ''}</div><div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-myancode-accent transition-colors z-10 opacity-0 sm:opacity-100"><i data-lucide="arrow-right" class="h-4 w-4 ml-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i></div></a>`;
+                    }).join('');
+                    html += `</div></div>`;
+                }
+                resultsContainer.innerHTML = html; if(typeof lucide !== 'undefined') lucide.createIcons();
+            }, 300); 
+        }
+
         async function handleLogout() {
             if (supabaseInstance) await supabaseInstance.auth.signOut();
             showToast(dict[currentLang].msgLoggedOut);
+            setTimeout(() => { window.location.reload(); }, 1000);
         }
 
         async function handleSubscribe(e) {
@@ -1610,11 +1881,6 @@
                 btn.innerHTML = originalBtnText;
             }
         }
-        
-        function closeCustomPrompt() {}
-        function closeCustomConfirm() {}
-        function closeJsonStudio() {}
-        function closeDataExtractor() {}
 
     </script>
 </body>
