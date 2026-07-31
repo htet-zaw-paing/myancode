@@ -1430,38 +1430,70 @@
         
         async function fetchPopularPlan() {
             try {
-                const { data, error } = await supabaseInstance
-                    .from('plan_orders')
-                    .select('plan_id')
-                    .in('status', ['Confirmed', 'Active', 'Pending']);
-
-                if (error) throw error;
-
+                // Real checking the database: count plan orders globally
+                // Consistent with the homepage logic to show real popular plan based on database count
                 let counts = { 'starter': 0, 'plus': 0, 'pro': 0, 'ultra': 0 };
-                
-                if (data && data.length > 0) {
-                    data.forEach(order => {
-                        if (order.plan_id && counts[order.plan_id] !== undefined) {
-                            counts[order.plan_id]++;
-                        }
+                let dataFetched = false;
+
+                try {
+                    // Method 1: Try RPC (Most reliable for global stats if RLS is enabled)
+                    const { data: rpcData, error: rpcError } = await supabaseInstance.rpc('get_plan_counts');
+                    if (!rpcError && rpcData) {
+                        rpcData.forEach(item => {
+                            const pid = item.plan_id.toLowerCase();
+                            if (counts.hasOwnProperty(pid)) counts[pid] = item.count;
+                        });
+                        dataFetched = true;
+                    }
+                } catch (e) { console.warn("RPC get_plan_counts not found, falling back..."); }
+
+                if (!dataFetched) {
+                    // Method 2: Individual counts (Might work if RLS allows public count but not select)
+                    const plans = ['starter', 'plus', 'pro', 'ultra'];
+                    const countPromises = plans.map(async (pid) => {
+                        const { count, error } = await supabaseInstance
+                            .from('plan_orders')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('plan_id', pid);
+                        if (!error) counts[pid] = count || 0;
                     });
+                    await Promise.all(countPromises);
+                    
+                    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+                    if (total > 0) dataFetched = true;
                 }
-                
-                let mostPopular = 'plus';
-                let maxCount = -1;
+
+                if (!dataFetched) {
+                    // Method 3: Bulk fetch (Current user only if RLS is strict)
+                    const { data, error } = await supabaseInstance.from('plan_orders').select('plan_id');
+                    if (!error && data) {
+                        data.forEach(order => {
+                            if (order.plan_id) {
+                                const pid = order.plan_id.toLowerCase();
+                                if (counts.hasOwnProperty(pid)) counts[pid]++;
+                            }
+                        });
+                    }
+                }
+
+                let mostPopular = null;
+                let maxCount = 0;
                 for (let p in counts) {
                     if (counts[p] > maxCount) {
                         maxCount = counts[p];
                         mostPopular = p;
                     }
                 }
-                if (maxCount === 0) mostPopular = 'plus';
 
-                renderPopularBadge(mostPopular);
+                if (mostPopular && maxCount > 0) {
+                    renderPopularBadge(mostPopular);
+                } else {
+                    document.querySelectorAll('.popular-badge').forEach(el => el.remove());
+                }
 
             } catch (e) {
-                console.error('Error fetching popular plan:', e);
-                renderPopularBadge('plus');
+                console.error('Error fetching popular plan from database:', e);
+                document.querySelectorAll('.popular-badge').forEach(el => el.remove());
             }
         }
 
