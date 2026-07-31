@@ -1300,37 +1300,43 @@
                 const thumb = t.thumbnail_url || 'https://placehold.co/800x500/111111/333333?text=No+Image';
                 const isDiscounted = t.discount_price && t.discount_price < t.price;
                 const priceHTML = isDiscounted 
-                    ? `<span class="text-[16px] text-gray-500 line-through font-mono">${Number(t.price).toLocaleString()}</span><span class="text-2xl font-bold text-[#1177ff] font-mono ml-3">${Number(t.discount_price).toLocaleString()} MMK</span>`
-                    : `<span class="text-2xl font-bold text-[#1177ff] font-mono">${Number(t.price).toLocaleString()} MMK</span>`;
+                    ? `<span class="text-[12px] text-gray-500 line-through font-mono">${Number(t.price).toLocaleString()}</span><span class="text-[15px] font-bold text-myancode-accent font-mono ml-1.5">${Number(t.discount_price).toLocaleString()} MMK</span>`
+                    : `<span class="text-[15px] font-bold text-white font-mono">${Number(t.price).toLocaleString()} MMK</span>`;
                 
-                const tagsHTML = (t.technologies || []).slice(0, 3).map(tech => `<span class="px-3 py-1.5 rounded-[10px] border border-white/20 bg-transparent text-gray-300 text-[10px] font-bold tracking-widest uppercase">${tech}</span>`).join('');
+                const tagsHTML = (t.technologies || []).slice(0, 3).map(tech => `<span class="template-tag">${tech}</span>`).join('');
                 
                 const safeName = t.template_name.replace(/'/g, "\\'");
                 const isNew = new Date(t.created_at) > oneMonthAgo;
-                const newBadgeHTML = isNew ? `<div class="absolute top-4 left-4 z-20 bg-gray-500/40 backdrop-blur-md text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-green-300"></i> NEW</div>` : '';
+                const newBadgeHTML = isNew ? `<div class="absolute top-4 left-4 z-20 bg-black/60 backdrop-blur-md text-white text-[9px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/10 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3 h-3 text-emerald-400"></i> New</div>` : '';
 
                 return `
-                <div class="bg-[#0a0a0a] border border-white/5 rounded-[24px] overflow-hidden flex flex-col h-full hover:-translate-y-1 hover:border-white/10 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-300 relative group">
+                <div class="template-card group flex flex-col h-full">
                     ${newBadgeHTML}
-                    <a href="?slug=${t.slug}" class="w-full aspect-[4/3] overflow-hidden relative bg-white block">
-                        <img src="${thumb}" alt="${t.template_name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
+                    ${t.is_recommended ? `<div class="absolute top-4 right-4 z-20 bg-myancode-accent/90 backdrop-blur-md text-white text-[9px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/20">Recommended</div>` : ''}
+                    
+                    <a href="?slug=${t.slug}" class="template-img-container block flex-shrink-0">
+                        <img src="${thumb}" alt="${t.template_name}" loading="lazy">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                            <span class="bg-white text-black px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-xl flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">View Details <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+                        </div>
                     </a>
-                    <div class="p-6 sm:p-8 flex flex-col flex-1">
-                        <div class="flex flex-wrap gap-2 mb-5">${tagsHTML}</div>
-                        <h3 class="text-2xl font-bold text-white mb-3 tracking-tight">${t.template_name}</h3>
-                        <p class="text-[15px] text-gray-400 mb-8 flex-1 line-clamp-2 leading-relaxed">${t.short_description || t.description || 'Premium website template by MyanCode.'}</p>
+                    <div class="p-6 flex flex-col flex-1">
+                        <div class="flex flex-wrap gap-1.5 mb-4">${tagsHTML}</div>
+                        <h3 class="text-lg font-bold font-display text-white mb-2 leading-tight tracking-tight group-hover:text-myancode-accent transition-colors line-clamp-1">${t.template_name}</h3>
+                        <p class="text-[13px] text-gray-400 mb-6 flex-1 line-clamp-2 leading-relaxed">${t.short_description || t.description || 'Premium website template by MyanCode.'}</p>
                         
-                        <div class="border-t border-white/10 pt-6 mt-auto">
-                            <span class="block text-[11px] uppercase tracking-widest text-gray-500 font-bold mb-2">Single License</span>
-                            <div class="flex items-baseline">
-                                ${priceHTML}
+                        <div class="mt-auto pt-5 border-t border-white/5">
+                            <div class="mb-4">
+                                <span class="block text-[9px] uppercase tracking-widest text-gray-500 font-bold mb-1">Single License</span>
+                                <div class="flex items-baseline flex-wrap">
+                                    ${priceHTML}
+                                </div>
                             </div>
-                            
-                            <div class="flex gap-3 mt-6">
-                                <button onclick="toggleWishlist('${t.id}', '${safeName}', ${t.discount_price || t.price})" class="w-[54px] h-[54px] rounded-[16px] bg-transparent border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors text-white flex-shrink-0 group/bag" title="Add to Bag">
-                                    <i data-lucide="shopping-bag" class="w-6 h-6 group-hover/bag:scale-110 transition-transform"></i>
+                            <div class="flex gap-2">
+                                <button onclick="toggleWishlist('${t.id}', '${safeName}', ${t.discount_price || t.price})" class="h-11 w-11 flex-shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all text-gray-300 group/btn shadow-inner" title="Add to Bag">
+                                    <i data-lucide="shopping-bag" class="w-4.5 h-4.5 group-hover/btn:scale-110 transition-transform"></i>
                                 </button>
-                                <a href="../checkout/?product=${t.slug}" class="flex-1 h-[54px] rounded-[16px] bg-[#1177ff] hover:bg-[#0066ee] flex items-center justify-center text-[13px] uppercase tracking-widest font-bold text-white shadow-[0_0_30px_rgba(17,119,255,0.25)] hover:shadow-[0_0_30px_rgba(17,119,255,0.4)] transition-all">
+                                <a href="../checkout/?product=${t.slug}" class="h-11 flex-1 rounded-xl flex items-center justify-center text-[11px] uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(41,151,255,0.2)] hover:shadow-[0_0_20px_rgba(41,151,255,0.4)] text-white transition-all" style="background: linear-gradient(135deg, #2997ff 0%, #0066CC 100%);">
                                     Buy Now
                                 </a>
                             </div>
