@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Community Rules & Guidelines | MyanCode</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Delivered Projects | MyanCode</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <script>
         (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="aCrBjVYTYclX4JQldZG3x";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
     </script>
-    <link rel="icon" href="/imgs/web-banners/favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="/js/cookie-consent.js"></script>
+    <link rel="preconnect" href="https://ik.imagekit.io" crossorigin>
+    <link rel="icon" href="../imgs/web-banners/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="../js/cookie-consent.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -30,11 +33,21 @@
                     },
                     colors: {
                         myancode: { black: '#050505', gray: '#111111', darkgray: '#222222', blue: '#0066CC', accent: '#2997ff' }
+                    },
+                    animation: {
+                        'marquee': 'marquee 30s linear infinite',
+                    },
+                    keyframes: {
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
                     }
                 }
             }
         }
     </script>
+    
     <style>
         html, body { width: 100%; position: relative; background-color: #050505; color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: clip; }
         body.no-scroll { overflow: hidden !important; touch-action: none; }
@@ -45,13 +58,7 @@
         html[lang="mm"] .font-mono { font-family: '"JetBrains Mono"', 'Noto Sans Myanmar', monospace; }
         .layout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
         
-        .glass-panel {
-            background: rgba(17, 17, 17, 0.4);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
+        .glass-panel { background: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5); border-radius: 0px !important; }
         .glass-nav-dark { background: rgba(5, 5, 5, 0.8) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
         .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
         
@@ -81,35 +88,119 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
+        .bg-grid-dark { background-size: 50px 50px; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px); }
         .user-avatar-global { transition: all 0.3s ease; }
         .group:hover .user-avatar-global { transform: scale(1.05); border-color: #2997ff; box-shadow: 0 4px 12px rgba(41, 151, 255, 0.2); }
 
         .spinner { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        .ambient-glow { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; opacity: 0.4; }
+        
+        .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        .ambient-glow { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; opacity: 0.15; }
         .glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(41, 151, 255, 0.15); }
         .glow-2 { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(88, 86, 214, 0.15); }
         
         #mobileActionBar { top: 64px; }
         @media (min-width: 640px) { #mobileActionBar { top: 80px; } }
 
-        /* Bilingual Toggle Logic - Forced !important to override Tailwind utilities like block/flex */
-        .lang-mm { display: none !important; }
-        html[lang="mm"] .lang-en { display: none !important; }
-        html[lang="mm"] .lang-mm { display: block !important; }
-        html[lang="mm"] span.lang-mm { display: inline !important; }
-        html[lang="mm"] h1.lang-mm, html[lang="mm"] h2.lang-mm, html[lang="mm"] h3.lang-mm, html[lang="mm"] h4.lang-mm, html[lang="mm"] p.lang-mm, html[lang="mm"] li.lang-mm { display: block !important; }
+        /* Custom Select Arrow */
+        .custom-select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1.25rem center; background-size: 1em; }
+
+        /* ULTRA PREMIUM PROJECT CARDS */
+        .enterprise-card {
+            background: linear-gradient(145deg, rgba(15, 17, 21, 0.9) 0%, rgba(8, 9, 10, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 28px;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .enterprise-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            opacity: 0; transition: opacity 0.5s ease;
+        }
+        .enterprise-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(41, 151, 255, 0.3);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9), 0 0 30px rgba(41, 151, 255, 0.1);
+        }
+        .enterprise-card:hover::before { opacity: 1; }
+
+        .search-container-premium {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        .search-container-premium:focus-within {
+            border-color: rgba(41, 151, 255, 0.4);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(41, 151, 255, 0.1);
+        }
+
+        /* LIGHT MODE THEME STYLES (Targets Main Content Only) */
+        body.light-mode-active main::before {
+            content: ''; position: absolute; top: 80px; left: 0; right: 0; bottom: 0;
+            background-color: #f8fafc; z-index: 0; border-top: 1px solid #e2e8f0;
+        }
+        @media (max-width: 639px) { body.light-mode-active main::before { top: 64px; } }
+        body.light-mode-active .ambient-glow { display: none; }
+        body.light-mode-active main > div { z-index: 10; position: relative; }
         
-        /* Table of Contents Styles */
-        .toc-link { position: relative; }
-        .toc-link::before { content: ''; position: absolute; left: -25px; top: 50%; transform: translateY(-50%); width: 2px; height: 0px; background-color: #2997ff; transition: height 0.3s ease; }
-        .toc-link.active-toc { color: white !important; font-weight: 700; transform: translateX(6px); }
-        .toc-link.active-toc::before { height: 18px; }
+        body.light-mode-active main .text-white { color: #0f172a !important; }
+        body.light-mode-active main .text-gray-400 { color: #64748b !important; }
+        body.light-mode-active main .text-gray-300 { color: #475569 !important; }
+        body.light-mode-active main .text-gray-500 { color: #94a3b8 !important; }
+        
+        body.light-mode-active main .bg-\[\#111\]\/60,
+        body.light-mode-active main .bg-\[\#111\]\/80,
+        body.light-mode-active main .bg-\[\#111\] { background-color: #ffffff !important; border-color: #e2e8f0 !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important; }
+        body.light-mode-active main .border-white\/10,
+        body.light-mode-active main .border-white\/5,
+        body.light-mode-active main .border-t.border-white\/10 { border-color: #e2e8f0 !important; }
+        
+        body.light-mode-active main .bg-white\/5 { background-color: #f1f5f9 !important; }
+        body.light-mode-active main .bg-white\/10 { background-color: #e2e8f0 !important; }
+        body.light-mode-active main .hover\:bg-white\/5:hover { background-color: #e2e8f0 !important; color: #0f172a !important; }
+        body.light-mode-active main .hover\:bg-white\/10:hover { background-color: #cbd5e1 !important; color: #0f172a !important; }
+        body.light-mode-active main .hover\:text-white:hover { color: #0f172a !important; }
+        
+        body.light-mode-active main .bg-white { background-color: #0f172a !important; color: #ffffff !important; }
+        body.light-mode-active main .bg-white:hover { background-color: #1e293b !important; }
+        body.light-mode-active main .text-white\/40 { color: #94a3b8 !important; }
+        body.light-mode-active main .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; }
+        
+        /* Modals overrides in light mode */
+        body.light-mode-active .modal-base { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
+        body.light-mode-active .modal-base .text-white { color: #0f172a !important; }
+        body.light-mode-active .modal-base .text-gray-400 { color: #64748b !important; }
+        body.light-mode-active .modal-base .text-gray-300 { color: #475569 !important; }
+        body.light-mode-active .modal-base .text-gray-200 { color: #334155 !important; }
+        body.light-mode-active .modal-base .border-white\/10 { border-color: #e2e8f0 !important; }
+
+        /* Enterprise Project Card Light Mode */
+        body.light-mode-active .enterprise-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
+        body.light-mode-active .enterprise-card::before { background: linear-gradient(90deg, transparent, rgba(0,0,0,0.02), transparent); }
+        body.light-mode-active .enterprise-card:hover { border-color: #94a3b8; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1); transform: translateY(-6px); }
+        body.light-mode-active .search-container-premium { background: #ffffff; border-color: #e2e8f0; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.02); }
+        body.light-mode-active .search-container-premium:focus-within { border-color: #2563eb; box-shadow: 0 15px 30px -5px rgba(37,99,235,0.1); }
+        body.light-mode-active .custom-select { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); }
+
     </style>
 </head>
 
 <body class="font-sans selection:bg-white selection:text-black bg-[#050505] flex flex-col min-h-screen">
+    <!-- Stream: Base HTML and Header/Footer Structure -->
     <div class="ambient-glow glow-1"></div>
     <div class="ambient-glow glow-2"></div>
 
@@ -122,6 +213,7 @@
         <span id="error-toast-msg"></span>
     </div>
 
+    <!-- DO NOT TOUCH HEADER START -->
     <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
         <div class="layout-width">
             <div class="flex justify-between items-center h-16 sm:h-20">
@@ -129,20 +221,20 @@
                     <button class="xl:hidden mr-3 sm:mr-4 transition-colors duration-300 nav-icon p-2 -ml-2 text-white" onclick="toggleMobileMenu()">
                         <i data-lucide="menu" class="h-5 w-5"></i>
                     </button>
-                    <a href="/" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
-                        <img src="/imgs/web-banners/favicon.png" alt="MyanCode" class="h-7 sm:h-8 w-auto transition-transform duration-500 group-hover:scale-105" onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
+                    <a href="../" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-7 sm:h-8 w-auto transition-transform duration-500 group-hover:scale-105" onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
                     </a>
                 </div>
                 
                 <div class="hidden xl:flex space-x-6 2xl:space-x-8 text-[12px] capitalize tracking-wide font-bold items-center h-full">
-                    <a href="/package/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/package/" data-i18n="navStudio">Packages</a>
-                    <a href="/services/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/services/" data-i18n="navServices">Services</a>
-                    <a href="/templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
-                    <a href="/marketplace/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/marketplace/" data-i18n="navCommunity">Community</a>
-                    <a href="/developers/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/developers/" data-i18n="navDevelopers">Developers</a>
-                    <a href="/plan-purchase/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/pricing/" data-i18n="navPricing">Pricing</a>
-                    <a href="/portfolio/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/portfolio/" data-i18n="navCaseStudies">Projects</a>
-                    <a href="/about-us/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/about-us/" data-i18n="navAbout">About</a>
+                    <a href="../package/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/package/" data-i18n="navStudio">Packages</a>
+                    <a href="../services/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/services/" data-i18n="navServices">Services</a>
+                    <a href="../templates/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/templates/" data-i18n="navWebsites">Templates</a>
+                    <a href="../marketplace/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/marketplace/" data-i18n="navCommunity">Community</a>
+                    <a href="../developers/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/developers/" data-i18n="navDevelopers">Developers</a>
+                    <a href="../plan-purchase/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/pricing/" data-i18n="navPricing">Pricing</a>
+                    <a href="../projects/" class="text-myancode-accent font-bold active-nav-item nav-link" data-nav-path="/portfolio/" data-i18n="navCaseStudies">Projects</a>
+                    <a href="../about-us/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/about-us/" data-i18n="navAbout">About</a>
                     
                     <div class="relative group h-full flex items-center">
                         <button class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link flex items-center gap-1 cursor-pointer text-white/90" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
@@ -152,29 +244,29 @@
                                 <div class="flex-[1.2]">
                                     <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
                                     <div class="flex flex-col gap-4 font-display">
-                                        <a href="/guides/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supGuides">Guides</a>
-                                        <a href="/help/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supHelp">Help Center</a>
-                                        <a href="/faq/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supFaq">FAQs</a>
-                                        <a href="/contact-us/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supContact">Contact</a>
+                                        <a href="../guides/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supGuides">Guides</a>
+                                        <a href="../help/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supHelp">Help Center</a>
+                                        <a href="../faq/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supFaq">FAQs</a>
+                                        <a href="../contact-us/" target="_blank" class="text-2xl font-bold text-white hover:text-myancode-accent transition-colors w-fit" data-i18n="supContact">Contact</a>
                                     </div>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
                                     <div class="flex flex-col gap-3">
-                                        <a href="/legal/#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
-                                        <a href="/legal/#package-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polStudio">Packages Policy</a>
-                                        <a href="/legal/#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
-                                        <a href="/legal/#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polService">Service Policy</a>
-                                        <a href="/legal/#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                        <a href="../legal/#client-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                        <a href="../legal/#package-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polStudio">Packages Policy</a>
+                                        <a href="../legal/#template-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                        <a href="../legal/#service-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                        <a href="../legal/#maintenance-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
                                     </div>
                                 </div>
                                 <div class="flex-1">
                                     <div class="text-[11px] font-bold font-mono text-gray-500 mb-6 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
                                     <div class="flex flex-col gap-3">
-                                        <a href="/legal/#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
-                                        <a href="/legal/#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
-                                        <a href="/legal/#privacy-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
-                                        <a href="/legal/#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                        <a href="../legal/#payment-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                        <a href="../legal/#refund-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                        <a href="../legal/#privacy-policy" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                        <a href="../legal/#terms-of-service" target="_blank" class="text-[13px] font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
                                     </div>
                                 </div>
                             </div>
@@ -203,47 +295,23 @@
                     
                     <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
 
-                    <a href="/contact-us/" class="hidden md:flex items-center justify-center px-5 py-2 bg-myancode-accent text-white text-[11px] uppercase tracking-wider font-bold hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:shadow-[0_0_20px_rgba(41,151,255,0.5)] transform hover:-translate-y-0.5" data-i18n="btnHireUs">
+                    <a href="../contact-us/" class="hidden md:flex items-center justify-center px-5 py-2 bg-myancode-accent text-white text-[11px] uppercase tracking-wider font-bold hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:shadow-[0_0_20px_rgba(41,151,255,0.5)] transform hover:-translate-y-0.5" data-i18n="btnHireUs">
                         Book Now
                     </a>
                 </div>
             </div>
         </div>
     </nav>
-
+    
     <div id="mobileActionBar" class="block lg:hidden fixed left-0 right-0 z-[45] bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 py-3 px-4 transition-transform duration-300">
-        <div class="flex items-center gap-3 max-w-full mx-auto relative justify-between">
-            <a href="/marketplace/" class="flex-shrink-0 w-[42px] h-[42px] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors shadow-sm">
-                <i data-lucide="arrow-left" class="w-5 h-5"></i>
-            </a>
-            <div class="flex-1 text-center font-display font-bold text-white tracking-wide truncate">
-                <span class="lang-en">Community Rules</span>
-                <span class="lang-mm">စည်းမျဉ်းစည်းကမ်းများ</span>
+        <div class="flex items-center gap-3 max-w-full mx-auto relative">
+            <div class="flex-1 glass-panel rounded-full p-1.5 relative flex items-center focus-within:border-white/30 transition-colors h-[42px]">
+                <i data-lucide="search" class="w-4 h-4 text-gray-400 ml-3"></i>
+                <input type="text" id="mobileSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-sm text-white px-3 focus:outline-none placeholder-gray-500 h-full" placeholder="Search projects...">
+                <button id="clearMobileSearchBtn" onclick="clearSearch()" class="hidden p-1.5 text-gray-400 hover:text-white transition-colors mr-1 rounded-full hover:bg-white/10 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-            <button onclick="toggleTocDrawer()" class="flex-shrink-0 w-[42px] h-[42px] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors shadow-sm">
-                <i data-lucide="menu" class="w-5 h-5"></i>
-            </button>
         </div>
-    </div>
-
-    <!-- Mobile Table of Contents Drawer -->
-    <div id="tocMobileOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[75] hidden opacity-0 transition-opacity duration-300" onclick="toggleTocDrawer()"></div>
-    <div id="tocMobileDrawer" class="fixed bottom-0 left-0 right-0 bg-[#0a0a0a] z-[80] rounded-t-3xl border-t border-white/10 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[85vh]">
-        <div class="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing" id="tocDragHandle">
-            <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
-        </div>
-        <div class="overflow-y-auto p-6 pt-2 pb-10 space-y-6 no-scrollbar flex-1">
-            <h3 class="text-white font-bold font-display text-lg mb-2 uppercase tracking-widest text-[11px] font-mono text-gray-500">Table of Contents</h3>
-            <nav class="space-y-5 text-[14px] font-medium text-gray-400 font-display tracking-wide pl-6 border-l border-white/10" id="mobileTocNav">
-                <a href="#section-1" onclick="toggleTocDrawer()" class="block hover:text-white transition-all duration-300 toc-link active-toc"><span class="lang-en">1. Introduction & Purpose</span><span class="lang-mm">၁။ နိဒါန်းနှင့် ရည်ရွယ်ချက်</span></a>
-                <a href="#section-2" onclick="toggleTocDrawer()" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">2. Code of Conduct</span><span class="lang-mm">၂။ ကျင့်ဝတ်စည်းကမ်း</span></a>
-                <a href="#section-3" onclick="toggleTocDrawer()" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">3. Content Quality</span><span class="lang-mm">၃။ အကြောင်းအရာ အရည်အသွေး</span></a>
-                <a href="#section-4" onclick="toggleTocDrawer()" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">4. Prohibited Activities</span><span class="lang-mm">၄။ တားမြစ်ထားသော လုပ်ရပ်များ</span></a>
-                <a href="#section-5" onclick="toggleTocDrawer()" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">5. Enforcement</span><span class="lang-mm">၅။ စောင့်ကြည့်အရေးယူခြင်း</span></a>
-                <a href="#section-6" onclick="toggleTocDrawer()" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">6. Reporting</span><span class="lang-mm">၆။ တိုင်ကြားခြင်း</span></a>
-                <a href="#section-7" onclick="toggleTocDrawer()" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">7. Legal Directories</span><span class="lang-mm">၇။ အခြားသော မူဝါဒများ</span></a>
-            </nav>
-        </div>
+        <div id="mobileSearchSuggestions" class="absolute top-full left-0 right-0 mt-2 mx-4 bg-[#111] border border-white/10 rounded-2xl shadow-xl hidden max-h-64 overflow-y-auto no-scrollbar"></div>
     </div>
 
     <div id="searchOverlay" class="fixed inset-0 z-[100] bg-[#0a0a0a]/95 backdrop-blur-2xl search-overlay overflow-y-auto pb-20">
@@ -259,9 +327,9 @@
                 <div class="w-full md:w-1/3">
                     <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6" data-i18n="quickLinks">Quick Actions</h4>
                     <ul class="space-y-4">
-                        <li><a href="/services/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span>Web Development</span></a></li>
-                        <li><a href="/templates/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span>Premium Templates</span></a></li>
-                        <li><a href="/services/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span>SEO Optimization</span></a></li>
+                        <li><a href="../services/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span>Web Development</span></a></li>
+                        <li><a href="../templates/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span>Premium Templates</span></a></li>
+                        <li><a href="../services/" onclick="toggleSearchOverlay()" class="text-sm font-medium text-gray-300 hover:text-white hover:translate-x-1 transition-transform flex items-center gap-2 group mega-nav-link"><i data-lucide="arrow-right" class="h-3 w-3 text-gray-600 group-hover:text-myancode-accent"></i> <span>SEO Optimization</span></a></li>
                     </ul>
                 </div>
                 <div class="w-full md:w-2/3">
@@ -274,7 +342,7 @@
 
     <div id="mobileDrawer" class="fixed inset-y-0 left-0 w-full h-full bg-[#050505] z-[80] drawer-left flex flex-col overflow-hidden text-white border-r border-white/10">
         <div class="px-6 py-6 flex items-center justify-between flex-shrink-0 border-b border-white/10">
-            <img src="/imgs/web-banners/favicon.png" alt="MyanCode" class="h-6 w-auto" onerror="this.onerror=null; this.src='https://placehold.co/30x30/050505/ffffff?text=MC';">
+            <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-6 w-auto" onerror="this.onerror=null; this.src='https://placehold.co/30x30/050505/ffffff?text=MC';">
             <button onclick="toggleMobileMenu()" class="p-2.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors text-gray-300"><i data-lucide="x" class="h-5 w-5"></i></button>
         </div>
         <div class="flex-1 px-8 py-6 flex flex-col w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
@@ -284,14 +352,14 @@
             </div>
             
             <div class="space-y-6 text-base font-semibold text-white tracking-wide flex-1">
-                <a href="/package/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navStudio">Packages</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="/services/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="/templates/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="/marketplace/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navCommunity">Community</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="/developers/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navDevelopers">Developers</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="/plan-purchase/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navPricing">Pricing</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="/portfolio/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navCaseStudies">Projects</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="/about-us/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navAbout">About</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../package/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navStudio">Packages</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../services/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../templates/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../marketplace/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navCommunity">Community</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../developers/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navDevelopers">Developers</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../plan-purchase/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navPricing">Pricing</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../projects/" class="flex justify-between items-center text-myancode-accent transition-colors"><span data-i18n="navCaseStudies">Projects</span> <i data-lucide="chevron-right" class="h-4 w-4 text-myancode-accent"></i></a>
+                <a href="../about-us/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navAbout">About</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
                 
                 <div class="flex flex-col">
                     <button onclick="document.getElementById('mobSupportDrop').classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')" class="flex w-full justify-between items-center hover:text-myancode-accent transition-colors">
@@ -301,29 +369,29 @@
                         <div class="mb-6">
                             <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest" data-i18n="supHelpTitle">Explore Support</div>
                             <div class="flex flex-col gap-4 font-display">
-                                <a href="/guides/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supGuides">Guides</a>
-                                <a href="/help/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supHelp">Help Center</a>
-                                <a href="/faq/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supFaq">FAQs</a>
-                                <a href="/contact-us/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supContact">Contact</a>
+                                <a href="../guides/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supGuides">Guides</a>
+                                <a href="../help/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supHelp">Help Center</a>
+                                <a href="../faq/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supFaq">FAQs</a>
+                                <a href="../contact-us/" target="_blank" class="text-lg font-bold hover:text-myancode-accent transition-colors" data-i18n="supContact">Contact</a>
                             </div>
                         </div>
                         <div class="mb-6">
                             <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest" data-i18n="supPoliciesTitle">Service Policies</div>
                             <div class="flex flex-col gap-3">
-                                <a href="/legal/#client-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
-                                <a href="/legal/#package-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polStudio">Packages Policy</a>
-                                <a href="/legal/#template-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
-                                <a href="/legal/#service-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polService">Service Policy</a>
-                                <a href="/legal/#maintenance-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
+                                <a href="../legal/#client-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polClient">Customer Policy</a>
+                                <a href="../legal/#package-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polStudio">Packages Policy</a>
+                                <a href="../legal/#template-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTemplate">Template Policy</a>
+                                <a href="../legal/#service-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polService">Service Policy</a>
+                                <a href="../legal/#maintenance-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polMaintenance">Maintenance Policy</a>
                             </div>
                         </div>
                         <div>
                             <div class="text-[10px] font-bold font-mono text-gray-500 mb-4 uppercase tracking-widest" data-i18n="supLegalTitle">Legal & Transactions</div>
                             <div class="flex flex-col gap-3">
-                                <a href="/legal/#payment-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
-                                <a href="/legal/#refund-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
-                                <a href="/legal/#privacy-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
-                                <a href="/legal/#terms-of-service" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
+                                <a href="../legal/#payment-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPayment">Payment Policy</a>
+                                <a href="../legal/#refund-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polRefund">Refund Policy</a>
+                                <a href="../legal/#privacy-policy" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polPrivacy">Privacy Policy</a>
+                                <a href="../legal/#terms-of-service" target="_blank" class="text-base font-semibold text-gray-300 hover:text-myancode-accent transition-colors w-fit" data-i18n="polTerms">Terms of Service</a>
                             </div>
                         </div>
                     </div>
@@ -338,7 +406,7 @@
             <div class="border-t border-white/10 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
                 <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
                 
-                <a href="/contact-us/" class="mt-6 flex justify-center items-center w-full bg-myancode-accent text-white py-3.5 text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-md" data-i18n="btnHireUsLong">
+                <a href="../contact-us/" class="mt-6 flex justify-center items-center w-full bg-myancode-accent text-white py-3.5 text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-md" data-i18n="btnHireUsLong">
                     Book Now
                 </a>
             </div>
@@ -359,317 +427,95 @@
             </button>
         </div>
     </div>
+    <!-- DO NOT TOUCH HEADER END -->
 
-    <!-- Increased top padding on mobile to clear the mobile action bar cleanly -->
-    <main class="flex-grow pt-[140px] sm:pt-40 pb-24 w-full relative z-10 text-white min-h-screen">
-        <div class="layout-width relative z-10 flex flex-col lg:flex-row gap-12 lg:gap-16 items-start px-2 sm:px-4 max-w-7xl mx-auto">
+    <!-- Stream: Main Content Start -->
+    <main class="flex-grow pt-24 sm:pt-32 pb-24 w-full relative z-10 text-white min-h-screen">
+        <div class="layout-width">
             
-            <!-- Left Sidebar (Table of Contents) -->
-            <aside class="hidden lg:block w-64 flex-shrink-0 sticky top-36 pt-2">
-                <div class="border-l border-white/10 pl-6 relative">
-                    <h4 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6">Table of Contents</h4>
-                    <nav class="space-y-5 text-[13px] font-medium text-gray-400 font-display tracking-wide" id="tocNav">
-                        <a href="#section-1" class="block hover:text-white transition-all duration-300 toc-link active-toc"><span class="lang-en">1. Introduction & Purpose</span><span class="lang-mm">၁။ နိဒါန်းနှင့် ရည်ရွယ်ချက်</span></a>
-                        <a href="#section-2" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">2. Code of Conduct</span><span class="lang-mm">၂။ ကျင့်ဝတ်စည်းကမ်း</span></a>
-                        <a href="#section-3" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">3. Content Quality</span><span class="lang-mm">၃။ အကြောင်းအရာ အရည်အသွေး</span></a>
-                        <a href="#section-4" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">4. Prohibited Activities</span><span class="lang-mm">၄။ တားမြစ်ထားသော လုပ်ရပ်များ</span></a>
-                        <a href="#section-5" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">5. Enforcement</span><span class="lang-mm">၅။ စောင့်ကြည့်အရေးယူခြင်း</span></a>
-                        <a href="#section-6" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">6. Reporting</span><span class="lang-mm">၆။ တိုင်ကြားခြင်း</span></a>
-                        <a href="#section-7" class="block hover:text-white transition-all duration-300 toc-link"><span class="lang-en">7. Legal Directories</span><span class="lang-mm">၇။ အခြားသော မူဝါဒများ</span></a>
-                    </nav>
-                </div>
-            </aside>
+            <!-- Hero Section -->
+            <div class="text-center max-w-4xl mx-auto mb-16 sm:mb-24 px-4">
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-display font-bold text-white tracking-tight leading-[1.1] mb-6 drop-shadow-2xl">
+                    Delivered <span class="text-transparent bg-clip-text bg-gradient-to-r from-myancode-accent to-blue-600">Projects</span>
+                </h1>
+                <p class="text-[15px] sm:text-[17px] text-gray-400 leading-relaxed font-medium max-w-2xl mx-auto">
+                    Explore our portfolio of enterprise-grade solutions. Discover how we transform complex requirements into elegant, high-performance digital products.
+                </p>
+            </div>
 
-            <!-- Main Rules Content -->
-            <div class="flex-1 w-full lg:min-w-0">
-                <!-- Header Section -->
-                <div class="mb-14 text-left border-b border-white/5 pb-10">
-                    <div class="inline-flex items-center pl-4 py-0.5 border-l-[2px] border-myancode-accent text-gray-400 text-[11px] font-bold font-mono uppercase tracking-widest mb-8">
-                        <span class="lang-en">Official Guidelines</span>
-                        <span class="lang-mm">တရားဝင် လမ်းညွှန်ချက်များ</span>
-                    </div>
-                    <h1 class="text-4xl sm:text-5xl font-display font-bold tracking-tight mb-5 text-white">
-                        <span class="lang-en">Community Rules & Guidelines</span>
-                        <span class="lang-mm">Community စည်းမျဉ်းစည်းကမ်းများ</span>
-                    </h1>
-                    <p class="text-gray-400 text-[15px] sm:text-[16px] max-w-2xl leading-relaxed">
-                        <span class="lang-en">Upholding a standard of excellence, respect, and collaboration within the MyanCode ecosystem.</span>
-                        <span class="lang-mm">MyanCode Community အတွင်း အပြန်အလှန်လေးစားမှု၊ ပူးပေါင်းဆောင်ရွက်မှုနှင့် အဆင့်အတန်းမြင့်မားမှုကို ထိန်းသိမ်းထားရှိရန်။</span>
-                    </p>
-                </div>
-
-                <!-- Increased scroll-margin to perfectly account for the mobile action bar and desktop nav -->
-                <!-- Introduction -->
-                <div id="section-1" class="rule-section scroll-mt-[150px] lg:scroll-mt-32 p-0 mb-12">
-                    <h2 class="text-xl sm:text-2xl font-bold font-display mb-5 text-white flex items-center gap-4">
-                        <span class="text-myancode-accent opacity-50 select-none">01.</span>
-                        <span class="lang-en">Introduction & Purpose</span>
-                        <span class="lang-mm">နိဒါန်းနှင့် ရည်ရွယ်ချက်</span>
-                    </h2>
-                    <div class="text-gray-300 leading-loose text-[14px] sm:text-[15px] border-l border-white/10 pl-5 sm:pl-8 ml-2">
-                        <p class="lang-en">Welcome to the MyanCode Community. This platform is meticulously designed to serve as a premier hub for developers, creators, and technology enthusiasts across Myanmar and globally. Our goal is to foster an environment where knowledge is shared freely, questions are answered comprehensively, and professional networks are built safely. To maintain this high standard of interaction, every member is strictly required to read, understand, and continuously adhere to the following community rules.</p>
-                        <p class="lang-mm">MyanCode Community မှ နွေးထွေးစွာ ကြိုဆိုပါသည်။ ဤပလက်ဖောင်းသည် မြန်မာနိုင်ငံနှင့် ကမ္ဘာတစ်ဝှမ်းရှိ နည်းပညာပညာရှင်များ၊ ဖန်တီးသူများအတွက် အဆင့်မြင့် ဗဟိုဌာနတစ်ခုအဖြစ် ရည်ရွယ်ဖန်တီးထားခြင်းဖြစ်ပါသည်။ ကျွန်ုပ်တို့၏ အဓိကရည်ရွယ်ချက်မှာ အသိပညာများကို လွတ်လပ်စွာ မျှဝေနိုင်ရန်၊ မေးခွန်းများကို ပြည့်စုံစွာ ဖြေကြားပေးနိုင်ရန်နှင့် ပရော်ဖက်ရှင်နယ် ကွန်ရက်များကို လုံခြုံစွာ တည်ဆောက်နိုင်ရန် ဖြစ်ပါသည်။ ထိုသို့ အဆင့်အတန်းမြင့်မားသော ဆက်သွယ်ပြောဆိုမှုများကို ထိန်းသိမ်းထားနိုင်ရန်အတွက်၊ အဖွဲ့ဝင်တိုင်းသည် အောက်ပါစည်းမျဉ်းများကို ဖတ်ရှုနားလည်ပြီး အစဉ်အမြဲ တင်းကျပ်စွာ လိုက်နာရန် လိုအပ်ပါသည်။</p>
-                    </div>
-                </div>
-
-                <!-- Code of Conduct -->
-                <div id="section-2" class="rule-section scroll-mt-[150px] lg:scroll-mt-32 p-0 mb-12">
-                    <h2 class="text-xl sm:text-2xl font-bold font-display mb-5 text-white flex items-center gap-4">
-                        <span class="text-myancode-accent opacity-50 select-none">02.</span>
-                        <span class="lang-en">Code of Conduct & Professionalism</span>
-                        <span class="lang-mm">ကျင့်ဝတ်စည်းကမ်းနှင့် ပရော်ဖက်ရှင်နယ်ကျမှု</span>
-                    </h2>
-                    <div class="text-gray-300 leading-loose text-[14px] sm:text-[15px] border-l border-white/10 pl-5 sm:pl-8 ml-2 space-y-4">
-                        <p class="lang-en">We prioritize mutual respect, empathy, and constructive communication above all else.</p>
-                        <p class="lang-mm">ကျွန်ုပ်တို့သည် အပြန်အလှန် လေးစားမှု၊ ကိုယ်ချင်းစာတရားနှင့် အပြုသဘောဆောင်သော ဆက်သွယ်မှုများကို အထူးဦးစားပေးပါသည်။</p>
-                        <ul class="list-disc pl-6 space-y-3 mt-4">
-                            <li>
-                                <div class="lang-en"><strong class="text-white block">Zero Tolerance for Harassment:</strong> Personal attacks, bullying, doxxing, or targeted harassment of any member will not be tolerated under any circumstances.</div>
-                                <div class="lang-mm"><strong class="text-white block">အနိုင်ကျင့်မှုများကို လုံးဝသည်းခံမည်မဟုတ်ပါ:</strong> ပုဂ္ဂိုလ်ရေးတိုက်ခိုက်ခြင်း၊ အနိုင်ကျင့်ခြင်း၊ ကိုယ်ရေးအချက်အလက်များကို ခွင့်ပြုချက်မရှိဘဲ ဖြန့်ဝေခြင်း (Doxxing) သို့မဟုတ် ရည်ရွယ်ချက်ရှိရှိ နှောင့်ယှက်ခြင်းများကို မည်သည့်အခြေအနေတွင်မဆို လုံးဝသည်းခံမည်မဟုတ်ပါ။</div>
-                            </li>
-                            <li>
-                                <div class="lang-en"><strong class="text-white block">Strict Ban on Hate Speech:</strong> Racism, sexism, homophobia, and any form of discriminatory language or derogatory slurs are strictly prohibited and will trigger immediate, permanent bans.</div>
-                                <div class="lang-mm"><strong class="text-white block">အမုန်းစကားများ တားမြစ်ခြင်း:</strong> လူမျိုးရေးခွဲခြားခြင်း၊ လိင်ပိုင်းဆိုင်ရာခွဲခြားခြင်းနှင့် အခြားသော ခွဲခြားဆက်ဆံမှု၊ နှိမ်ချသော စကားလုံးများ အသုံးပြုခြင်းကို တင်းကျပ်စွာ တားမြစ်ထားပြီး၊ ချိုးဖောက်ပါက ချက်ချင်း အပြီးတိုင် ပိတ်သိမ်းမည်ဖြစ်သည်။</div>
-                            </li>
-                            <li>
-                                <div class="lang-en"><strong class="text-white block">Constructive Disagreements:</strong> Debates regarding code, architecture, or technology are encouraged. However, arguments must remain strictly professional. Focus on criticizing the code or the concept, never the person.</div>
-                                <div class="lang-mm"><strong class="text-white block">အပြုသဘောဆောင်သော ငြင်းခုံမှုများ:</strong> နည်းပညာနှင့် ပတ်သက်သော ဆွေးနွေးငြင်းခုံမှုများကို ကြိုဆိုပါသည်။ သို့သော် ဆွေးနွေးမှုများသည် ပရော်ဖက်ရှင်နယ်ကျရမည်ဖြစ်ပြီး၊ ပုဂ္ဂိုလ်ရေးကို မဝေဖန်ဘဲ အကြောင်းအရာကိုသာ အာရုံစိုက် ဆွေးနွေးရပါမည်။</div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Content Standards -->
-                <div id="section-3" class="rule-section scroll-mt-[150px] lg:scroll-mt-32 p-0 mb-12">
-                    <h2 class="text-xl sm:text-2xl font-bold font-display mb-5 text-white flex items-center gap-4">
-                        <span class="text-myancode-accent opacity-50 select-none">03.</span>
-                        <span class="lang-en">Content Quality & Standards</span>
-                        <span class="lang-mm">အကြောင်းအရာ အရည်အသွေးနှင့် စံညွှန်းများ</span>
-                    </h2>
-                    <div class="text-gray-300 leading-loose text-[14px] sm:text-[15px] border-l border-white/10 pl-5 sm:pl-8 ml-2 space-y-4">
-                        <p class="lang-en">The value of this community is driven by the quality of the content shared by its members. Please ensure your contributions elevate the standard of the platform.</p>
-                        <p class="lang-mm">ဤ Community ၏ တန်ဖိုးသည် အဖွဲ့ဝင်များမျှဝေသော အကြောင်းအရာများ၏ အရည်အသွေးပေါ်တွင် မူတည်ပါသည်။ သင့်၏ ပါဝင်မှုများသည် ပလက်ဖောင်း၏ စံညွှန်းကို မြှင့်တင်ပေးနိုင်ရန် သေချာစေပါ။</p>
-                        
-                        <div class="bg-[#111] border border-white/5 p-6 mt-6">
-                            <h4 class="text-white font-bold mb-3 font-display lang-en">Posting Guidelines:</h4>
-                            <h4 class="text-white font-bold mb-3 font-display lang-mm">ပို့စ်တင်ခြင်းဆိုင်ရာ လမ်းညွှန်ချက်များ:</h4>
-                            <ul class="list-disc pl-6 space-y-3 text-[13px] sm:text-[14px]">
-                                <li>
-                                    <span class="lang-en">Ensure posts, questions, and code snippets are clear, concise, and highly relevant to technology, programming, or digital design.</span>
-                                    <span class="lang-mm">ပို့စ်များ၊ မေးခွန်းများနှင့် ကုတ်ဒ်များသည် ရှင်းလင်းပြတ်သားပြီး နည်းပညာ၊ ပရိုဂရမ်ရေးဆွဲခြင်း သို့မဟုတ် ဒီဇိုင်းဆိုင်ရာများနှင့် တိုက်ရိုက်သက်ဆိုင်ရပါမည်။</span>
-                                </li>
-                                <li>
-                                    <span class="lang-en">Avoid "low-effort" posts (e.g., posting an error log without context, or vague questions like "Pls help"). Always provide necessary context, what you have tried, and formatted code.</span>
-                                    <span class="lang-mm">အချက်အလက်မပြည့်စုံသော ပို့စ်များတင်ခြင်းမှ ရှောင်ကြဉ်ပါ။ (ဥပမာ - "ကူညီပါအုံး" ဟုသာ ရေးသားခြင်း)။ မိမိကြုံတွေ့နေရသော ပြဿနာ၊ ကြိုးစားခဲ့သည့် နည်းလမ်းများနှင့် ကုတ်ဒ်များကို သေချာစွာ ရှင်းပြပါ။</span>
-                                </li>
-                                <li>
-                                    <span class="lang-en">Blatant self-promotion, excessive link dropping, or advertising services without providing direct educational value to the community is classified as spam and will be removed.</span>
-                                    <span class="lang-mm">Community အတွက် ပညာပေးတန်ဖိုးမပါဘဲ မိမိကိုယ်ကို အလွန်အကျွံ ကြော်ငြာခြင်း၊ လင့်ခ်များချည်းသာ ချထားခြင်းများကို စပမ်း (Spam) အဖြစ် သတ်မှတ်ပြီး ဖယ်ရှားမည်ဖြစ်သည်။</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Prohibited Activities -->
-                <div id="section-4" class="rule-section scroll-mt-[150px] lg:scroll-mt-32 p-0 mb-12">
-                    <h2 class="text-xl sm:text-2xl font-bold font-display mb-5 text-white flex items-center gap-4">
-                        <span class="text-red-500/80 opacity-80 select-none">04.</span>
-                        <span class="lang-en text-red-50">Strictly Prohibited Activities</span>
-                        <span class="lang-mm text-red-50">တင်းကျပ်စွာ တားမြစ်ထားသော လုပ်ရပ်များ</span>
-                    </h2>
+            <!-- Controls (Search & Filters) -->
+            <div class="search-container-premium p-4 sm:p-6 mb-12 sm:mb-16 z-30 relative">
+                <div class="flex flex-col lg:flex-row gap-5 items-center justify-between">
                     
-                    <div class="glass-panel border-l-[3px] border-l-red-500 border-y-white/5 border-r-white/5 p-6 sm:p-10 relative overflow-hidden bg-gradient-to-br from-[#110505] to-[#0a0a0a] ml-2">
-                        <div class="absolute top-0 right-0 w-48 h-48 bg-red-500/5 -z-10 blur-3xl rounded-full"></div>
+                    <!-- Search Input -->
+                    <div class="relative w-full lg:w-[45%]">
+                        <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500"></i>
+                        <input type="text" id="desktopSearchInput" autocomplete="off" onkeyup="handleDesktopSearch(event)" class="w-full pl-12 pr-10 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-[14px] font-medium text-white placeholder-gray-500 focus:outline-none focus:border-myancode-accent focus:bg-black/60 transition-colors shadow-inner" placeholder="Search projects, technologies, clients...">
+                        <button id="clearDesktopSearchBtn" onclick="clearDesktopSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 hidden p-1.5 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
                         
-                        <div class="text-gray-300 leading-loose text-[14px] sm:text-[15px] mb-8">
-                            <p class="lang-en">Engaging in any of the following activities constitutes a severe breach of this agreement and will result in immediate punitive actions, up to and including reporting to relevant legal authorities without prior warning.</p>
-                            <p class="lang-mm">အောက်ပါလုပ်ရပ်များထဲမှ တစ်ခုခုကို ကျူးလွန်ပါက ဤသဘောတူညီချက်ကို ပြင်းထန်စွာ ချိုးဖောက်ရာရောက်ပြီး၊ သတိပေးချက်မရှိဘဲ ချက်ချင်း အရေးယူမှုများ ခံရမည့်အပြင် သက်ဆိုင်ရာ ဥပဒေစိုးမိုးရေး အဖွဲ့အစည်းများထံသို့ပါ တိုင်ကြားသွားမည်ဖြစ်သည်။</p>
+                        <!-- Search Suggestions Dropdown -->
+                        <div id="desktopSearchSuggestionsMain" class="absolute top-full left-0 right-0 mt-3 bg-[#181a20]/95 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.8)] hidden max-h-80 overflow-y-auto no-scrollbar z-50 overflow-hidden"></div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="flex flex-wrap lg:flex-nowrap gap-4 w-full lg:w-auto">
+                        <div class="flex-1 lg:w-48 relative">
+                            <select id="filterCategory" onchange="applyFilters()" class="w-full px-5 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-[13px] font-bold text-white focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer custom-select shadow-inner truncate">
+                                <option value="all">All Categories</option>
+                            </select>
                         </div>
-                        
-                        <div class="space-y-4">
-                            <div class="p-5 bg-white/[0.02] border border-red-500/10 hover:border-red-500/30 transition-colors backdrop-blur-md">
-                                <div class="flex items-start gap-4">
-                                    <div class="mt-1 shrink-0"><i data-lucide="alert-octagon" class="w-5 h-5 text-red-500"></i></div>
-                                    <div>
-                                        <div class="lang-en">
-                                            <h4 class="text-white font-bold mb-1.5 text-[15px]">NSFW & Illegal Content</h4>
-                                            <p class="text-gray-400 text-[13px] sm:text-[14px] leading-relaxed">The distribution of explicit, pornographic, or highly graphic material is entirely banned. Sharing links to illegal downloads, pirated software, or stolen credentials is similarly forbidden.</p>
-                                        </div>
-                                        <div class="lang-mm">
-                                            <h4 class="text-white font-bold mb-1.5 text-[15px]">ညစ်ညမ်းနှင့် တရားမဝင် အကြောင်းအရာများ</h4>
-                                            <p class="text-gray-400 text-[13px] sm:text-[14px] leading-relaxed">ညစ်ညမ်းသော အကြောင်းအရာများ၊ ရုပ်ပုံများ ဖြန့်ဝေခြင်းကို လုံးဝ တားမြစ်ထားသည်။ တရားမဝင် ဒေါင်းလုဒ်လင့်ခ်များ၊ ခိုးယူထားသော ဆော့ဖ်ဝဲများနှင့် အကောင့်အချက်အလက်များ မျှဝေခြင်းကိုလည်း ခွင့်မပြုပါ။</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="p-5 bg-white/[0.02] border border-red-500/10 hover:border-red-500/30 transition-colors backdrop-blur-md">
-                                <div class="flex items-start gap-4">
-                                    <div class="mt-1 shrink-0"><i data-lucide="shield-alert" class="w-5 h-5 text-red-500"></i></div>
-                                    <div>
-                                        <div class="lang-en">
-                                            <h4 class="text-white font-bold mb-1.5 text-[15px]">Malicious Code & Hacking</h4>
-                                            <p class="text-gray-400 text-[13px] sm:text-[14px] leading-relaxed">Posting code designed to exploit vulnerabilities, distribute malware, install ransomware, or facilitate denial-of-service (DoS) attacks is a critical violation. We cooperate fully with cybersecurity investigations.</p>
-                                        </div>
-                                        <div class="lang-mm">
-                                            <h4 class="text-white font-bold mb-1.5 text-[15px]">အန္တရာယ်ရှိသော ကုတ်ဒ်များနှင့် Hacking</h4>
-                                            <p class="text-gray-400 text-[13px] sm:text-[14px] leading-relaxed">စနစ်များ၏ အားနည်းချက်ကို အမြတ်ထုတ်ရန်၊ Malware ဖြန့်ဝေရန်၊ Ransomware သွင်းရန် သို့မဟုတ် ဆိုက်ဘာတိုက်ခိုက်မှုများ ပြုလုပ်ရန် ရည်ရွယ်ထားသော ကုတ်ဒ်များ တင်ခြင်းသည် အလွန်ကြီးလေးသော ချိုးဖောက်မှုဖြစ်သည်။ ကျွန်ုပ်တို့သည် ဆိုက်ဘာလုံခြုံရေး စုံစမ်းစစ်ဆေးမှုများနှင့် အပြည့်အဝ ပူးပေါင်းဆောင်ရွက်ပါသည်။</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="p-5 bg-white/[0.02] border border-red-500/10 hover:border-red-500/30 transition-colors backdrop-blur-md">
-                                <div class="flex items-start gap-4">
-                                    <div class="mt-1 shrink-0"><i data-lucide="copy-x" class="w-5 h-5 text-red-500"></i></div>
-                                    <div>
-                                        <div class="lang-en">
-                                            <h4 class="text-white font-bold mb-1.5 text-[15px]">Plagiarism & IP Theft</h4>
-                                            <p class="text-gray-400 text-[13px] sm:text-[14px] leading-relaxed">Do not claim ownership of open-source projects or premium assets you did not create. Plagiarizing tutorials, articles, or codebase segments without proper attribution to the original author violates our intellectual property policy.</p>
-                                        </div>
-                                        <div class="lang-mm">
-                                            <h4 class="text-white font-bold mb-1.5 text-[15px]">မူပိုင်ခွင့်ချိုးဖောက်ခြင်း</h4>
-                                            <p class="text-gray-400 text-[13px] sm:text-[14px] leading-relaxed">သင်ကိုယ်တိုင် မဖန်တီးထားသော ပရောဂျက်များ သို့မဟုတ် ပရီမီယမ် အရာများကို မိမိပိုင်အဖြစ် မကြေညာပါနှင့်။ မူရင်းဖန်တီးသူကို Credit မပေးဘဲ အခြားသူများ၏ ဆောင်းပါးများ၊ ကုတ်ဒ်များကို ကူးယူဖော်ပြခြင်းသည် ကျွန်ုပ်တို့၏ မူပိုင်ခွင့် မူဝါဒကို ချိုးဖောက်ခြင်းဖြစ်သည်။</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="flex-1 lg:w-48 relative">
+                            <select id="filterTech" onchange="applyFilters()" class="w-full px-5 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-[13px] font-bold text-white focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer custom-select shadow-inner truncate">
+                                <option value="all">All Technologies</option>
+                            </select>
+                        </div>
+                        <div class="w-full sm:w-auto sm:flex-1 lg:w-44 relative">
+                            <select id="filterSort" onchange="applyFilters()" class="w-full px-5 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-[13px] font-bold text-white focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer custom-select shadow-inner truncate">
+                                <option value="random">Randomize</option>
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="name_asc">Name (A-Z)</option>
+                            </select>
                         </div>
                     </div>
-                </div>
-
-                <!-- Disciplinary Actions -->
-                <div id="section-5" class="rule-section scroll-mt-[150px] lg:scroll-mt-32 p-0 mb-12">
-                    <h2 class="text-xl sm:text-2xl font-bold font-display mb-5 text-white flex items-center gap-4">
-                        <span class="text-myancode-accent opacity-50 select-none">05.</span>
-                        <span class="lang-en">Enforcement & Disciplinary Actions</span>
-                        <span class="lang-mm">စောင့်ကြည့်အရေးယူခြင်းနှင့် ပြစ်ဒဏ်များ</span>
-                    </h2>
-                    <div class="text-gray-300 leading-loose text-[14px] sm:text-[15px] border-l border-white/10 pl-5 sm:pl-8 ml-2">
-                        <p class="lang-en mb-8">The MyanCode Moderation Team continuously monitors the platform. We employ an escalating scale of consequences for rule violations, though severe infractions will immediately bypass warnings.</p>
-                        <p class="lang-mm mb-8">MyanCode စောင့်ကြည့်ထိန်းချုပ်ရေးအဖွဲ့သည် ပလက်ဖောင်းကို အစဉ်မပြတ် စောင့်ကြည့်နေပါသည်။ စည်းမျဉ်းချိုးဖောက်မှုများအတွက် အဆင့်လိုက် အရေးယူမှုများ ပြုလုပ်သွားမည်ဖြစ်သော်လည်း၊ အလွန်ဆိုးရွားသော ချိုးဖောက်မှုများအတွက်မူ သတိပေးချက်မရှိဘဲ ချက်ချင်း ပြင်းထန်စွာ အရေးယူမည်ဖြစ်သည်။</p>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="bg-[#111] border border-white/5 p-6">
-                                <div class="text-myancode-accent font-bold font-mono text-[11px] mb-3 uppercase tracking-widest lang-en">Level 1: Warning</div>
-                                <div class="text-myancode-accent font-bold font-mono text-[11px] mb-3 uppercase tracking-widest lang-mm">အဆင့် ၁ - သတိပေးချက်</div>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 leading-relaxed lang-en">The offending content is securely deleted from our databases. An official warning notification is dispatched to the user's registered email detailing the specific violation.</p>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 leading-relaxed lang-mm">စည်းမျဉ်းချိုးဖောက်ထားသော အကြောင်းအရာကို ဖယ်ရှားမည်ဖြစ်ပြီး၊ အသုံးပြုသူ၏ အီးမေးလ်သို့ တရားဝင် သတိပေးစာ ပေးပို့မည်ဖြစ်သည်။</p>
-                            </div>
-                            <div class="bg-[#111] border border-orange-500/20 p-6 relative overflow-hidden">
-                                <div class="absolute top-0 left-0 w-1 h-full bg-orange-500/50"></div>
-                                <div class="text-orange-400 font-bold font-mono text-[11px] mb-3 uppercase tracking-widest lang-en">Level 2: Suspension</div>
-                                <div class="text-orange-400 font-bold font-mono text-[11px] mb-3 uppercase tracking-widest lang-mm">အဆင့် ၂ - ခေတ္တပိတ်သိမ်းခြင်း</div>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 leading-relaxed lang-en">For repeated or moderate offenses, the user's account will be temporarily suspended from accessing the community or making purchases. Suspensions last between 7 to 30 days.</p>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 leading-relaxed lang-mm">ထပ်မံကျူးလွန်မှုများ သို့မဟုတ် အလယ်အလတ်အဆင့် ချိုးဖောက်မှုများအတွက် အကောင့်ကို ၇ ရက်မှ ၃၀ ရက်အထိ ယာယီ ပိတ်သိမ်းမည်ဖြစ်သည်။</p>
-                            </div>
-                            <div class="bg-[#111] border border-red-500/20 p-6 relative overflow-hidden">
-                                <div class="absolute top-0 left-0 w-1 h-full bg-red-500/50"></div>
-                                <div class="text-red-400 font-bold font-mono text-[11px] mb-3 uppercase tracking-widest lang-en">Level 3: Permanent Ban</div>
-                                <div class="text-red-400 font-bold font-mono text-[11px] mb-3 uppercase tracking-widest lang-mm">အဆင့် ၃ - အပြီးတိုင်ပိတ်သိမ်းခြင်း</div>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 leading-relaxed lang-en">For third strikes or critical violations, the account is permanently terminated. Associated IP addresses and device fingerprints are blacklisted system-wide.</p>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 leading-relaxed lang-mm">တတိယအကြိမ် ထပ်မံကျူးလွန်ခြင်း သို့မဟုတ် အလွန်ဆိုးရွားသော ချိုးဖောက်မှုများအတွက် အကောင့်ကို အပြီးတိုင် ပိတ်သိမ်းမည်ဖြစ်ပြီး၊ IP နှင့် Device များကိုပါ စနစ်တစ်ခုလုံးမှ Blacklist သွင်းမည်ဖြစ်သည်။</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reporting -->
-                <div id="section-6" class="rule-section scroll-mt-[150px] lg:scroll-mt-32 p-0 mb-12">
-                    <h2 class="text-xl sm:text-2xl font-bold font-display mb-5 text-white flex items-center gap-4">
-                        <span class="text-myancode-accent opacity-50 select-none">06.</span>
-                        <span class="lang-en">Reporting and Appeals</span>
-                        <span class="lang-mm">တိုင်ကြားခြင်းနှင့် အယူခံဝင်ခြင်း</span>
-                    </h2>
-                    <div class="text-gray-300 leading-loose text-[14px] sm:text-[15px] border-l border-white/10 pl-5 sm:pl-8 ml-2">
-                        <p class="lang-en mb-5">Maintaining this ecosystem is a collective effort. If you encounter a post, comment, or user violating the rules, utilize the native <strong class="text-white">"Report"</strong> function available in the options menu of every post.</p>
-                        <p class="lang-mm mb-5">ဤ Community ကို ကောင်းမွန်စွာ ထိန်းသိမ်းနိုင်ရန်မှာ အားလုံး၏ ပူးပေါင်းပါဝင်မှု လိုအပ်ပါသည်။ စည်းမျဉ်းချိုးဖောက်နေသော ပို့စ်များ၊ မှတ်ချက်များ သို့မဟုတ် အသုံးပြုသူများကို တွေ့ရှိပါက ပို့စ်တိုင်းရှိ Options Menu မှတဆင့် <strong class="text-white">"Report"</strong> လုပ်ဆောင်ချက်ကို အသုံးပြု၍ တိုင်ကြားပေးပါ။</p>
-                        
-                        <ul class="list-disc pl-6 space-y-3 text-[13px] sm:text-[14px]">
-                            <li>
-                                <span class="lang-en">All reports are kept strictly confidential and anonymous.</span>
-                                <span class="lang-mm">တိုင်ကြားချက်များအားလုံးကို လျှို့ဝှက်ထားရှိမည်ဖြစ်ပြီး မည်သူတိုင်ကြားကြောင်းကို ထုတ်ဖော်မည်မဟုတ်ပါ။</span>
-                            </li>
-                            <li>
-                                <span class="lang-en">Our moderation team commits to reviewing all reports within a 24 to 48-hour SLA framework.</span>
-                                <span class="lang-mm">စောင့်ကြည့်ထိန်းချုပ်ရေးအဖွဲ့သည် တိုင်ကြားချက်များအားလုံးကို ၂၄ နာရီမှ ၄၈ နာရီအတွင်း စစ်ဆေးအရေးယူပေးမည်ဖြစ်သည်။</span>
-                            </li>
-                            <li>
-                                <span class="lang-en">While moderation decisions are generally final, legitimate appeals can be submitted through our <a href="/contact-us/" class="text-myancode-accent hover:underline decoration-white/30 underline-offset-4 font-medium">Support Portal</a>.</span>
-                                <span class="lang-mm">ဆုံးဖြတ်ချက်များသည် များသောအားဖြင့် အတည်ဖြစ်သော်လည်း၊ လိုအပ်ပါက ကျွန်ုပ်တို့၏ <a href="/contact-us/" class="text-myancode-accent hover:underline decoration-white/30 underline-offset-4 font-medium">Support Portal</a> မှတဆင့် အယူခံတင်ပြနိုင်ပါသည်။</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Legal Directories Section -->
-                <div id="section-7" class="rule-section scroll-mt-[150px] lg:scroll-mt-32 p-0 mb-12">
-                    <h2 class="text-xl sm:text-2xl font-bold font-display mb-5 text-white flex items-center gap-4">
-                        <span class="text-myancode-accent opacity-50 select-none">07.</span>
-                        <span class="lang-en">Legal Directories & Policies</span>
-                        <span class="lang-mm">အခြားသော ဥပဒေရေးရာ မူဝါဒများ</span>
-                    </h2>
-                    <div class="text-gray-300 leading-loose text-[14px] sm:text-[15px] border-l border-white/10 pl-5 sm:pl-8 ml-2">
-                        <p class="lang-en mb-6">For further information regarding your rights, data handling, and service agreements, please refer to our comprehensive legal directories.</p>
-                        <p class="lang-mm mb-6">သင်၏ အခွင့်အရေးများ၊ အချက်အလက် ကိုင်တွယ်မှုများနှင့် ဝန်ဆောင်မှု သဘောတူညီချက်များအတွက် ကျွန်ုပ်တို့၏ ပြည့်စုံသော ဥပဒေရေးရာ မူဝါဒများကို ဆက်လက်ဖတ်ရှုနိုင်ပါသည်။</p>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <a href="/legal/#privacy-policy" class="p-5 border border-white/10 bg-[#111] hover:bg-white/5 hover:border-myancode-accent transition-all group flex flex-col justify-between h-full backdrop-blur-md">
-                                <div class="flex items-center gap-3 mb-3">
-                                    <i data-lucide="shield" class="w-5 h-5 text-gray-400 group-hover:text-myancode-accent transition-colors"></i>
-                                    <h4 class="font-bold text-white tracking-wide font-display">Privacy Policy</h4>
-                                </div>
-                                <p class="text-[12px] text-gray-500 leading-relaxed mb-4 line-clamp-2">Learn how we collect, use, and protect your personal data across the MyanCode platform.</p>
-                                <div class="text-[10px] font-mono text-gray-400 group-hover:text-myancode-accent font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">Read Policy <i data-lucide="arrow-right" class="w-3 h-3 transform group-hover:translate-x-1 transition-transform"></i></div>
-                            </a>
-                            <a href="/legal/#terms-of-service" class="p-5 border border-white/10 bg-[#111] hover:bg-white/5 hover:border-myancode-accent transition-all group flex flex-col justify-between h-full backdrop-blur-md">
-                                <div class="flex items-center gap-3 mb-3">
-                                    <i data-lucide="file-text" class="w-5 h-5 text-gray-400 group-hover:text-myancode-accent transition-colors"></i>
-                                    <h4 class="font-bold text-white tracking-wide font-display">Terms of Service</h4>
-                                </div>
-                                <p class="text-[12px] text-gray-500 leading-relaxed mb-4 line-clamp-2">The overarching rules, regulations, and conditions governing the use of our services.</p>
-                                <div class="text-[10px] font-mono text-gray-400 group-hover:text-myancode-accent font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">Read Policy <i data-lucide="arrow-right" class="w-3 h-3 transform group-hover:translate-x-1 transition-transform"></i></div>
-                            </a>
-                            <a href="/legal/#refund-policy" class="p-5 border border-white/10 bg-[#111] hover:bg-white/5 hover:border-myancode-accent transition-all group flex flex-col justify-between h-full backdrop-blur-md">
-                                <div class="flex items-center gap-3 mb-3">
-                                    <i data-lucide="refresh-ccw" class="w-5 h-5 text-gray-400 group-hover:text-myancode-accent transition-colors"></i>
-                                    <h4 class="font-bold text-white tracking-wide font-display">Refund Policy</h4>
-                                </div>
-                                <p class="text-[12px] text-gray-500 leading-relaxed mb-4 line-clamp-2">Guidelines detailing eligibility, procedures, and exceptions for service and template refunds.</p>
-                                <div class="text-[10px] font-mono text-gray-400 group-hover:text-myancode-accent font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">Read Policy <i data-lucide="arrow-right" class="w-3 h-3 transform group-hover:translate-x-1 transition-transform"></i></div>
-                            </a>
-                            <a href="/legal/#service-policy" class="p-5 border border-white/10 bg-[#111] hover:bg-white/5 hover:border-myancode-accent transition-all group flex flex-col justify-between h-full backdrop-blur-md">
-                                <div class="flex items-center gap-3 mb-3">
-                                    <i data-lucide="briefcase" class="w-5 h-5 text-gray-400 group-hover:text-myancode-accent transition-colors"></i>
-                                    <h4 class="font-bold text-white tracking-wide font-display">Service Policy</h4>
-                                </div>
-                                <p class="text-[12px] text-gray-500 leading-relaxed mb-4 line-clamp-2">Specific terms regarding custom development, delivery timelines, and client responsibilities.</p>
-                                <div class="text-[10px] font-mono text-gray-400 group-hover:text-myancode-accent font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">Read Policy <i data-lucide="arrow-right" class="w-3 h-3 transform group-hover:translate-x-1 transition-transform"></i></div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agreement Statement -->
-                <div class="border-t border-white/10 pt-10 mt-12 mb-8 text-left px-2 sm:px-0">
-                    <p class="text-[12px] text-gray-500 font-mono leading-relaxed max-w-3xl lang-en">
-                        By accessing, browsing, or publishing content within the MyanCode Community Marketplace, you implicitly acknowledge that you have read, understood, and agreed to be legally bound by these Community Rules. MyanCode reserves the unalienable right to update, modify, or append these guidelines at any time without explicit prior notice to individual users.
-                    </p>
-                    <p class="text-[12px] text-gray-500 font-mono leading-relaxed max-w-3xl lang-mm">
-                        MyanCode Community အတွင်းသို့ ဝင်ရောက်အသုံးပြုခြင်း၊ ဖတ်ရှုခြင်း သို့မဟုတ် အကြောင်းအရာများ တင်ခြင်းအားဖြင့်၊ သင်သည် ဤ Community စည်းမျဉ်းများကို ဖတ်ရှု၊ နားလည်ပြီး ဥပဒေအရ လိုက်နာရန် သဘောတူညီကြောင်း အလိုအလျောက် အသိအမှတ်ပြုပါသည်။ MyanCode သည် အသုံးပြုသူများထံ ကြိုတင်အသိပေးခြင်းမရှိဘဲ အချိန်မရွေး ဤစည်းမျဉ်းများကို ပြင်ဆင်မွမ်းမံနိုင်ခွင့်၊ အသစ်ထပ်မံဖြည့်စွက်နိုင်ခွင့် ရှိပါသည်။
-                    </p>
                 </div>
             </div>
+
+            <!-- Project Grid -->
+            <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10">
+                <!-- Skeletons will be injected here on load -->
+            </div>
+            
+            <div id="noResultsState" class="hidden flex-col items-center justify-center py-24 px-4 text-center">
+                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                    <i data-lucide="search-x" class="w-8 h-8 text-gray-500"></i>
+                </div>
+                <h3 class="text-2xl font-bold font-display text-white mb-2">No projects found</h3>
+                <p class="text-sm text-gray-400 max-w-md mx-auto">We couldn't find any delivered projects matching your exact filters. Try adjusting your search or clearing the filters.</p>
+                <button onclick="resetFilters()" class="mt-8 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-bold uppercase tracking-widest transition-colors border border-white/10">Clear Filters</button>
+            </div>
+
+            <div class="mt-16 flex justify-center hidden" id="loadMoreBtnContainer">
+                <button onclick="loadMoreProjects()" class="px-8 py-3.5 bg-transparent border border-white/20 hover:border-myancode-accent text-white rounded-full text-xs font-bold uppercase tracking-widest transition-all btn-hover-effect flex items-center gap-2">
+                    <i data-lucide="chevron-down" class="w-4 h-4"></i> Load More Projects
+                </button>
+            </div>
+
         </div>
     </main>
 
-    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
+    <!-- Stream: Footer Setup -->
+    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans border-t border-white/10">
+        <div class="absolute inset-0">
+            <img src="../imgs/web-banners/banner1.jpg" class="w-full h-full object-cover select-none pointer-events-none">
+        </div>
+        <div class="absolute inset-0 bg-black/30"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/75"></div>
         <div class="layout-width relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
                 <div class="lg:col-span-4 pr-4">
-                    <a href="/" class="flex items-center cursor-pointer group mb-6">
-                        <img src="/imgs/web-banners/favicon.png" alt="MyanCode"
+                    <a href="./" class="flex items-center cursor-pointer group mb-6">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode"
                             class="h-8 w-auto mr-3 transition-transform duration-500 group-hover:scale-105">
                         <span
                             class="font-display font-bold text-2xl tracking-tight text-white group-hover:text-myancode-accent transition-colors">MyanCode</span>
@@ -681,26 +527,26 @@
                     <div class="flex space-x-6 mb-8">
                         <a href="https://facebook.com/myancode" target="_blank" rel="noopener noreferrer"
                             class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="/imgs/web-banners/facebook.png" class="h-6 w-6 object-contain" alt="Facebook">
+                            <img src="../imgs/web-banners/facebook.png" class="h-6 w-6 object-contain" alt="Facebook">
                         </a>
                         <a href="https://tiktok.com/@myancode" target="_blank" rel="noopener noreferrer"
                             class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="/imgs/web-banners/tiktok.png" class="h-6 w-6 object-contain" alt="Tik Tok">
+                            <img src="../imgs/web-banners/tiktok.png" class="h-6 w-6 object-contain" alt="Tik Tok">
                         </a>
                         <a href="https://linkedin.com/company/myancode" target="_blank" rel="noopener noreferrer"
                             class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="/imgs/web-banners/linkedin.png" class="h-6 w-6 object-contain" alt="LinkedIn">
+                            <img src="../imgs/web-banners/linkedin.png" class="h-6 w-6 object-contain" alt="LinkedIn">
                         </a>
                         <a href="https://github.com/myancode" target="_blank" rel="noopener noreferrer"
                             class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="/imgs/web-banners/github.png" class="h-6 w-6 object-contain" alt="GitHub">
+                            <img src="../imgs/web-banners/github.png" class="h-6 w-6 object-contain" alt="GitHub">
                         </a>
                         <a href="https://instagram.com/myancode.mm" target="_blank" rel="noopener noreferrer"
                             class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="/imgs/web-banners/instagram.png" class="h-6 w-6 object-contain" alt="Instagram">
+                            <img src="../imgs/web-banners/instagram.png" class="h-6 w-6 object-contain" alt="Instagram">
                         </a>
                     </div>
-    
+
                     <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                         <a href="#"
                             onclick="showToast(currentLang === 'en' ? 'iOS App coming soon!' : 'iOS App မကြာမီလာမည်!'); return false;"
@@ -715,7 +561,7 @@
                                 <span data-i18n="ftGetIosApp">Get iOS App</span>
                             </div>
                         </a>
-                        <a href="/app-release.apk" download="MyanCode.apk"
+                        <a href="../app-release.apk" download="MyanCode.apk"
                             class="inline-flex justify-center sm:justify-start items-center gap-3 bg-white text-black px-5 py-3 text-[13px] font-bold tracking-wide hover:bg-gray-200 transition-colors btn-hover-effect flex-1 sm:flex-none">
                             <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -729,162 +575,162 @@
                         </a>
                     </div>
                 </div>
-    
+
                 <div class="lg:col-span-2">
                     <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
                         data-i18n="ftStoreTitle">STORE</h4>
                     <ul class="space-y-4">
-                        <li><a href="/package/"
+                        <li><a href="../package/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftPackages">Packages</span></a></li>
-                        <li><a href="/templates/"
+                        <li><a href="../templates/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftTemplates">Templates</span></a></li>
-                        <li><a href="/services/"
+                        <li><a href="../services/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftServices">Services</span></a></li>
-                        <li><a href="/maintenance/"
+                        <li><a href="../maintenance/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftMaintenance">Maintenance</span></a></li>
-                        <li><a href="/plan-purchase/"
+                        <li><a href="../plan-purchase/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftPricing">Pricing</span></a></li>
-                        <li><a href="/marketplace/"
+                        <li><a href="../marketplace/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftMarketplace">Marketplace</span></a></li>
                     </ul>
                 </div>
-    
+
                 <div class="lg:col-span-2">
                     <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
                         data-i18n="ftCompanyTitle">Company</h4>
                     <ul class="space-y-4">
-                        <li><a href="/about-us/"
+                        <li><a href="../about-us/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftAboutUs">About Us</span></a></li>
-                        <li><a href="/case-studies/"
+                        <li><a href="../case-studies/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="navCaseStudies">Projects</span></a></li>
-                        <li><a href="/marketplace/"
+                        <li><a href="../marketplace/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftCommunity">Community</span></a></li>
-                        <li><a href="/marketplace/"
+                        <li><a href="../marketplace/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftUpdates">Updates & News</span></a></li>
-                        <li><a href="/contact-us/"
+                        <li><a href="../contact-us/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftContactUs">Contact Us</span></a></li>
-                        <li><a href="/partners/"
+                        <li><a href="../partners/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftParnters">Partners</span></a></li>
-                        <li><a href="/developers/"
+                        <li><a href="../developers/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftDevelopers">Developers</span></a></li>
-                        <li><a href="/careers/"
+                        <li><a href="../careers/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftCareers">Careers</span></a></li>
                     </ul>
                 </div>
-    
+
                 <div class="lg:col-span-2">
                     <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
                         data-i18n="ftSupportTitle">Support</h4>
                     <ul class="space-y-4">
-                        <li><a href="/guides/"
+                        <li><a href="../guides/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="supGuides">Guides</span></a></li>
-                        <li><a href="/help/"
+                        <li><a href="../help/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="supHelp">Help Center</span></a></li>
-                        <li><a href="/faq/"
+                        <li><a href="../faq/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="supFaq">FAQs</span></a></li>
-                        <li><a href="/marketplace/"
+                        <li><a href="../marketplace/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftReport">Report</span></a></li>
-                        <li><a href="/marketplace/"
+                        <li><a href="../marketplace/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftAskQ">Ask Questions</span></a></li>
-                        <li><a href="/contact-us/"
+                        <li><a href="../contact-us/"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="ftCustomerSupport">Customer Support</span></a></li>
                     </ul>
                 </div>
-    
+
                 <div class="lg:col-span-2">
                     <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono">Legal</h4>
                     <ul class="space-y-4">
-                        <li><a href="/legal/#privacy-policy"
+                        <li><a href="../legal/#privacy-policy"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="polPrivacy">Privacy Policy</span></a></li>
-                        <li><a href="/legal/#terms-of-service"
+                        <li><a href="../legal/#terms-of-service"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="polTerms">Terms & Conditions</span></a></li>
-                        <li><a href="/legal/#refund-policy"
+                        <li><a href="../legal/#refund-policy"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="polRefund">Refund Policy</span></a></li>
-                        <li><a href="/legal/#package-policy"
+                        <li><a href="../legal/#package-policy"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="polPackage">Package Policy</span></a></li>
-                        <li><a href="/legal/#template-policy"
+                        <li><a href="../legal/#template-policy"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="polTemplate">Template Policy</span></a></li>
-                        <li><a href="/legal/#service-policy"
+                        <li><a href="../legal/#service-policy"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
                                 <span data-i18n="polService">Service Policy</span></a></li>
-                        <li><a href="/legal/#maintenance-policy"
+                        <li><a href="../legal/#maintenance-policy"
                                 class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
                                     data-lucide="chevron-right"
                                     class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
@@ -892,7 +738,7 @@
                     </ul>
                 </div>
             </div>
-    
+
             <div
                 class="border-y border-white/10 py-10 mb-8 flex flex-col xl:flex-row items-center justify-between gap-10">
                 <div class="flex items-center gap-4 w-full max-w-[450px] mx-auto text-left">
@@ -900,18 +746,18 @@
                         class="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center shrink-0 bg-[#0a0a0a]">
                         <i data-lucide="mail" class="w-5 h-5 text-gray-400"></i>
                     </div>
-    
+
                     <div>
                         <h4 class="text-white font-bold text-[14px]" data-i18n="ftStayUpdated">
                             Stay Updated
                         </h4>
-    
+
                         <p class="text-gray-400 text-[12px] mt-1 leading-relaxed" data-i18n="ftStayUpdatedDesc">
                             Get the latest templates, updates and offers straight to your inbox.
                         </p>
                     </div>
                 </div>
-    
+
                 <div class="w-full xl:w-1/3 flex justify-center">
                     <form id="newsletterForm" onsubmit="handleSubscribe(event)"
                         class="relative flex items-center bg-transparent border border-white/20 rounded-lg p-1 transition-all focus-within:border-white w-full max-w-sm">
@@ -924,7 +770,7 @@
                     </form>
                     <div class="cf-turnstile hidden" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="dark"></div>
                 </div>
-    
+
                 <div class="hidden md:flex items-center gap-8 justify-center xl:justify-end w-full xl:w-1/3">
                     <div class="flex flex-col items-center gap-2">
                         <i data-lucide="shield-check" class="w-6 h-6 text-gray-400"></i>
@@ -945,13 +791,13 @@
             </div>
             <div
                 class="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-gray-400 font-medium">
-    
+
                 <div class="flex items-center gap-4 opacity-60">
-    
+
                     <a href="https://www.kbzpay.com/" target="_blank" rel="noopener noreferrer" class="group relative">
-                        <img src="/imgs/payment/kbzpay.png" alt="KBZPay"
+                        <img src="../imgs/payment/kbzpay.png" alt="KBZPay"
                             class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
+
                         <div
                             class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
                             <div
@@ -968,9 +814,9 @@
                         </div>
                     </a>
                     <a href="https://www.uab.com.mm/" target="_blank" rel="noopener noreferrer" class="group relative">
-                        <img src="/imgs/payment/uabpay.png" alt="UABPay"
+                        <img src="../imgs/payment/uabpay.png" alt="UABPay"
                             class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
+
                         <div
                             class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
                             <div
@@ -988,20 +834,20 @@
                     </a>
                     <a href="https://www.apple.com/apple-pay/" target="_blank" rel="noopener noreferrer"
                         class="group relative">
-                        <img src="/imgs/payment/apple-pay.png" alt="Apple Pay"
+                        <img src="../imgs/payment/apple-pay.png" alt="Apple Pay"
                             class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
+
                         <div
                             class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
                             <div
                                 class="relative rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,.45)] whitespace-nowrap">
                                 <p class="text-xs font-semibold text-white">Apple Pay</p>
-    
+
                                 <div class="mt-1 flex items-center gap-1 text-[11px] text-yellow-400">
                                     <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
                                     Under Maintenance
                                 </div>
-    
+
                                 <div
                                     class="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-[#111]/95 border-r border-b border-white/10 rotate-45 rounded-[2px]">
                                 </div>
@@ -1010,61 +856,61 @@
                     </a>
                     
                     <div class="h-8 w-px bg-white/20 mx-1"></div>
-    
+
                     <a href="https://www.visa.com/" target="_blank" rel="noopener noreferrer" class="group relative">
-                        <img src="/imgs/payment/visa.png" alt="Visa"
+                        <img src="../imgs/payment/visa.png" alt="Visa"
                             class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
+
                         <div
                             class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
                             <div
                                 class="relative rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,.45)] whitespace-nowrap">
-    
+
                                 <p class="text-xs font-semibold text-white">Visa</p>
-    
+
                                 <div class="mt-1 flex items-center gap-1 text-[11px] text-yellow-400">
                                     <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
                                     Under Maintenance
                                 </div>
-    
+
                                 <div
                                     class="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-[#111]/95 border-r border-b border-white/10 rotate-45 rounded-[2px]">
                                 </div>
-    
+
                             </div>
                         </div>
                     </a>
                     <a href="https://www.mastercard.com/" target="_blank" rel="noopener noreferrer"
                         class="group relative">
-                        <img src="/imgs/payment/mastercard.png" alt="Mastercard"
+                        <img src="../imgs/payment/mastercard.png" alt="Mastercard"
                             class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
+
                         <div
                             class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
                             <div
                                 class="relative rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,.45)] whitespace-nowrap">
-    
+
                                 <p class="text-xs font-semibold text-white">Mastercard</p>
-    
+
                                 <div class="mt-1 flex items-center gap-1 text-[11px] text-yellow-400">
                                     <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
                                     Under Maintenance
                                 </div>
-    
+
                                 <div
                                     class="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-[#111]/95 border-r border-b border-white/10 rotate-45 rounded-[2px]">
                                 </div>
-    
+
                             </div>
                         </div>
                     </a>
                 </div>
-
                 <div data-i18n="ftCopyright">&copy; 2026 MyanCode Inc. All rights reserved.</div>
             </div>
         </div>
     </footer>
 
+    <!-- Stream: Base JS Logic and Global Handlers -->
     <script>
         function initIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); }
         initIcons();
@@ -1084,7 +930,7 @@
                 polClient: "Customer Policy", polStudio: "Packages Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service",
                 ftFollow: "Follow Us", ftCopyright: "© 2026 MyanCode Inc. All rights reserved.",
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrLogout: "Sign Out",
-                msgLoggedOut: "Signed out securely.", msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list."
+                msgLoggedOut: "Signed out securely.", loadingInit: "Loading...", msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list."
             },
             mm: {
                 navAbout: "ကျွန်ုပ်တို့အကြောင်း", navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ", navMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
@@ -1100,77 +946,26 @@
                 polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
                 ftFollow: "နောက်ဆုံးရသတင်းများ", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။",
                 hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrLogout: "အကောင့်ထွက်ရန်",
-                msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။"
+                msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။"
             }
         };
 
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
+        
         const SUPABASE_URL = 'https://dnretdraqjwdiwxccmpd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucmV0ZHJhcWp3ZGl3eGNjbXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Mjk1OTgsImV4cCI6MjA5NDUwNTU5OH0.gmXci7KsgPRFvVtRzY2F--qV5TshCPejf580JTJpl20';
         
         let supabaseInstance = null;
         let currentUser = null;
         let currentUserCart = []; 
-        let searchDebounceTimer;
-
         if (window.supabase) supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let searchDebounceTimer;
+        let megaSearchTimeout;
 
-        async function initPage() {
-            if (supabaseInstance) {
-                try {
-                    const { data: { session } } = await supabaseInstance.auth.getSession();
-                    if (session && session.user) {
-                        let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
-                        try {
-                            const { data: profile } = await supabaseInstance.from('profiles').select('role').eq('id', session.user.id).single();
-                            if (profile && profile.role) profileRole = profile.role;
-                        } catch (err) {}
-                        currentUser = {
-                            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                            email: session.user.email || '',
-                            id: session.user.id,
-                            avatar_url: session.user.user_metadata?.avatar_url || null,
-                            role: profileRole.toLowerCase()
-                        };
-                        currentUserCart = session.user.user_metadata?.wishlist || []; 
-                    }
-                    
-                    supabaseInstance.auth.onAuthStateChange((event, session) => {
-                        if (event === 'SIGNED_OUT') {
-                            currentUser = null; currentUserCart = []; updateAuthUI();
-                        }
-                    });
-                } catch (generalErr) {}
-            }
-            
-            updateAuthUI();
-            setActiveNavLinks();
-            renderLanguage();
-            initTocSpy();
-            setupTocDrawerDrag();
-        }
-
-        function initTocSpy() {
-            const sections = document.querySelectorAll('.rule-section');
-            const navLinks = document.querySelectorAll('.toc-link');
-            
-            if (!sections.length || !navLinks.length) return;
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        navLinks.forEach(link => {
-                            link.classList.remove('active-toc', 'text-white', 'font-bold', 'translate-x-1');
-                            if (link.getAttribute('href') === '#' + entry.target.id) {
-                                link.classList.add('active-toc');
-                            }
-                        });
-                    }
-                });
-            }, { rootMargin: '-20% 0px -70% 0px' });
-
-            sections.forEach(sec => observer.observe(sec));
-        }
+        // Theme Setup
+        const savedTheme = localStorage.getItem('myancode_theme');
+        if (savedTheme === 'light') { document.body.classList.add('light-mode-active'); }
 
         function renderLanguage() {
             document.documentElement.lang = currentLang; 
@@ -1190,8 +985,8 @@
         function setLanguage(lang) {
             currentLang = lang; localStorage.setItem('myancode_lang', currentLang);
             renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden');
+            renderProjects(true); // Re-render to update generic badges if needed
         }
-
         function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
 
         function updateAuthUI() {
@@ -1201,25 +996,15 @@
             
             if (currentUser) {
                 const roleBadgesDict = {
-                    'founder': '/imgs/web-banners/founder-badge.png',
-                    'admin': '/imgs/web-banners/verified-admin.png',
-                    'moderator': '/imgs/web-banners/verified-moderator.png',
-                    'partner': '/imgs/web-banners/verified-partner.png',
-                    'developer': '/imgs/web-banners/verified-developer.png',
-                    'client': '' 
+                    'founder': '../imgs/web-banners/founder-badge.png', 'admin': '../imgs/web-banners/verified-admin.png', 'moderator': '../imgs/web-banners/verified-moderator.png', 'partner': '../imgs/web-banners/verified-partner.png', 'developer': '../imgs/web-banners/verified-developer.png', 'client': '' 
                 };
                 const dashboardConfigs = {
-                    'founder': { label: 'Workplace (Founder)', url: '/founder-dashboard/' },
-                    'admin': { label: 'Workplace (Admin)', url: '/admin-dashboard/' },
-                    'moderator': { label: 'Workplace (Moderator)', url: '/moderator-dashboard/' },
-                    'partner': { label: 'Collaboration', url: '/partner-dashboard/' },
-                    'developer': { label: 'Console', url: '/developer-dashboard/' },
-                    'client': { label: 'My Hub', url: '/hub/' } 
+                    'founder': { label: 'Workplace (Founder)', url: '../founder-dashboard/' }, 'admin': { label: 'Workplace (Admin)', url: '../admin-dashboard/' }, 'moderator': { label: 'Workplace (Moderator)', url: '../moderator-dashboard/' }, 'partner': { label: 'Collaboration', url: '../partner-dashboard/' }, 'developer': { label: 'Console', url: '../developer-dashboard/' }, 'client': { label: 'My Hub', url: '../hub/' } 
                 };
                 const userRole = (currentUser.role || 'client').toLowerCase();
                 const badgeSrc = roleBadgesDict[userRole];
                 const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
-                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
+                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" alt="${userRole} verified" title="Verified ${userRole}" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
                 const dashConfig = dashboardConfigs[userRole] || dashboardConfigs['client'];
                 const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 text-white"></i>`;
                 const mobileAvatarHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-white/10 shadow-sm">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-accent"></i>`;
@@ -1234,7 +1019,7 @@
                             <a href="${dashConfig.url}" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
                                 ${dashConfig.label} <i data-lucide="layout-dashboard" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i>
                             </a>
-                            <a href="/profile/" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
+                            <a href="../profile/" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
                                 ${dict[currentLang].hdrProfile} <i data-lucide="user" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i>
                             </a>
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors flex items-center justify-between group/btn">
@@ -1255,7 +1040,7 @@
                         <a href="${dashConfig.url}" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors">
                             <span>${dashConfig.label}</span> <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-500"></i>
                         </a>
-                        <a href="/profile/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors">
+                        <a href="../profile/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors">
                             <span>${dict[currentLang].hdrProfile}</span> <i data-lucide="user" class="h-5 w-5 text-gray-500"></i>
                         </a>
                         <button onclick="handleLogout()" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors text-red-400">
@@ -1263,16 +1048,17 @@
                         </button>
                     </div>`;
             } else {
+                const currentRedirect = encodeURIComponent(window.location.pathname + window.location.search);
                 desktopAuth.innerHTML = `
-                    <a href="/login/" class="text-[12px] font-bold hover:text-myancode-accent transition-colors nav-link text-white px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
-                    <a href="/register/" class="text-[12px] font-bold text-white border border-white/20 hover:border-white/50 px-4 py-1.5 hover:bg-white/5 transition-all whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
+                    <a href="../login/?redirect=${currentRedirect}" class="text-[12px] font-bold hover:text-myancode-accent transition-colors nav-link text-white px-2 whitespace-nowrap">${dict[currentLang].hdrLogin}</a>
+                    <a href="../register/" class="text-[12px] font-bold text-white border border-white/20 hover:border-white/50 px-4 py-1.5 hover:bg-white/5 transition-all whitespace-nowrap">${dict[currentLang].hdrRegister}</a>`;
                 
                 containerMob.innerHTML = `
                     <div class="flex flex-col gap-6 font-semibold text-white">
-                        <a href="/login/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors text-base tracking-wide">
+                        <a href="../login/?redirect=${currentRedirect}" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors text-base tracking-wide">
                             <span>${dict[currentLang].hdrLogin}</span> <i data-lucide="log-in" class="h-5 w-5 text-gray-500"></i>
                         </a>
-                        <a href="/register/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors text-base tracking-wide">
+                        <a href="../register/" class="flex justify-between items-center w-full hover:text-myancode-accent transition-colors text-base tracking-wide">
                             <span>${dict[currentLang].hdrRegister}</span> <i data-lucide="user-plus" class="h-5 w-5 text-gray-500"></i>
                         </a>
                     </div>
@@ -1302,7 +1088,7 @@
         }
 
         function toggleWishlistDrawer() {
-            if (!currentUser) return;
+            if (!currentUser) { window.location.href = `../login/?redirect=${encodeURIComponent(window.location.pathname)}`; return; }
             const drawer = document.getElementById('wishlistDrawer'); const overlay = document.getElementById('wishlistOverlay');
             if(!drawer.classList.contains('open')) document.getElementById('mobileDrawer').classList.remove('open');
             drawer.classList.toggle('open'); overlay.classList.toggle('open');
@@ -1311,7 +1097,7 @@
         }
 
         function toggleWishlist(id, name, price) {
-            if (!currentUser) return;
+            if (!currentUser) { window.location.href = `../login/?redirect=${encodeURIComponent(window.location.pathname)}`; return; }
             const isStaff = ['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role);
             if (isStaff) { showErrorToast(currentLang === 'en' ? "Access Denied: Staff members cannot add to bag." : "ဝန်ထမ်းများ စာရင်းသို့ ထည့်ခွင့်မရှိပါ။"); return; }
             const index = currentUserCart.findIndex(i => i.id === id);
@@ -1320,6 +1106,7 @@
             syncWishlistToSupabase(); updateWishlistCount();
             const wDrawer = document.getElementById('wishlistDrawer');
             if(wDrawer && wDrawer.classList.contains('open')) renderWishlistItems();
+            renderProjects(true); // Re-render to update cart icon states on cards
         }
 
         window.proceedToCheckout = function() {
@@ -1327,12 +1114,13 @@
             const isStaff = ['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role);
             if (isStaff) { showErrorToast(currentLang === 'en' ? "Access Denied: Staff cannot checkout." : "ဝန်ထမ်းများ ဝယ်ယူခွင့်မရှိပါ။"); return; }
             if (currentUserCart.length === 0) { showErrorToast(currentLang === 'en' ? "Your bag is empty" : "ဝယ်ယူရန်စာရင်း လွတ်နေပါသည်"); return; }
-            window.location.href = `/checkout/?source=cart`;
+            window.location.href = `../checkout/?source=cart`;
         }
 
         async function syncWishlistToSupabase() {
             if (supabaseInstance && currentUser) {
-                await supabaseInstance.auth.updateUser({ data: { wishlist: currentUserCart } });
+                const { error } = await supabaseInstance.auth.updateUser({ data: { wishlist: currentUserCart } });
+                if (error) console.error(error);
             }
         }
 
@@ -1346,16 +1134,17 @@
             }
             container.innerHTML = currentUserCart.map(item => {
                 total += item.price;
+                const priceText = item.price === 0 ? 'Custom Framework' : `${item.price.toLocaleString()} MMK`;
                 return `
                 <div class="flex justify-between items-center p-4 bg-[#111] border border-white/10 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                     <div>
                         <h4 class="font-bold text-sm mb-1 truncate max-w-[150px] text-white">${item.name}</h4>
-                        <span class="text-xs font-bold text-gray-400">${item.price.toLocaleString()} MMK</span>
+                        <span class="text-xs font-bold text-gray-400">${priceText}</span>
                     </div>
                     <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-xs font-bold text-red-400 hover:text-red-300 bg-red-500/10 rounded-lg px-3 py-1.5 transition-colors">${dict[currentLang].removeFromWishlist}</button>
                 </div>
             `}).join('');
-            if (totalDisplay) totalDisplay.textContent = `${total.toLocaleString()} MMK`;
+            if (totalDisplay) totalDisplay.textContent = total === 0 ? 'To Be Quoted' : `${total.toLocaleString()} MMK`;
             if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
@@ -1367,46 +1156,6 @@
             }
             drawer.classList.toggle('open');
             if(drawer.classList.contains('open')) document.body.classList.add('no-scroll'); else document.body.classList.remove('no-scroll');
-        }
-        
-        function toggleTocDrawer() {
-            const drawer = document.getElementById('tocMobileDrawer'); 
-            const overlay = document.getElementById('tocMobileOverlay');
-            
-            if (drawer.classList.contains('translate-y-full')) {
-                overlay.classList.remove('hidden');
-                document.body.classList.add('no-scroll');
-                void overlay.offsetWidth; 
-                overlay.classList.remove('opacity-0');
-                drawer.classList.remove('translate-y-full');
-            } else {
-                drawer.classList.add('translate-y-full');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => { 
-                    overlay.classList.add('hidden'); 
-                    document.body.classList.remove('no-scroll'); 
-                }, 300);
-            }
-        }
-        
-        function setupTocDrawerDrag() {
-            let drawerStartY = 0; let currentDrawerY = 0;
-            const bDrawer = document.getElementById('tocMobileDrawer');
-            const dHandle = document.getElementById('tocDragHandle');
-            if(dHandle && bDrawer) {
-                dHandle.addEventListener('touchstart', e => { drawerStartY = e.touches[0].clientY; bDrawer.style.transition = 'none'; }, {passive: true});
-                dHandle.addEventListener('touchmove', e => {
-                    const deltaY = e.touches[0].clientY - drawerStartY;
-                    if (deltaY > 0) { currentDrawerY = deltaY; bDrawer.style.transform = `translateY(${deltaY}px)`; }
-                }, {passive: true});
-                dHandle.addEventListener('touchend', e => {
-                    bDrawer.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                    if (currentDrawerY > 100) { toggleTocDrawer(); } 
-                    else { bDrawer.style.transform = 'translateY(0)'; }
-                    currentDrawerY = 0;
-                    setTimeout(() => { bDrawer.style.transform = ''; }, 300);
-                });
-            }
         }
 
         function toggleLangDropdown(e) {
@@ -1424,6 +1173,11 @@
             if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
             const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
             if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
+            
+            const ds = document.getElementById('desktopSearchSuggestionsMain');
+            if (ds && !e.target.closest('#desktopSearchInput') && !e.target.closest('#desktopSearchSuggestionsMain')) ds.classList.add('hidden');
+            const ms = document.getElementById('mobileSearchSuggestions');
+            if (ms && !e.target.closest('#mobileSearchInput') && !e.target.closest('#mobileSearchSuggestions')) ms.classList.add('hidden');
         });
 
         function showToast(msg) {
@@ -1437,17 +1191,19 @@
         }
 
         function updateHeaderTheme(theme, isScrolled) {
-            const nav = document.getElementById('mainNav'); const navTextElements = document.querySelectorAll('.nav-link, .nav-icon');
+            const nav = document.getElementById('mainNav'); const navTextElements = document.querySelectorAll('.nav-link, .nav-icon, #navLogoText');
             if (isScrolled) {
                 nav.classList.add('glass-nav-dark'); nav.classList.remove('nav-transparent', 'border-transparent');
                 navTextElements.forEach(el => { 
                     if(el.classList.contains('active-nav-item')) return;
+                    el.classList.remove('text-black', 'text-myancode-black', 'text-myancode-black/80'); 
                     if(el.classList.contains('nav-link')) el.classList.add('text-white/90'); else el.classList.add('text-white'); 
                 });
             } else {
                 nav.classList.remove('glass-nav-dark'); nav.classList.add('nav-transparent', 'border-transparent');
                 navTextElements.forEach(el => { 
                     if(el.classList.contains('active-nav-item')) return;
+                    el.classList.remove('text-black', 'text-myancode-black', 'text-myancode-black/80'); 
                     if(el.classList.contains('nav-link')) el.classList.add('text-white/90'); else el.classList.add('text-white'); 
                 }); 
             }
@@ -1456,7 +1212,18 @@
         window.addEventListener('scroll', () => { 
             const scrollThreshold = 50; 
             const currentScrollY = window.scrollY;
-            updateHeaderTheme('dark', currentScrollY > scrollThreshold); 
+            const isScrolled = currentScrollY > scrollThreshold; 
+            updateHeaderTheme('dark', isScrolled); 
+            
+            const mobileActionBar = document.getElementById('mobileActionBar');
+            if (mobileActionBar) {
+                if (currentScrollY > window.lastScrollY && currentScrollY > 150) {
+                    mobileActionBar.classList.add('-translate-y-[150%]');
+                } else {
+                    mobileActionBar.classList.remove('-translate-y-[150%]');
+                }
+            }
+            window.lastScrollY = currentScrollY;
         });
 
         function toggleSearchOverlay() {
@@ -1484,26 +1251,26 @@
         }
 
         const SUPER_STATIC_PAGES = [
-            { title_en: 'Packages', title_mm: 'စတူဒီယို', url: '/package/', icon: 'code-2', type: 'Pages & Navigation', desc_en: 'Custom development & enterprise solutions', desc_mm: 'စိတ်ကြိုက်ရေးဆွဲခြင်း' },
-            { title_en: 'Templates', title_mm: 'ဝက်ဘ်ဆိုက်များ', url: '/templates/', icon: 'layout-template', type: 'Pages & Navigation', desc_en: 'Pre-built high-quality website templates', desc_mm: 'အသင့်သုံး ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ' },
-            { title_en: 'Services', title_mm: 'ဝန်ဆောင်မှုများ', url: '/services/', icon: 'briefcase', type: 'Pages & Navigation', desc_en: 'Explore all our digital services', desc_mm: 'ဒီဂျစ်တယ် ဝန်ဆောင်မှုများ' },
-            { title_en: 'Maintenance', title_mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', url: '/maintenance/', icon: 'shield-check', type: 'Pages & Navigation', desc_en: 'Long-term maintenance plans', desc_mm: 'ပြုပြင်ထိန်းသိမ်းရေး အစီအစဉ်များ' },
-            { title_en: 'Help Center', title_mm: 'အကူအညီဌာန', url: '/help/', icon: 'help-circle', type: 'Support & Help', desc_en: 'Get help with our products', desc_mm: 'အကူအညီရယူရန်' },
-            { title_en: 'FAQs', title_mm: 'အမေးများသောမေးခွန်းများ', url: '/faq/', icon: 'message-circle-question', type: 'Support & Help', desc_en: 'Frequently asked questions', desc_mm: 'အမေးများသော မေးခွန်းများ' },
-            { title_en: 'Guides', title_mm: 'လမ်းညွှန်များ', url: '/guides/', icon: 'book-open', type: 'Support & Help', desc_en: 'Step-by-step documentation', desc_mm: 'အသုံးပြုနည်း လမ်းညွှန်များ' },
-            { title_en: 'About', title_mm: 'ကျွန်ုပ်တို့အကြောင်း', url: '/about-us/', icon: 'info', type: 'Company', desc_en: 'Learn more about MyanCode', desc_mm: 'MyanCode အကြောင်း' },
-            { title_en: 'Contact Us', title_mm: 'ဆက်သွယ်ရန်', url: '/contact-us/', icon: 'phone', type: 'Company', desc_en: 'Get in touch with our team', desc_mm: 'ဆက်သွယ်ရန်' },
-            { title_en: 'Updates & News', title_mm: 'သတင်းနှင့် အသစ်များ', url: '/updates-news/', icon: 'newspaper', type: 'Company', desc_en: 'Latest announcements', desc_mm: 'နောက်ဆုံးရသတင်းများ' },
-            { title_en: 'Careers', title_mm: 'အလုပ်အကိုင်များ', url: '/careers/', icon: 'users', type: 'Company', desc_en: 'Join the MyanCode team', desc_mm: 'အလုပ်အကိုင် အခွင့်အလမ်းများ' },
-            { title_en: 'Customer Policy', title_mm: 'ဖောက်သည် မူဝါဒ', url: '/legal/#client-policy', icon: 'shield', type: 'Policies & Legal', desc_en: 'Rules for our customers', desc_mm: 'ဖောက်သည်များအတွက် စည်းမျဉ်းများ' },
-            { title_en: 'Privacy Policy', title_mm: 'ကိုယ်ရေးအချက်အလက် မူဝါဒ', url: '/legal/#privacy-policy', icon: 'lock', type: 'Policies & Legal', desc_en: 'How we protect your data', desc_mm: 'အချက်အလက် လုံခြုံရေး' },
-            { title_en: 'Terms of Service', title_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ', url: '/legal/#terms-of-service', icon: 'file-text', type: 'Policies & Legal', desc_en: 'Usage terms and conditions', desc_mm: 'အသုံးပြုမှု စည်းမျဉ်းများ' },
-            { title_en: 'Refund Policy', title_mm: 'ငွေပြန်အမ်းရေး မူဝါဒ', url: '/legal/#refund-policy', icon: 'refresh-ccw', type: 'Policies & Legal', desc_en: 'Our refund guidelines', desc_mm: 'ငွေပြန်အမ်းရေး စည်းမျဉ်းများ' },
-            { title_en: 'Payment Policy', title_mm: 'ငွေပေးချေမှု မူဝါဒ', url: '/legal/#payment-policy', icon: 'credit-card', type: 'Policies & Legal', desc_en: 'Accepted payment methods', desc_mm: 'ငွေပေးချေမှု စနစ်များ' },
-            { title_en: 'Packages Policy', title_mm: 'စတူဒီယို မူဝါဒ', url: '/legal/#package-policy', icon: 'briefcase', type: 'Policies & Legal', desc_en: 'Guidelines for studio services', desc_mm: 'စတူဒီယို စည်းမျဉ်းများ' },
-            { title_en: 'Template Policy', title_mm: 'ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ', url: '/legal/#template-policy', icon: 'layout-template', type: 'Policies & Legal', desc_en: 'Rules for template usage', desc_mm: 'ပုံစံများအတွက် စည်းမျဉ်းများ' },
-            { title_en: 'Service Policy', title_mm: 'ဝန်ဆောင်မှု မူဝါဒ', url: '/legal/#service-policy', icon: 'settings', type: 'Policies & Legal', desc_en: 'General service terms', desc_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ' },
-            { title_en: 'User Hub', title_mm: 'ဗဟိုဌာန', url: '/hub/', icon: 'layout-dashboard', type: 'User Dashboard', desc_en: 'Manage your projects and orders', desc_mm: 'ပရောဂျက်များ စီမံရန်' }
+            { title_en: 'Packages', title_mm: 'စတူဒီယို', url: '../package/', icon: 'code-2', type: 'Pages & Navigation', desc_en: 'Custom development & enterprise solutions', desc_mm: 'စိတ်ကြိုက်ရေးဆွဲခြင်း' },
+            { title_en: 'Templates', title_mm: 'ဝက်ဘ်ဆိုက်များ', url: '../templates/', icon: 'layout-template', type: 'Pages & Navigation', desc_en: 'Pre-built high-quality website templates', desc_mm: 'အသင့်သုံး ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ' },
+            { title_en: 'Services', title_mm: 'ဝန်ဆောင်မှုများ', url: '../services/', icon: 'briefcase', type: 'Pages & Navigation', desc_en: 'Explore all our digital services', desc_mm: 'ဒီဂျစ်တယ် ဝန်ဆောင်မှုများ' },
+            { title_en: 'Maintenance', title_mm: 'ထိန်းသိမ်းစောင့်ရှောက်ရေး', url: '../maintenance/', icon: 'shield-check', type: 'Pages & Navigation', desc_en: 'Long-term maintenance plans', desc_mm: 'ပြုပြင်ထိန်းသိမ်းရေး အစီအစဉ်များ' },
+            { title_en: 'Help Center', title_mm: 'အကူအညီဌာန', url: '../help/', icon: 'help-circle', type: 'Support & Help', desc_en: 'Get help with our products', desc_mm: 'အကူအညီရယူရန်' },
+            { title_en: 'FAQs', title_mm: 'အမေးများသောမေးခွန်းများ', url: '../faq/', icon: 'message-circle-question', type: 'Support & Help', desc_en: 'Frequently asked questions', desc_mm: 'အမေးများသော မေးခွန်းများ' },
+            { title_en: 'Guides', title_mm: 'လမ်းညွှန်များ', url: '../guides/', icon: 'book-open', type: 'Support & Help', desc_en: 'Step-by-step documentation', desc_mm: 'အသုံးပြုနည်း လမ်းညွှန်များ' },
+            { title_en: 'About', title_mm: 'ကျွန်ုပ်တို့အကြောင်း', url: '../about-us/', icon: 'info', type: 'Company', desc_en: 'Learn more about MyanCode', desc_mm: 'MyanCode အကြောင်း' },
+            { title_en: 'Contact Us', title_mm: 'ဆက်သွယ်ရန်', url: '../contact-us/', icon: 'phone', type: 'Company', desc_en: 'Get in touch with our team', desc_mm: 'ဆက်သွယ်ရန်' },
+            { title_en: 'Updates & News', title_mm: 'သတင်းနှင့် အသစ်များ', url: '../updates-news/', icon: 'newspaper', type: 'Company', desc_en: 'Latest announcements', desc_mm: 'နောက်ဆုံးရသတင်းများ' },
+            { title_en: 'Careers', title_mm: 'အလုပ်အကိုင်များ', url: '../careers/', icon: 'users', type: 'Company', desc_en: 'Join the MyanCode team', desc_mm: 'အလုပ်အကိုင် အခွင့်အလမ်းများ' },
+            { title_en: 'Customer Policy', title_mm: 'ဖောက်သည် မူဝါဒ', url: '../legal/#client-policy', icon: 'shield', type: 'Policies & Legal', desc_en: 'Rules for our customers', desc_mm: 'ဖောက်သည်များအတွက် စည်းမျဉ်းများ' },
+            { title_en: 'Privacy Policy', title_mm: 'ကိုယ်ရေးအချက်အလက် မူဝါဒ', url: '../legal/#privacy-policy', icon: 'lock', type: 'Policies & Legal', desc_en: 'How we protect your data', desc_mm: 'အချက်အလက် လုံခြုံရေး' },
+            { title_en: 'Terms of Service', title_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ', url: '../legal/#terms-of-service', icon: 'file-text', type: 'Policies & Legal', desc_en: 'Usage terms and conditions', desc_mm: 'အသုံးပြုမှု စည်းမျဉ်းများ' },
+            { title_en: 'Refund Policy', title_mm: 'ငွေပြန်အမ်းရေး မူဝါဒ', url: '../legal/#refund-policy', icon: 'refresh-ccw', type: 'Policies & Legal', desc_en: 'Our refund guidelines', desc_mm: 'ငွေပြန်အမ်းရေး စည်းမျဉ်းများ' },
+            { title_en: 'Payment Policy', title_mm: 'ငွေပေးချေမှု မူဝါဒ', url: '../legal/#payment-policy', icon: 'credit-card', type: 'Policies & Legal', desc_en: 'Accepted payment methods', desc_mm: 'ငွေပေးချေမှု စနစ်များ' },
+            { title_en: 'Packages Policy', title_mm: 'စတူဒီယို မူဝါဒ', url: '../legal/#package-policy', icon: 'briefcase', type: 'Policies & Legal', desc_en: 'Guidelines for studio services', desc_mm: 'စတူဒီယို စည်းမျဉ်းများ' },
+            { title_en: 'Template Policy', title_mm: 'ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ', url: '../legal/#template-policy', icon: 'layout-template', type: 'Policies & Legal', desc_en: 'Rules for template usage', desc_mm: 'ပုံစံများအတွက် စည်းမျဉ်းများ' },
+            { title_en: 'Service Policy', title_mm: 'ဝန်ဆောင်မှု မူဝါဒ', url: '../legal/#service-policy', icon: 'settings', type: 'Policies & Legal', desc_en: 'General service terms', desc_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ' },
+            { title_en: 'User Hub', title_mm: 'ဗဟိုဌာန', url: '../hub/', icon: 'layout-dashboard', type: 'User Dashboard', desc_en: 'Manage your projects and orders', desc_mm: 'ပရောဂျက်များ စီမံရန်' }
         ];
 
         function getCategoryIcon(c) {
@@ -1559,7 +1326,7 @@
                         supabaseInstance.from('pkg_categories').select('id, name_en, name_mm, icon').then(({data}) => {
                             if(data) data.forEach(c => {
                                 const score = getScore(`${c.name_en} ${c.name_mm} Website Foundations category`);
-                                if(score > 0) combined.push({ id: c.id, type: 'Website Foundations', name: c.name_en, mm: c.name_mm || c.name_en, icon: getCategoryIcon(c), desc_en: 'Explore this package in our Packages', desc_mm: 'ဝယ်ယူရန် ဤနေရာကို နှိပ်ပါ', url: '/package/', action: null, score: score });
+                                if(score > 0) combined.push({ id: c.id, type: 'Website Foundations', name: c.name_en, mm: c.name_mm || c.name_en, icon: getCategoryIcon(c), desc_en: 'Explore this package in our Packages', desc_mm: 'ဝယ်ယူရန် ဤနေရာကို နှိပ်ပါ', url: '../package/', action: null, score: score });
                             });
                         })
                     );
@@ -1567,7 +1334,7 @@
                         supabaseInstance.from('pkg_features').select('id, name_en, name_mm, feature_type').then(({data}) => {
                             if(data) data.forEach(f => {
                                 const score = getScore(`${f.name_en} ${f.name_mm} Features Systems`);
-                                if(score > 0) combined.push({ id: f.id, type: 'Features & Systems', name: f.name_en, mm: f.name_mm || f.name_en, icon: 'cpu', desc_en: 'Enterprise system feature available in builder', desc_mm: 'ထည့်သွင်းအသုံးပြုနိုင်သော စနစ်', url: '/package/', action: null, score: score });
+                                if(score > 0) combined.push({ id: f.id, type: 'Features & Systems', name: f.name_en, mm: f.name_mm || f.name_en, icon: 'cpu', desc_en: 'Enterprise system feature available in builder', desc_mm: 'ထည့်သွင်းအသုံးပြုနိုင်သော စနစ်', url: '../package/', action: null, score: score });
                             });
                         })
                     );
@@ -1576,7 +1343,7 @@
                             if(data) data.forEach(s => {
                                 const searchStr = `${s.title_en} ${s.title_mm} ${s.short_desc_en} ${s.short_desc_mm} Service`;
                                 const score = getScore(searchStr);
-                                if(score > 0) combined.push({ id: s.id, type: 'Services', name: s.title_en, mm: s.title_mm || s.title_en, icon: s.icon || 'briefcase', desc_en: s.short_desc_en || 'Professional digital service offering', desc_mm: s.short_desc_mm || 'ကျွမ်းကျင်သော ဒီဂျစ်တယ် ဝန်ဆောင်မှု', url: `/services/?id=${s.id}`, action: null, score: score + 50 });
+                                if(score > 0) combined.push({ id: s.id, type: 'Services', name: s.title_en, mm: s.title_mm || s.title_en, icon: s.icon || 'briefcase', desc_en: s.short_desc_en || 'Professional digital service offering', desc_mm: s.short_desc_mm || 'ကျွမ်းကျင်သော ဒီဂျစ်တယ် ဝန်ဆောင်မှု', url: `../services/?id=${s.id}`, action: null, score: score + 50 });
                             });
                         })
                     );
@@ -1588,7 +1355,7 @@
                                 const score = getScore(searchStr);
                                 if (score > 0) {
                                     const productSlug = item.product_slug || item.slug || item.product_id;
-                                    combined.push({ id: item.product_id, type: 'Templates', name: item.product_name_en || item.product_name_mm || 'Unnamed Product', mm: item.product_name_mm || item.product_name_en || 'အမည်မရှိ', icon: 'layout', image: item.product_image, desc_en: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_en || 'Premium Website Template'}`, desc_mm: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_mm || 'အဆင့်မြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းပုံစံ'}`, url: `/template-detail/?product=${productSlug}`, action: null, score: score });
+                                    combined.push({ id: item.product_id, type: 'Templates', name: item.product_name_en || item.product_name_mm || 'Unnamed Product', mm: item.product_name_mm || item.product_name_en || 'အမည်မရှိ', icon: 'layout', image: item.product_image, desc_en: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_en || 'Premium Website Template'}`, desc_mm: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_mm || 'အဆင့်မြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းပုံစံ'}`, url: `../template-detail/?product=${productSlug}`, action: null, score: score });
                                 }
                             });
                         })
@@ -1613,8 +1380,8 @@
                     html += `<div class="mb-8 last:mb-0 reveal active"><h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">${type} <span class="bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded-full text-[9px]">${items.length}</span></h4><div class="grid grid-cols-1 gap-2">`;
                     html += items.map(item => {
                         const title = currentLang === 'en' ? item.name : item.mm; const desc = currentLang === 'en' ? (item.desc_en || '') : (item.desc_mm || item.desc_en || ''); const fallbackImg = 'https://placehold.co/150x150/111111/444444?text=IMG';
-                        let finalImgUrl = item.image || fallbackImg; if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', '/');
-                        const imgBlock = item.image ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>` : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-5 w-5"></i></div>`;
+                        let finalImgUrl = item.image || fallbackImg; if (finalImgUrl.startsWith('./')) finalImgUrl = finalImgUrl.replace('./', '../');
+                        const imgBlock = item.image ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" loading="lazy" decoding="async" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>` : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-5 w-5"></i></div>`;
                         return `<a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">${imgBlock}<div class="flex-1 min-w-0 z-10"><h5 class="text-sm font-bold font-display tracking-tight text-white group-hover:text-myancode-accent transition-colors truncate">${title}</h5>${desc ? `<p class="text-[11px] font-medium text-gray-400 line-clamp-1 mt-0.5">${desc}</p>` : ''}</div><div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-myancode-accent transition-colors z-10 opacity-0 sm:opacity-100"><i data-lucide="arrow-right" class="h-4 w-4 ml-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i></div></a>`;
                     }).join('');
                     html += `</div></div>`;
@@ -1698,8 +1465,384 @@
                 btn.innerHTML = originalBtnText;
             }
         }
+    </script>
 
-        document.addEventListener('DOMContentLoaded', () => { initPage(); });
+    <!-- Stream: Delivered Projects Core Logic -->
+    <script>
+        let allProjects = [];
+        let filteredProjects = [];
+        let uniqueCategories = new Set();
+        let uniqueTechs = new Set();
+        
+        let currentPage = 1;
+        const PROJECTS_PER_PAGE = 9;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initProjects();
+        });
+
+        async function initProjects() {
+            renderProjectsSkeletons();
+            if (supabaseInstance) {
+                try {
+                    const { data: { session } } = await supabaseInstance.auth.getSession();
+                    if (session && session.user) {
+                        let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
+                        try {
+                            const { data: profile } = await supabaseInstance.from('profiles').select('role').eq('id', session.user.id).single();
+                            if (profile && profile.role) profileRole = profile.role;
+                        } catch (err) {}
+                        currentUser = {
+                            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                            email: session.user.email || '',
+                            id: session.user.id,
+                            avatar_url: session.user.user_metadata?.avatar_url || null,
+                            role: profileRole.toLowerCase()
+                        };
+                        currentUserCart = session.user.user_metadata?.wishlist || []; 
+                    }
+                } catch(e) {}
+            }
+            updateAuthUI();
+            await fetchDeliveredProjects();
+        }
+
+        async function fetchDeliveredProjects() {
+            if (!supabaseInstance) return;
+            try {
+                // Fetch only published projects for the public showcase
+                const { data, error } = await supabaseInstance
+                    .from('delivered_projects')
+                    .select('*')
+                    .eq('status', 'published');
+
+                if (error) throw error;
+                
+                // Assign random order for initial load
+                allProjects = (data || []).map(p => ({ ...p, _random_order: Math.random() }));
+                allProjects.sort((a, b) => a._random_order - b._random_order);
+                
+                // Extract unique filters
+                allProjects.forEach(p => {
+                    if (p.category) uniqueCategories.add(p.category);
+                    if (p.technologies && Array.isArray(p.technologies)) {
+                        p.technologies.forEach(t => uniqueTechs.add(t));
+                    }
+                });
+
+                populateFilters();
+                filteredProjects = [...allProjects];
+                renderProjects();
+
+            } catch (err) {
+                console.error("Error fetching projects:", err);
+                document.getElementById('projectsGrid').innerHTML = `<div class="col-span-full text-center py-20"><p class="text-red-400">Failed to load projects. Please try again later.</p></div>`;
+            }
+        }
+
+        function populateFilters() {
+            const catSelect = document.getElementById('filterCategory');
+            const techSelect = document.getElementById('filterTech');
+
+            Array.from(uniqueCategories).sort().forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                catSelect.appendChild(opt);
+            });
+
+            Array.from(uniqueTechs).sort().forEach(tech => {
+                const opt = document.createElement('option');
+                opt.value = tech;
+                opt.textContent = tech;
+                techSelect.appendChild(opt);
+            });
+        }
+
+        function renderProjectsSkeletons() {
+            const grid = document.getElementById('projectsGrid');
+            grid.innerHTML = Array(6).fill(0).map(() => `
+                <div class="enterprise-card h-[480px]">
+                    <div class="h-[220px] w-full skeleton border-b border-white/5"></div>
+                    <div class="p-6 sm:p-8 flex-1 flex flex-col gap-4">
+                        <div class="flex justify-between"><div class="h-3 skeleton rounded-full w-1/4"></div><div class="h-3 skeleton rounded-full w-1/4"></div></div>
+                        <div class="h-6 skeleton rounded-full w-3/4"></div>
+                        <div class="space-y-2"><div class="h-3 skeleton rounded-full w-full"></div><div class="h-3 skeleton rounded-full w-5/6"></div></div>
+                        <div class="mt-auto h-12 skeleton rounded-xl w-full"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProjects(append = false) {
+            const grid = document.getElementById('projectsGrid');
+            const emptyState = document.getElementById('noResultsState');
+            const loadMoreContainer = document.getElementById('loadMoreBtnContainer');
+            
+            if (filteredProjects.length === 0) {
+                grid.innerHTML = '';
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                loadMoreContainer.classList.add('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            const startIndex = append ? (currentPage - 1) * PROJECTS_PER_PAGE : 0;
+            const endIndex = currentPage * PROJECTS_PER_PAGE;
+            const projectsToShow = filteredProjects.slice(startIndex, endIndex);
+
+            const html = projectsToShow.map(project => {
+                const thumbUrl = project.thumbnail_url || 'https://placehold.co/800x500/111111/444444?text=Case+Study';
+                // Transform via ImageKit for optimized loading
+                const displayUrl = thumbUrl.includes('ik.imagekit.io') ? thumbUrl + (thumbUrl.includes('?') ? '&' : '?') + 'tr=w-800,q-80,f-auto' : thumbUrl;
+                
+                // Calculate if new (less than 30 days old based on project_date)
+                const targetDate = project.project_date ? new Date(project.project_date) : new Date(project.created_at);
+                const isNew = (new Date() - targetDate) < 30 * 24 * 60 * 60 * 1000;
+                
+                let badgesHtml = '';
+                if (isNew) {
+                    badgesHtml += `<span class="bg-myancode-accent text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-[0_0_10px_rgba(41,151,255,0.4)]">New Arrival</span>`;
+                }
+                if (project.is_featured) {
+                    badgesHtml += `<span class="bg-black/50 backdrop-blur-md text-white border border-white/20 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Featured</span>`;
+                }
+
+                // Tech stack pills (max 3 to save space)
+                const techArray = project.technologies || [];
+                const techHtml = techArray.slice(0, 3).map(t => `<span class="text-[10px] px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-gray-300 font-medium whitespace-nowrap">${t}</span>`).join('');
+                const moreTech = techArray.length > 3 ? `<span class="text-[10px] px-2.5 py-1 bg-transparent text-gray-500 font-bold whitespace-nowrap">+${techArray.length - 3}</span>` : '';
+
+                const dateYear = project.project_date ? new Date(project.project_date).getFullYear() : (project.created_at ? new Date(project.created_at).getFullYear() : '');
+                
+                const liveLinkHtml = project.live_url ? `<a href="${project.live_url}" target="_blank" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl transition-all btn-hover-effect border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 text-white" title="Visit Live Site"><i data-lucide="external-link" class="w-4.5 h-4.5"></i></a>` : '';
+
+                return `
+                <div class="enterprise-card group/card">
+                    <!-- Image Area -->
+                    <div class="relative aspect-[16/10] overflow-hidden bg-[#111] cursor-pointer" onclick="window.location.href='../project/?slug=${project.project_slug}'">
+                        <img src="${displayUrl}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105 saturate-[1.05]" alt="${project.project_name}">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-90"></div>
+                        
+                        <div class="absolute top-4 left-4 flex flex-col gap-2 items-start">
+                            ${badgesHtml}
+                        </div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="p-6 sm:p-8 flex flex-col flex-1">
+                        <div class="text-[11px] font-mono text-gray-500 mb-3 tracking-widest uppercase flex justify-between items-center">
+                            <span class="truncate pr-2">${project.category || 'Portfolio'}</span>
+                            <span class="flex-shrink-0">${dateYear}</span>
+                        </div>
+                        
+                        <h3 class="text-xl sm:text-2xl font-display font-bold text-white mb-2 group-hover/card:text-myancode-accent transition-colors line-clamp-1 cursor-pointer" onclick="window.location.href='../project/?slug=${project.project_slug}'">
+                            ${project.project_name}
+                        </h3>
+                        
+                        <p class="text-[13px] text-gray-400 line-clamp-2 mb-6 flex-1 leading-relaxed">
+                            ${project.short_description || project.client_name || 'Enterprise software solution delivered by MyanCode.'}
+                        </p>
+                        
+                        <div class="flex flex-wrap gap-2 mb-6 h-[26px] overflow-hidden">
+                            ${techHtml} ${moreTech}
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex items-center gap-3 pt-5 border-t border-white/5 mt-auto">
+                            <a href="../project/?slug=${project.project_slug}" class="flex-1 bg-white text-black text-center py-3.5 rounded-xl text-[11px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors btn-hover-effect">
+                                View Case Study
+                            </a>
+                            ${liveLinkHtml}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            if (append) {
+                grid.insertAdjacentHTML('beforeend', html);
+            } else {
+                grid.innerHTML = html;
+            }
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            if (endIndex < filteredProjects.length) {
+                loadMoreContainer.classList.remove('hidden');
+            } else {
+                loadMoreContainer.classList.add('hidden');
+            }
+        }
+
+        function loadMoreProjects() {
+            currentPage++;
+            renderProjects(true);
+        }
+
+        // --- Search and Filter Logic ---
+
+        function handleDesktopSearch(e) {
+            clearTimeout(searchDebounceTimer);
+            const query = e.target.value.toLowerCase().trim();
+            const suggestionsBox = document.getElementById('desktopSearchSuggestionsMain');
+            const clearBtn = document.getElementById('clearDesktopSearchBtn');
+
+            if (query.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+                if(suggestionsBox) suggestionsBox.classList.add('hidden');
+                applyFilters();
+                return;
+            }
+
+            // Real-time suggestions logic
+            if (suggestionsBox) {
+                const matchingNames = [];
+                const matchingCategories = new Set();
+                const matchingClients = new Set();
+
+                allProjects.forEach(p => {
+                    if (p.project_name.toLowerCase().includes(query)) matchingNames.push(p);
+                    if (p.category && p.category.toLowerCase().includes(query)) matchingCategories.add(p.category);
+                    if (p.client_name && p.client_name.toLowerCase().includes(query)) matchingClients.add(p.client_name);
+                });
+
+                let suggestionsHTML = '';
+
+                if (matchingNames.length > 0 || matchingCategories.size > 0 || matchingClients.size > 0) {
+                    suggestionsHTML += `<div class="p-3 text-[10px] uppercase tracking-widest text-gray-500 font-bold border-b border-white/5 bg-white/5 backdrop-blur-md sticky top-0">Quick Matches</div>`;
+                }
+
+                Array.from(matchingCategories).slice(0, 2).forEach(cat => {
+                    suggestionsHTML += `<div class="px-5 py-3.5 hover:bg-white/10 cursor-pointer flex items-center gap-3 text-sm text-gray-300 transition-colors border-b border-white/5 last:border-0" onclick="selectSuggestion('filterCategory', '${cat}')"><i data-lucide="tag" class="w-4 h-4 text-myancode-accent"></i> <span>Category: <span class="font-bold text-white">${cat}</span></span></div>`;
+                });
+
+                Array.from(matchingClients).slice(0, 2).forEach(client => {
+                    suggestionsHTML += `<div class="px-5 py-3.5 hover:bg-white/10 cursor-pointer flex items-center gap-3 text-sm text-gray-300 transition-colors border-b border-white/5 last:border-0" onclick="selectSuggestion('searchInput', '${client}')"><i data-lucide="building" class="w-4 h-4 text-myancode-accent"></i> <span>Client: <span class="font-bold text-white">${client}</span></span></div>`;
+                });
+
+                matchingNames.slice(0, 4).forEach(post => {
+                    suggestionsHTML += `<div class="px-5 py-3.5 hover:bg-white/10 cursor-pointer flex flex-col gap-1 text-sm text-gray-300 transition-colors border-b border-white/5 last:border-0" onclick="window.location.href='../project/?slug=${post.project_slug}'"><div class="font-bold text-white text-[13px] flex items-center justify-between">${post.project_name} <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-gray-500"></i></div><div class="text-[11px] text-gray-400 font-mono">${post.category}</div></div>`;
+                });
+
+                if (suggestionsHTML) {
+                    suggestionsBox.innerHTML = suggestionsHTML;
+                    suggestionsBox.classList.remove('hidden');
+                    if(typeof lucide !== 'undefined') lucide.createIcons();
+                } else {
+                    suggestionsBox.classList.add('hidden');
+                }
+            }
+
+            searchDebounceTimer = setTimeout(() => {
+                applyFilters();
+            }, 400);
+        }
+
+        function selectSuggestion(type, value) {
+            document.getElementById('desktopSearchSuggestionsMain').classList.add('hidden');
+            if (type === 'filterCategory') {
+                document.getElementById('filterCategory').value = value;
+                document.getElementById('desktopSearchInput').value = '';
+                document.getElementById('clearDesktopSearchBtn').classList.add('hidden');
+            } else {
+                document.getElementById('desktopSearchInput').value = value;
+            }
+            applyFilters();
+        }
+
+        function clearDesktopSearch() {
+            document.getElementById('desktopSearchInput').value = '';
+            document.getElementById('clearDesktopSearchBtn').classList.add('hidden');
+            document.getElementById('desktopSearchSuggestionsMain').classList.add('hidden');
+            applyFilters();
+        }
+
+        function resetFilters() {
+            document.getElementById('desktopSearchInput').value = '';
+            document.getElementById('clearDesktopSearchBtn').classList.add('hidden');
+            document.getElementById('desktopSearchSuggestionsMain').classList.add('hidden');
+            document.getElementById('filterCategory').value = 'all';
+            document.getElementById('filterTech').value = 'all';
+            document.getElementById('filterSort').value = 'random';
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('desktopSearchInput').value.toLowerCase().trim();
+            const catFilter = document.getElementById('filterCategory').value;
+            const techFilter = document.getElementById('filterTech').value;
+            const sortFilter = document.getElementById('filterSort').value;
+
+            let result = [...allProjects];
+
+            // 1. Text Search (Robust fuzzy search across multiple fields)
+            if (query) {
+                const queryWords = query.split(/\s+/).filter(w => w);
+                result = result.filter(p => {
+                    const searchableString = [
+                        p.project_name, 
+                        p.short_description, 
+                        p.client_name, 
+                        p.category, 
+                        (p.technologies || []).join(' '),
+                        (p.features || []).join(' ')
+                    ].join(' ').toLowerCase();
+
+                    // Every word in query must be found somewhere in the searchable string
+                    return queryWords.every(qWord => searchableString.includes(qWord));
+                });
+            }
+
+            // 2. Category Filter
+            if (catFilter !== 'all') {
+                result = result.filter(p => p.category === catFilter);
+            }
+
+            // 3. Tech Filter
+            if (techFilter !== 'all') {
+                result = result.filter(p => p.technologies && p.technologies.includes(techFilter));
+            }
+
+            // 4. Sorting
+            result.sort((a, b) => {
+                if (sortFilter === 'random') {
+                    return a._random_order - b._random_order;
+                } else if (sortFilter === 'newest') {
+                    const dateA = a.project_date ? new Date(a.project_date) : new Date(a.created_at);
+                    const dateB = b.project_date ? new Date(b.project_date) : new Date(b.created_at);
+                    return dateB - dateA;
+                } else if (sortFilter === 'oldest') {
+                    const dateA = a.project_date ? new Date(a.project_date) : new Date(a.created_at);
+                    const dateB = b.project_date ? new Date(b.project_date) : new Date(b.created_at);
+                    return dateA - dateB;
+                } else if (sortFilter === 'name_asc') {
+                    return a.project_name.localeCompare(b.project_name);
+                }
+                return 0;
+            });
+
+            // Prioritize featured items if sorting is newest or random
+            if ((sortFilter === 'newest' || sortFilter === 'random') && !query && catFilter === 'all' && techFilter === 'all') {
+                result.sort((a, b) => {
+                    if (a.is_featured && !b.is_featured) return -1;
+                    if (!a.is_featured && b.is_featured) return 1;
+                    return 0;
+                });
+            }
+
+            filteredProjects = result;
+            currentPage = 1;
+            renderProjects();
+        }
+
     </script>
 </body>
 </html>
