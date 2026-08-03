@@ -473,7 +473,7 @@
                         <span id="searchResultCount" class="text-[10px] font-bold font-mono text-myancode-accent bg-myancode-accent/10 px-2 py-0.5 rounded-full hidden">0 Found</span>
                     </div>
                     <div id="megaSearchResults" class="space-y-4">
-                        <!-- Content updated via JS -->
+                        
                     </div>
                 </div>
             </div>
@@ -1058,7 +1058,7 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 w-full mb-16 text-left border border-white/10 relative z-10 bg-[#050505]">
                     
-                    <!-- Starter Plan -->
+                    
                     <div id="card-starter" class="group border-r border-b lg:border-b-0 border-white/10 p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#0a0a0a] relative h-full">
                         <div class="popular-badge hidden absolute top-0 right-0 bg-zinc-700 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 m-4 rounded-full shadow-[0_0_15px_rgba(113,113,122,0.4)] z-20" data-i18n="badgePopular">Most Popular</div>
                         
@@ -1080,7 +1080,7 @@
                         <a href="./plan-purchase/?plan=starter" data-i18n="btnStarter" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block">Get Starter</a>
                     </div>
                     
-                    <!-- Plus Plan -->
+                    
                     <div id="card-plus" class="group border-r lg:border-b-0 border-b border-white/10 p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#0a1630]/20 relative h-full">
                         <div class="popular-badge hidden absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 m-4 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)] z-20" data-i18n="badgePopular">Most Popular</div>
                         
@@ -1100,10 +1100,10 @@
                             <li class="flex items-start gap-3"><div class="w-1 h-1 bg-blue-500 mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="p_feat5">Monthly Health Report</span></li>
                             <li class="flex items-start gap-3"><div class="w-1 h-1 bg-blue-500 mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="p_feat6">1 Content Update / Month</span></li>
                         </ul>
-                        <a href="./plan-purchase/?plan=plus" data-i18n="btnPlus" class="w-full bg-white text-black hover:bg-gray-200 py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block">Choose Plus</a>
+                        <a href="./plan-purchase/?plan=plus" data-i18n="btnPlus" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block">Choose Plus</a>
                     </div>
                     
-                    <!-- Pro Plan -->
+                    
                     <div id="card-pro" class="group border-r lg:border-b-0 border-b border-white/10 p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#1c0f2e]/20 relative h-full">
                         <div class="popular-badge hidden absolute top-0 right-0 bg-purple-600 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 m-4 rounded-full shadow-[0_0_15px_rgba(147,51,234,0.4)] z-20" data-i18n="badgePopular">Most Popular</div>
                         
@@ -1126,7 +1126,7 @@
                         <a href="./plan-purchase/?plan=pro" data-i18n="btnPro" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block">Go Pro</a>
                     </div>
                     
-                    <!-- Ultra Plan -->
+                    
                     <div id="card-ultra" class="group p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#141208]/20 relative h-full">
                         <div class="popular-badge hidden absolute top-0 right-0 bg-yellow-500 text-black text-[9px] font-bold uppercase tracking-widest px-3 py-1 m-4 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.4)] z-20" data-i18n="badgePopular">Most Popular</div>
                         
@@ -2533,7 +2533,6 @@
                 }, 600);
             }
             
-            // Handle progress bar animation
             slideProgress.style.transition = 'none';
             slideProgress.style.width = '0%';
             setTimeout(() => {
@@ -2557,7 +2556,6 @@
             }
         }, { passive: true });
         
-        // Two-way scroll animation observer
         const observerOptions = { root: null, rootMargin: '0px 0px -5% 0px', threshold: 0.15 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -2569,7 +2567,7 @@
                 } else {
                     entry.target.classList.remove('active');
                     if (entry.target.closest('#enterpriseStats')) {
-                        hasAnimatedStats = false; // Reset so it replays on two-way scroll
+                        hasAnimatedStats = false;
                     }
                 }
             });
@@ -2809,15 +2807,11 @@
 
         async function fetchPopularPlan() {
             try {
-                // Real checking the database: count plan orders globally
-                // We attempt to use an RPC for global counting first (best for RLS bypass)
-                // If RPC is not available, we fallback to individual counts which might work depending on RLS policy
                 
                 let counts = { 'starter': 0, 'plus': 0, 'pro': 0, 'ultra': 0 };
                 let dataFetched = false;
 
                 try {
-                    // Method 1: Try RPC (Most reliable for global stats if RLS is enabled)
                     const { data: rpcData, error: rpcError } = await supabaseInstance.rpc('get_plan_counts');
                     if (!rpcError && rpcData) {
                         rpcData.forEach(item => {
@@ -2829,7 +2823,6 @@
                 } catch (e) { console.warn("RPC get_plan_counts not found, falling back..."); }
 
                 if (!dataFetched) {
-                    // Method 2: Individual counts (Might work if RLS allows public count but not select)
                     const plans = ['starter', 'plus', 'pro', 'ultra'];
                     const countPromises = plans.map(async (pid) => {
                         const { count, error } = await supabaseInstance
@@ -2840,13 +2833,11 @@
                     });
                     await Promise.all(countPromises);
                     
-                    // Check if we got any data
                     const total = Object.values(counts).reduce((a, b) => a + b, 0);
                     if (total > 0) dataFetched = true;
                 }
 
                 if (!dataFetched) {
-                    // Method 3: Bulk fetch (Current user only if RLS is strict)
                     const { data, error } = await supabaseInstance.from('plan_orders').select('plan_id');
                     if (!error && data) {
                         data.forEach(order => {
@@ -2868,10 +2859,8 @@
                     }
                 }
                 
-                // Hide all badges first
                 document.querySelectorAll('.popular-badge').forEach(badge => badge.classList.add('hidden'));
                 
-                // Show the "Most Popular" badge only for the plan with the highest real database count
                 if (mostPopular && maxCount > 0) {
                     const popularCard = document.getElementById('card-' + mostPopular);
                     if (popularCard) {
@@ -2905,9 +2894,9 @@
             } catch(e) { servicesCount = 12; } 
 
             try {
-                const { count, error } = await supabaseInstance.from('projects_delivered').select('*', { count: 'exact', head: true });
-                if (count !== null && !error) projectsCount = count;
-            } catch(e) { projectsCount = 145; } 
+            const { count, error } = await supabaseInstance.from('delivered_projects').select('*', { count: 'exact', head: true }).eq('status', 'published');
+            if (count !== null && !error) projectsCount = count;
+        } catch(e) { projectsCount = 145; } 
             
             try {
                 const { count, error } = await supabaseInstance.from('website_templates').select('*', { count: 'exact', head: true });
@@ -3002,7 +2991,6 @@
                     offset -= speed;
                 }
 
-                // Check for seamless loop
                 const trackWidth = track.scrollWidth / 2;
                 if (offset <= -trackWidth) {
                     offset += trackWidth;
@@ -3012,7 +3000,6 @@
 
                 track.style.transform = `translate3d(${offset}px, 0, 0)`;
 
-                // Super smooth dynamic vertical dip calculation for the center card
                 const windowCenter = window.innerWidth / 2;
                 const allItems = track.children;
                 const maxDip = window.innerWidth < 768 ? 40 : 80;
@@ -3031,7 +3018,6 @@
 
                     if (diff < effectRadius) {
                         const ratio = 1 - (diff / effectRadius);
-                        // Using sine wave for smooth easing of the dip
                         const ease = Math.sin(ratio * Math.PI / 2);
                         yOffset = ease * maxDip;
                     }

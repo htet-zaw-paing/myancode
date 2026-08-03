@@ -113,27 +113,27 @@
         .glow-2 { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(88, 86, 214, 0.15); }
 
         .enterprise-card {
-            background: linear-gradient(145deg, rgba(15, 17, 21, 0.9) 0%, rgba(8, 9, 10, 0.95) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 28px;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            background: #050505;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             height: 100%;
         }
-        .enterprise-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            opacity: 0; transition: opacity 0.5s ease;
+        .enterprise-card::after {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(41, 151, 255, 0.08) 0%, transparent 70%);
+            opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
         }
         .enterprise-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(41, 151, 255, 0.3);
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9), 0 0 30px rgba(41, 151, 255, 0.1);
+            transform: translateY(-4px);
+            border-color: rgba(41, 151, 255, 0.4);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 20px rgba(41, 151, 255, 0.15);
         }
-        .enterprise-card:hover::before { opacity: 1; }
+        .enterprise-card:hover::after { opacity: 1; }
 
         .rich-text-container { font-size: 16px; line-height: 1.8; color: #d1d5db; }
         .rich-text-container p { margin-bottom: 1.25rem; }
@@ -182,9 +182,9 @@
         body.light-mode-active main .text-white\/40 { color: #94a3b8 !important; }
         body.light-mode-active main .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; }
 
-        body.light-mode-active .enterprise-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
-        body.light-mode-active .enterprise-card::before { background: linear-gradient(90deg, transparent, rgba(0,0,0,0.02), transparent); }
-        body.light-mode-active .enterprise-card:hover { border-color: #94a3b8; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1); transform: translateY(-6px); }
+        body.light-mode-active .enterprise-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        body.light-mode-active .enterprise-card:hover { border-color: #94a3b8; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transform: translateY(-4px); }
+        body.light-mode-active .enterprise-card::after { background: radial-gradient(circle at 50% 0%, rgba(41, 151, 255, 0.05) 0%, transparent 70%); }
         body.light-mode-active .rich-text-container { color: #334155; }
         body.light-mode-active .rich-text-container strong, body.light-mode-active .rich-text-container b { color: #0f172a; }
         
@@ -411,10 +411,96 @@
 
     <main class="flex-grow w-full relative z-10 text-white min-h-screen">
         
-        <div id="loadingState" class="fixed inset-0 z-50 flex items-center justify-center bg-[#050505]">
-            <div class="flex flex-col items-center">
-                <i data-lucide="loader-2" class="w-10 h-10 animate-spin text-myancode-accent mb-4"></i>
-                <p class="text-sm font-mono tracking-widest uppercase text-gray-500">Loading Architecture</p>
+        <div id="loadingState" class="fixed inset-0 z-50 bg-[#050505] w-full h-full overflow-hidden pointer-events-none transition-opacity duration-500">
+            <!-- Simulated Hero Background Skeleton -->
+            <div class="absolute inset-0 z-0">
+                <div class="w-full h-full skeleton opacity-10"></div>
+                <div class="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-transparent"></div>
+            </div>
+
+            <!-- Scrollable Skeleton Content container -->
+            <div class="w-full h-full overflow-y-auto no-scrollbar relative z-10 pb-32">
+                
+                <!-- Hero Content Skeleton -->
+                <div class="w-full h-[100vh] flex flex-col justify-center items-center px-4 pt-20">
+                    <div class="mb-8 w-28 sm:w-36 h-3 sm:h-4 skeleton rounded-full opacity-40"></div>
+                    
+                    <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6">
+                        <div class="w-20 h-6 sm:h-7 skeleton rounded-full opacity-50"></div>
+                        <div class="w-32 h-6 sm:h-7 skeleton rounded-full opacity-50"></div>
+                        <div class="w-24 h-6 sm:h-7 skeleton rounded-full opacity-50"></div>
+                    </div>
+                    
+                    <div class="w-[90%] sm:w-[75%] max-w-4xl h-12 sm:h-16 lg:h-20 skeleton rounded-2xl mb-4 sm:mb-6 opacity-80"></div>
+                    <div class="w-[70%] sm:w-[55%] max-w-2xl h-12 sm:h-16 lg:h-20 skeleton rounded-2xl mb-8 opacity-80"></div>
+                    
+                    <div class="w-[80%] sm:w-[65%] max-w-2xl h-4 sm:h-5 skeleton rounded-lg mb-3 opacity-60"></div>
+                    <div class="w-[60%] sm:w-[45%] max-w-xl h-4 sm:h-5 skeleton rounded-lg mb-8 opacity-60"></div>
+                    
+                    <div class="mt-4 sm:mt-8 w-32 sm:w-40 h-12 sm:h-14 skeleton rounded-full opacity-70"></div>
+                </div>
+
+                <!-- Main Details Section Skeleton -->
+                <div class="relative bg-[#050505] w-full pt-16 sm:pt-24 border-t border-white/5">
+                    <div class="layout-width px-4">
+                        <div class="flex flex-col lg:flex-row gap-10 lg:gap-16">
+                            <!-- Left Column Skeleton -->
+                            <div class="flex-1">
+                                <div class="w-full aspect-[16/10] sm:aspect-[16/9] skeleton rounded-2xl mb-16 opacity-30 shadow-2xl"></div>
+                                
+                                <div class="mb-16">
+                                    <div class="w-40 h-4 skeleton rounded-full mb-6 opacity-50"></div>
+                                    <div class="w-full h-px bg-white/10 mb-8"></div>
+                                    <div class="space-y-5">
+                                        <div class="w-full h-4 skeleton rounded-full opacity-40"></div>
+                                        <div class="w-11/12 h-4 skeleton rounded-full opacity-40"></div>
+                                        <div class="w-full h-4 skeleton rounded-full opacity-40"></div>
+                                        <div class="w-4/5 h-4 skeleton rounded-full opacity-40"></div>
+                                        <div class="w-full h-4 skeleton rounded-full opacity-40"></div>
+                                        <div class="w-3/4 h-4 skeleton rounded-full opacity-40"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Sidebar Skeleton -->
+                            <div class="w-full lg:w-[360px] flex-shrink-0">
+                                <div class="space-y-8">
+                                    <div class="bg-[#050505] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
+                                        <div class="space-y-8">
+                                            <div>
+                                                <div class="w-24 h-3 skeleton rounded-full mb-3 opacity-50"></div>
+                                                <div class="w-48 h-5 skeleton rounded-full opacity-60"></div>
+                                            </div>
+                                            <div>
+                                                <div class="w-20 h-3 skeleton rounded-full mb-4 opacity-50"></div>
+                                                <div class="flex flex-wrap gap-2.5">
+                                                    <div class="w-16 h-7 skeleton rounded-xl opacity-50"></div>
+                                                    <div class="w-20 h-7 skeleton rounded-xl opacity-50"></div>
+                                                    <div class="w-14 h-7 skeleton rounded-xl opacity-50"></div>
+                                                    <div class="w-24 h-7 skeleton rounded-xl opacity-50"></div>
+                                                    <div class="w-18 h-7 skeleton rounded-xl opacity-50"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="w-32 h-3 skeleton rounded-full mb-4 opacity-50"></div>
+                                                <div class="space-y-3.5">
+                                                    <div class="w-full h-3 skeleton rounded-full opacity-40"></div>
+                                                    <div class="w-5/6 h-3 skeleton rounded-full opacity-40"></div>
+                                                    <div class="w-full h-3 skeleton rounded-full opacity-40"></div>
+                                                    <div class="w-4/5 h-3 skeleton rounded-full opacity-40"></div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-8 pt-8 border-t border-white/10 space-y-3">
+                                                <div class="w-full h-12 skeleton rounded-xl opacity-50"></div>
+                                                <div class="w-full h-12 skeleton rounded-xl opacity-40"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -422,7 +508,7 @@
             <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
                 <i data-lucide="alert-circle" class="w-8 h-8 text-red-400"></i>
             </div>
-            <h2 class="text-3xl font-display font-bold text-white mb-3">Architecture Not Found</h2>
+            <h2 class="text-3xl font-display font-bold text-white mb-3">Project Not Found</h2>
             <p class="text-gray-400 max-w-md mx-auto mb-8 text-sm">The enterprise solution you are looking for doesn't exist or has been removed from public access.</p>
             <a href="../projects/" class="px-8 py-3.5 bg-white text-black text-[11px] font-bold uppercase tracking-widest rounded-full hover:bg-gray-200 transition-colors btn-hover-effect">Return to Portfolio</a>
         </div>
@@ -436,6 +522,10 @@
             </div>
 
             <div class="w-full h-[100vh] relative z-10 flex flex-col justify-center items-center px-4 pt-20">
+                <a href="../projects/" class="mb-8 text-gray-300 hover:text-white flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest transition-colors animate-fade-in-up" style="animation-delay: 0.05s;">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Projects
+                </a>
+                
                 <div class="flex flex-wrap items-center justify-center gap-3 mb-6 animate-fade-in-up" id="heroBadges"></div>
                 
                 <h1 id="heroTitle" class="text-4xl sm:text-6xl lg:text-7xl font-display font-bold text-white tracking-tight leading-[1.1] mb-6 text-center max-w-5xl drop-shadow-2xl animate-fade-in-up" style="animation-delay: 0.1s;"></h1>
@@ -471,7 +561,7 @@
                             </div> 
 
                             <div class="mb-16">
-                                <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6 border-b border-white/10 pb-4">Architecture Overview</h3>
+                                <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-6 border-b border-white/10 pb-4">Project Overview</h3>
                                 <div id="fullDescription" class="rich-text-container"></div>
                             </div>
 
@@ -514,8 +604,8 @@
                                         <div class="mb-6 opacity-80">
                                             <i data-lucide="terminal" class="w-8 h-8 text-white"></i>
                                         </div>
-                                        <h4 class="text-xl font-display font-bold text-white mb-2 tracking-tight">Initiate Architecture</h4>
-                                        <p class="text-[13px] text-gray-400 mb-8 font-medium leading-relaxed">Require a high-performance, enterprise-grade architecture similar to this solution?</p>
+                                        <h4 class="text-xl font-display font-bold text-white mb-2 tracking-tight">Initiate Project</h4>
+                                        <p class="text-[13px] text-gray-400 mb-8 font-medium leading-relaxed">Require a high-performance, enterprise-grade project similar to this solution?</p>
                                         
                                         <div class="flex flex-col gap-3">
                                             <a href="../contact-us/" class="w-full bg-white text-black py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2 btn-hover-effect">
@@ -536,10 +626,10 @@
                 <div class="layout-width mt-20 sm:mt-32 px-4 border-t border-white/10 pt-16 sm:pt-24 pb-10">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-10 sm:mb-16">
                         <div>
-                            <h2 class="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight mb-3">Explore Similar Architectures</h2>
+                            <h2 class="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight mb-3">Explore Similar Projects</h2>
                             <p class="text-sm text-gray-400 font-medium">Discover related enterprise case studies matching this industry and technology stack.</p>
                         </div>
-                        <a href="../projects/" class="text-[11px] font-bold uppercase tracking-widest text-myancode-accent hover:text-white transition-colors flex items-center gap-2">View Our Projects <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+                        <a href="../projects/" class="text-[11px] font-bold uppercase tracking-widest text-myancode-accent hover:text-white transition-colors flex items-center gap-2">View All Projects <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
                     </div>
                     
                     <div id="relatedProjectsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10">
@@ -835,6 +925,7 @@
                     </div>
                 </div>
             </div>
+            
             <div
                 class="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-gray-400 font-medium">
 
@@ -975,7 +1066,7 @@
         </button>
 
         <div class="relative w-full h-full flex items-center justify-center p-4 sm:p-12 overflow-hidden" id="lightboxImgContainer">
-            <img id="lightboxImg" src="" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl transition-transform duration-300 zoom-in pointer-events-auto" alt="Architecture Details">
+            <img id="lightboxImg" src="" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl transition-transform duration-300 zoom-in pointer-events-auto" alt="Project Details">
         </div>
         
         <div class="fixed bottom-8 left-1/2 -translate-x-1/2 text-white/70 font-mono text-[11px] font-bold tracking-widest bg-white/5 border border-white/10 px-5 py-2 rounded-full z-[10001] backdrop-blur-md">
@@ -1617,7 +1708,7 @@
                     .limit(20);
 
                 if (errAll) {
-                    console.error("Error fetching related architectures:", errAll);
+                    console.error("Error fetching related projects:", errAll);
                 } else if (allPub) {
                     allProjectsCache = allPub;
                     renderRelatedProjects();
@@ -1631,7 +1722,10 @@
 
         function showErrorState() {
             const loadingState = document.getElementById('loadingState');
-            if(loadingState) loadingState.classList.add('hidden');
+            if(loadingState) {
+                loadingState.classList.add('opacity-0');
+                setTimeout(() => loadingState.classList.add('hidden'), 500);
+            }
             
             const contentState = document.getElementById('contentState');
             if(contentState) contentState.classList.add('hidden');
@@ -1645,12 +1739,15 @@
 
         function renderProjectDetail(project) {
             const loadingState = document.getElementById('loadingState');
-            if(loadingState) loadingState.classList.add('hidden');
+            if(loadingState) {
+                loadingState.classList.add('opacity-0');
+                setTimeout(() => loadingState.classList.add('hidden'), 500);
+            }
             
             const contentState = document.getElementById('contentState');
             if(contentState) contentState.classList.remove('hidden');
 
-            document.title = `${project.project_name} | MyanCode Architecture`;
+            document.title = `${project.project_name} | MyanCode Project`;
 
             lightboxImages = []; 
 
@@ -1684,7 +1781,7 @@
                 badgesHtml += `<span class="px-4 py-1.5 bg-myancode-accent text-white rounded-full text-[10px] font-bold uppercase tracking-widest shadow-[0_0_20px_rgba(41,151,255,0.4)]">New Deployment</span>`;
             }
             if (project.is_featured) {
-                badgesHtml += `<span class="px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full text-[10px] font-bold uppercase tracking-widest">Featured Architecture</span>`;
+                badgesHtml += `<span class="px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full text-[10px] font-bold uppercase tracking-widest">Featured Project</span>`;
             }
             
             badgesHtml += `<span class="px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">${project.category || 'Enterprise Portfolio'}</span>`;
@@ -1727,7 +1824,7 @@
                     const currentIndex = lightboxImages.length - 1;
                     const optImg = imgUrl.includes('ik.imagekit.io') ? imgUrl + (imgUrl.includes('?') ? '&' : '?') + 'tr=w-800,q-80,f-auto' : imgUrl;
                     return `
-                    <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-[#111] border border-white/5 cursor-zoom-in group shadow-lg" onclick="openLightbox(${currentIndex})">
+                    <div class="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#111] border border-white/5 cursor-zoom-in group shadow-lg" onclick="openLightbox(${currentIndex})">
                         <img src="${optImg}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 saturate-[1.05]" alt="Gallery Image">
                         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
                             <div class="bg-black/50 backdrop-blur-md p-3 rounded-full text-white">
@@ -1965,7 +2062,7 @@
                     const a = document.createElement('a');
                     a.style.display = 'none';
                     a.href = url;
-                    a.download = `architecture_image_${currentLightboxIndex + 1}.jpg`;
+                    a.download = `project_image_${currentLightboxIndex + 1}.jpg`;
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
@@ -1987,32 +2084,25 @@
             const scoredProjects = allProjectsCache.map(p => {
                 let score = 0;
                 
-                // Core matching
                 if (currentCat && p.category === currentCat) score += 50;
                 
-                // Cookie/Local History matching (Categories user frequently visits)
                 if (p.category && viewedCategories.includes(p.category)) score += 20;
                 
-                // Tech stack similarity
                 if (p.technologies && Array.isArray(p.technologies) && currentTechs.length > 0) {
                     const shared = p.technologies.filter(t => currentTechs.includes(t)).length;
                     score += shared * 10;
                 }
                 
-                // Boost featured items
                 if (p.is_featured) score += 15;
                 
-                // Penalize already viewed items so new things appear
                 if (viewedProjects.includes(p.project_slug)) score -= 30;
                 
-                // Slight boost to fresh deployments
                 const ageDays = (new Date() - new Date(p.created_at)) / (1000 * 60 * 60 * 24);
                 if (ageDays < 30) score += 10;
 
                 return { ...p, score, randomizer: Math.random() };
             });
 
-            // Sort by score first, fallback to random to shuffle equals
             scoredProjects.sort((a, b) => {
                 if (b.score !== a.score) return b.score - a.score;
                 return b.randomizer - a.randomizer;
@@ -2027,7 +2117,6 @@
             }
 
             if(grid) {
-                // Ensure section is visible
                 if (grid.parentElement) grid.parentElement.classList.remove('hidden');
 
                 grid.innerHTML = topRelated.map(project => {
@@ -2037,33 +2126,47 @@
                     const isNew = project.is_new === true;
                     
                     let badgesHtml = '';
-                    if (isNew) badgesHtml += `<span class="bg-myancode-accent text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-[0_0_10px_rgba(41,151,255,0.4)]">New Deployment</span>`;
-                    if (project.is_featured) badgesHtml += `<span class="bg-black/50 backdrop-blur-md text-white border border-white/20 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Featured</span>`;
+                    if (isNew) {
+                        badgesHtml += `<span class="bg-[#050505] border border-myancode-accent text-myancode-accent text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-[0_0_15px_rgba(41,151,255,0.2)] backdrop-blur-md">New</span>`;
+                    }
+                    if (project.is_featured) {
+                        badgesHtml += `<span class="bg-[#050505]/80 backdrop-blur-md text-white border border-white/20 text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Featured</span>`;
+                    }
 
                     const techArray = Array.isArray(project.technologies) ? project.technologies : [];
-                    const techHtml = techArray.slice(0, 3).map(t => `<span class="px-3 py-1.5 bg-transparent border border-white/10 rounded-lg text-[11px] text-gray-300 font-medium whitespace-nowrap">${t}</span>`).join('');
-                    const moreTech = techArray.length > 3 ? `<span class="px-2 py-1.5 text-[11px] text-gray-500 font-bold whitespace-nowrap">+${techArray.length - 3}</span>` : '';
+                    const techHtml = techArray.slice(0, 3).map(t => `<span class="text-[10px] px-3 py-1.5 bg-transparent border border-white/10 rounded-md text-gray-300 font-medium whitespace-nowrap">${t}</span>`).join('');
+                    const moreTech = techArray.length > 3 ? `<span class="text-[10px] px-2 py-1.5 bg-transparent text-gray-500 font-bold whitespace-nowrap">+${techArray.length - 3}</span>` : '';
 
                     const projectNameSafe = (project.project_name || '').replace(/"/g, '&quot;');
                     const projectYear = project.project_date ? new Date(project.project_date).getFullYear() : (project.created_at ? new Date(project.created_at).getFullYear() : '');
 
                     return `
-                    <div class="bg-[#0a0a0a] border border-white/5 rounded-[2rem] overflow-hidden group/card transition-all duration-300 hover:border-white/10 hover:shadow-2xl flex flex-col">
-                        <div class="relative aspect-[16/10] overflow-hidden bg-[#111] cursor-pointer" onclick="window.location.href='../project/?slug=${project.project_slug}'">
-                            <img src="${displayUrl}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105 saturate-[1.05]" alt="${projectNameSafe}">
-                            <div class="absolute top-4 left-4 flex flex-wrap gap-2 items-start">${badgesHtml}</div>
-                        </div>
-                        <div class="p-6 sm:p-8 flex flex-col flex-1">
-                            <div class="text-[10px] font-mono text-gray-500 mb-3 tracking-widest uppercase flex justify-between items-center">
-                                <span class="truncate pr-2">${project.category || 'Portfolio'}</span>
-                                <span class="text-gray-500">${projectYear}</span>
+                    <div class="enterprise-card group/card" onclick="window.location.href='../project/?slug=${project.project_slug}'" style="cursor: pointer;">
+                        <div class="relative aspect-[16/10] overflow-hidden bg-[#050505] border-b border-white/5">
+                            <img src="${displayUrl}" loading="lazy" class="w-full h-full object-cover transition-transform duration-1000 group-hover/card:scale-105 saturate-[1.02]" alt="${projectNameSafe}">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent opacity-90 transition-opacity duration-500 group-hover/card:opacity-70"></div>
+                            
+                            <div class="absolute top-4 left-4 flex flex-wrap gap-2 items-start z-10">
+                                ${badgesHtml}
                             </div>
-                            <h3 class="text-xl sm:text-2xl font-display font-bold text-white mb-3 group-hover/card:text-myancode-accent transition-colors line-clamp-1 cursor-pointer tracking-tight" onclick="window.location.href='../project/?slug=${project.project_slug}'">${project.project_name}</h3>
-                            <p class="text-[13px] text-gray-400 line-clamp-2 mb-6 flex-1 leading-relaxed">${project.short_description || project.client_name || 'Enterprise software solution delivered by MyanCode.'}</p>
-                            <div class="flex flex-wrap gap-2 mb-8 h-[32px] overflow-hidden items-center">${techHtml} ${moreTech}</div>
-                            <div class="flex items-center gap-3 pt-6 border-t border-white/5 mt-auto">
-                                <a href="../project/?slug=${project.project_slug}" class="flex-1 bg-white text-black text-center py-3.5 rounded-xl text-[11px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors btn-hover-effect">View Case Study</a>
-                                <a href="../project/?slug=${project.project_slug}" class="w-12 h-12 flex items-center justify-center bg-transparent border border-white/10 hover:bg-white/5 rounded-xl text-white transition-colors flex-shrink-0"><i data-lucide="external-link" class="w-4 h-4"></i></a>
+                        </div>
+
+                        <div class="p-6 sm:p-8 flex flex-col flex-1 z-10 bg-[#050505]">
+                            <div class="text-[10px] font-mono text-gray-500 mb-4 tracking-widest uppercase flex justify-between items-center border-b border-white/5 pb-3">
+                                <span class="truncate pr-2 text-gray-400">${project.category || 'Portfolio'}</span>
+                                <span class="flex-shrink-0 text-gray-600">${projectYear}</span>
+                            </div>
+                            
+                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 group-hover/card:text-myancode-accent transition-colors line-clamp-1 tracking-tight">
+                                ${project.project_name}
+                            </h3>
+                            
+                            <p class="text-[13px] text-gray-400 line-clamp-2 mb-8 flex-1 leading-relaxed">
+                                ${project.short_description || project.client_name || 'Enterprise software solution delivered by MyanCode.'}
+                            </p>
+                            
+                            <div class="flex flex-wrap gap-2 h-[28px] overflow-hidden">
+                                ${techHtml} ${moreTech}
                             </div>
                         </div>
                     </div>
