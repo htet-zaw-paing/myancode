@@ -21,7 +21,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     
-    <!-- Added html2pdf for downloading order details -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
@@ -66,7 +65,6 @@
         .avatar-upload-container:hover .avatar-upload-overlay { opacity: 1; cursor: pointer; }
         .cropper-view-box, .cropper-face { border-radius: 50%; }
 
-        /* Status Badges */
         .status-badge { display: inline-flex; align-items: center; justify-content: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
         .status-pending { background-color: rgba(234, 179, 8, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
         .status-confirmed { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
@@ -74,7 +72,6 @@
         .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
         .status-completed { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
         
-        /* New Statuses for Package Orders */
         .status-reviewing { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
         .status-planning { background-color: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
         .status-developing { background-color: rgba(236, 72, 153, 0.1); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.2); }
@@ -160,7 +157,6 @@
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabPackages">My Packages</span>
             </button>
             
-            <!-- Added Appointments Tab -->
             <button onclick="switchTab('appointments')" id="nav-appointments" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="calendar-clock" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabAppointments">Appointments</span>
@@ -232,18 +228,72 @@
 
         <div class="flex-1 overflow-y-auto custom-scroll relative z-10 p-6 sm:p-12" id="mainContentArea">
             
-            <!-- Overview -->
-            <div id="view-overview" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full items-center justify-center min-h-[60vh]">
-                <div class="glass-panel p-12 rounded-[2rem] text-center max-w-lg w-full flex flex-col items-center shadow-2xl border border-white/5 reveal active">
-                    <div class="w-20 h-20 bg-myancode-accent/10 border border-myancode-accent/20 rounded-full flex items-center justify-center mb-6">
-                        <i data-lucide="layout-dashboard" class="w-10 h-10 text-myancode-accent"></i>
+            <div id="view-overview" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active relative overflow-hidden flex justify-between items-center">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-myancode-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+                    <div>
+                        <h2 class="text-3xl font-display font-bold text-white mb-2 tracking-tight">Welcome back, <span id="ovWelcomeName" class="text-myancode-accent">Client</span>!</h2>
+                        <p class="text-gray-400 text-sm font-medium">Here is a quick summary of your active services and requests.</p>
                     </div>
-                    <h3 class="text-2xl font-bold font-display text-white mb-3" data-i18n="overviewTitle">Overview Coming Soon</h3>
-                    <p class="text-gray-400 text-sm font-medium" data-i18n="overviewDesc">We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.</p>
+                    
+                    <div id="ovActiveSubBadge" class="hidden flex items-center gap-3 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl relative z-10 cursor-pointer hover:bg-white/10 transition-colors" onclick="switchTab('subscriptions')">
+                        <div class="w-10 h-10 rounded-full bg-[#050505] border border-white/10 flex items-center justify-center p-2">
+                            <img id="ovActiveSubIcon" src="" class="w-full h-full object-contain" alt="Plan Icon">
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-0.5">Active Plan</p>
+                            <p class="text-sm font-bold text-white" id="ovActiveSubName">Starter</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-panel p-8 rounded-[2rem] border border-white/5 reveal active hover:border-white/10 transition-colors cursor-pointer" onclick="switchTab('subscriptions')">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                                <i data-lucide="credit-card" class="w-5 h-5 text-blue-400"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-400 text-xs font-bold font-mono uppercase tracking-widest mb-1">Total Subscriptions</h3>
+                        <div class="text-3xl font-display font-bold text-white" id="ovTotalSubs">0</div>
+                    </div>
+
+                    <div class="glass-panel p-8 rounded-[2rem] border border-white/5 reveal active hover:border-white/10 transition-colors cursor-pointer" onclick="switchTab('packages')">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                                <i data-lucide="hard-hat" class="w-5 h-5 text-purple-400"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-400 text-xs font-bold font-mono uppercase tracking-widest mb-1">Package Orders</h3>
+                        <div class="text-3xl font-display font-bold text-white" id="ovTotalPkgs">0</div>
+                    </div>
+
+                    <div class="glass-panel p-8 rounded-[2rem] border border-white/5 reveal active hover:border-white/10 transition-colors cursor-pointer" onclick="switchTab('appointments')">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                                <i data-lucide="calendar-clock" class="w-5 h-5 text-green-400"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-400 text-xs font-bold font-mono uppercase tracking-widest mb-1">Consultations</h3>
+                        <div class="text-3xl font-display font-bold text-white" id="ovTotalAppts">0</div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active flex flex-col sm:flex-row items-center justify-between gap-6 bg-gradient-to-r from-[#0a0a0a] to-[#111]">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                            <i data-lucide="settings" class="w-6 h-6 text-gray-300"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-white font-display">Account Settings</h4>
+                            <p class="text-xs text-gray-400">Update your profile, avatar, and security details.</p>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('settings')" class="px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold uppercase tracking-widest transition-colors w-full sm:w-auto text-center">Manage Profile</button>
                 </div>
             </div>
 
-            <!-- Appointments View -->
             <div id="view-appointments" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
@@ -274,7 +324,6 @@
                 </div>
             </div>
 
-            <!-- Plan Orders Section -->
             <div id="view-subscriptions" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 <div id="activeSubBanner" class="hidden w-full glass-panel rounded-[2rem] border border-green-500/20 bg-gradient-to-r from-green-500/5 to-transparent p-6 sm:p-10 reveal active items-center justify-between gap-6 flex-col sm:flex-row shadow-[0_0_30px_rgba(34,197,94,0.05)]">
                     <div class="flex items-center gap-6 w-full sm:w-auto">
@@ -344,7 +393,6 @@
                 </div>
             </div>
 
-            <!-- Package Orders Section -->
             <div id="view-packages" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
@@ -377,7 +425,6 @@
                 </div>
             </div>
 
-            <!-- Settings -->
             <div id="view-settings" class="view-section hidden flex-col gap-8 max-w-4xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="user-circle" class="h-7 w-7 text-myancode-accent"></i> <span data-i18n="profPublic">Public Profile</span></h3>
@@ -426,7 +473,6 @@
         </div>
     </main>
 
-    <!-- Package Details Modal -->
     <div id="packageDetailModal" class="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-6 sm:py-8">
         <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-5xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="packageDetailModalContent">
             
@@ -508,7 +554,6 @@
         </div>
     </div>
 
-    <!-- Security & Confirm Modals -->
     <div id="forcePasswordModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 px-4">
         <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-500" id="forcePasswordModalContent">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
@@ -542,7 +587,6 @@
         </div>
     </div>
 
-    <!-- Toasts & Image Utilities -->
     <div id="toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
         <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
         <span id="toast-msg">Success!</span>
@@ -841,6 +885,15 @@
                 })
                 .subscribe();
         }
+        
+        function updateOverviewStats() {
+            const subsEl = document.getElementById('ovTotalSubs');
+            const pkgsEl = document.getElementById('ovTotalPkgs');
+            const apptsEl = document.getElementById('ovTotalAppts');
+            if(subsEl) subsEl.innerText = allOrders.length;
+            if(pkgsEl) pkgsEl.innerText = myPackageOrders.length;
+            if(apptsEl) apptsEl.innerText = myAppointments.length;
+        }
 
         async function fetchMyOrders() {
             if(!supabaseInstance || !currentUser) return;
@@ -919,28 +972,41 @@
 
         function updateActiveSubscriptionBanner(activeOrder) {
             const banner = document.getElementById('activeSubBanner');
+            const ovSubBadge = document.getElementById('ovActiveSubBadge');
+            
             if(!activeOrder) {
-                banner.classList.add('hidden');
-                banner.classList.remove('flex');
+                if(banner) {
+                    banner.classList.add('hidden');
+                    banner.classList.remove('flex');
+                }
+                if(ovSubBadge) {
+                    ovSubBadge.classList.add('hidden');
+                    ovSubBadge.classList.remove('flex');
+                }
                 return;
             }
             
-            banner.classList.remove('hidden');
-            banner.classList.add('flex');
-            
-            document.getElementById('activeSubPlan').innerText = activeOrder.plan_name;
-            
-            const pIconSrc = PLAN_ICONS[activeOrder.plan_id] || PLAN_ICONS['starter'];
-            document.getElementById('activeSubIcon').src = pIconSrc;
-            
-            const expiryDate = new Date(activeOrder.expires_at);
-            document.getElementById('activeSubDate').innerText = expiryDate.toISOString().split('T')[0];
-            
-            const now = new Date();
-            const diffTime = Math.abs(expiryDate - now);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            document.getElementById('activeSubDays').innerText = `${diffDays} Days`;
+            if(banner) {
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+                document.getElementById('activeSubPlan').innerText = activeOrder.plan_name;
+                const expiryDate = new Date(activeOrder.expires_at);
+                document.getElementById('activeSubDate').innerText = expiryDate.toISOString().split('T')[0];
+                const now = new Date();
+                const diffTime = Math.abs(expiryDate - now);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                document.getElementById('activeSubDays').innerText = `${diffDays} Days`;
+                const pIconSrc = PLAN_ICONS[activeOrder.plan_id] || PLAN_ICONS['starter'];
+                document.getElementById('activeSubIcon').src = pIconSrc;
+            }
+
+            if(ovSubBadge) {
+                ovSubBadge.classList.remove('hidden');
+                ovSubBadge.classList.add('flex');
+                const pIconSrc = PLAN_ICONS[activeOrder.plan_id] || PLAN_ICONS['starter'];
+                document.getElementById('ovActiveSubIcon').src = pIconSrc;
+                document.getElementById('ovActiveSubName').innerText = activeOrder.plan_name;
+            }
         }
 
         function filterOrders() {
@@ -961,53 +1027,53 @@
             
             if(orders.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-gray-500 italic">${dict[currentLang].noOrders}</td></tr>`;
-                return;
+            } else {
+                tbody.innerHTML = orders.map(order => {
+                    const dateStr = new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                    
+                    let statusClass = 'status-pending';
+                    let statusTrans = dict[currentLang].statPending;
+                    if(order.status === 'Confirmed') { statusClass = 'status-confirmed'; statusTrans = dict[currentLang].statConfirmed; }
+                    else if(order.status === 'Expired') { statusClass = 'status-expired'; statusTrans = dict[currentLang].statExpired; }
+                    else if(order.status === 'Cancelled') { statusClass = 'status-cancelled'; statusTrans = dict[currentLang].statCancelled; }
+
+                    const pIconSrc = PLAN_ICONS[order.plan_id] || PLAN_ICONS['starter'];
+                    const paymentIconSrc = order.payment_method === 'UABPay' ? '../imgs/web-banners/uabpay.png' : '../imgs/web-banners/kbzpay.png';
+
+                    return `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                        <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">${order.id.split('-')[0]}...</td>
+                        <td class="py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 p-1.5 overflow-hidden">
+                                    <img src="${pIconSrc}" class="w-full h-full object-contain">
+                                </div>
+                                <div>
+                                    <div class="font-bold text-white">${order.plan_name}</div>
+                                    <div class="text-xs text-gray-500">${order.months} ${dict[currentLang].moUnit}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 text-xs font-medium text-gray-400 truncate max-w-[150px]">${order.company_name || '-'}</td>
+                        <td class="py-4 font-bold text-white">${parseInt(order.total_price).toLocaleString()} <span class="text-[10px] text-gray-500">MMK</span></td>
+                        <td class="py-4">
+                            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#111] border border-white/10 text-xs font-bold text-gray-300">
+                                <img src="${paymentIconSrc}" class="w-4 h-4 rounded-sm object-contain bg-white" alt="${order.payment_method}"> ${order.payment_method}
+                            </div>
+                        </td>
+                        <td class="py-4 text-xs font-medium">${dateStr}</td>
+                        <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
+                        <td class="py-4 pr-4 text-right">
+                            <button onclick="openImagePreview('${order.payment_proof_url}')" class="p-2 rounded-xl bg-[#111] border border-white/10 hover:border-myancode-accent hover:text-myancode-accent transition-all inline-flex text-gray-400" title="${dict[currentLang].viewProof}">
+                                <i data-lucide="image" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                }).join('');
             }
-
-            tbody.innerHTML = orders.map(order => {
-                const dateStr = new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                
-                let statusClass = 'status-pending';
-                let statusTrans = dict[currentLang].statPending;
-                if(order.status === 'Confirmed') { statusClass = 'status-confirmed'; statusTrans = dict[currentLang].statConfirmed; }
-                else if(order.status === 'Expired') { statusClass = 'status-expired'; statusTrans = dict[currentLang].statExpired; }
-                else if(order.status === 'Cancelled') { statusClass = 'status-cancelled'; statusTrans = dict[currentLang].statCancelled; }
-
-                const pIconSrc = PLAN_ICONS[order.plan_id] || PLAN_ICONS['starter'];
-                const paymentIconSrc = order.payment_method === 'UABPay' ? '../imgs/web-banners/uabpay.png' : '../imgs/web-banners/kbzpay.png';
-
-                return `
-                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                    <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">${order.id.split('-')[0]}...</td>
-                    <td class="py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 p-1.5 overflow-hidden">
-                                <img src="${pIconSrc}" class="w-full h-full object-contain">
-                            </div>
-                            <div>
-                                <div class="font-bold text-white">${order.plan_name}</div>
-                                <div class="text-xs text-gray-500">${order.months} ${dict[currentLang].moUnit}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="py-4 text-xs font-medium text-gray-400 truncate max-w-[150px]">${order.company_name || '-'}</td>
-                    <td class="py-4 font-bold text-white">${parseInt(order.total_price).toLocaleString()} <span class="text-[10px] text-gray-500">MMK</span></td>
-                    <td class="py-4">
-                        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#111] border border-white/10 text-xs font-bold text-gray-300">
-                            <img src="${paymentIconSrc}" class="w-4 h-4 rounded-sm object-contain bg-white" alt="${order.payment_method}"> ${order.payment_method}
-                        </div>
-                    </td>
-                    <td class="py-4 text-xs font-medium">${dateStr}</td>
-                    <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
-                    <td class="py-4 pr-4 text-right">
-                        <button onclick="openImagePreview('${order.payment_proof_url}')" class="p-2 rounded-xl bg-[#111] border border-white/10 hover:border-myancode-accent hover:text-myancode-accent transition-all inline-flex text-gray-400" title="${dict[currentLang].viewProof}">
-                            <i data-lucide="image" class="w-4 h-4"></i>
-                        </button>
-                    </td>
-                </tr>`;
-            }).join('');
             
             lucide.createIcons();
+            if(typeof updateOverviewStats === 'function') updateOverviewStats();
         }
 
         function renderPackageOrdersTable(orders) {
@@ -1015,58 +1081,58 @@
             
             if(orders.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-gray-500 italic">${dict[currentLang].noPkgs}</td></tr>`;
-                return;
+            } else {
+                tbody.innerHTML = orders.map(order => {
+                    const dateStr = new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                    
+                    let status = order.status || 'Pending';
+                    let statusClass = 'status-pending';
+                    let statusTrans = dict[currentLang]['stat' + status] || status;
+                    
+                    if(status === 'Reviewing') statusClass = 'status-reviewing';
+                    else if(status === 'Planning') statusClass = 'status-planning';
+                    else if(status === 'Developing') statusClass = 'status-developing';
+                    else if(status === 'Testing') statusClass = 'status-testing';
+                    else if(status === 'Deployed') statusClass = 'status-deployed';
+                    else if(status === 'Cancelled') statusClass = 'status-cancelled';
+
+                    const addonCount = (order.selected_addons || []).length;
+                    const orderIdShort = order.id.toString().split('-')[0].substring(0,8).toUpperCase();
+                    
+                    const strippedNotes = order.admin_notes ? order.admin_notes.replace(/<[^>]*>?/gm, '') : '';
+                    const safeNotes = strippedNotes ? strippedNotes.replace(/"/g, '&quot;') : '';
+                    const notesPreview = safeNotes ? `<div class="mt-1.5 text-[10px] text-myancode-accent flex items-start gap-1.5 max-w-[250px]"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0 mt-[1px]"></i><span class="truncate font-medium" title="${safeNotes}">${safeNotes}</span></div>` : '';
+
+                    return `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                        <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">#${orderIdShort}</td>
+                        <td class="py-4">
+                            <div class="font-bold text-white">${order.package_name}</div>
+                            ${notesPreview}
+                        </td>
+                        <td class="py-4 text-xs font-mono text-gray-400">${addonCount} Included</td>
+                        <td class="py-4 font-bold text-white">${parseInt(order.total_price).toLocaleString()} <span class="text-[10px] text-gray-500">MMK</span></td>
+                        <td class="py-4 text-xs font-medium text-gray-400">${dateStr}</td>
+                        <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
+                        <td class="py-4 pr-4 text-right">
+                            <div class="flex items-center justify-end gap-2 flex-wrap">
+                                <button onclick="openPackageDetailModal('${order.id}')" class="px-3 py-1.5 rounded-xl bg-white text-black hover:bg-gray-200 transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                                    <i data-lucide="layout-template" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline" data-i18n="btnDetails">Details</span>
+                                </button>
+                                <a href="mailto:support@myancode.com?subject=Help with Package Order #${orderIdShort}" class="px-3 py-1.5 rounded-xl bg-myancode-accent/10 border border-myancode-accent/20 hover:bg-myancode-accent hover:text-white transition-all text-xs font-bold text-myancode-accent flex items-center gap-1.5" title="Help / Meeting">
+                                    <i data-lucide="life-buoy" class="w-3.5 h-3.5"></i> <span class="hidden xl:inline" data-i18n="btnHelp">Help</span>
+                                </a>
+                                <a href="tel:+959795000000" class="p-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-gray-300" title="Call Us">
+                                    <i data-lucide="phone" class="w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>`;
+                }).join('');
             }
-
-            tbody.innerHTML = orders.map(order => {
-                const dateStr = new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                
-                let status = order.status || 'Pending';
-                let statusClass = 'status-pending';
-                let statusTrans = dict[currentLang]['stat' + status] || status;
-                
-                if(status === 'Reviewing') statusClass = 'status-reviewing';
-                else if(status === 'Planning') statusClass = 'status-planning';
-                else if(status === 'Developing') statusClass = 'status-developing';
-                else if(status === 'Testing') statusClass = 'status-testing';
-                else if(status === 'Deployed') statusClass = 'status-deployed';
-                else if(status === 'Cancelled') statusClass = 'status-cancelled';
-
-                const addonCount = (order.selected_addons || []).length;
-                const orderIdShort = order.id.toString().split('-')[0].substring(0,8).toUpperCase();
-                
-                const strippedNotes = order.admin_notes ? order.admin_notes.replace(/<[^>]*>?/gm, '') : '';
-                const safeNotes = strippedNotes ? strippedNotes.replace(/"/g, '&quot;') : '';
-                const notesPreview = safeNotes ? `<div class="mt-1.5 text-[10px] text-myancode-accent flex items-start gap-1.5 max-w-[250px]"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0 mt-[1px]"></i><span class="truncate font-medium" title="${safeNotes}">${safeNotes}</span></div>` : '';
-
-                return `
-                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                    <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">#${orderIdShort}</td>
-                    <td class="py-4">
-                        <div class="font-bold text-white">${order.package_name}</div>
-                        ${notesPreview}
-                    </td>
-                    <td class="py-4 text-xs font-mono text-gray-400">${addonCount} Included</td>
-                    <td class="py-4 font-bold text-white">${parseInt(order.total_price).toLocaleString()} <span class="text-[10px] text-gray-500">MMK</span></td>
-                    <td class="py-4 text-xs font-medium text-gray-400">${dateStr}</td>
-                    <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
-                    <td class="py-4 pr-4 text-right">
-                        <div class="flex items-center justify-end gap-2 flex-wrap">
-                            <button onclick="openPackageDetailModal('${order.id}')" class="px-3 py-1.5 rounded-xl bg-white text-black hover:bg-gray-200 transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                                <i data-lucide="layout-template" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline" data-i18n="btnDetails">Details</span>
-                            </button>
-                            <a href="mailto:support@myancode.com?subject=Help with Package Order #${orderIdShort}" class="px-3 py-1.5 rounded-xl bg-myancode-accent/10 border border-myancode-accent/20 hover:bg-myancode-accent hover:text-white transition-all text-xs font-bold text-myancode-accent flex items-center gap-1.5" title="Help / Meeting">
-                                <i data-lucide="life-buoy" class="w-3.5 h-3.5"></i> <span class="hidden xl:inline" data-i18n="btnHelp">Help</span>
-                            </a>
-                            <a href="tel:+959795000000" class="p-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-gray-300" title="Call Us">
-                                <i data-lucide="phone" class="w-4 h-4"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>`;
-            }).join('');
             
             lucide.createIcons();
+            if(typeof updateOverviewStats === 'function') updateOverviewStats();
         }
 
         function renderAppointmentsTable(appts) {
@@ -1074,40 +1140,40 @@
             
             if(appts.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-gray-500 italic">${dict[currentLang].noAppts}</td></tr>`;
-                return;
+            } else {
+                tbody.innerHTML = appts.map(appt => {
+                    const reqDate = new Date(appt.appointment_time).toLocaleString();
+                    const subDate = new Date(appt.created_at).toLocaleDateString();
+                    
+                    let statusClass = 'status-pending';
+                    let rawStatus = appt.status || 'pending';
+                    let formattedStatus = rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
+                    let statusTrans = dict[currentLang]['stat' + formattedStatus] || formattedStatus;
+
+                    if(rawStatus === 'confirmed') statusClass = 'status-confirmed';
+                    else if(rawStatus === 'completed') statusClass = 'status-completed';
+                    else if(rawStatus === 'cancelled') statusClass = 'status-cancelled';
+
+                    let actionHtml = '';
+                    if(rawStatus === 'pending' || rawStatus === 'confirmed') {
+                        actionHtml = `<button onclick="cancelAppointment('${appt.id}')" class="px-3 py-1.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-sm"><i data-lucide="x-circle" class="w-3.5 h-3.5 shrink-0"></i> <span class="hidden sm:inline" data-i18n="btnCancelAppt">${dict[currentLang].btnCancelAppt}</span></button>`;
+                    } else {
+                        actionHtml = `<span class="text-[10px] font-mono text-gray-600 font-bold uppercase tracking-widest px-3">--</span>`;
+                    }
+
+                    return `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                        <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">#${appt.id.split('-')[0].toUpperCase()}</td>
+                        <td class="py-4 font-bold text-white">${reqDate}</td>
+                        <td class="py-4 text-xs font-medium text-gray-400">${subDate}</td>
+                        <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
+                        <td class="py-4 pr-4 text-right flex justify-end">${actionHtml}</td>
+                    </tr>`;
+                }).join('');
             }
-
-            tbody.innerHTML = appts.map(appt => {
-                const reqDate = new Date(appt.appointment_time).toLocaleString();
-                const subDate = new Date(appt.created_at).toLocaleDateString();
-                
-                let statusClass = 'status-pending';
-                let rawStatus = appt.status || 'pending';
-                let formattedStatus = rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
-                let statusTrans = dict[currentLang]['stat' + formattedStatus] || formattedStatus;
-
-                if(rawStatus === 'confirmed') statusClass = 'status-confirmed';
-                else if(rawStatus === 'completed') statusClass = 'status-completed';
-                else if(rawStatus === 'cancelled') statusClass = 'status-cancelled';
-
-                let actionHtml = '';
-                if(rawStatus === 'pending' || rawStatus === 'confirmed') {
-                    actionHtml = `<button onclick="cancelAppointment('${appt.id}')" class="px-3 py-1.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-sm"><i data-lucide="x-circle" class="w-3.5 h-3.5 shrink-0"></i> <span class="hidden sm:inline" data-i18n="btnCancelAppt">${dict[currentLang].btnCancelAppt}</span></button>`;
-                } else {
-                    actionHtml = `<span class="text-[10px] font-mono text-gray-600 font-bold uppercase tracking-widest px-3">--</span>`;
-                }
-
-                return `
-                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                    <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">#${appt.id.split('-')[0].toUpperCase()}</td>
-                    <td class="py-4 font-bold text-white">${reqDate}</td>
-                    <td class="py-4 text-xs font-medium text-gray-400">${subDate}</td>
-                    <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
-                    <td class="py-4 pr-4 text-right flex justify-end">${actionHtml}</td>
-                </tr>`;
-            }).join('');
             
             lucide.createIcons();
+            if(typeof updateOverviewStats === 'function') updateOverviewStats();
         }
 
         function cancelAppointment(id) {
@@ -1334,6 +1400,7 @@
             document.getElementById('profileNameInput').value = currentUser.name;
             document.getElementById('profileEmailInput').value = currentUser.email;
             if(document.getElementById('hdrDropName')) document.getElementById('hdrDropName').innerText = currentUser.name;
+            if(document.getElementById('ovWelcomeName')) document.getElementById('ovWelcomeName').innerText = currentUser.name;
             updateAllAvatars(currentUser.avatar_url);
         }
 

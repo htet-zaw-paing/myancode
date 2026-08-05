@@ -57,9 +57,10 @@
         #sidebar { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         #sidebar.collapsed { width: 80px !important; }
         #sidebar.collapsed .sidebar-text { display: none; }
-        #sidebar.collapsed .px-6 { padding-left: 0; padding-right: 0; justify-content: center; }
-        #sidebar.collapsed .px-4 { padding-left: 0.5rem; padding-right: 0.5rem; }
         #sidebar.collapsed .logo-container { justify-content: center; padding: 0; }
+        #sidebar.collapsed .logo-container-inner { justify-content: center; }
+        #sidebar.collapsed .px-6 { padding-left: 0; padding-right: 0; }
+        #sidebar.collapsed .px-4 { padding-left: 0.5rem; padding-right: 0.5rem; }
         #sidebar.collapsed .logo-img { margin-right: 0; }
         #sidebar.collapsed .menu-item-btn { justify-content: center; padding-left: 0; padding-right: 0; }
         #sidebar.collapsed #sbFooter { padding: 1.25rem 0; display: flex; flex-direction: column; align-items: center; }
@@ -73,16 +74,13 @@
         .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
         .dropdown-hidden { opacity: 0; transform: scale(0.96); pointer-events: none; }
         
-        /* Status Badges */
         .status-pending { background-color: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
         .status-confirmed { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
         .status-completed { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
         .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
 
-        /* Drag and Drop overrides */
         .drag-over { border-color: #2997ff !important; background-color: rgba(41, 151, 255, 0.1) !important; }
         
-        /* Rich Text Editor Styles */
         .editor-content { outline: none; padding: 10px; }
         .editor-content ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
         .editor-content a { color: #2997ff; text-decoration: none; }
@@ -90,7 +88,6 @@
         .editor-content i, .editor-content em { font-style: italic; }
         .editor-content u { text-decoration: underline; }
         
-        /* Custom Select Arrow */
         .custom-select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1.25rem center; background-size: 1em; }
     </style>
 </head>
@@ -113,12 +110,12 @@
     <div id="mobileSidebarOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[80] hidden lg:hidden opacity-0 transition-opacity duration-300" onclick="toggleMobileMenu()"></div>
 
     <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 z-[90] bg-[#0a0a0a] border-r border-white/5 flex flex-col transform -translate-x-full lg:translate-x-0" style="width: 280px; min-width: 80px;">
-        <div class="h-20 flex items-center justify-between px-6 border-b border-white/5 flex-shrink-0 logo-container">
-            <a href="../" class="flex items-center overflow-hidden w-full justify-start logo-container-inner">
+        <div class="h-20 flex items-center justify-center border-b border-white/5 flex-shrink-0 logo-container w-full">
+            <a href="../" class="flex items-center overflow-hidden justify-center logo-container-inner w-full px-6">
                 <img src="../imgs/web-banners/favicon.png" class="h-8 w-8 flex-shrink-0 logo-img mr-3" alt="Logo" onerror="this.src='https://placehold.co/32x32/111/333?text=MC';">
                 <span class="font-display font-bold text-xl tracking-tight whitespace-nowrap sidebar-text text-white">MyanCode</span>
             </a>
-            <button class="lg:hidden text-gray-500 hover:text-white" onclick="toggleMobileMenu()"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <button class="lg:hidden text-gray-500 hover:text-white absolute right-4" onclick="toggleMobileMenu()"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
 
         <nav class="flex-1 overflow-y-auto custom-scroll py-8 px-4 flex flex-col gap-2">
@@ -225,17 +222,109 @@
 
         <div class="flex-1 overflow-y-auto custom-scroll relative z-10 p-6 sm:p-12" id="mainContentArea">
             
-            <div id="view-overview" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full items-center justify-center min-h-[60vh]">
-                <div class="glass-panel p-12 rounded-[2rem] text-center max-w-lg w-full flex flex-col items-center shadow-2xl border border-white/5 reveal active">
-                    <div class="w-20 h-20 bg-myancode-accent/10 border border-myancode-accent/20 rounded-full flex items-center justify-center mb-6">
-                        <i data-lucide="layout-dashboard" class="w-10 h-10 text-myancode-accent"></i>
+            <div id="view-overview" class="view-section hidden flex-col gap-6 max-w-[1400px] mx-auto w-full">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="glass-panel p-6 rounded-3xl flex items-center gap-5 border border-white/5 relative overflow-hidden group">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+                        <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0 relative z-10">
+                            <i data-lucide="calendar-clock" class="w-7 h-7 text-blue-400"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <p class="text-xs font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Appointments</p>
+                            <h4 class="text-3xl font-display font-bold text-white" id="stat-appointments">0</h4>
+                        </div>
                     </div>
-                    <h3 class="text-2xl font-bold font-display text-white mb-3" data-i18n="overviewTitle">Overview Coming Soon</h3>
-                    <p class="text-gray-400 text-sm font-medium" data-i18n="overviewDesc">We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.</p>
+                    <div class="glass-panel p-6 rounded-3xl flex items-center gap-5 border border-white/5 relative overflow-hidden group">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all"></div>
+                        <div class="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0 relative z-10">
+                            <i data-lucide="briefcase" class="w-7 h-7 text-purple-400"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <p class="text-xs font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Active Services</p>
+                            <h4 class="text-3xl font-display font-bold text-white" id="stat-services">0</h4>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-3xl flex items-center gap-5 border border-white/5 relative overflow-hidden group">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-500/10 rounded-full blur-2xl group-hover:bg-green-500/20 transition-all"></div>
+                        <div class="w-14 h-14 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0 relative z-10">
+                            <i data-lucide="folder-check" class="w-7 h-7 text-green-400"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <p class="text-xs font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Delivered Projects</p>
+                            <h4 class="text-3xl font-display font-bold text-white" id="stat-projects">0</h4>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-3xl flex items-center gap-5 border border-white/5 relative overflow-hidden group">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/20 transition-all"></div>
+                        <div class="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center flex-shrink-0 relative z-10">
+                            <i data-lucide="layout" class="w-7 h-7 text-orange-400"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <p class="text-xs font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Templates</p>
+                            <h4 class="text-3xl font-display font-bold text-white" id="stat-templates">0</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-panel p-8 rounded-[2.5rem] border border-white/5">
+                        <h3 class="text-xl font-bold font-display text-white mb-6 flex items-center gap-2"><i data-lucide="activity" class="w-5 h-5 text-myancode-accent"></i> Action Center</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-2xl border border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-400"><i data-lucide="flag" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <p class="text-sm font-bold text-white">Pending Reports</p>
+                                        <p class="text-[11px] text-gray-500 font-mono">Community management</p>
+                                    </div>
+                                </div>
+                                <span class="text-xl font-bold font-display text-white" id="stat-reports">0</span>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-2xl border border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400"><i data-lucide="clock" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <p class="text-sm font-bold text-white">Pending Appointments</p>
+                                        <p class="text-[11px] text-gray-500 font-mono">Awaiting confirmation</p>
+                                    </div>
+                                </div>
+                                <span class="text-xl font-bold font-display text-white" id="stat-pending-appts">0</span>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-2xl border border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-400"><i data-lucide="shield-alert" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <p class="text-sm font-bold text-white">Locked Accounts</p>
+                                        <p class="text-[11px] text-gray-500 font-mono">Security alerts</p>
+                                    </div>
+                                </div>
+                                <span class="text-xl font-bold font-display text-white" id="stat-locked">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-panel p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden flex flex-col justify-center">
+                        <div class="absolute inset-0 bg-gradient-to-br from-myancode-accent/10 to-transparent pointer-events-none"></div>
+                        <div class="relative z-10">
+                            <h3 class="text-2xl font-bold font-display text-white mb-2" id="overviewWelcomeName">Welcome back, Moderator</h3>
+                            <p class="text-sm text-gray-400 mb-8 leading-relaxed">Here is a quick overview of your system's current status. Manage your services, projects, and community from the sidebar.</p>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="switchTab('services')" class="p-4 bg-[#0a0a0a] hover:bg-white/5 border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors group">
+                                    <i data-lucide="plus-circle" class="w-6 h-6 text-gray-400 group-hover:text-myancode-accent transition-colors"></i>
+                                    <span class="text-[11px] font-bold uppercase tracking-widest text-gray-300">Add Service</span>
+                                </button>
+                                <button onclick="switchTab('projects')" class="p-4 bg-[#0a0a0a] hover:bg-white/5 border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors group">
+                                    <i data-lucide="folder-plus" class="w-6 h-6 text-gray-400 group-hover:text-myancode-accent transition-colors"></i>
+                                    <span class="text-[11px] font-bold uppercase tracking-widest text-gray-300">Add Project</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Website Templates -->
+            
             <div id="view-templates" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b border-white/10 pb-6">
@@ -276,7 +365,7 @@
                 </div>
             </div>
 
-            <!-- Website Services -->
+            
             <div id="view-services" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b border-white/10 pb-6">
@@ -317,7 +406,7 @@
                 </div>
             </div>
 
-            <!-- Delivered Projects -->
+            
             <div id="view-projects" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b border-white/10 pb-6">
@@ -509,9 +598,7 @@
         </div>
     </main>
 
-    <!-- Modals -->
-
-    <!-- Delivered Projects Modal -->
+    
     <div id="projectModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeProjectModal()">
         <div class="glass-panel border border-white/10 rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
             <div class="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-[2.5rem] flex-shrink-0">
@@ -521,7 +608,6 @@
             <div class="p-6 sm:p-8 overflow-y-auto custom-scroll flex-1 text-gray-300 space-y-8">
                 <input type="hidden" id="prjId">
                 
-                <!-- Basic Info -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Project Name *</label>
@@ -550,7 +636,6 @@
                     </div>
                 </div>
 
-                <!-- Attributes -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Category</label>
@@ -566,7 +651,6 @@
                     </div>
                 </div>
 
-                <!-- Arrays / Comma separated -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Technologies (Comma separated)</label>
@@ -578,7 +662,6 @@
                     </div>
                 </div>
 
-                <!-- URLs & Status -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class="md:col-span-2">
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Live Demo URL</label>
@@ -604,12 +687,10 @@
                     </div>
                 </div>
 
-                <!-- File Uploads -->
                 <div class="pt-4 border-t border-white/10">
                     <h4 class="text-sm font-bold tracking-tight text-white mb-6 font-display">Media Assets</h4>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Thumbnail -->
                         <div>
                             <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Thumbnail / Cover Image (16:9)</label>
                             <div id="dropPrjThumb" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[160px] relative overflow-hidden" onclick="document.getElementById('inputPrjThumb').click()" ondragover="handleProjectDragOver(event)" ondragleave="handleProjectDragLeave(event)" ondrop="handleProjectDrop(event, 'thumb')">
@@ -623,7 +704,6 @@
                             <button id="btnRemovePrjThumb" onclick="removeProjectImageFile('thumb')" class="hidden mt-2 text-[10px] text-red-400 font-bold uppercase tracking-widest hover:text-red-300">Remove</button>
                         </div>
                         
-                        <!-- Gallery -->
                         <div>
                             <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Gallery Images (Up to 8 photos)</label>
                             <div id="dropPrjGallery" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[160px]" onclick="document.getElementById('inputPrjGallery').click()" ondragover="handleProjectDragOver(event)" ondragleave="handleProjectDragLeave(event)" ondrop="handleProjectDrop(event, 'gallery')">
@@ -633,9 +713,8 @@
                             <input type="file" id="inputPrjGallery" class="hidden" accept="image/*" multiple onchange="handleProjectFileSelect(event, 'gallery')">
                         </div>
                     </div>
-                    <!-- Gallery Preview Container -->
+                    
                     <div id="prjGalleryPreviewContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 empty:hidden"></div>
-
                 </div>
             </div>
             <div class="p-6 sm:p-8 border-t border-white/10 bg-white/5 rounded-b-[2.5rem] flex flex-col sm:flex-row justify-end gap-4 flex-shrink-0">
@@ -647,8 +726,7 @@
         </div>
     </div>
 
-
-    <!-- Template Modal -->
+    
     <div id="templateModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeTemplateModal()">
         <div class="glass-panel border border-white/10 rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
             <div class="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-[2.5rem] flex-shrink-0">
@@ -658,7 +736,6 @@
             <div class="p-6 sm:p-8 overflow-y-auto custom-scroll flex-1 text-gray-300 space-y-8">
                 <input type="hidden" id="tplId">
                 
-                <!-- Basic Info -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Template Name *</label>
@@ -676,23 +753,21 @@
                     <div class="md:col-span-2">
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Full Description</label>
                         <div class="flex items-center gap-1 p-2 bg-[#111] border border-white/10 border-b-0 rounded-t-xl overflow-x-auto no-scrollbar">
-                            <button type="button" onclick="formatTemplateDoc('bold')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
-                            <button type="button" onclick="formatTemplateDoc('italic')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
-                            <button type="button" onclick="formatTemplateDoc('underline')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Underline"><i data-lucide="underline" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatServiceDoc('bold')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatServiceDoc('italic')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatServiceDoc('underline')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Underline"><i data-lucide="underline" class="w-4 h-4"></i></button>
                             <div class="w-px h-4 bg-white/20 mx-1"></div>
-                            <button type="button" onclick="formatTemplateDoc('insertUnorderedList')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
-                            <button type="button" onclick="addTemplateLink()" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Link"><i data-lucide="link" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatServiceDoc('insertUnorderedList')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="addServiceLink()" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Link"><i data-lucide="link" class="w-4 h-4"></i></button>
                         </div>
                         <div id="tplDesc" contenteditable="true" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-b-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors min-h-[150px] max-h-[300px] overflow-y-auto custom-scroll editor-content" placeholder="Detailed information about the template..."></div>
                     </div>
                 </div>
 
-                <!-- Attributes -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Category</label>
                         <select id="tplCategorySelect" onchange="handleCategoryChange()" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner custom-select max-h-[200px] overflow-y-auto">
-                            <!-- Populated via JS -->
                         </select>
                         <input type="text" id="tplCategoryCustom" class="hidden mt-3 w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Enter custom category...">
                     </div>
@@ -706,7 +781,6 @@
                     </div>
                 </div>
 
-                <!-- Arrays / Multi-select -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="relative">
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Technologies</label>
@@ -730,7 +804,6 @@
                     </div>
                 </div>
 
-                <!-- URLs & Contact -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Live Demo URL</label>
@@ -746,12 +819,10 @@
                     </div>
                 </div>
 
-                <!-- File Uploads -->
                 <div class="pt-4 border-t border-white/10">
                     <h4 class="text-sm font-bold tracking-tight text-white mb-6 font-display">Media Assets</h4>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Thumbnail -->
                         <div>
                             <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Thumbnail Image (1:1 or 4:3)</label>
                             <div id="dropThumb" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[160px] relative overflow-hidden" onclick="document.getElementById('inputThumb').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'thumb')">
@@ -765,7 +836,6 @@
                             <button id="btnRemoveThumb" onclick="removeImageFile('thumb')" class="hidden mt-2 text-[10px] text-red-400 font-bold uppercase tracking-widest hover:text-red-300">Remove</button>
                         </div>
                         
-                        <!-- Cover -->
                         <div>
                             <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Cover Image (16:9)</label>
                             <div id="dropCover" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[160px] relative overflow-hidden" onclick="document.getElementById('inputCover').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'cover')">
@@ -780,7 +850,6 @@
                         </div>
                     </div>
 
-                    <!-- Gallery -->
                     <div class="mt-8">
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Gallery Images (Up to 8 photos)</label>
                         <div id="dropGallery" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[120px]" onclick="document.getElementById('inputGallery').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'gallery')">
@@ -789,10 +858,8 @@
                         </div>
                         <input type="file" id="inputGallery" class="hidden" accept="image/*" multiple onchange="handleFileSelect(event, 'gallery')">
                         
-                        <!-- Gallery Preview Container -->
                         <div id="galleryPreviewContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 empty:hidden"></div>
                     </div>
-
                 </div>
             </div>
             <div class="p-6 sm:p-8 border-t border-white/10 bg-white/5 rounded-b-[2.5rem] flex flex-col sm:flex-row justify-end gap-4 flex-shrink-0">
@@ -804,7 +871,7 @@
         </div>
     </div>
 
-    <!-- Service Modal -->
+    
     <div id="serviceModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeServiceModal()">
         <div class="glass-panel border border-white/10 rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
             <div class="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-[2.5rem] flex-shrink-0">
@@ -814,7 +881,6 @@
             <div class="p-6 sm:p-8 overflow-y-auto custom-scroll flex-1 text-gray-300 space-y-8">
                 <input type="hidden" id="srvId">
                 
-                <!-- Basic Info -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Service Name *</label>
@@ -832,18 +898,17 @@
                     <div class="md:col-span-2">
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Full Description</label>
                         <div class="flex items-center gap-1 p-2 bg-[#111] border border-white/10 border-b-0 rounded-t-xl overflow-x-auto no-scrollbar">
-                            <button type="button" onclick="formatTemplateDoc('bold')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
-                            <button type="button" onclick="formatTemplateDoc('italic')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
-                            <button type="button" onclick="formatTemplateDoc('underline')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Underline"><i data-lucide="underline" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatServiceDoc('bold')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatServiceDoc('italic')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatServiceDoc('underline')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Underline"><i data-lucide="underline" class="w-4 h-4"></i></button>
                             <div class="w-px h-4 bg-white/20 mx-1"></div>
-                            <button type="button" onclick="formatTemplateDoc('insertUnorderedList')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
-                            <button type="button" onclick="addTemplateLink()" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Link"><i data-lucide="link" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="formatServiceDoc('insertUnorderedList')" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
+                            <button type="button" onclick="addServiceLink()" class="p-1.5 text-gray-400 hover:text-white bg-transparent hover:bg-white/10 rounded transition-colors" title="Link"><i data-lucide="link" class="w-4 h-4"></i></button>
                         </div>
                         <div id="srvDesc" contenteditable="true" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-b-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors min-h-[150px] max-h-[300px] overflow-y-auto custom-scroll editor-content" placeholder="Detailed information about the service..."></div>
                     </div>
                 </div>
 
-                <!-- Attributes -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Category</label>
@@ -859,7 +924,6 @@
                     </div>
                 </div>
 
-                <!-- Arrays / Multi-select -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="md:col-span-2">
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Features (Comma separated)</label>
@@ -871,27 +935,30 @@
                     </div>
                 </div>
 
-                <!-- Contact Info -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Contact Info</label>
                         <input type="text" id="srvContact" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Email or Phone">
                     </div>
-                    <div>
-                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Status</label>
-                        <select id="srvStatus" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner custom-select">
-                            <option value="active">Active / Serving</option>
-                            <option value="unavailable">Currently Unavailable</option>
-                        </select>
+                    <div class="flex flex-col gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Status</label>
+                            <select id="srvStatus" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner custom-select">
+                                <option value="active">Active / Serving</option>
+                                <option value="unavailable">Currently Unavailable</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3 mt-1">
+                            <input type="checkbox" id="srvFeatured" class="w-4 h-4 bg-[#050505] border border-white/20 rounded accent-myancode-accent">
+                            <label for="srvFeatured" class="text-[11px] font-bold font-mono text-gray-300 uppercase tracking-widest cursor-pointer">Featured Service</label>
+                        </div>
                     </div>
                 </div>
 
-                <!-- File Uploads -->
                 <div class="pt-4 border-t border-white/10">
                     <h4 class="text-sm font-bold tracking-tight text-white mb-6 font-display">Media Assets</h4>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Thumbnail -->
                         <div>
                             <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Thumbnail Image</label>
                             <div id="dropSrvThumb" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[160px] relative overflow-hidden" onclick="document.getElementById('inputSrvThumb').click()" ondragover="handleServiceDragOver(event)" ondragleave="handleServiceDragLeave(event)" ondrop="handleServiceDrop(event, 'thumb')">
@@ -905,7 +972,6 @@
                             <button id="btnRemoveSrvThumb" onclick="removeServiceImageFile('thumb')" class="hidden mt-2 text-[10px] text-red-400 font-bold uppercase tracking-widest hover:text-red-300">Remove</button>
                         </div>
                         
-                        <!-- Cover -->
                         <div>
                             <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Cover Image</label>
                             <div id="dropSrvCover" class="border-2 border-dashed border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-myancode-accent hover:bg-white/5 transition-all min-h-[160px] relative overflow-hidden" onclick="document.getElementById('inputSrvCover').click()" ondragover="handleServiceDragOver(event)" ondragleave="handleServiceDragLeave(event)" ondrop="handleServiceDrop(event, 'cover')">
@@ -931,8 +997,7 @@
         </div>
     </div>
 
-
-    <!-- Existing Modals -->
+    
     <div id="forcePasswordModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 px-4">
         <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-500" id="forcePasswordModalContent">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
@@ -1201,7 +1266,6 @@
         let allLockedAccounts = [];
         let allReportedPosts = [];
 
-        // Templates Variables
         let allTemplates = [];
         let currentTemplateSearch = '';
         let templateThumbFile = null;
@@ -1209,13 +1273,11 @@
         let templateGalleryFiles = [];
         let existingGalleryUrls = [];
 
-        // Services Variables
         let allServices = [];
         let currentServiceSearch = '';
         let serviceThumbFile = null;
         let serviceCoverFile = null;
 
-        // Delivered Projects Variables
         let allProjects = [];
         let currentProjectSearch = '';
         let projectThumbFile = null;
@@ -1296,7 +1358,47 @@
             populateProfileData();
             switchTab('overview');
             initRealtime();
+            updateOverviewStats();
             hideLoader();
+        }
+
+        async function updateOverviewStats() {
+            if(!supabaseInstance) return;
+            
+            const welcomeEl = document.getElementById('overviewWelcomeName');
+            if (welcomeEl && currentUser) {
+                welcomeEl.innerText = `Welcome back, ${currentUser.name.split(' ')[0]}`;
+            }
+
+            try {
+                const [
+                    { count: apptsCount },
+                    { count: pendingApptsCount },
+                    { count: servicesCount },
+                    { count: projectsCount },
+                    { count: templatesCount },
+                    { count: reportsCount },
+                    { count: lockedCount }
+                ] = await Promise.all([
+                    supabaseInstance.from('contact_appointments').select('*', { count: 'exact', head: true }),
+                    supabaseInstance.from('contact_appointments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                    supabaseInstance.from('website_services').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+                    supabaseInstance.from('delivered_projects').select('*', { count: 'exact', head: true }),
+                    supabaseInstance.from('website_templates').select('*', { count: 'exact', head: true }),
+                    supabaseInstance.from('marketplace_reports').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                    supabaseInstance.from('auth_lockouts').select('*', { count: 'exact', head: true }).gt('failed_attempts', 0)
+                ]);
+
+                document.getElementById('stat-appointments').innerText = apptsCount || 0;
+                document.getElementById('stat-pending-appts').innerText = pendingApptsCount || 0;
+                document.getElementById('stat-services').innerText = servicesCount || 0;
+                document.getElementById('stat-projects').innerText = projectsCount || 0;
+                document.getElementById('stat-templates').innerText = templatesCount || 0;
+                document.getElementById('stat-reports').innerText = reportsCount || 0;
+                document.getElementById('stat-locked').innerText = lockedCount || 0;
+            } catch (error) {
+                console.error("Error fetching overview stats:", error);
+            }
         }
 
         function initRealtime() {
@@ -1319,6 +1421,7 @@
                     
                     const activeView = document.getElementById('view-community');
                     if (activeView && !activeView.classList.contains('hidden')) renderReportedPostsTable();
+                    updateOverviewStats();
                 })
                 .subscribe();
 
@@ -1336,6 +1439,7 @@
                     
                     const activeView = document.getElementById('view-access');
                     if (activeView && !activeView.classList.contains('hidden')) renderLockedAccountsTable();
+                    updateOverviewStats();
                 })
                 .subscribe();
                 
@@ -1360,24 +1464,28 @@
                         document.getElementById('modalApptStatus').value = payload.new.status;
                         document.getElementById('modalApptRemarks').value = payload.new.remarks || '';
                     }
+                    updateOverviewStats();
                 })
                 .subscribe();
 
             supabaseInstance.channel('moderator_templates')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'website_templates' }, payload => {
                     fetchTemplates(true);
+                    updateOverviewStats();
                 })
                 .subscribe();
 
             supabaseInstance.channel('moderator_services')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'website_services' }, payload => {
                     fetchServices(true);
+                    updateOverviewStats();
                 })
                 .subscribe();
 
             supabaseInstance.channel('moderator_projects')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'delivered_projects' }, payload => {
                     fetchProjects(true);
+                    updateOverviewStats();
                 })
                 .subscribe();
         }
@@ -1562,9 +1670,358 @@
             if(window.innerWidth < 1024 && sidebarOpen) toggleMobileMenu();
         }
 
-        /* -------------------------------------------------------------------------- */
-        /*                          DELIVERED PROJECTS LOGIC                          */
-        /* -------------------------------------------------------------------------- */
+        function formatServiceDoc(cmd, value = null) {
+            document.execCommand(cmd, false, value);
+            document.getElementById('srvDesc').focus();
+        }
+
+        async function addServiceLink() {
+            const url = await customPrompt('Enter link URL (e.g. https://google.com):', 'https://', 'Add Link');
+            if (url) formatServiceDoc('createLink', url);
+        }
+
+        async function fetchServices(isSilent = false) {
+            if(!supabaseInstance) return;
+            const tbody = document.getElementById('servicesTableBody');
+            
+            if (!isSilent) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading services...</td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+            
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('website_services')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                allServices = data || [];
+                renderServicesTable();
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+
+        function handleServiceSearch() {
+            const input = document.getElementById('searchServicesInput');
+            if (input) {
+                currentServiceSearch = input.value.toLowerCase().trim();
+                renderServicesTable();
+            }
+        }
+
+        function renderServicesTable() {
+            const tbody = document.getElementById('servicesTableBody');
+            if (!tbody) return;
+            
+            let filtered = allServices.filter(srv => {
+                const searchStr = `${srv.service_name} ${srv.slug} ${srv.category}`.toLowerCase();
+                return !currentServiceSearch || searchStr.includes(currentServiceSearch);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="briefcase" class="w-6 h-6 text-gray-400"></i></div><p class="font-medium">No services found.</p></td></tr>';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(srv => {
+                const thumb = srv.thumbnail_url || 'https://placehold.co/100x100/111/333?text=No+Img';
+                const priceFmt = Number(srv.price).toLocaleString() + ' MMK';
+                const discFmt = srv.discount_price ? `<br><span class="text-red-400 text-xs">${Number(srv.discount_price).toLocaleString()} MMK (Sale)</span>` : '';
+                
+                let statusBadge = '';
+                if(srv.status === 'active') statusBadge = '<span class="px-2 py-0.5 rounded bg-green-500/10 text-green-400 border border-green-500/20 text-[9px] uppercase tracking-wider">Active</span>';
+                else statusBadge = '<span class="px-2 py-0.5 rounded bg-gray-500/10 text-gray-400 border border-gray-500/20 text-[9px] uppercase tracking-wider">Unavailable</span>';
+
+                const featuredBadge = srv.is_featured ? '<i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-current" title="Featured"></i>' : '';
+
+                return `
+                    <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                        <td class="px-6 py-4 align-top w-16">
+                            <img src="${thumb}" class="w-12 h-12 object-cover rounded-xl border border-white/10" alt="Thumb">
+                        </td>
+                        <td class="px-6 py-4 align-top w-1/3">
+                            <div class="font-bold text-white mb-1 truncate flex items-center gap-1.5">${srv.service_name} ${featuredBadge}</div>
+                            <div class="text-[11px] text-gray-400 font-mono truncate">/${srv.slug}</div>
+                            <div class="text-[11px] text-myancode-accent font-bold mt-1 uppercase tracking-widest">${srv.category || 'Uncategorized'}</div>
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <div class="font-bold text-sm text-white">${priceFmt}</div>
+                            ${discFmt}
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <div class="mb-2">${statusBadge}</div>
+                        </td>
+                        <td class="px-6 py-4 align-top text-right">
+                            <div class="flex justify-end gap-2 opacity-100 sm:opacity-50 sm:group-hover:opacity-100 transition-opacity">
+                                <button onclick="openServiceModal('${srv.id}')" class="h-9 w-9 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Edit Service">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="deleteService('${srv.id}')" class="h-9 w-9 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Delete Service">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        let serviceSlugTimeout;
+        function debounceCheckServiceSlug() {
+            clearTimeout(serviceSlugTimeout);
+            const statusEl = document.getElementById('srvSlugStatus');
+            if (statusEl) statusEl.classList.add('hidden');
+            const saveBtn = document.getElementById('btnSaveService');
+            if (saveBtn) saveBtn.disabled = true;
+            serviceSlugTimeout = setTimeout(checkServiceSlug, 500);
+        }
+
+        async function checkServiceSlug() {
+            const slugInput = document.getElementById('srvSlug');
+            if (!slugInput) return;
+            let slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            slugInput.value = slug; 
+            
+            const statusEl = document.getElementById('srvSlugStatus');
+            const saveBtn = document.getElementById('btnSaveService');
+            const currentId = document.getElementById('srvId').value;
+            
+            if(!slug) {
+                if (statusEl) {
+                    statusEl.innerHTML = '<span class="text-red-400">Slug is required.</span>';
+                    statusEl.classList.remove('hidden');
+                }
+                if (saveBtn) saveBtn.disabled = true;
+                return;
+            }
+            
+            if (statusEl) {
+                statusEl.innerHTML = '<span class="text-gray-400"><i data-lucide="loader-2" class="w-3 h-3 animate-spin inline"></i> Checking...</span>';
+                statusEl.classList.remove('hidden');
+            }
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+            
+            try {
+                let query = supabaseInstance.from('website_services').select('id').eq('slug', slug);
+                if (currentId) query = query.neq('id', currentId);
+                
+                const { data, error } = await query;
+                if(error) throw error;
+                
+                if (data.length > 0) {
+                    const suggested = slug + '-' + Math.floor(Math.random() * 1000);
+                    if (statusEl) {
+                        statusEl.innerHTML = `<span class="text-red-400 flex items-center gap-1.5 mt-1"><i data-lucide="x-circle" class="w-3 h-3"></i> Slug taken. Try: <strong class="cursor-pointer underline text-white" onclick="document.getElementById('srvSlug').value='${suggested}'; checkServiceSlug();">${suggested}</strong></span>`;
+                    }
+                    if (saveBtn) saveBtn.disabled = true;
+                } else {
+                    if (statusEl) {
+                        statusEl.innerHTML = `<span class="text-green-400 flex items-center gap-1.5 mt-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Slug is available!</span>`;
+                    }
+                    if (saveBtn) saveBtn.disabled = false;
+                }
+            } catch(err) {
+                if (statusEl) statusEl.innerHTML = `<span class="text-red-400">Error checking slug.</span>`;
+            }
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function openServiceModal(id = null) {
+            serviceThumbFile = null;
+            serviceCoverFile = null;
+            
+            removeServiceImageFile('thumb');
+            removeServiceImageFile('cover');
+            const slugStatus = document.getElementById('srvSlugStatus');
+            if (slugStatus) slugStatus.classList.add('hidden');
+            
+            if (id) {
+                const srv = allServices.find(s => s.id === id);
+                if(!srv) return;
+                document.getElementById('serviceModalTitle').innerHTML = '<i data-lucide="edit" class="h-6 w-6 text-myancode-accent"></i> Edit Service';
+                document.getElementById('srvId').value = srv.id;
+                document.getElementById('srvName').value = srv.service_name || '';
+                document.getElementById('srvSlug').value = srv.slug || '';
+                document.getElementById('srvShortDesc').value = srv.short_description || '';
+                document.getElementById('srvDesc').innerHTML = srv.description || '';
+                document.getElementById('srvCategory').value = srv.category || '';
+                document.getElementById('srvPrice').value = srv.price || '';
+                document.getElementById('srvDiscount').value = srv.discount_price || '';
+                document.getElementById('srvFeatures').value = (srv.features || []).join(', ');
+                document.getElementById('srvTags').value = (srv.tags || []).join(', ');
+                document.getElementById('srvContact').value = srv.contact_info || '';
+                document.getElementById('srvStatus').value = srv.status || 'active';
+                document.getElementById('srvFeatured').checked = srv.is_featured || false;
+
+                if (srv.thumbnail_url) setServicePreviewUI('thumb', srv.thumbnail_url);
+                if (srv.cover_url) setServicePreviewUI('cover', srv.cover_url);
+                
+                document.getElementById('lblSaveService').innerText = 'Update Service';
+                document.getElementById('btnSaveService').disabled = false;
+            } else {
+                document.getElementById('serviceModalTitle').innerHTML = '<i data-lucide="plus-circle" class="h-6 w-6 text-myancode-accent"></i> Add New Service';
+                document.getElementById('srvId').value = '';
+                document.getElementById('srvName').value = '';
+                document.getElementById('srvSlug').value = '';
+                document.getElementById('srvShortDesc').value = '';
+                document.getElementById('srvDesc').innerHTML = '';
+                document.getElementById('srvCategory').value = '';
+                document.getElementById('srvPrice').value = '';
+                document.getElementById('srvDiscount').value = '';
+                document.getElementById('srvFeatures').value = '';
+                document.getElementById('srvTags').value = '';
+                document.getElementById('srvContact').value = '';
+                document.getElementById('srvStatus').value = 'active';
+                document.getElementById('srvFeatured').checked = false;
+                
+                document.getElementById('lblSaveService').innerText = 'Save Service';
+                document.getElementById('btnSaveService').disabled = true;
+            }
+
+            const modal = document.getElementById('serviceModal');
+            const content = modal.querySelector('.glass-panel');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                lucide.createIcons();
+            }, 10);
+        }
+
+        function closeServiceModal() {
+            const modal = document.getElementById('serviceModal');
+            const content = modal.querySelector('.glass-panel');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function handleServiceDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+        function handleServiceDragLeave(e) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); }
+        function handleServiceDrop(e, type) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); processServiceFiles(e.dataTransfer.files, type); }
+        function handleServiceFileSelect(e, type) { processServiceFiles(e.target.files, type); }
+
+        function processServiceFiles(files, type) {
+            if(!files || files.length === 0) return;
+            const MAX_SIZE = 5 * 1024 * 1024;
+            const file = files[0];
+            if (file.size > MAX_SIZE) { showErrorToast(`Image exceeds 5MB limit.`); return; }
+            if (file.type.startsWith('image/')) {
+                if (type === 'thumb') serviceThumbFile = file;
+                if (type === 'cover') serviceCoverFile = file;
+                const reader = new FileReader();
+                reader.onload = (ev) => setServicePreviewUI(type, ev.target.result);
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function setServicePreviewUI(type, src) {
+            const upperType = type.charAt(0).toUpperCase() + type.slice(1);
+            const defEl = document.getElementById(`uiSrv${upperType}Def`);
+            if(defEl) defEl.classList.add('hidden');
+            const img = document.getElementById(`previewSrv${upperType}`);
+            if(img) { img.src = src; img.classList.remove('hidden'); }
+            const btn = document.getElementById(`btnRemoveSrv${upperType}`);
+            if(btn) btn.classList.remove('hidden');
+        }
+
+        function removeServiceImageFile(type) {
+            const upperType = type.charAt(0).toUpperCase() + type.slice(1);
+            const defEl = document.getElementById(`uiSrv${upperType}Def`);
+            if (defEl) defEl.classList.remove('hidden');
+            const img = document.getElementById(`previewSrv${upperType}`);
+            if (img) { img.src = ''; img.classList.add('hidden'); }
+            const btn = document.getElementById(`btnRemoveSrv${upperType}`);
+            if (btn) btn.classList.add('hidden');
+            if(type === 'thumb') serviceThumbFile = null;
+            if(type === 'cover') serviceCoverFile = null;
+            const input = document.getElementById(`inputSrv${upperType}`);
+            if (input) input.value = '';
+        }
+
+        async function saveService() {
+            const id = document.getElementById('srvId').value;
+            const name = document.getElementById('srvName').value.trim();
+            const slug = document.getElementById('srvSlug').value.trim();
+            const price = document.getElementById('srvPrice').value.trim();
+            
+            if(!name || !slug || !price) { showErrorToast("Service Name, Slug, and Price are required."); return; }
+
+            const btn = document.getElementById('btnSaveService');
+            btn.disabled = true;
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-white"></i> Processing...`;
+            lucide.createIcons();
+
+            try {
+                const processArr = (str) => str ? str.split(',').map(s => s.trim()).filter(s => s) : [];
+                const featsArr = processArr(document.getElementById('srvFeatures').value);
+                const tagsArr = processArr(document.getElementById('srvTags').value);
+                const finalDesc = document.getElementById('srvDesc').innerHTML.trim();
+                
+                const payload = {
+                    service_name: name,
+                    slug: slug,
+                    short_description: document.getElementById('srvShortDesc').value.trim(),
+                    description: finalDesc,
+                    category: document.getElementById('srvCategory').value.trim(),
+                    price: parseFloat(price) || 0,
+                    discount_price: document.getElementById('srvDiscount').value ? parseFloat(document.getElementById('srvDiscount').value) : null,
+                    features: featsArr,
+                    tags: tagsArr,
+                    contact_info: document.getElementById('srvContact').value.trim(),
+                    is_featured: document.getElementById('srvFeatured').checked,
+                    status: document.getElementById('srvStatus').value
+                };
+
+                if (serviceThumbFile) payload.thumbnail_url = await uploadSingleImageToImageKit(serviceThumbFile);
+                if (serviceCoverFile) payload.cover_url = await uploadSingleImageToImageKit(serviceCoverFile);
+
+                if (id) {
+                    const { error } = await supabaseInstance.from('website_services').update(payload).eq('id', id);
+                    if(error) throw error;
+                    showToast("Service updated successfully.");
+                } else {
+                    const { error } = await supabaseInstance.from('website_services').insert([payload]);
+                    if(error) throw error;
+                    showToast("Service created successfully.");
+                }
+
+                closeServiceModal();
+                fetchServices(true);
+            } catch(e) {
+                showErrorToast("Error: " + (e.message || "Failed to save service."));
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHTML;
+                lucide.createIcons();
+            }
+        }
+
+        async function deleteService(id) {
+            showConfirmModal("Delete Service", "Are you sure you want to delete this service? This action is permanent.", "danger", async () => {
+                showLoader();
+                try {
+                    const { error } = await supabaseInstance.from('website_services').delete().eq('id', id);
+                    if(error) throw error;
+                    showToast("Service deleted successfully.");
+                    fetchServices(true);
+                } catch(e) {
+                    showErrorToast("Error: " + (e.message || "Failed to delete service."));
+                } finally {
+                    hideLoader();
+                }
+            });
+        }
 
         async function fetchProjects(isSilent = false) {
             if(!supabaseInstance) return;
@@ -1774,7 +2231,7 @@
                 document.getElementById('prjFeatured').checked = false;
                 
                 document.getElementById('lblSaveProject').innerText = 'Save Project';
-                document.getElementById('btnSaveProject').disabled = true; // Wait for slug check
+                document.getElementById('btnSaveProject').disabled = true; 
             }
 
             const modal = document.getElementById('projectModal');
@@ -1799,7 +2256,6 @@
             }, 300);
         }
 
-        // Project File Handlers
         function handleProjectDragOver(e) {
             e.preventDefault();
             e.currentTarget.classList.add('drag-over');
@@ -2004,12 +2460,6 @@
             });
         }
 
-
-        /* -------------------------------------------------------------------------- */
-        /*                          WEBSITE TEMPLATES LOGIC                           */
-        /* -------------------------------------------------------------------------- */
-
-        // Rich Text Editor Functions
         function formatTemplateDoc(cmd, value = null) {
             document.execCommand(cmd, false, value);
             document.getElementById('tplDesc').focus();
@@ -2019,7 +2469,6 @@
         let savedSelection = null;
 
         function customPrompt(message, placeholder = "", title = "Input Required") {
-            // Save the current text selection so it isn't lost when focusing the modal input
             if (window.getSelection && window.getSelection().rangeCount > 0) {
                 savedSelection = window.getSelection().getRangeAt(0);
             } else {
@@ -2057,7 +2506,6 @@
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
                 
-                // Restore the text selection before resolving so execCommand applies to it
                 if (savedSelection) {
                     const sel = window.getSelection();
                     sel.removeAllRanges();
@@ -2070,12 +2518,6 @@
             }, 300);
         }
 
-        async function addTemplateLink() {
-            const url = await customPrompt('Enter link URL (e.g. https://google.com):', 'https://', 'Add Link');
-            if (url) formatTemplateDoc('createLink', url);
-        }
-
-        // Slug Validation Logic
         let slugTimeout;
         function debounceCheckSlug() {
             clearTimeout(slugTimeout);
@@ -2125,7 +2567,6 @@
             if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // Category Selection
         function populateCategories(selectedCat) {
             const sel = document.getElementById('tplCategorySelect');
             const custom = document.getElementById('tplCategoryCustom');
@@ -2161,7 +2602,6 @@
             }
         }
 
-        // Technologies Logic
         function renderTechPills() {
             document.getElementById('techPills').innerHTML = selectedTechs.map((t, i) => `<span class="bg-white/10 text-gray-300 text-[11px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">${t} <button onclick="removeTech(${i}); event.stopPropagation();" class="hover:text-red-400 transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button></span>`).join('');
             if(typeof lucide !== 'undefined') lucide.createIcons();
@@ -2202,7 +2642,6 @@
             dd.classList.remove('hidden');
         }
 
-        // Tags Logic
         function renderTagPills() {
             document.getElementById('tagPills').innerHTML = selectedTags.map((t, i) => `<span class="bg-white/10 text-gray-300 text-[11px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">${t} <button onclick="removeTag(${i}); event.stopPropagation();" class="hover:text-red-400 transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button></span>`).join('');
             if(typeof lucide !== 'undefined') lucide.createIcons();
@@ -2237,7 +2676,6 @@
             dd.classList.remove('hidden');
         }
 
-        // Close dropdowns on document click
         document.addEventListener('click', (e) => {
             if(!e.target.closest('#techInput') && !e.target.closest('#techDropdown')) {
                 const td = document.getElementById('techDropdown');
@@ -2248,7 +2686,6 @@
                 if(gd) gd.classList.add('hidden');
             }
         });
-
 
         async function fetchTemplates(isSilent = false) {
             if(!supabaseInstance) return;
@@ -2397,7 +2834,7 @@
                 document.getElementById('tplDev').value = '';
                 document.getElementById('tplContact').value = '';
                 document.getElementById('lblSaveTemplate').innerText = 'Create Template';
-                document.getElementById('btnSaveTemplate').disabled = true; // wait for slug check
+                document.getElementById('btnSaveTemplate').disabled = true; 
             }
 
             const modal = document.getElementById('templateModal');
@@ -2422,7 +2859,6 @@
             }, 300);
         }
 
-        // --- Drag and Drop File Handlers ---
         function handleDragOver(e) {
             e.preventDefault();
             e.currentTarget.classList.add('drag-over');
@@ -2445,7 +2881,7 @@
         function processFiles(files, type) {
             if(!files || files.length === 0) return;
             
-            const MAX_SIZE = 5 * 1024 * 1024; // 5MB limit per image
+            const MAX_SIZE = 5 * 1024 * 1024; 
             
             if (type === 'gallery') {
                 for (let i = 0; i < files.length; i++) {
@@ -2463,7 +2899,6 @@
                 }
                 renderGalleryPreview();
             } else {
-                // Thumb or Cover (Single file)
                 const file = files[0];
                 if (file.size > MAX_SIZE) {
                     showErrorToast(`Image exceeds 5MB limit.`);
@@ -2521,7 +2956,6 @@
             const container = document.getElementById('galleryPreviewContainer');
             let html = '';
             
-            // Existing Images from Database
             html += existingGalleryUrls.map((url, idx) => `
                 <div class="relative rounded-xl overflow-hidden border border-white/20 h-24 group">
                     <img src="${url}" class="w-full h-full object-cover">
@@ -2534,7 +2968,6 @@
                 </div>
             `).join('');
 
-            // Newly Uploaded Files
             html += templateGalleryFiles.map((f, idx) => `
                 <div class="relative rounded-xl overflow-hidden border border-white/20 h-24 group">
                     <img src="${URL.createObjectURL(f)}" class="w-full h-full object-cover">
@@ -2551,7 +2984,6 @@
             if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // --- Save Template CRUD ---
         async function saveTemplate() {
             const id = document.getElementById('tplId').value;
             const name = document.getElementById('tplName').value.trim();
@@ -2593,7 +3025,6 @@
                     contact_info: document.getElementById('tplContact').value.trim()
                 };
 
-                // Real ImageKit compression and upload logic
                 if (templateThumbFile) {
                     payload.thumbnail_url = await uploadSingleImageToImageKit(templateThumbFile);
                 }
@@ -2646,7 +3077,6 @@
             });
         }
 
-        // Image Upload (No compression, original quality with 5MB limit enforced above)
         function getBase64Original(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader(); 
@@ -2667,10 +3097,6 @@
                 return data.url;
             } catch (err) { throw err; }
         }
-
-        /* -------------------------------------------------------------------------- */
-        /*                          APPOINTMENTS LOGIC                                */
-        /* -------------------------------------------------------------------------- */
 
         async function fetchAppointments(isSilent = false) {
             if(!supabaseInstance) return;
