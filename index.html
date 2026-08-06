@@ -105,45 +105,84 @@
         .glass-nav-dark { background: rgba(5, 5, 5, 0.8) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
         .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
 
+        :root {
+            --ease-cinematic: cubic-bezier(0.19, 1, 0.22, 1);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         .reveal-up { 
             opacity: 0; 
-            transform: translate3d(0, 40px, 0); 
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
-            will-change: transform, opacity; 
+            transform: translate3d(0, 56px, 0) scale(0.985); 
+            filter: blur(6px);
+            transition: opacity 1.1s var(--ease-cinematic), transform 1.1s var(--ease-cinematic), filter 1.1s var(--ease-cinematic); 
+            will-change: transform, opacity, filter; 
         }
-        .reveal-up.active { opacity: 1; transform: translate3d(0, 0, 0); }
+        .reveal-up.active { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
 
         .reveal-left { 
             opacity: 0; 
-            transform: translate3d(-60px, 0, 0); 
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
-            will-change: transform, opacity; 
+            transform: translate3d(-70px, 0, 0); 
+            filter: blur(6px);
+            transition: opacity 1.1s var(--ease-cinematic), transform 1.1s var(--ease-cinematic), filter 1.1s var(--ease-cinematic); 
+            will-change: transform, opacity, filter; 
         }
-        .reveal-left.active { opacity: 1; transform: translate3d(0, 0, 0); }
+        .reveal-left.active { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); }
 
         .reveal-right { 
             opacity: 0; 
-            transform: translate3d(60px, 0, 0); 
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
-            will-change: transform, opacity; 
+            transform: translate3d(70px, 0, 0); 
+            filter: blur(6px);
+            transition: opacity 1.1s var(--ease-cinematic), transform 1.1s var(--ease-cinematic), filter 1.1s var(--ease-cinematic); 
+            will-change: transform, opacity, filter; 
         }
-        .reveal-right.active { opacity: 1; transform: translate3d(0, 0, 0); }
+        .reveal-right.active { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); }
 
         .reveal-scale {
             opacity: 0;
-            transform: scale(0.92);
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            will-change: transform, opacity; 
+            transform: scale(0.9);
+            filter: blur(6px);
+            transition: opacity 1.1s var(--ease-cinematic), transform 1.1s var(--ease-cinematic), filter 1.1s var(--ease-cinematic);
+            will-change: transform, opacity, filter; 
         }
-        .reveal-scale.active { opacity: 1; transform: scale(1); }
+        .reveal-scale.active { opacity: 1; transform: scale(1); filter: blur(0); }
         
         .delay-100 { transition-delay: 0.1s; }
         .delay-200 { transition-delay: 0.2s; }
         .delay-300 { transition-delay: 0.3s; }
         .delay-400 { transition-delay: 0.4s; }
+        .delay-500 { transition-delay: 0.5s; }
+        .delay-600 { transition-delay: 0.6s; }
 
-        @keyframes fadeUp { 0% { opacity: 0; transform: translate3d(0, 40px, 0); } 100% { opacity: 1; transform: translate3d(0, 0, 0); } }
-        .hero-wrapper-enter { animation: fadeUp 1.2s cubic-bezier(0.25, 1, 0.5, 1) both; }
+        /* Cinematic scroll progress indicator */
+        #scrollProgressBar {
+            position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+            background: linear-gradient(90deg, #2997ff 0%, #ffffff 100%);
+            z-index: 70; pointer-events: none;
+            transition: width 0.1s linear, opacity 0.3s ease;
+            box-shadow: 0 0 12px rgba(41, 151, 255, 0.6);
+        }
+
+        /* Subtle parallax layer for hero + section media */
+        .parallax-layer { will-change: transform; transform: translate3d(0, var(--parallax-y, 0), 0); }
+
+        /* Ambient enterprise-grade grid texture used behind key sections */
+        .enterprise-grid-bg {
+            background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 64px 64px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal-up, .reveal-left, .reveal-right, .reveal-scale {
+                transition: opacity 0.3s ease !important; transform: none !important; filter: none !important;
+            }
+            .parallax-layer { transform: none !important; }
+            html { scroll-behavior: auto !important; }
+        }
+
+        @keyframes fadeUp { 0% { opacity: 0; transform: translate3d(0, 48px, 0); filter: blur(8px); } 100% { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); } }
+        .hero-wrapper-enter { animation: fadeUp 1.4s var(--ease-cinematic) both; }
 
         .text-gradient-apple {
             background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
@@ -156,8 +195,8 @@
         .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
 
-        .btn-hover-effect { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); transform: translateZ(0); }
-        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(255, 255, 255, 0.15); }
+        .btn-hover-effect { transition: all 0.45s var(--ease-smooth); transform: translateZ(0); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 18px 34px -10px rgba(255, 255, 255, 0.18); }
         .btn-hover-effect:active:not(:disabled) { transform: translateY(1px); }
         .btn-hover-effect:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -240,6 +279,8 @@
 </head>
 <body class="font-sans selection:bg-white selection:text-black bg-[#050505] flex flex-col min-h-screen relative">
     
+    <div id="scrollProgressBar"></div>
+
     <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
         <div class="layout-width">
             <div class="flex justify-between items-center h-16 sm:h-20">
@@ -647,7 +688,7 @@
     <main class="bg-[#050505] relative z-10 flex-1">
         
         <section id="heroSection" class="relative w-full h-screen min-h-[800px] flex items-end pb-24 overflow-hidden bg-[#050505] group border-b border-white/10">
-            <div id="sliderContainer" class="absolute inset-0 w-full h-full z-0 opacity-[0.85] bg-[#050505]">
+            <div id="sliderContainer" class="absolute inset-0 w-full h-full z-0 opacity-[0.85] bg-[#050505] parallax-layer" data-parallax-speed="0.18">
                 <img fetchpriority="high" src="https://images.unsplash.com/photo-1710438399422-2fca27686bcd?q=80&w=2940&auto=format&fit=crop" class="slider-img active absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" data-theme="dark" alt="Dark Tech">
                 <img loading="lazy" src="./imgs/web-banners/bannerii.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" data-theme="light" alt="Light Abstract">
                 <img loading="lazy" src="./imgs/web-banners/banneri.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" data-theme="dark" alt="Light Architecture">
@@ -657,6 +698,7 @@
             
             <div class="absolute inset-0 bg-gradient-to-r from-[#050505]/95 via-[#050505]/50 to-transparent z-10 pointer-events-none"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute inset-0 enterprise-grid-bg z-10 pointer-events-none opacity-60"></div>
 
             <div class="relative z-20 layout-width grid grid-cols-1 lg:grid-cols-12 gap-8 pointer-events-none w-full">
                 <div class="lg:col-span-8 flex flex-col items-start text-left pointer-events-auto px-5 sm:px-8 lg:px-4" id="heroTextWrapper">
@@ -856,6 +898,7 @@
             <div class="absolute inset-0 z-0 pointer-events-none">
                 <img loading="lazy" src="./imgs/web-banners/raw-assets-2.jpg" class="w-full h-full object-cover opacity-100 mix-blend-luminosity saturate-100" alt="Ecosystem Background">
                 <div class="absolute inset-0 bg-[#0a0a0a]/70"></div>
+                <div class="absolute inset-0 enterprise-grid-bg"></div>
             </div>
             <div class="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0,transparent_100%)]"></div>
             
@@ -2545,18 +2588,47 @@
         function prevSlide() { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; showSlide(currentSlide); resetAutoPlay(); }
         function resetAutoPlay() { clearInterval(slideInterval); slideInterval = setInterval(nextSlide, 8000); }
 
+        const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const parallaxEls = Array.from(document.querySelectorAll('.parallax-layer'));
+        const scrollProgressBarEl = document.getElementById('scrollProgressBar');
+
+        function updateScrollProgress() {
+            const doc = document.documentElement;
+            const scrollTop = window.scrollY || doc.scrollTop;
+            const scrollHeight = (doc.scrollHeight - doc.clientHeight) || 1;
+            const pct = Math.min(100, Math.max(0, (scrollTop / scrollHeight) * 100));
+            if (scrollProgressBarEl) scrollProgressBarEl.style.width = pct + '%';
+        }
+
+        function updateParallax() {
+            if (reduceMotionQuery.matches) return;
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            parallaxEls.forEach(el => {
+                const speed = parseFloat(el.dataset.parallaxSpeed || '0.15');
+                const rect = el.getBoundingClientRect();
+                if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+                const sectionTop = el.closest('section') ? el.closest('section').offsetTop : 0;
+                const offset = Math.round((scrollTop - sectionTop) * speed);
+                el.style.setProperty('--parallax-y', offset + 'px');
+            });
+        }
+
         let scrollTicking = false;
         window.addEventListener('scroll', () => {
             if (!scrollTicking) {
                 window.requestAnimationFrame(() => {
                     updateHeaderTheme('dark', window.scrollY > 50);
+                    updateScrollProgress();
+                    updateParallax();
                     scrollTicking = false;
                 });
                 scrollTicking = true;
             }
         }, { passive: true });
+        updateScrollProgress();
+        updateParallax();
         
-        const observerOptions = { root: null, rootMargin: '0px 0px -5% 0px', threshold: 0.15 };
+        const observerOptions = { root: null, rootMargin: '0px 0px -8% 0px', threshold: [0.1, 0.25] };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {

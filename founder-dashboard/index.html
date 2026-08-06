@@ -123,6 +123,13 @@
         #sidebarResizer:hover, .is-resizing { background-color: rgba(41, 151, 255, 0.5); }
         .dropdown-menu { transition: opacity 0.2s, transform 0.2s; transform-origin: top right; }
         .dropdown-hidden { opacity: 0; transform: scale(0.96); pointer-events: none; }
+        
+        .status-pending { background-color: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+        .status-approved { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .status-rejected { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        .diff-added { background-color: rgba(16, 185, 129, 0.1); color: #34d399; text-decoration: none; }
+        .diff-removed { background-color: rgba(239, 68, 68, 0.1); color: #f87171; text-decoration: line-through; }
     </style>
 </head>
 <body class="font-sans selection:bg-myancode-accent selection:text-white flex bg-[#050505] relative text-white">
@@ -164,7 +171,17 @@
                 <i data-lucide="users" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabUsers">User Management</span>
             </button>
+
+            <button onclick="switchTab('applications')" id="nav-applications" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="briefcase" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabApplications">Developer Applications</span>
+            </button>
             
+            <button onclick="switchTab('audit')" id="nav-audit" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="file-clock" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabAudit">System Logs</span>
+            </button>
+
             <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabSettings">System Settings</span>
@@ -365,6 +382,149 @@
                 </div>
             </div>
 
+            <div id="view-audit" class="view-section hidden flex-col gap-8 max-w-[1600px] mx-auto w-full">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 reveal active">
+                    <div class="glass-panel p-6 rounded-3xl relative overflow-hidden flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-bold font-mono tracking-widest uppercase text-gray-500 mb-1">Changes Today</p>
+                            <h3 class="text-3xl font-display font-bold text-white tracking-tighter" id="statAuditToday">0</h3>
+                        </div>
+                        <div class="p-3 bg-white/5 border border-white/10 rounded-2xl"><i data-lucide="activity" class="w-6 h-6 text-gray-300"></i></div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-3xl relative overflow-hidden flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-bold font-mono tracking-widest uppercase text-green-500 mb-1">INSERTs (Today)</p>
+                            <h3 class="text-3xl font-display font-bold text-white tracking-tighter" id="statAuditInserts">0</h3>
+                        </div>
+                        <div class="p-3 bg-green-500/10 border border-green-500/20 rounded-2xl"><i data-lucide="plus-circle" class="w-6 h-6 text-green-400"></i></div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-3xl relative overflow-hidden flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-bold font-mono tracking-widest uppercase text-blue-500 mb-1">UPDATEs (Today)</p>
+                            <h3 class="text-3xl font-display font-bold text-white tracking-tighter" id="statAuditUpdates">0</h3>
+                        </div>
+                        <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl"><i data-lucide="edit-3" class="w-6 h-6 text-blue-400"></i></div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-3xl relative overflow-hidden flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-bold font-mono tracking-widest uppercase text-red-500 mb-1">DELETEs (Today)</p>
+                            <h3 class="text-3xl font-display font-bold text-white tracking-tighter" id="statAuditDeletes">0</h3>
+                        </div>
+                        <div class="p-3 bg-red-500/10 border border-red-500/20 rounded-2xl"><i data-lucide="trash" class="w-6 h-6 text-red-400"></i></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-[2rem] p-6 reveal active">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
+                        <div class="flex flex-col sm:flex-row gap-4 w-full xl:w-auto flex-wrap">
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                                <input type="text" id="auditSearchInput" onkeyup="if(event.key === 'Enter') handleAuditFilter()" placeholder="Search Record ID..." class="w-full pl-10 pr-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner">
+                            </div>
+                            <select id="auditTableFilter" onchange="handleAuditFilter()" class="w-full sm:w-48 bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-myancode-accent cursor-pointer appearance-none transition-colors shadow-inner">
+                                <option value="all">All Tables</option>
+                                <option value="profiles">Profiles</option>
+                                <option value="developer_applications">Developer Apps</option>
+                                <option value="package_orders">Package Orders</option>
+                                <option value="plan_orders">Plan Orders</option>
+                                <option value="delivered_projects">Delivered Projects</option>
+                            </select>
+                            <select id="auditActionFilter" onchange="handleAuditFilter()" class="w-full sm:w-40 bg-[#050505] border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-myancode-accent cursor-pointer appearance-none transition-colors shadow-inner">
+                                <option value="all">All Actions</option>
+                                <option value="INSERT">INSERT</option>
+                                <option value="UPDATE">UPDATE</option>
+                                <option value="DELETE">DELETE</option>
+                            </select>
+                            <div class="flex items-center gap-2">
+                                <input type="date" id="auditDateStart" onchange="handleAuditFilter()" class="bg-[#050505] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-myancode-accent shadow-inner">
+                                <span class="text-gray-500 text-xs">to</span>
+                                <input type="date" id="auditDateEnd" onchange="handleAuditFilter()" class="bg-[#050505] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-myancode-accent shadow-inner">
+                            </div>
+                        </div>
+                        <button onclick="handleAuditFilter()" class="px-5 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-xs font-bold font-mono tracking-widest uppercase flex items-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reload
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scroll border border-white/5 rounded-2xl bg-[#0a0a0a]">
+                        <table class="w-full text-left border-collapse min-w-[1200px]">
+                            <thead>
+                                <tr class="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-mono bg-white/5">
+                                    <th class="py-4 px-6 font-bold w-48">Timestamp</th>
+                                    <th class="py-4 px-6 font-bold w-32">Action</th>
+                                    <th class="py-4 px-6 font-bold">Target Table</th>
+                                    <th class="py-4 px-6 font-bold w-64">Record Reference</th>
+                                    <th class="py-4 px-6 font-bold w-64">Changed By</th>
+                                    <th class="py-4 px-6 font-bold w-24 text-right">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody" class="divide-y divide-white/5 text-sm">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3 text-gray-400"></i>
+                                        Loading audit logs...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-4 flex items-center justify-between px-2">
+                        <span class="text-xs text-gray-500 font-mono" id="auditPaginationInfo">Showing 0-0 of 0 logs</span>
+                        <div class="flex gap-2">
+                            <button onclick="changeAuditPage(-1)" id="auditPrevBtn" class="px-4 py-2 bg-[#050505] border border-white/10 rounded-lg text-xs font-bold text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-colors">Prev</button>
+                            <button onclick="changeAuditPage(1)" id="auditNextBtn" class="px-4 py-2 bg-[#050505] border border-white/10 rounded-lg text-xs font-bold text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/5 transition-colors">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-applications" class="view-section hidden flex-col gap-8 max-w-[1600px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display">
+                            <i data-lucide="briefcase" class="h-7 w-7 text-myancode-accent"></i> 
+                            <span data-i18n="tabApplications">Developer Applications</span>
+                        </h3>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                                <input type="text" id="searchAppInput" onkeyup="handleAppSearch()" placeholder="Search applications..." class="w-full pl-10 pr-4 py-2.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner">
+                            </div>
+                            <select id="filterAppStatus" onchange="handleAppSearch()" class="px-4 py-2.5 bg-[#050505] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer custom-select">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved (Hired)</option>
+                                <option value="rejected">Archived (Rejected)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto custom-scroll border border-white/5 rounded-2xl bg-[#0a0a0a]">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-mono bg-white/5">
+                                    <th class="py-4 px-6 font-bold w-1/4">Applicant Info</th>
+                                    <th class="py-4 px-6 font-bold w-1/4">Role & Experience</th>
+                                    <th class="py-4 px-6 font-bold w-1/6">Status</th>
+                                    <th class="py-4 px-6 font-bold w-1/6 text-center">Applied Date</th>
+                                    <th class="py-4 px-6 font-bold w-1/6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicationsTableBody" class="divide-y divide-white/5 text-sm">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3 text-gray-400"></i>
+                                        Loading applications...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div id="view-settings" class="view-section hidden flex-col gap-8 max-w-4xl mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active">
                     <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="user-circle" class="h-7 w-7 text-myancode-accent"></i> <span data-i18n="profPublic">Public Profile</span></h3>
@@ -412,130 +572,73 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active border-t border-white/10">
+                    <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="server-crash" class="h-7 w-7 text-red-400"></i> <span data-i18n="edgeControl">Edge Infrastructure Control</span></h3>
+                    <div class="space-y-6 max-w-lg">
+                        <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl mb-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-white uppercase tracking-widest">Maintenance Mode</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="maintenanceToggleBtn" class="sr-only peer" onchange="toggleMaintenanceMode()">
+                                    <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                                </label>
+                            </div>
+                            <p class="text-[11px] text-gray-400 font-mono">When active, all external traffic is intercepted at the Cloudflare Edge layer and shown the maintenance screen.</p>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Edge Worker URL</label>
+                            <input type="text" id="edgeWorkerUrl" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-all shadow-inner" placeholder="https://your-worker.workers.dev">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Edge Admin Secret</label>
+                            <input type="password" id="edgeAdminSecret" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-all shadow-inner" placeholder="Enter secret key">
+                        </div>
+                        <div class="pt-4">
+                            <button onclick="saveEdgeSettings()" class="btn-hover-effect bg-white/5 hover:bg-white/10 border border-white/20 text-white text-xs px-10 py-4 rounded-full font-bold uppercase tracking-widest w-full sm:w-auto transition-colors">Save Edge Config</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             
         </div>
     </main>
 
-    <div id="inviteModal" class="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeInviteModal()">
-        <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="inviteModalContent" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3"><i data-lucide="mail-plus" class="text-myancode-accent w-7 h-7"></i> <span data-i18n="inviteTitle">Invite New User</span></h3>
-                <button onclick="closeInviteModal()" class="text-gray-500 hover:text-white transition-colors bg-[#0a0a0a] p-2 rounded-full border border-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="space-y-6">
-                <div>
-                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="inviteEmail">User Email Address</label>
-                    <input type="email" id="inviteEmailInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent shadow-inner placeholder-gray-700" placeholder="user@example.com">
+    <div id="auditDiffModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeAuditDiffModal()">
+        <div class="glass-panel border border-white/10 rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-[2.5rem] flex-shrink-0">
+                <div class="flex items-center gap-4">
+                    <h3 class="text-xl font-bold font-display tracking-tight text-white flex items-center gap-3"><i data-lucide="file-json" class="h-6 w-6 text-myancode-accent"></i> Payload Inspection</h3>
+                    <span id="auditModalBadge" class="px-3 py-1 text-[10px] rounded-full font-bold tracking-widest uppercase bg-gray-500/20 text-gray-300 border border-gray-500/30">ACTION</span>
                 </div>
-                <div>
-                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="inviteRole">Assign Role</label>
-                    <select id="inviteRoleSelect" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent appearance-none cursor-pointer shadow-inner">
-                        <option value="client">Client</option>
-                        <option value="developer">Developer</option>
-                        <option value="partner">Partner</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
-                        <option value="founder">Founder</option>
-                    </select>
-                </div>
-                <button onclick="submitInvite()" id="btnSubmitInvite" class="w-full mt-6 bg-white text-black py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition shadow-[0_0_20px_rgba(255,255,255,0.2)] btn-hover-effect" data-i18n="inviteConfirm">Send Invitation</button>
+                <button onclick="closeAuditDiffModal()" class="p-2.5 text-gray-400 hover:text-white bg-black/50 hover:bg-white/10 border border-white/10 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-        </div>
-    </div>
-
-    <div id="editModal" class="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeEditModal()">
-        <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="editModalContent" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3"><i data-lucide="user-cog" class="text-myancode-accent w-7 h-7"></i> <span data-i18n="modEditTitle">Modify Access Policy</span></h3>
-                <button onclick="closeEditModal()" class="text-gray-500 hover:text-white transition-colors bg-[#0a0a0a] p-2 rounded-full border border-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="space-y-6">
-                <input type="hidden" id="editUserId">
-                <div>
-                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="modEmail">Identity Identifier</label>
-                    <input type="email" id="editEmail" disabled class="w-full px-5 py-4 bg-[#0a0a0a]/50 border border-white/5 rounded-xl text-sm font-bold text-gray-500 cursor-not-allowed shadow-inner">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="modRole">Target Role</label>
-                    <select id="editRole" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent appearance-none cursor-pointer shadow-inner">
-                        <option value="client">Client</option>
-                        <option value="developer">Developer</option>
-                        <option value="partner">Partner</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
-                        <option value="founder">Founder</option>
-                    </select>
-                </div>
-                <button onclick="submitEdit()" id="btnSubmitEdit" class="w-full mt-6 bg-white text-black py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition shadow-[0_0_20px_rgba(255,255,255,0.2)] btn-hover-effect">Commit Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="forcePasswordModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 px-4">
-        <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-500" id="forcePasswordModalContent">
-            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
-                <i data-lucide="shield-check" class="h-8 w-8 text-myancode-accent"></i>
-            </div>
-            <h3 class="text-2xl font-bold font-display tracking-tight text-white mb-3 text-center" data-i18n="forcePassTitle">Security Requirement</h3>
-            <p class="text-[13px] font-medium text-gray-400 mb-8 leading-relaxed text-center" data-i18n="forcePassDesc">As part of your first login, you must set a secure personal password for your account.</p>
             
-            <div class="space-y-6">
-                <div>
-                    <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="forcePassNew">New Password</label>
-                    <input type="password" id="forcePassInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent shadow-inner" placeholder="••••••••">
-                </div>
-                <button onclick="submitForcePassword()" id="btnSubmitForcePass" class="w-full bg-myancode-accent text-white py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition shadow-[0_0_20px_rgba(41,151,255,0.3)] btn-hover-effect" data-i18n="forcePassConfirmBtn">Set Password & Continue</button>
+            <div class="p-6 bg-[#050505] border-b border-white/5 flex flex-wrap gap-6 text-sm">
+                <div><span class="block text-[10px] text-gray-500 font-mono mb-1 uppercase tracking-widest">Table Context</span><span id="auditModalTable" class="font-bold text-white">...</span></div>
+                <div><span class="block text-[10px] text-gray-500 font-mono mb-1 uppercase tracking-widest">Record ID</span><span id="auditModalRecord" class="font-mono text-gray-300">...</span></div>
+                <div><span class="block text-[10px] text-gray-500 font-mono mb-1 uppercase tracking-widest">Modified By</span><span id="auditModalUser" class="font-medium text-white">...</span></div>
+                <div><span class="block text-[10px] text-gray-500 font-mono mb-1 uppercase tracking-widest">Timestamp</span><span id="auditModalTime" class="font-mono text-gray-300">...</span></div>
             </div>
-        </div>
-    </div>
 
-    <div id="confirmModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeConfirmModal()">
-        <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent" onclick="event.stopPropagation()">
-            <div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6">
-                <i data-lucide="alert-triangle" class="h-8 w-8 text-red-500"></i>
-            </div>
-            <h3 id="confirmModalTitle" class="text-2xl font-bold font-display tracking-tight text-white mb-3">Title</h3>
-            <p id="confirmModalMessage" class="text-[13px] font-medium text-gray-400 mb-8 leading-relaxed">Message</p>
-
-            <div class="flex space-x-4 w-full">
-                <button onclick="closeConfirmModal()" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors" id="confirmModalCancelBtn">Cancel</button>
-                <button id="confirmModalBtn" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700 btn-hover-effect">Confirm</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
-        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
-        <span id="toast-msg">Success!</span>
-    </div>
-
-    <div id="error-toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
-        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-red-500"></i>
-        <span id="error-toast-msg">Error!</span>
-    </div>
-
-    <div id="cropperModal" class="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300" onclick="cancelCrop()">
-        <div class="glass-panel border border-white/10 p-6 sm:p-8 rounded-[2.5rem] w-[95%] max-w-xl shadow-2xl transform scale-95 transition-transform duration-300" id="cropperModalContent" onclick="event.stopPropagation()">
-            <h3 class="text-2xl font-bold font-display tracking-tight mb-6 text-white flex justify-between items-center">
-                <span data-i18n="cropTitle">Crop Photo</span>
-                <button onclick="cancelCrop()" class="text-gray-400 hover:text-white transition-colors bg-[#0a0a0a] p-2 rounded-full hover:bg-white/10 border border-white/10"><i data-lucide="x" class="h-5 w-5"></i></button>
-            </h3>
-            <div class="w-full h-[50vh] sm:h-[450px] bg-[#050505] border border-white/10 rounded-2xl overflow-hidden relative shadow-inner">
-                <img id="imageToCrop" src="" class="max-w-full block">
-            </div>
-            <div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-0">
-                <div class="flex space-x-3">
-                    <button onclick="if(cropperInstance) cropperInstance.zoom(0.1)" class="p-3 bg-[#0a0a0a] hover:bg-white/10 rounded-xl text-gray-300 transition-colors shadow-sm border border-white/10"><i data-lucide="zoom-in" class="h-5 w-5"></i></button>
-                    <button onclick="if(cropperInstance) cropperInstance.zoom(-0.1)" class="p-3 bg-[#0a0a0a] hover:bg-white/10 rounded-xl text-gray-300 transition-colors shadow-sm border border-white/10"><i data-lucide="zoom-out" class="h-5 w-5"></i></button>
-                </div>
-                <div class="flex space-x-4 w-full sm:w-auto">
-                    <button onclick="cancelCrop()" class="flex-1 sm:flex-none px-8 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/10 transition-colors" data-i18n="cropCancel">Cancel</button>
-                    <button onclick="saveCrop()" class="flex-1 sm:flex-none px-10 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-colors btn-hover-effect" data-i18n="cropSave">Save</button>
+            <div class="p-6 overflow-y-auto custom-scroll flex-1 text-gray-300 bg-[#0a0a0a]">
+                <div id="auditDiffContainer" class="font-mono text-xs w-full overflow-x-auto">
                 </div>
             </div>
         </div>
     </div>
+
+
+    <div id="applicationModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeApplicationModal()"><div class="glass-panel border border-white/10 rounded-[2.5rem] w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()"><div class="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center bg-white/5 rounded-t-[2.5rem] flex-shrink-0"><h3 class="text-xl sm:text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3"><i data-lucide="file-text" class="h-6 w-6 text-myancode-accent"></i> Application Details</h3><button onclick="closeApplicationModal()" class="p-2.5 text-gray-400 hover:text-white bg-black/50 hover:bg-white/10 border border-white/10 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="p-6 sm:p-8 overflow-y-auto custom-scroll flex-1 text-gray-300 space-y-8"><div class="flex items-center gap-4 pb-6 border-b border-white/5"><div class="w-16 h-16 rounded-full bg-[#111] border border-white/10 flex items-center justify-center text-2xl font-bold text-gray-500 font-display uppercase" id="appModalInitials">JD</div><div><h4 class="text-xl font-bold text-white mb-1" id="appModalName">John Doe</h4><div class="flex items-center gap-4 text-[11px] font-mono text-gray-400"><span class="flex items-center gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5"></i> <span id="appModalEmail">email</span></span><span class="flex items-center gap-1.5"><i data-lucide="phone" class="w-3.5 h-3.5"></i> <span id="appModalPhone">phone</span></span></div></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-8"><div class="space-y-6"><div><span class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1.5">Professional Title</span><div class="text-white font-semibold text-sm" id="appModalTitle">...</div></div><div><span class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1.5">Years of Experience</span><div class="text-white font-medium text-sm" id="appModalExp">...</div></div><div><span class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1.5">Primary Skills</span><div class="text-myancode-accent font-medium text-sm leading-relaxed" id="appModalSkills">...</div></div></div><div class="space-y-6"><div><span class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1.5">Country</span><div class="text-white font-medium text-sm flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-gray-500"></i> <span id="appModalCountry">...</span></div></div><div><span class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1.5">Education</span><div class="text-white font-medium text-sm" id="appModalEdu">...</div><div class="text-gray-400 text-xs mt-0.5" id="appModalUni">...</div></div><div><span class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1.5">Links</span><div class="flex flex-col gap-2 mt-2" id="appModalLinks"></div></div></div></div><div class="pt-6 border-t border-white/5"><span class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Motivation</span><div class="bg-[#0a0a0a] border border-white/5 p-5 rounded-xl text-[13px] text-gray-300 leading-relaxed whitespace-pre-wrap italic" id="appModalWhy">...</div></div></div><div class="p-6 sm:p-8 border-t border-white/10 bg-white/5 rounded-b-[2.5rem] flex flex-col sm:flex-row justify-between items-center gap-4 flex-shrink-0"><div class="text-[11px] font-mono font-bold text-gray-500 tracking-widest uppercase" id="appModalDate">Applied: ...</div><div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto" id="appModalActions"></div></div></div></div>
+    <div id="inviteModal" class="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeInviteModal()"><div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="inviteModalContent" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3"><i data-lucide="mail-plus" class="text-myancode-accent w-7 h-7"></i> <span data-i18n="inviteTitle">Invite New User</span></h3><button onclick="closeInviteModal()" class="text-gray-500 hover:text-white transition-colors bg-[#0a0a0a] p-2 rounded-full border border-white/10"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="space-y-6"><div><label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="inviteEmail">User Email Address</label><input type="email" id="inviteEmailInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent shadow-inner placeholder-gray-700" placeholder="user@example.com"></div><div><label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="inviteRole">Assign Role</label><select id="inviteRoleSelect" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent appearance-none cursor-pointer shadow-inner"><option value="client">Client</option><option value="developer">Developer</option><option value="partner">Partner</option><option value="moderator">Moderator</option><option value="admin">Admin</option><option value="founder">Founder</option></select></div><button onclick="submitInvite()" id="btnSubmitInvite" class="w-full mt-6 bg-white text-black py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition shadow-[0_0_20px_rgba(255,255,255,0.2)] btn-hover-effect" data-i18n="inviteConfirm">Send Invitation</button></div></div></div>
+    <div id="editModal" class="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeEditModal()"><div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300" id="editModalContent" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3"><i data-lucide="user-cog" class="text-myancode-accent w-7 h-7"></i> <span data-i18n="modEditTitle">Modify Access Policy</span></h3><button onclick="closeEditModal()" class="text-gray-500 hover:text-white transition-colors bg-[#0a0a0a] p-2 rounded-full border border-white/10"><i data-lucide="x" class="w-5 h-5"></i></button></div><div class="space-y-6"><input type="hidden" id="editUserId"><div><label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="modEmail">Identity Identifier</label><input type="email" id="editEmail" disabled class="w-full px-5 py-4 bg-[#0a0a0a]/50 border border-white/5 rounded-xl text-sm font-bold text-gray-500 cursor-not-allowed shadow-inner"></div><div><label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="modRole">Target Role</label><select id="editRole" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent appearance-none cursor-pointer shadow-inner"><option value="client">Client</option><option value="developer">Developer</option><option value="partner">Partner</option><option value="moderator">Moderator</option><option value="admin">Admin</option><option value="founder">Founder</option></select></div><button onclick="submitEdit()" id="btnSubmitEdit" class="w-full mt-6 bg-white text-black py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition shadow-[0_0_20px_rgba(255,255,255,0.2)] btn-hover-effect">Commit Changes</button></div></div></div>
+    <div id="forcePasswordModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 px-4"><div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-500" id="forcePasswordModalContent"><div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6"><i data-lucide="shield-check" class="h-8 w-8 text-myancode-accent"></i></div><h3 class="text-2xl font-bold font-display tracking-tight text-white mb-3 text-center" data-i18n="forcePassTitle">Security Requirement</h3><p class="text-[13px] font-medium text-gray-400 mb-8 leading-relaxed text-center" data-i18n="forcePassDesc">As part of your first login, you must set a secure personal password for your account.</p><div class="space-y-6"><div><label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="forcePassNew">New Password</label><input type="password" id="forcePassInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent shadow-inner" placeholder="••••••••"></div><button onclick="submitForcePassword()" id="btnSubmitForcePass" class="w-full bg-myancode-accent text-white py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition shadow-[0_0_20px_rgba(41,151,255,0.3)] btn-hover-effect" data-i18n="forcePassConfirmBtn">Set Password & Continue</button></div></div></div>
+    <div id="confirmModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeConfirmModal()"><div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent" onclick="event.stopPropagation()"><div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6"><i data-lucide="alert-triangle" class="h-8 w-8 text-red-500"></i></div><h3 id="confirmModalTitle" class="text-2xl font-bold font-display tracking-tight text-white mb-3">Title</h3><p id="confirmModalMessage" class="text-[13px] font-medium text-gray-400 mb-8 leading-relaxed">Message</p><div class="flex space-x-4 w-full"><button onclick="closeConfirmModal()" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors" id="confirmModalCancelBtn">Cancel</button><button id="confirmModalBtn" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700 btn-hover-effect">Confirm</button></div></div></div>
+    <div id="cropperModal" class="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300" onclick="cancelCrop()"><div class="glass-panel border border-white/10 p-6 sm:p-8 rounded-[2.5rem] w-[95%] max-w-xl shadow-2xl transform scale-95 transition-transform duration-300" id="cropperModalContent" onclick="event.stopPropagation()"><h3 class="text-2xl font-bold font-display tracking-tight mb-6 text-white flex justify-between items-center"><span data-i18n="cropTitle">Crop Photo</span><button onclick="cancelCrop()" class="text-gray-400 hover:text-white transition-colors bg-[#0a0a0a] p-2 rounded-full hover:bg-white/10 border border-white/10"><i data-lucide="x" class="h-5 w-5"></i></button></h3><div class="w-full h-[50vh] sm:h-[450px] bg-[#050505] border border-white/10 rounded-2xl overflow-hidden relative shadow-inner"><img id="imageToCrop" src="" class="max-w-full block"></div><div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-0"><div class="flex space-x-3"><button onclick="if(cropperInstance) cropperInstance.zoom(0.1)" class="p-3 bg-[#0a0a0a] hover:bg-white/10 rounded-xl text-gray-300 transition-colors shadow-sm border border-white/10"><i data-lucide="zoom-in" class="h-5 w-5"></i></button><button onclick="if(cropperInstance) cropperInstance.zoom(-0.1)" class="p-3 bg-[#0a0a0a] hover:bg-white/10 rounded-xl text-gray-300 transition-colors shadow-sm border border-white/10"><i data-lucide="zoom-out" class="h-5 w-5"></i></button></div><div class="flex space-x-4 w-full sm:w-auto"><button onclick="cancelCrop()" class="flex-1 sm:flex-none px-8 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/10 transition-colors" data-i18n="cropCancel">Cancel</button><button onclick="saveCrop()" class="flex-1 sm:flex-none px-10 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-colors btn-hover-effect" data-i18n="cropSave">Save</button></div></div></div></div>
+
+    <div id="toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide"><i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i><span id="toast-msg">Success!</span></div>
+    <div id="error-toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide"><i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-red-500"></i><span id="error-toast-msg">Error!</span></div>
+
 
     <script>
         lucide.createIcons();
@@ -545,7 +648,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabUsers: "User Management", tabSettings: "System Settings",
+                menuMain: "Main Menu", tabOverview: "Overview", tabUsers: "User Management", tabSettings: "System Settings", tabApplications: "Developer Applications", tabAudit: "System Logs",
                 btnLogout: "Sign Out",
                 statTotalUsers: "Total Users", statFounders: "Founders", statAdmins: "Admins", statModerators: "Moderators", statPartners: "Partners", statDevelopers: "Developers", statClients: "Clients",
                 systemStatus: "System Architecture Status", systemStatusDesc: "The platform's core infrastructure is operating optimally. Row Level Security, Edge Functions, and database replicas are active and secured.",
@@ -561,7 +664,7 @@
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabUsers: "အသုံးပြုသူများ စီမံရန်", tabSettings: "စနစ် ဆက်တင်များ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabUsers: "အသုံးပြုသူများ စီမံရန်", tabSettings: "စနစ် ဆက်တင်များ", tabApplications: "Developer လျှောက်လွှာများ", tabAudit: "စနစ်မှတ်တမ်းများ",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 statTotalUsers: "အသုံးပြုသူ စုစုပေါင်း", statFounders: "တည်ထောင်သူများ", statAdmins: "အက်ဒမင်များ", statModerators: "ထိန်းချုပ်သူများ", statPartners: "ပါတနာများ", statDevelopers: "Developers", statClients: "အသုံးပြုသူများ",
                 systemStatus: "စနစ် အခြေအနေ", systemStatusDesc: "စနစ်များအားလုံး ပုံမှန်အလုပ်လုပ်နေပါသည်။ RLS လုံခြုံရေးစနစ် အသက်ဝင်နေပါသည်။",
@@ -610,6 +713,14 @@
         let sortAsc = true;
         let currentSessionTemp = null;
         let currentProfileTemp = null;
+        
+        let allApplications = [];
+        let filteredApps = [];
+
+        let allAuditLogs = [];
+        let currentAuditPage = 0;
+        const AUDIT_PER_PAGE = 50;
+        let totalAuditLogs = 0;
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
@@ -688,45 +799,159 @@
             populateProfileData();
             switchTab('overview');
             fetchUsersData();
+            initRealtime();
+            document.getElementById('edgeWorkerUrl').value = localStorage.getItem('edgeWorkerUrl') || '';
+            document.getElementById('edgeAdminSecret').value = localStorage.getItem('edgeAdminSecret') || '';
+            fetchMaintenanceState();
             hideLoader();
+        }
+        
+        function initRealtime() {
+            if(!supabaseInstance) return;
+
+            supabaseInstance.channel('system_realtime_ops')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'developer_applications' }, payload => {
+                    handleRealtimeApp(payload);
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, payload => {
+                    handleRealtimeProfile(payload);
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'audit_logs' }, payload => {
+                    handleRealtimeAudit(payload);
+                })
+                .subscribe();
+        }
+
+        function handleRealtimeApp(payload) {
+            const { eventType, new: newRec, old: oldRec } = payload;
+            if (eventType === 'INSERT') {
+                if(!allApplications.some(a => a.id === newRec.id)) {
+                    allApplications.unshift(newRec);
+                }
+            } else if (eventType === 'UPDATE') {
+                const idx = allApplications.findIndex(a => a.id === newRec.id);
+                if (idx > -1) allApplications[idx] = newRec;
+                else allApplications.unshift(newRec);
+            } else if (eventType === 'DELETE') {
+                allApplications = allApplications.filter(a => a.id !== oldRec.id);
+            }
+            handleAppSearch();
+        }
+
+        function handleRealtimeProfile(payload) {
+            const { eventType, new: newRec, old: oldRec } = payload;
+            if (eventType === 'INSERT') {
+                if(!allUsers.some(u => u.id === newRec.id)) {
+                    allUsers.unshift(newRec);
+                }
+            } else if (eventType === 'UPDATE') {
+                const idx = allUsers.findIndex(u => u.id === newRec.id);
+                if (idx > -1) {
+                    allUsers[idx] = { ...allUsers[idx], ...newRec };
+                } else {
+                    allUsers.unshift(newRec);
+                }
+            } else if (eventType === 'DELETE') {
+                allUsers = allUsers.filter(u => u.id !== oldRec.id);
+            }
+            updateStats();
+            handleSearch();
+        }
+
+        function handleRealtimeAudit(payload) {
+            if (payload.eventType === 'INSERT') {
+                const newRec = payload.new;
+                if(!allAuditLogs.some(a => a.id === newRec.id)) {
+                    newRec.profiles = { full_name: 'System Syncing...', email: '...', avatar_url: DEFAULT_AVATAR };
+                    allAuditLogs.unshift(newRec);
+                    if(allAuditLogs.length > AUDIT_PER_PAGE) allAuditLogs.pop();
+                    totalAuditLogs++;
+                    renderAuditLogs();
+                }
+                setTimeout(fetchAuditLogs, 800);
+                setTimeout(fetchAuditStats, 800);
+            }
+        }
+
+        async function fetchMaintenanceState() {
+            const url = document.getElementById('edgeWorkerUrl').value.trim() || localStorage.getItem('edgeWorkerUrl');
+            const secret = document.getElementById('edgeAdminSecret').value.trim() || localStorage.getItem('edgeAdminSecret');
+            if(!url || !secret) return;
+            try {
+                const res = await fetch(`${url}/_edge/maintenance-toggle`, {
+                    headers: { 'x-admin-secret': secret }
+                });
+                const data = await res.json();
+                document.getElementById('maintenanceToggleBtn').checked = data.active;
+            } catch(e) { console.warn("Could not fetch edge state", e); }
+        }
+
+        async function toggleMaintenanceMode() {
+            const inputUrl = document.getElementById('edgeWorkerUrl').value.trim();
+            const inputSecret = document.getElementById('edgeAdminSecret').value.trim();
+            const url = inputUrl || localStorage.getItem('edgeWorkerUrl');
+            const secret = inputSecret || localStorage.getItem('edgeAdminSecret');
+            const toggle = document.getElementById('maintenanceToggleBtn');
+            
+            if(!url || !secret) {
+                showErrorToast("Configure Edge URL and Secret first.");
+                toggle.checked = !toggle.checked;
+                return;
+            }
+
+            if (inputUrl && inputSecret) {
+                localStorage.setItem('edgeWorkerUrl', url);
+                localStorage.setItem('edgeAdminSecret', secret);
+            }
+
+            showLoader();
+            try {
+                const res = await fetch(`${url}/_edge/maintenance-toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-admin-secret': secret },
+                    body: JSON.stringify({ active: toggle.checked })
+                });
+                if(!res.ok) throw new Error("Unauthorized or edge error");
+                showToast(toggle.checked ? "Maintenance Mode ACTIVATED" : "Maintenance Mode DEACTIVATED");
+            } catch(e) {
+                showErrorToast("Invalid Worker URL or Admin Secret");
+                toggle.checked = !toggle.checked;
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function saveEdgeSettings() {
+            const url = document.getElementById('edgeWorkerUrl').value.trim();
+            const secret = document.getElementById('edgeAdminSecret').value.trim();
+            if(!url || !secret) {
+                showErrorToast("Please enter both URL and Secret.");
+                return;
+            }
+            localStorage.setItem('edgeWorkerUrl', url);
+            localStorage.setItem('edgeAdminSecret', secret);
+            showToast("Edge settings saved.");
+            fetchMaintenanceState();
         }
 
         async function submitForcePassword() {
             const pass = document.getElementById('forcePassInput').value;
             const btn = document.getElementById('btnSubmitForcePass');
             if(pass.length < 6) { showErrorToast("Password must be at least 6 characters"); return; }
-
             btn.disabled = true; const ob = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-white"></i>`; lucide.createIcons();
-
             try {
                 const { error } = await supabaseInstance.auth.updateUser({ password: pass, data: { is_invite: false } });
                 if(error) throw error;
-
                 const { error: dbError } = await supabaseInstance.from('profiles').update({ requires_password_change: false }).eq('id', currentSessionTemp.user.id);
                 if(dbError && dbError.code !== 'PGRST116') console.warn(dbError);
-
                 showToast("Password secured.");
                 const modal = document.getElementById('forcePasswordModal');
-                modal.classList.add('opacity-0');
-                document.getElementById('forcePasswordModalContent').classList.add('scale-95');
-                
-                if (currentSessionTemp.user.user_metadata) {
-                     currentSessionTemp.user.user_metadata.is_invite = false;
-                }
-                if (currentProfileTemp) {
-                     currentProfileTemp.requires_password_change = false;
-                }
-
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    proceedInit(currentSessionTemp, currentProfileTemp);
-                }, 500);
-            } catch(e) {
-                showErrorToast(e.message);
-                btn.disabled = false; btn.innerHTML = ob;
-            }
+                modal.classList.add('opacity-0'); document.getElementById('forcePasswordModalContent').classList.add('scale-95');
+                if (currentSessionTemp.user.user_metadata) currentSessionTemp.user.user_metadata.is_invite = false;
+                if (currentProfileTemp) currentProfileTemp.requires_password_change = false;
+                setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); proceedInit(currentSessionTemp, currentProfileTemp); }, 500);
+            } catch(e) { showErrorToast(e.message); btn.disabled = false; btn.innerHTML = ob; }
         }
 
         function renderLanguage() {
@@ -747,6 +972,7 @@
             localStorage.setItem('myancode_lang', currentLang);
             renderLanguage();
             if (allUsers.length > 0) renderUsersTable();
+            if (allApplications.length > 0) renderApplicationsTable();
         }
 
         function populateSidebar() {
@@ -762,107 +988,297 @@
         }
 
         let sidebarOpen = false;
-        
         function toggleMobileMenu() {
             const sb = document.getElementById('sidebar');
             const overlay = document.getElementById('mobileSidebarOverlay');
             sidebarOpen = !sidebarOpen;
             if (sidebarOpen) {
-                sb.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                sb.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); setTimeout(() => overlay.classList.remove('opacity-0'), 10);
             } else {
-                sb.classList.add('-translate-x-full');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => overlay.classList.add('hidden'), 300);
+                sb.classList.add('-translate-x-full'); overlay.classList.add('opacity-0'); setTimeout(() => overlay.classList.add('hidden'), 300);
             }
         }
 
         let isDesktopSidebarExpanded = true;
-        
         function toggleSidebarDesktop() {
             const sb = document.getElementById('sidebar');
             isDesktopSidebarExpanded = !isDesktopSidebarExpanded;
-            if(isDesktopSidebarExpanded) {
-                sb.classList.remove('collapsed');
-                sb.style.width = '280px';
-            } else {
-                sb.classList.add('collapsed');
-                sb.style.width = '80px';
-            }
+            if(isDesktopSidebarExpanded) { sb.classList.remove('collapsed'); sb.style.width = '280px'; } 
+            else { sb.classList.add('collapsed'); sb.style.width = '80px'; }
         }
 
         const sbResizer = document.getElementById('sidebarResizer');
         const sidebar = document.getElementById('sidebar');
         let isResizing = false;
 
-        sbResizer.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none';
-            sidebar.classList.remove('sidebar-animate-width'); 
-        });
-
+        sbResizer.addEventListener('mousedown', (e) => { isResizing = true; document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; sidebar.classList.remove('sidebar-animate-width'); });
         document.addEventListener('mousemove', (e) => {
             if (!isResizing) return;
             let newWidth = e.clientX;
-            if (newWidth < 80) newWidth = 80; 
-            if (newWidth > 400) newWidth = 400; 
+            if (newWidth < 80) newWidth = 80; if (newWidth > 400) newWidth = 400; 
             sidebar.style.width = newWidth + 'px';
-            
-            if (newWidth < 180) {
-                sidebar.classList.add('collapsed');
-                isDesktopSidebarExpanded = false;
-            } else {
-                sidebar.classList.remove('collapsed');
-                isDesktopSidebarExpanded = true;
-            }
+            if (newWidth < 180) { sidebar.classList.add('collapsed'); isDesktopSidebarExpanded = false; } 
+            else { sidebar.classList.remove('collapsed'); isDesktopSidebarExpanded = true; }
         });
-
-        document.addEventListener('mouseup', () => {
-            if (isResizing) {
-                isResizing = false;
-                document.body.style.cursor = '';
-                document.body.style.userSelect = '';
-                sidebar.classList.add('sidebar-animate-width'); 
-            }
-        });
+        document.addEventListener('mouseup', () => { if (isResizing) { isResizing = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; sidebar.classList.add('sidebar-animate-width'); }});
 
         function switchTab(tabId) {
-            document.querySelectorAll('.view-section').forEach(el => {
-                el.classList.add('hidden');
-                el.classList.remove('flex');
-            });
-            document.querySelectorAll('#sidebar nav button').forEach(el => {
-                el.classList.remove('bg-white/10', 'text-white');
-                el.classList.add('text-gray-400', 'hover:bg-white/5');
-            });
+            document.querySelectorAll('.view-section').forEach(el => { el.classList.add('hidden'); el.classList.remove('flex'); });
+            document.querySelectorAll('#sidebar nav button').forEach(el => { el.classList.remove('bg-white/10', 'text-white'); el.classList.add('text-gray-400', 'hover:bg-white/5'); });
             
             const activeView = document.getElementById(`view-${tabId}`);
-            activeView.classList.remove('hidden');
-            activeView.classList.add('flex');
+            activeView.classList.remove('hidden'); activeView.classList.add('flex');
             
             const activeBtn = document.getElementById(`nav-${tabId}`);
-            activeBtn.classList.remove('text-gray-400', 'hover:bg-white/5');
-            activeBtn.classList.add('bg-white/10', 'text-white');
+            activeBtn.classList.remove('text-gray-400', 'hover:bg-white/5'); activeBtn.classList.add('bg-white/10', 'text-white');
 
-            const titleMap = { 'overview': 'Overview', 'users': 'User Management', 'settings': 'System Settings' };
+            const titleMap = { 'overview': 'Overview', 'users': 'User Management', 'applications': 'Developer Applications', 'audit': 'System Logs', 'settings': 'System Settings' };
             document.getElementById('headerTitle').innerText = titleMap[tabId] || 'Dashboard';
             
+            if (tabId === 'applications' && allApplications.length === 0) fetchApplications();
+            if (tabId === 'audit') {
+                if (allAuditLogs.length === 0) fetchAuditLogs();
+                fetchAuditStats();
+            }
+            
             if(window.innerWidth < 1024 && sidebarOpen) toggleMobileMenu();
+        }
+
+        async function fetchAuditStats() {
+            try {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const startStr = today.toISOString();
+                
+                const { data, error } = await supabaseInstance
+                    .from('audit_logs')
+                    .select('action')
+                    .gte('changed_at', startStr);
+
+                if (error) throw error;
+                
+                const todayLogs = data || [];
+                const total = todayLogs.length;
+                const inserts = todayLogs.filter(l => l.action === 'INSERT').length;
+                const updates = todayLogs.filter(l => l.action === 'UPDATE').length;
+                const deletes = todayLogs.filter(l => l.action === 'DELETE').length;
+
+                animateValue('statAuditToday', 0, total, 1000);
+                animateValue('statAuditInserts', 0, inserts, 1000);
+                animateValue('statAuditUpdates', 0, updates, 1000);
+                animateValue('statAuditDeletes', 0, deletes, 1000);
+            } catch(e) {
+                console.warn("Failed fetching audit stats:", e);
+            }
+        }
+
+        async function fetchAuditLogs() {
+            if(!supabaseInstance) return;
+            const tbody = document.getElementById('auditTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading logs...</td></tr>';
+            lucide.createIcons();
+
+            const tableF = document.getElementById('auditTableFilter').value;
+            const actionF = document.getElementById('auditActionFilter').value;
+            const searchF = document.getElementById('auditSearchInput').value.trim();
+            const dateS = document.getElementById('auditDateStart').value;
+            const dateE = document.getElementById('auditDateEnd').value;
+
+            try {
+                let query = supabaseInstance
+                    .from('audit_logs')
+                    .select('*, profiles(full_name, email, avatar_url)', { count: 'exact' });
+
+                if (tableF !== 'all') query = query.eq('table_name', tableF);
+                if (actionF !== 'all') query = query.eq('action', actionF);
+                if (searchF) query = query.ilike('record_id', `%${searchF}%`);
+                if (dateS) query = query.gte('changed_at', dateS + 'T00:00:00Z');
+                if (dateE) query = query.lte('changed_at', dateE + 'T23:59:59Z');
+
+                const from = currentAuditPage * AUDIT_PER_PAGE;
+                const to = from + AUDIT_PER_PAGE - 1;
+
+                const { data, count, error } = await query
+                    .order('changed_at', { ascending: false })
+                    .range(from, to);
+
+                if (error) throw error;
+                
+                allAuditLogs = data || [];
+                totalAuditLogs = count || 0;
+                
+                renderAuditLogs();
+                updateAuditPagination();
+            } catch(e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Failed to retrieve logs</p></td></tr>`;
+                lucide.createIcons();
+            }
+        }
+
+        function handleAuditFilter() {
+            currentAuditPage = 0;
+            fetchAuditLogs();
+        }
+
+        function changeAuditPage(dir) {
+            currentAuditPage += dir;
+            if(currentAuditPage < 0) currentAuditPage = 0;
+            fetchAuditLogs();
+        }
+
+        function updateAuditPagination() {
+            const from = currentAuditPage * AUDIT_PER_PAGE + (totalAuditLogs > 0 ? 1 : 0);
+            const to = Math.min((currentAuditPage + 1) * AUDIT_PER_PAGE, totalAuditLogs);
+            document.getElementById('auditPaginationInfo').innerText = `Showing ${from}-${to} of ${totalAuditLogs} logs`;
+            
+            document.getElementById('auditPrevBtn').disabled = currentAuditPage === 0;
+            document.getElementById('auditNextBtn').disabled = to >= totalAuditLogs;
+        }
+
+        function renderAuditLogs() {
+            const tbody = document.getElementById('auditTableBody');
+            if (allAuditLogs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 font-mono text-sm">No systemic changes recorded for given parameters.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allAuditLogs.map(log => {
+                const date = new Date(log.changed_at);
+                const dateStr = date.toLocaleDateString() + ' <span class="text-gray-500 text-[10px]">' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) + '</span>';
+                
+                let badge = '';
+                if(log.action === 'INSERT') badge = '<span class="px-2.5 py-1 rounded-md text-[9px] font-bold tracking-widest uppercase bg-green-500/10 text-green-400 border border-green-500/20">INSERT</span>';
+                if(log.action === 'UPDATE') badge = '<span class="px-2.5 py-1 rounded-md text-[9px] font-bold tracking-widest uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">UPDATE</span>';
+                if(log.action === 'DELETE') badge = '<span class="px-2.5 py-1 rounded-md text-[9px] font-bold tracking-widest uppercase bg-red-500/10 text-red-400 border border-red-500/20">DELETE</span>';
+
+                const p = log.profiles || {};
+                const userName = p.full_name || 'System / Unknown';
+                const userEmail = p.email || 'N/A';
+                const avatar = p.avatar_url || DEFAULT_AVATAR;
+
+                return `
+                <tr class="hover:bg-white/[0.02] transition-colors border-b border-white/5 last:border-0 group">
+                    <td class="px-6 py-4 align-middle text-xs font-mono text-gray-300 w-48">${dateStr}</td>
+                    <td class="px-6 py-4 align-middle w-32">${badge}</td>
+                    <td class="px-6 py-4 align-middle text-xs font-bold text-white uppercase tracking-wider">${log.table_name}</td>
+                    <td class="px-6 py-4 align-middle">
+                        <div class="text-[11px] font-mono text-gray-400 bg-white/5 px-2 py-1 rounded inline-block truncate max-w-[200px]" title="${log.record_id}">${log.record_id || 'N/A'}</div>
+                    </td>
+                    <td class="px-6 py-4 align-middle w-64">
+                        <div class="flex items-center gap-3">
+                            <img src="${avatar}" class="w-7 h-7 rounded-full object-cover border border-white/10 bg-[#111]" onerror="this.src='${DEFAULT_AVATAR}'">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-white truncate max-w-[150px]">${userName}</span>
+                                <span class="text-[9px] font-mono text-gray-500 truncate max-w-[150px]">${userEmail}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 align-middle text-right w-24">
+                        <button onclick="openAuditDiffModal('${log.id}')" class="px-3 py-2 bg-[#111] hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-bold font-mono uppercase tracking-widest text-myancode-accent transition-colors opacity-50 group-hover:opacity-100 flex items-center gap-2 ml-auto">
+                            Inspect <i data-lucide="microscope" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function openAuditDiffModal(id) {
+            const log = allAuditLogs.find(l => l.id === id);
+            if(!log) return;
+
+            document.getElementById('auditModalTable').innerText = log.table_name;
+            document.getElementById('auditModalRecord').innerText = log.record_id || 'N/A';
+            document.getElementById('auditModalUser').innerText = log.profiles?.email || log.changed_by || 'System';
+            document.getElementById('auditModalTime').innerText = new Date(log.changed_at).toLocaleString();
+
+            const badgeEl = document.getElementById('auditModalBadge');
+            badgeEl.innerText = log.action;
+            badgeEl.className = 'px-3 py-1 text-[10px] rounded-full font-bold tracking-widest uppercase';
+            if(log.action === 'INSERT') badgeEl.classList.add('bg-green-500/10', 'text-green-400', 'border', 'border-green-500/20');
+            else if(log.action === 'UPDATE') badgeEl.classList.add('bg-blue-500/10', 'text-blue-400', 'border', 'border-blue-500/20');
+            else badgeEl.classList.add('bg-red-500/10', 'text-red-400', 'border', 'border-red-500/20');
+
+            const container = document.getElementById('auditDiffContainer');
+            if (log.action === 'INSERT') {
+                container.innerHTML = generateJsonView(log.new_data, 'diff-added');
+            } else if (log.action === 'DELETE') {
+                container.innerHTML = generateJsonView(log.old_data, 'diff-removed');
+            } else if (log.action === 'UPDATE') {
+                container.innerHTML = generateUpdateDiffView(log.old_data, log.new_data);
+            }
+
+            const m = document.getElementById('auditDiffModal');
+            const c = m.querySelector('.glass-panel');
+            m.classList.remove('hidden'); m.classList.add('flex'); void m.offsetWidth;
+            m.classList.remove('opacity-0'); c.classList.remove('scale-95');
+            lucide.createIcons();
+        }
+
+        function closeAuditDiffModal() {
+            const m = document.getElementById('auditDiffModal');
+            const c = m.querySelector('.glass-panel');
+            m.classList.add('opacity-0'); c.classList.add('scale-95');
+            setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
+        }
+
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') json = JSON.stringify(json, undefined, 2);
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'text-blue-400';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'text-gray-300 font-bold';
+                    } else {
+                        cls = 'text-green-300';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'text-purple-400';
+                } else if (/null/.test(match)) {
+                    cls = 'text-red-400';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function generateJsonView(obj, bgClass) {
+            if(!obj) return '<span class="text-gray-500 italic">No data payload.</span>';
+            const html = syntaxHighlight(obj);
+            return `<pre class="p-4 rounded-xl border border-white/5 whitespace-pre-wrap break-all ${bgClass}">${html}</pre>`;
+        }
+
+        function generateUpdateDiffView(oldObj, newObj) {
+            oldObj = oldObj || {};
+            newObj = newObj || {};
+            const keys = new Set([...Object.keys(oldObj), ...Object.keys(newObj)]);
+            let output = '<div class="space-y-1 bg-[#111] border border-white/5 rounded-xl p-4">';
+            
+            keys.forEach(k => {
+                const oVal = oldObj[k];
+                const nVal = newObj[k];
+                const isEq = JSON.stringify(oVal) === JSON.stringify(nVal);
+                
+                if (isEq) {
+                    output += `<div class="flex text-gray-500"><span class="w-32 flex-shrink-0 opacity-50">${k}:</span><span class="opacity-50">${syntaxHighlight(JSON.stringify(oVal))}</span></div>`;
+                } else {
+                    output += `<div class="my-3 p-3 bg-black/50 border border-white/5 rounded">`;
+                    output += `<div class="font-bold text-gray-300 mb-2">${k}</div>`;
+                    if (oVal !== undefined) output += `<div class="flex diff-removed px-2 py-1 rounded"><span class="w-6 font-bold">-</span><span>${syntaxHighlight(JSON.stringify(oVal))}</span></div>`;
+                    if (nVal !== undefined) output += `<div class="flex diff-added px-2 py-1 rounded mt-1"><span class="w-6 font-bold">+</span><span>${syntaxHighlight(JSON.stringify(nVal))}</span></div>`;
+                    output += `</div>`;
+                }
+            });
+            output += '</div>';
+            return output;
         }
 
         async function fetchUsersData() {
             try {
                 const { data, error } = await supabaseInstance.from('profiles').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
-                allUsers = data || [];
-                filteredUsers = [...allUsers];
-                updateStats();
-                renderUsersTable();
-            } catch (err) {
-                showErrorToast("Failed to sync user data. Make sure RLS permits Founder viewing.");
-            }
+                allUsers = data || []; filteredUsers = [...allUsers];
+                updateStats(); renderUsersTable();
+            } catch (err) { showErrorToast("Failed to sync user data. Make sure RLS permits Founder viewing."); }
         }
 
         function updateStats() {
@@ -874,12 +1290,9 @@
             const developers = allUsers.filter(u => (u.role||'').toLowerCase() === 'developer').length;
             const clients = allUsers.filter(u => (u.role||'').toLowerCase() === 'client').length;
             
-            animateValue('statTotalUsers', 0, total, 1000);
-            animateValue('statFounders', 0, founders, 1000);
-            animateValue('statAdmins', 0, admins, 1000);
-            animateValue('statModerators', 0, moderators, 1000);
-            animateValue('statPartners', 0, partners, 1000);
-            animateValue('statDevelopers', 0, developers, 1000);
+            animateValue('statTotalUsers', 0, total, 1000); animateValue('statFounders', 0, founders, 1000);
+            animateValue('statAdmins', 0, admins, 1000); animateValue('statModerators', 0, moderators, 1000);
+            animateValue('statPartners', 0, partners, 1000); animateValue('statDevelopers', 0, developers, 1000);
             animateValue('statClients', 0, clients, 1000);
         }
 
@@ -907,418 +1320,234 @@
             tbody.innerHTML = filteredUsers.map(user => {
                 const isSelf = user.id === currentUser.id;
                 const r = (user.role || 'client').toLowerCase();
-                const roleColors = {
-                    'founder': 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-                    'admin': 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-                    'moderator': 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-                    'partner': 'bg-pink-500/10 text-pink-400 border-pink-500/20',
-                    'developer': 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-                    'client': 'bg-green-500/10 text-green-400 border-green-500/20'
-                };
+                const roleColors = { 'founder': 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', 'admin': 'bg-purple-500/10 text-purple-400 border-purple-500/20', 'moderator': 'bg-orange-500/10 text-orange-400 border-orange-500/20', 'partner': 'bg-pink-500/10 text-pink-400 border-pink-500/20', 'developer': 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', 'client': 'bg-green-500/10 text-green-400 border-green-500/20' };
                 const badgeClass = roleColors[r] || roleColors['client'];
                 const av = (isSelf ? currentUser.avatar_url : user.avatar_url) || DEFAULT_AVATAR;
                 const date = new Date(user.created_at).toLocaleDateString(currentLang === 'en' ? 'en-US' : 'my-MM', { year: 'numeric', month: 'short', day: 'numeric' });
                 
                 return `
                 <tr class="transition-colors group border-b border-white/5 last:border-0 hover:bg-white/5">
-                    <td class="px-8 py-5">
-                        <div class="flex items-center gap-4">
-                            <img src="${av}" class="w-10 h-10 rounded-full object-cover border border-white/20 shadow-sm bg-[#111]" alt="" onerror="this.src='${DEFAULT_AVATAR}'">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-white tracking-tight">${user.full_name || 'Unknown User'} ${isSelf ? '<span class="text-[9px] bg-white/20 text-white px-2 py-0.5 rounded ml-2 uppercase font-bold tracking-widest shadow-sm">You</span>' : ''}</span>
-                                <span class="text-xs text-gray-500 font-mono mt-0.5">${user.email}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-8 py-5">
-                        <span class="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full border ${badgeClass}">${r}</span>
-                    </td>
+                    <td class="px-8 py-5"><div class="flex items-center gap-4"><img src="${av}" class="w-10 h-10 rounded-full object-cover border border-white/20 shadow-sm bg-[#111]" onerror="this.src='${DEFAULT_AVATAR}'"><div class="flex flex-col"><span class="font-bold text-white tracking-tight">${user.full_name || 'Unknown User'} ${isSelf ? '<span class="text-[9px] bg-white/20 text-white px-2 py-0.5 rounded ml-2 uppercase font-bold tracking-widest shadow-sm">You</span>' : ''}</span><span class="text-xs text-gray-500 font-mono mt-0.5">${user.email}</span></div></div></td>
+                    <td class="px-8 py-5"><span class="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full border ${badgeClass}">${r}</span></td>
                     <td class="px-8 py-5 text-xs text-gray-400 font-mono font-medium">${date}</td>
-                    <td class="px-8 py-5 text-right">
-                        <div class="flex items-center justify-end gap-3 opacity-30 group-hover:opacity-100 transition-opacity">
-                            <button onclick="openEditModal('${user.id}', '${user.email}', '${r}')" class="p-2.5 bg-[#0a0a0a] hover:bg-white/10 text-gray-400 hover:text-white rounded-xl transition-all shadow-sm border border-white/5 hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed" ${isSelf ? 'disabled title="Cannot edit self here"' : ''}><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                            <button onclick="deleteUser('${user.id}')" class="p-2.5 bg-[#0a0a0a] hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-xl transition-all shadow-sm border border-white/5 hover:border-red-500/30 disabled:opacity-30 disabled:cursor-not-allowed" ${isSelf ? 'disabled title="Cannot delete self"' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </div>
-                    </td>
+                    <td class="px-8 py-5 text-right"><div class="flex items-center justify-end gap-3 opacity-30 group-hover:opacity-100 transition-opacity"><button onclick="openEditModal('${user.id}', '${user.email}', '${r}')" class="p-2.5 bg-[#0a0a0a] hover:bg-white/10 text-gray-400 hover:text-white rounded-xl transition-all shadow-sm border border-white/5 hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed" ${isSelf ? 'disabled title="Cannot edit self here"' : ''}><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="deleteUser('${user.id}')" class="p-2.5 bg-[#0a0a0a] hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-xl transition-all shadow-sm border border-white/5 hover:border-red-500/30 disabled:opacity-30 disabled:cursor-not-allowed" ${isSelf ? 'disabled title="Cannot delete self"' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td>
                 </tr>`;
             }).join('');
             lucide.createIcons();
         }
 
-        function handleSearch() {
-            const q = document.getElementById('userSearch').value.toLowerCase();
-            const r = document.getElementById('roleFilter').value;
-            applyFiltersAndSort(q, r, sortAsc);
-        }
-
-        function handleFilter() {
-            const q = document.getElementById('userSearch').value.toLowerCase();
-            const r = document.getElementById('roleFilter').value;
-            applyFiltersAndSort(q, r, sortAsc);
-        }
-
-        function handleSort() {
-            sortAsc = !sortAsc;
-            document.getElementById('sortLabel').innerText = sortAsc ? 'A-Z' : 'Z-A';
-            const q = document.getElementById('userSearch').value.toLowerCase();
-            const r = document.getElementById('roleFilter').value;
-            applyFiltersAndSort(q, r, sortAsc);
-        }
+        function handleSearch() { applyFiltersAndSort(document.getElementById('userSearch').value.toLowerCase(), document.getElementById('roleFilter').value, sortAsc); }
+        function handleFilter() { applyFiltersAndSort(document.getElementById('userSearch').value.toLowerCase(), document.getElementById('roleFilter').value, sortAsc); }
+        function handleSort() { sortAsc = !sortAsc; document.getElementById('sortLabel').innerText = sortAsc ? 'A-Z' : 'Z-A'; applyFiltersAndSort(document.getElementById('userSearch').value.toLowerCase(), document.getElementById('roleFilter').value, sortAsc); }
 
         function applyFiltersAndSort(query, role, asc) {
             filteredUsers = allUsers.filter(u => {
-                const mName = (u.full_name || '').toLowerCase().includes(query);
-                const mEmail = (u.email || '').toLowerCase().includes(query);
+                const mName = (u.full_name || '').toLowerCase().includes(query); const mEmail = (u.email || '').toLowerCase().includes(query);
                 const mRole = role === 'all' || (u.role || 'client').toLowerCase() === role;
                 return (mName || mEmail) && mRole;
             });
             filteredUsers.sort((a, b) => {
-                const nA = (a.full_name || a.email || '').toLowerCase();
-                const nB = (b.full_name || b.email || '').toLowerCase();
-                if (nA < nB) return asc ? -1 : 1;
-                if (nA > nB) return asc ? 1 : -1;
-                return 0;
+                const nA = (a.full_name || a.email || '').toLowerCase(); const nB = (b.full_name || b.email || '').toLowerCase();
+                if (nA < nB) return asc ? -1 : 1; if (nA > nB) return asc ? 1 : -1; return 0;
             });
             renderUsersTable();
         }
 
-        function openInviteModal() {
-            const m = document.getElementById('inviteModal');
-            const c = document.getElementById('inviteModalContent');
-            m.classList.remove('hidden'); m.classList.add('flex'); void m.offsetWidth;
-            m.classList.remove('opacity-0'); c.classList.remove('scale-95');
-        }
-
-        function closeInviteModal() {
-            const m = document.getElementById('inviteModal');
-            const c = document.getElementById('inviteModalContent');
-            m.classList.add('opacity-0'); c.classList.add('scale-95');
-            setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
-        }
+        function openInviteModal() { const m = document.getElementById('inviteModal'); const c = document.getElementById('inviteModalContent'); m.classList.remove('hidden'); m.classList.add('flex'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }
+        function closeInviteModal() { const m = document.getElementById('inviteModal'); const c = document.getElementById('inviteModalContent'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300); }
 
         async function submitInvite() {
-            const email = document.getElementById('inviteEmailInput').value.trim();
-            const role = document.getElementById('inviteRoleSelect').value;
-            const btn = document.getElementById('btnSubmitInvite');
-            
+            const email = document.getElementById('inviteEmailInput').value.trim(); const role = document.getElementById('inviteRoleSelect').value; const btn = document.getElementById('btnSubmitInvite');
             if(!email) { showErrorToast("Email is required"); return; }
-
-            btn.disabled = true; const ob = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-black"></i>`; lucide.createIcons();
-
+            btn.disabled = true; const ob = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-black"></i>`; lucide.createIcons();
             try {
-                const { error: invErr } = await supabaseInstance.from('user_invitations').upsert({ 
-                    email: email, 
-                    role: role,
-                    invited_by: currentUser.id
-                });
+                const { error: invErr } = await supabaseInstance.from('user_invitations').upsert({ email: email, role: role, invited_by: currentUser.id });
                 if(invErr) throw invErr;
-
-                const { error: otpErr } = await supabaseInstance.auth.signInWithOtp({ 
-                    email: email,
-                    options: {
-                        shouldCreateUser: true,
-                        data: { is_invite: true },
-                        emailRedirectTo: new URL('../login/', window.location.href).href
-                    }
-                });
+                const { error: otpErr } = await supabaseInstance.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true, data: { is_invite: true }, emailRedirectTo: new URL('../login/', window.location.href).href }});
                 if(otpErr) throw otpErr;
-
-                showToast("Invitation link secured and sent.");
-                closeInviteModal();
-                document.getElementById('inviteEmailInput').value = '';
-                fetchUsersData();
-            } catch(e) {
-                showErrorToast(e.message);
-            } finally {
-                btn.disabled = false; btn.innerHTML = ob;
-            }
+                showToast("Invitation link secured and sent."); closeInviteModal(); document.getElementById('inviteEmailInput').value = ''; fetchUsersData();
+            } catch(e) { showErrorToast(e.message); } finally { btn.disabled = false; btn.innerHTML = ob; }
         }
 
         function openEditModal(id, email, currentRole) {
-            document.getElementById('editUserId').value = id;
-            document.getElementById('editEmail').value = email;
-            document.getElementById('editRole').value = currentRole;
-            const m = document.getElementById('editModal');
-            const c = document.getElementById('editModalContent');
-            m.classList.remove('hidden'); m.classList.add('flex'); void m.offsetWidth;
-            m.classList.remove('opacity-0'); c.classList.remove('scale-95');
+            document.getElementById('editUserId').value = id; document.getElementById('editEmail').value = email; document.getElementById('editRole').value = currentRole;
+            const m = document.getElementById('editModal'); const c = document.getElementById('editModalContent'); m.classList.remove('hidden'); m.classList.add('flex'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95');
         }
-
-        function closeEditModal() {
-            const m = document.getElementById('editModal');
-            const c = document.getElementById('editModalContent');
-            m.classList.add('opacity-0'); c.classList.add('scale-95');
-            setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
-        }
+        function closeEditModal() { const m = document.getElementById('editModal'); const c = document.getElementById('editModalContent'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300); }
 
         async function submitEdit() {
-            const id = document.getElementById('editUserId').value;
-            const role = document.getElementById('editRole').value;
-            const btn = document.getElementById('btnSubmitEdit');
-
-            btn.disabled = true; const ob = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-black"></i>`; lucide.createIcons();
-
+            const id = document.getElementById('editUserId').value; const role = document.getElementById('editRole').value; const btn = document.getElementById('btnSubmitEdit');
+            btn.disabled = true; const ob = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-black"></i>`; lucide.createIcons();
             try {
-                const { error: e1 } = await supabaseInstance.from('profiles').update({ role: role }).eq('id', id);
-                if(e1) throw e1;
-
-                const { error: e2 } = await supabaseInstance.rpc('admin_update_user_role', { target_id: id, new_role: role });
-                if(e2) throw e2;
-                
-                showToast("Access Policy Updated");
-                closeEditModal();
-                fetchUsersData();
-            } catch(e) {
-                showErrorToast(e.message);
-            } finally {
-                btn.disabled = false; btn.innerHTML = ob;
-            }
+                const { error: e1 } = await supabaseInstance.from('profiles').update({ role: role }).eq('id', id); if(e1) throw e1;
+                const { error: e2 } = await supabaseInstance.rpc('admin_update_user_role', { target_id: id, new_role: role }); if(e2) throw e2;
+                showToast("Access Policy Updated"); closeEditModal(); fetchUsersData();
+            } catch(e) { showErrorToast(e.message); } finally { btn.disabled = false; btn.innerHTML = ob; }
         }
 
         async function deleteUser(id) {
             if(id === currentUser.id) return;
-            const title = currentLang === 'en' ? "Delete Identity" : "အသုံးပြုသူ ဖျက်မည်";
-            const confirmMsg = currentLang === 'en' ? "Are you sure you want to permanently delete this user? This action cannot be undone." : "ဤအသုံးပြုသူကို အပြီးတိုင် ဖျက်မည်လား?";
-            
-            showConfirmModal(title, confirmMsg, 'danger', async () => {
+            showConfirmModal(currentLang === 'en' ? "Delete Identity" : "အသုံးပြုသူ ဖျက်မည်", currentLang === 'en' ? "Are you sure you want to permanently delete this user? This action cannot be undone." : "ဤအသုံးပြုသူကို အပြီးတိုင် ဖျက်မည်လား?", 'danger', async () => {
                 showLoader();
                 try {
-                    const { error: e1 } = await supabaseInstance.from('profiles').delete().eq('id', id);
-                    if(e1) throw e1;
+                    const { error: e1 } = await supabaseInstance.from('profiles').delete().eq('id', id); if(e1) throw e1;
+                    const { error: e2 } = await supabaseInstance.rpc('admin_delete_user', { target_id: id }); if(e2) throw e2;
+                    showToast(currentLang === 'en' ? "User identity deleted." : "အသုံးပြုသူကို ဖျက်လိုက်ပါပြီ။"); await fetchUsersData();
+                } catch(e) { showErrorToast(currentLang === 'en' ? "Deletion failed. RPC 'admin_delete_user' required." : "ဖျက်ခြင်း မအောင်မြင်ပါ။"); } finally { hideLoader(); }
+            });
+        }
+        
+        async function fetchApplications(isSilent = false) {
+            if(!supabaseInstance) return;
+            const tbody = document.getElementById('applicationsTableBody');
+            if (!isSilent) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading applications...</td></tr>'; if(typeof lucide !== 'undefined') lucide.createIcons(); }
+            try {
+                const { data, error } = await supabaseInstance.from('developer_applications').select('*').order('created_at', { ascending: false });
+                if (error) throw error; allApplications = data || []; handleAppSearch();
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`; if(typeof lucide !== 'undefined') lucide.createIcons(); }
+        }
 
-                    const { error: e2 } = await supabaseInstance.rpc('admin_delete_user', { target_id: id });
-                    if(e2) throw e2;
-                    
-                    showToast(currentLang === 'en' ? "User identity deleted." : "အသုံးပြုသူကို ဖျက်လိုက်ပါပြီ။");
-                    await fetchUsersData();
-                } catch(e) {
-                    showErrorToast(currentLang === 'en' ? "Deletion failed. RPC 'admin_delete_user' required." : "ဖျက်ခြင်း မအောင်မြင်ပါ။");
-                } finally {
-                    hideLoader();
+        function handleAppSearch() {
+            const query = document.getElementById('searchAppInput').value.toLowerCase().trim(); const statusF = document.getElementById('filterAppStatus').value;
+            filteredApps = allApplications.filter(app => { const searchStr = `${app.full_name} ${app.email} ${app.professional_title} ${app.primary_skills}`.toLowerCase(); return (!query || searchStr.includes(query)) && (statusF === 'all' || app.status === statusF); });
+            renderApplicationsTable();
+        }
+
+        function renderApplicationsTable() {
+            const tbody = document.getElementById('applicationsTableBody');
+            if (filteredApps.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="file-x" class="w-6 h-6 text-gray-400"></i></div><p class="font-medium">No applications found.</p></td></tr>'; if(typeof lucide !== 'undefined') lucide.createIcons(); return; }
+            tbody.innerHTML = filteredApps.map(app => {
+                const subDate = new Date(app.created_at); const fSubDate = subDate.toLocaleDateString() + '<br><span class="text-[10px] text-gray-500">' + subDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span>';
+                let statusBadge = '';
+                if(app.status === 'pending' || app.status === 'under_review') statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest status-pending">Pending</span>';
+                else if(app.status === 'approved') statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest status-approved">Approved (Hired)</span>';
+                else if(app.status === 'rejected') statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest status-rejected">Archived</span>';
+
+                return `<tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0"><td class="px-6 py-4 align-top w-1/4"><div class="font-bold text-white mb-1 truncate">${app.full_name}</div><div class="text-[11px] text-gray-400 font-mono truncate">${app.email}</div><div class="text-[11px] text-gray-500 font-medium mt-0.5 truncate flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${app.country}</div></td><td class="px-6 py-4 align-top w-1/4"><div class="text-[12px] text-myancode-accent font-bold uppercase tracking-widest mb-1 truncate">${app.professional_title}</div><div class="text-[11px] text-gray-300 font-mono">${app.years_of_experience}</div></td><td class="px-6 py-4 align-top w-1/6">${statusBadge}</td><td class="px-6 py-4 align-top w-1/6 text-sm font-mono text-gray-300 text-center">${fSubDate}</td><td class="px-6 py-4 align-top text-right"><div class="flex justify-end gap-2 opacity-100 sm:opacity-50 sm:group-hover:opacity-100 transition-opacity"><button onclick="openApplicationModal('${app.id}')" class="h-9 w-9 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="View Application"><i data-lucide="eye" class="w-4 h-4"></i></button><button onclick="updateApplicationStatus('${app.id}', 'approved')" class="h-9 w-9 text-green-400 hover:text-white bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Hire / Approve"><i data-lucide="check" class="w-4 h-4"></i></button><button onclick="deleteApplication('${app.id}')" class="h-9 w-9 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all shadow-sm flex items-center justify-center hover:scale-105" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`;
+            }).join('');
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        async function updateApplicationStatus(id, newStatus) {
+            showLoader();
+            try {
+                const app = allApplications.find(a => a.id === id);
+                if (newStatus === 'approved' && app && app.user_id) {
+                    const { error: e1 } = await supabaseInstance.from('profiles').update({ role: 'developer' }).eq('id', app.user_id); if(e1) throw e1;
+                    const { error: e2 } = await supabaseInstance.rpc('admin_update_user_role', { target_id: app.user_id, new_role: 'developer' }); if(e2) throw e2;
                 }
+                const { error } = await supabaseInstance.from('developer_applications').update({ status: newStatus }).eq('id', id); if(error) throw error;
+                const idx = allApplications.findIndex(a => a.id === id); if (idx > -1) { allApplications[idx].status = newStatus; handleAppSearch(); }
+                showToast(`Application marked as ${newStatus}.` + (newStatus === 'approved' ? ' User promoted to Developer.' : '')); closeApplicationModal();
+                if (newStatus === 'approved') fetchUsersData();
+            } catch(e) { showErrorToast("Update Failed: " + (e.message || "Could not update status.")); } finally { hideLoader(); }
+        }
+
+        function deleteApplication(id) {
+            showConfirmModal("Delete Application", "Are you sure you want to permanently delete this application? This cannot be undone.", "danger", async () => {
+                showLoader(); try {
+                    const { error } = await supabaseInstance.from('developer_applications').delete().eq('id', id); if(error) throw error;
+                    allApplications = allApplications.filter(a => a.id !== id); handleAppSearch(); showToast("Application deleted."); closeApplicationModal();
+                } catch(e) { showErrorToast("Deletion Failed: " + (e.message || "Unknown error")); } finally { hideLoader(); }
             });
         }
 
         let confirmActionCallback = null;
-
         function showConfirmModal(title, message, type = 'warning', onConfirm) {
-            const modal = document.getElementById('confirmModal');
-            const content = document.getElementById('confirmModalContent');
-            const titleEl = document.getElementById('confirmModalTitle');
-            const msgEl = document.getElementById('confirmModalMessage');
-            const iconContainer = document.getElementById('confirmModalIcon');
-            const btn = document.getElementById('confirmModalBtn');
-            const cancelBtn = document.getElementById('confirmModalCancelBtn');
-            
-            titleEl.innerText = title;
-            msgEl.innerText = message;
-            confirmActionCallback = onConfirm;
-            cancelBtn.innerText = currentLang === 'en' ? 'Cancel' : 'ပယ်ဖျက်မည်';
-            
+            const modal = document.getElementById('confirmModal'); const content = document.getElementById('confirmModalContent'); const btn = document.getElementById('confirmModalBtn'); const iconContainer = document.getElementById('confirmModalIcon');
+            document.getElementById('confirmModalTitle').innerText = title; document.getElementById('confirmModalMessage').innerText = message; confirmActionCallback = onConfirm;
+            document.getElementById('confirmModalCancelBtn').innerText = currentLang === 'en' ? 'Cancel' : 'ပယ်ဖျက်မည်';
             if (type === 'danger') {
-                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6';
-                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-8 w-8 text-red-500"></i>';
-                btn.className = 'flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700 btn-hover-effect';
-                btn.innerText = currentLang === 'en' ? 'Delete Permanently' : 'အပြီးအပိုင်ဖျက်မည်';
+                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6'; iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="h-8 w-8 text-red-500"></i>';
+                btn.className = 'flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700 btn-hover-effect'; btn.innerText = currentLang === 'en' ? 'Delete Permanently' : 'အပြီးအပိုင်ဖျက်မည်';
             } else {
-                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-white/10 border border-white/20 mb-6';
-                iconContainer.innerHTML = '<i data-lucide="info" class="h-8 w-8 text-white"></i>';
-                btn.className = 'flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-black shadow-md transition-colors bg-white hover:bg-gray-200 btn-hover-effect';
-                btn.innerText = currentLang === 'en' ? 'Confirm' : 'အတည်ပြုမည်';
+                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-white/10 border border-white/20 mb-6'; iconContainer.innerHTML = '<i data-lucide="info" class="h-8 w-8 text-white"></i>';
+                btn.className = 'flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-black shadow-md transition-colors bg-white hover:bg-gray-200 btn-hover-effect'; btn.innerText = currentLang === 'en' ? 'Confirm' : 'အတည်ပြုမည်';
             }
-            
-            lucide.createIcons();
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth; 
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-
-            btn.onclick = () => {
-                if (btn.disabled) return;
-                closeConfirmModal();
-                if (confirmActionCallback) confirmActionCallback();
-            };
+            lucide.createIcons(); modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth; modal.classList.remove('opacity-0'); content.classList.remove('scale-95');
+            btn.onclick = () => { if (btn.disabled) return; closeConfirmModal(); if (confirmActionCallback) confirmActionCallback(); };
         }
+        function closeConfirmModal() { const modal = document.getElementById('confirmModal'); const content = document.getElementById('confirmModalContent'); modal.classList.add('opacity-0'); content.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); }
 
-        function closeConfirmModal() {
-            const modal = document.getElementById('confirmModal');
-            const content = document.getElementById('confirmModalContent');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').textContent = msg;
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
-        }
-
-        function showErrorToast(msg) { 
-            const toast = document.getElementById('error-toast'); 
-            document.getElementById('error-toast-msg').textContent = msg; 
-            toast.classList.remove('translate-y-24', 'opacity-0'); 
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
-        }
-
-        async function handleLogout() {
-            showLoader('loadingInit');
-            if (supabaseInstance) await supabaseInstance.auth.signOut();
-            window.location.replace('../login/');
-        }
+        async function handleLogout() { showLoader('loadingInit'); if (supabaseInstance) await supabaseInstance.auth.signOut(); window.location.replace('../login/'); }
 
         let cropperInstance = null;
-
         function openCropper(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (file.size > 5 * 1024 * 1024) { showErrorToast("Image must be under 5MB"); return; }
+            const file = event.target.files[0]; if (!file) return; if (file.size > 5 * 1024 * 1024) { showErrorToast("Image must be under 5MB"); return; }
             const reader = new FileReader();
             reader.onload = (e) => {
                 const imageToCrop = document.getElementById('imageToCrop'); imageToCrop.src = e.target.result;
                 const modal = document.getElementById('cropperModal'); const modalContent = document.getElementById('cropperModalContent');
-                modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
-                modal.classList.remove('opacity-0'); modalContent.classList.remove('scale-95');
-                if (cropperInstance) cropperInstance.destroy();
-                cropperInstance = new Cropper(imageToCrop, { aspectRatio: 1, viewMode: 1, dragMode: 'move', autoCropArea: 1, guides: true, center: true, highlight: false, cropBoxMovable: false, cropBoxResizable: false, toggleDragModeOnDblclick: false });
+                modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth; modal.classList.remove('opacity-0'); modalContent.classList.remove('scale-95');
+                if (cropperInstance) cropperInstance.destroy(); cropperInstance = new Cropper(imageToCrop, { aspectRatio: 1, viewMode: 1, dragMode: 'move', autoCropArea: 1, guides: true, center: true, highlight: false, cropBoxMovable: false, cropBoxResizable: false, toggleDragModeOnDblclick: false });
             };
             reader.readAsDataURL(file); event.target.value = ''; 
         }
-
-        function cancelCrop() {
-            const modal = document.getElementById('cropperModal'); const modalContent = document.getElementById('cropperModalContent');
-            modal.classList.add('opacity-0'); modalContent.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; } }, 300);
-        }
+        function cancelCrop() { const modal = document.getElementById('cropperModal'); const modalContent = document.getElementById('cropperModalContent'); modal.classList.add('opacity-0'); modalContent.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; } }, 300); }
 
         async function saveCrop() {
-            if (!cropperInstance || !supabaseInstance) return;
-            showLoader();
+            if (!cropperInstance || !supabaseInstance) return; showLoader();
             const canvas = cropperInstance.getCroppedCanvas({ width: 256, height: 256, fillColor: '#0a0a0a' });
-            const base64Avatar = canvas.toDataURL('image/jpeg', 0.8);
-            cancelCrop(); 
+            const base64Avatar = canvas.toDataURL('image/jpeg', 0.8); cancelCrop(); 
             try {
-                const { error } = await supabaseInstance.auth.updateUser({ data: { avatar_url: base64Avatar } });
-                if (error) throw error;
-                
-                const { error: dbError } = await supabaseInstance.from('profiles').update({ avatar_url: base64Avatar }).eq('id', currentUser.id);
-                if (dbError) console.warn(dbError);
-
-                currentUser.avatar_url = base64Avatar;
-                updateAllAvatars(base64Avatar);
-                showToast(currentLang === 'en' ? "Avatar updated" : "ဓာတ်ပုံပြင်ဆင်မှု အောင်မြင်ပါသည်");
+                const { error } = await supabaseInstance.auth.updateUser({ data: { avatar_url: base64Avatar } }); if (error) throw error;
+                const { error: dbError } = await supabaseInstance.from('profiles').update({ avatar_url: base64Avatar }).eq('id', currentUser.id); if (dbError) console.warn(dbError);
+                currentUser.avatar_url = base64Avatar; updateAllAvatars(base64Avatar); showToast(currentLang === 'en' ? "Avatar updated" : "ဓာတ်ပုံပြင်ဆင်မှု အောင်မြင်ပါသည်");
             } catch(err) { showErrorToast(err.message); } finally { hideLoader(); }
         }
 
         function removeAvatar() {
-            if(!confirm(currentLang === 'en' ? "Remove icon?" : "ပုံဖယ်ရှားမည်?")) return;
-            showLoader();
+            if(!confirm(currentLang === 'en' ? "Remove icon?" : "ပုံဖယ်ရှားမည်?")) return; showLoader();
             supabaseInstance.auth.updateUser({ data: { avatar_url: null } }).then(async ({error}) => {
                 if(error) { hideLoader(); showErrorToast(error.message); return; }
-                
                 await supabaseInstance.from('profiles').update({ avatar_url: null }).eq('id', currentUser.id);
-                
-                hideLoader();
-                currentUser.avatar_url = null;
-                updateAllAvatars(null);
-                showToast(currentLang === 'en' ? "Icon removed" : "ဓာတ်ပုံဖယ်ရှားမှု အောင်မြင်ပါသည်");
+                hideLoader(); currentUser.avatar_url = null; updateAllAvatars(null); showToast(currentLang === 'en' ? "Icon removed" : "ဓာတ်ပုံဖယ်ရှားမှု အောင်မြင်ပါသည်");
             });
         }
 
         async function updateProfileName() {
-            const newName = document.getElementById('profileNameInput').value.trim();
-            if(!newName || newName === currentUser.name) return;
-            showLoader();
+            const newName = document.getElementById('profileNameInput').value.trim(); if(!newName || newName === currentUser.name) return; showLoader();
             try {
-                const { error } = await supabaseInstance.auth.updateUser({ data: { full_name: newName } });
-                if (error) throw error;
-                
+                const { error } = await supabaseInstance.auth.updateUser({ data: { full_name: newName } }); if (error) throw error;
                 await supabaseInstance.from('profiles').update({ full_name: newName }).eq('id', currentUser.id);
-
-                currentUser.name = newName;
-                document.getElementById('sbName').innerText = newName;
-                if(document.getElementById('hdrDropName')) document.getElementById('hdrDropName').innerText = newName;
-                fetchUsersData();
-                showToast(currentLang === 'en' ? "Profile updated" : "ကိုယ်ရေးအချက်အလက် ပြင်ဆင်မှု အောင်မြင်ပါသည်");
+                currentUser.name = newName; document.getElementById('sbName').innerText = newName; if(document.getElementById('hdrDropName')) document.getElementById('hdrDropName').innerText = newName;
+                fetchUsersData(); showToast(currentLang === 'en' ? "Profile updated" : "ကိုယ်ရေးအချက်အလက် ပြင်ဆင်မှု အောင်မြင်ပါသည်");
             } catch(err) { showErrorToast(err.message); } finally { hideLoader(); }
         }
 
         async function updatePassword() {
-            const oldPass = document.getElementById('profileOldPassInput').value;
-            const newPass = document.getElementById('profilePassInput').value;
-            
+            const oldPass = document.getElementById('profileOldPassInput').value; const newPass = document.getElementById('profilePassInput').value;
             if (!oldPass) { showErrorToast(currentLang === 'en' ? 'Please enter current password' : 'လက်ရှိ စကားဝှက်ကို ထည့်ပါ'); return; }
             if (!newPass || newPass.length < 6) { showErrorToast(currentLang === 'en' ? 'New password must be at least 6 characters' : 'စကားဝှက် အနည်းဆုံး ၆ လုံး ရှိရပါမည်'); return; }
-            
             showLoader();
             try {
-                const { error: signInError } = await supabaseInstance.auth.signInWithPassword({
-                    email: currentUser.email,
-                    password: oldPass
-                });
-                
+                const { error: signInError } = await supabaseInstance.auth.signInWithPassword({ email: currentUser.email, password: oldPass });
                 if (signInError) throw new Error(currentLang === 'en' ? "Current password is incorrect." : "လက်ရှိ စကားဝှက် မှားယွင်းနေပါသည်။");
-
-                const { error } = await supabaseInstance.auth.updateUser({ password: newPass });
-                if (error) throw error;
-                
-                document.getElementById('profileOldPassInput').value = '';
-                document.getElementById('profilePassInput').value = '';
+                const { error } = await supabaseInstance.auth.updateUser({ password: newPass }); if (error) throw error;
+                document.getElementById('profileOldPassInput').value = ''; document.getElementById('profilePassInput').value = '';
                 showToast(currentLang === 'en' ? 'Password updated successfully' : 'စကားဝှက် ပြောင်းလဲခြင်း အောင်မြင်ပါသည်');
-            } catch(err) { 
-                showErrorToast(err.message); 
-            } finally { 
-                hideLoader(); 
-            }
+            } catch(err) { showErrorToast(err.message); } finally { hideLoader(); }
         }
 
-        function toggleHeaderProfile(e) {
-            e.stopPropagation();
-            document.getElementById('headerProfileDropdown').classList.toggle('dropdown-hidden');
-        }
+        function toggleHeaderProfile(e) { e.stopPropagation(); document.getElementById('headerProfileDropdown').classList.toggle('dropdown-hidden'); }
 
-        document.addEventListener('click', (e) => {
-            const hDrop = document.getElementById('headerProfileDropdown');
-            const hBtn = document.getElementById('headerProfileContainer');
-            if (hDrop && !hDrop.classList.contains('dropdown-hidden') && (!hBtn || !hBtn.contains(e.target))) {
-                hDrop.classList.add('dropdown-hidden');
-            }
-        });
+        document.addEventListener('click', (e) => { const hDrop = document.getElementById('headerProfileDropdown'); const hBtn = document.getElementById('headerProfileContainer'); if (hDrop && !hDrop.classList.contains('dropdown-hidden') && (!hBtn || !hBtn.contains(e.target))) { hDrop.classList.add('dropdown-hidden'); } });
 
         document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-            var reveals = document.querySelectorAll(".reveal");
-            for (var i = 0; i < reveals.length; i++) reveals[i].classList.add("active");
-            
+            lucide.createIcons(); var reveals = document.querySelectorAll(".reveal"); for (var i = 0; i < reveals.length; i++) reveals[i].classList.add("active");
             document.addEventListener('keydown', (e) => {
-                const editModal = document.getElementById('editModal');
-                const inviteModal = document.getElementById('inviteModal');
-                const cropperModal = document.getElementById('cropperModal');
-                const confirmModal = document.getElementById('confirmModal');
-                
+                const editModal = document.getElementById('editModal'); const inviteModal = document.getElementById('inviteModal'); const cropperModal = document.getElementById('cropperModal'); const confirmModal = document.getElementById('confirmModal'); const applicationModal = document.getElementById('applicationModal'); const auditDiffModal = document.getElementById('auditDiffModal');
                 if (e.key === 'Escape') {
-                    if (!editModal.classList.contains('hidden')) closeEditModal();
-                    if (!inviteModal.classList.contains('hidden')) closeInviteModal();
-                    if (!cropperModal.classList.contains('hidden')) cancelCrop();
-                    if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
+                    if (!editModal.classList.contains('hidden')) closeEditModal(); if (!inviteModal.classList.contains('hidden')) closeInviteModal();
+                    if (!cropperModal.classList.contains('hidden')) cancelCrop(); if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
+                    if (applicationModal && !applicationModal.classList.contains('hidden')) closeApplicationModal();
+                    if (auditDiffModal && !auditDiffModal.classList.contains('hidden')) closeAuditDiffModal();
                 }
-                
                 if (e.key === 'Enter') {
-                    if (!editModal.classList.contains('hidden')) {
-                        e.preventDefault();
-                        submitEdit();
-                    } else if (!inviteModal.classList.contains('hidden')) {
-                        e.preventDefault();
-                        submitInvite();
-                    }
+                    if (!editModal.classList.contains('hidden')) { e.preventDefault(); submitEdit(); } else if (!inviteModal.classList.contains('hidden')) { e.preventDefault(); submitInvite(); }
                 }
             });
         });
