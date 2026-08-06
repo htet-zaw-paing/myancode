@@ -874,22 +874,25 @@
         }
 
         async function fetchMaintenanceState() {
-            const url = document.getElementById('edgeWorkerUrl').value.trim() || localStorage.getItem('edgeWorkerUrl');
+            let url = document.getElementById('edgeWorkerUrl').value.trim() || localStorage.getItem('edgeWorkerUrl');
             const secret = document.getElementById('edgeAdminSecret').value.trim() || localStorage.getItem('edgeAdminSecret');
             if(!url || !secret) return;
+            url = url.replace(/\/$/, ""); // Remove trailing slash
             try {
                 const res = await fetch(`${url}/_edge/maintenance-toggle`, {
                     headers: { 'x-admin-secret': secret }
                 });
-                const data = await res.json();
-                document.getElementById('maintenanceToggleBtn').checked = data.active;
+                if(res.ok) {
+                    const data = await res.json();
+                    document.getElementById('maintenanceToggleBtn').checked = data.active;
+                }
             } catch(e) { console.warn("Could not fetch edge state", e); }
         }
 
         async function toggleMaintenanceMode() {
-            const inputUrl = document.getElementById('edgeWorkerUrl').value.trim();
+            let inputUrl = document.getElementById('edgeWorkerUrl').value.trim();
             const inputSecret = document.getElementById('edgeAdminSecret').value.trim();
-            const url = inputUrl || localStorage.getItem('edgeWorkerUrl');
+            let url = inputUrl || localStorage.getItem('edgeWorkerUrl');
             const secret = inputSecret || localStorage.getItem('edgeAdminSecret');
             const toggle = document.getElementById('maintenanceToggleBtn');
             
@@ -898,6 +901,8 @@
                 toggle.checked = !toggle.checked;
                 return;
             }
+
+            url = url.replace(/\/$/, ""); // Prevent double-slash errors
 
             if (inputUrl && inputSecret) {
                 localStorage.setItem('edgeWorkerUrl', url);
@@ -911,9 +916,15 @@
                     headers: { 'Content-Type': 'application/json', 'x-admin-secret': secret },
                     body: JSON.stringify({ active: toggle.checked })
                 });
-                if(!res.ok) throw new Error("Unauthorized or edge error");
+                
+                if(!res.ok) {
+                    const errData = await res.text();
+                    throw new Error(`Edge Error ${res.status}: ${errData}`);
+                }
+                
                 showToast(toggle.checked ? "Maintenance Mode ACTIVATED" : "Maintenance Mode DEACTIVATED");
             } catch(e) {
+                console.error("Maintenance Toggle Error:", e);
                 showErrorToast("Invalid Worker URL or Admin Secret");
                 toggle.checked = !toggle.checked;
             } finally {
@@ -922,12 +933,13 @@
         }
 
         function saveEdgeSettings() {
-            const url = document.getElementById('edgeWorkerUrl').value.trim();
+            let url = document.getElementById('edgeWorkerUrl').value.trim();
             const secret = document.getElementById('edgeAdminSecret').value.trim();
             if(!url || !secret) {
                 showErrorToast("Please enter both URL and Secret.");
                 return;
             }
+            url = url.replace(/\/$/, ""); // Remove trailing slash
             localStorage.setItem('edgeWorkerUrl', url);
             localStorage.setItem('edgeAdminSecret', secret);
             showToast("Edge settings saved.");
