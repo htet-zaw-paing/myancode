@@ -115,6 +115,8 @@
         .post-code-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .65rem .9rem; background: #161b22; border-bottom: 1px solid #30363d; color: #8b949e; font: 700 10px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; }
         .post-code-copy { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #30363d; border-radius: 8px; padding: .4rem .65rem; background: #21262d; color: #c9d1d9; cursor: pointer; font: 700 10px/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; transition: .2s ease; }
         .post-code-copy:hover { border-color: #58a6ff; color: #fff; background: #30363d; }
+        .post-code-filter-badge { display: inline-flex; align-items: center; gap: .35rem; margin-top: .45rem; padding: .28rem .55rem; border: 1px solid rgba(41,151,255,.28); border-radius: 999px; background: rgba(41,151,255,.08); color: #70b7ff; font: 700 9px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .11em; text-transform: uppercase; transition: border-color .2s ease, background .2s ease, color .2s ease; }
+        .post-code-filter-badge:hover { border-color: rgba(41,151,255,.7); background: rgba(41,151,255,.16); color: #fff; }
         .post-code-shell pre { margin: 0; padding: 1rem; overflow-x: auto; color: #c9d1d9; font: 13px/1.7 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: pre; tab-size: 4; }
         .post-code-shell code { font: inherit; color: inherit; }
         .post-code-keyword { color: #ff7b72; }
@@ -786,14 +788,14 @@
                 <div class="block lg:hidden h-[60px] sm:h-[70px]"></div>
 
                 <div class="composer-box relative mb-8 z-20" id="composerContainer">
-                    <div id="composerOverlay" class="absolute inset-0 bg-black/60 backdrop-blur-md z-30 flex flex-col items-center justify-center hidden rounded-[20px] border border-white/5 p-6 sm:p-10 overflow-hidden">
-                        <div class="flex flex-col items-center text-center w-full max-w-[280px] sm:max-w-[400px] bg-black/40 p-5 sm:p-8 rounded-[24px] border border-white/10 backdrop-blur-lg shadow-2xl scale-90 sm:scale-100">
-                            <div class="mb-2 sm:mb-3 opacity-60 flex-shrink-0">
-                                <i data-lucide="lock" class="w-5 h-5 sm:w-8 sm:h-8 text-white" stroke-width="1.5"></i>
+                    <div id="composerOverlay" class="absolute inset-0 bg-black/50 backdrop-blur-sm z-30 flex flex-col items-center justify-center rounded-[20px] transition-all duration-300 min-h-full py-8">
+                        <div class="flex flex-col items-center text-center px-6 max-w-lg mx-auto">
+                            <div class="mb-3 text-white/80">
+                                <i data-lucide="lock" class="w-8 h-8 sm:w-10 sm:h-10" stroke-width="1.5"></i>
                             </div>
-                            <h4 class="font-bold text-xs sm:text-xl mb-1 sm:mb-2 text-white uppercase tracking-[0.15em] w-full truncate px-1" data-i18n="mpLoginToPost">Join the Community</h4>
-                            <p class="text-[9px] sm:text-[13px] text-gray-400 mb-4 sm:mb-6 leading-relaxed max-w-[200px] sm:max-w-[300px] line-clamp-2">Sign in to share your thoughts, snippets, and engage with others.</p>
-                            <a href="#" onclick="event.preventDefault(); window.location.href='../login/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search)" class="modern-btn-primary px-5 sm:px-10 py-1.5 sm:py-2.5 text-[9px] sm:text-[12px] tracking-[0.1em] rounded-full shadow-[0_8px_25px_rgba(29,78,216,0.3)] flex-shrink-0" data-i18n="hdrLogin">Login</a>
+                            <h4 class="font-bold text-lg sm:text-xl mb-2 text-white uppercase tracking-widest" data-i18n="mpLoginToPost">Join the Community</h4>
+                            <p class="text-xs text-gray-300 mb-5 leading-relaxed max-w-sm">Sign in to share your thoughts, snippets, and engage with others.</p>
+                            <a href="#" onclick="event.preventDefault(); window.location.href='../login/?redirect=' + encodeURIComponent(window.location.pathname + window.location.search)" class="modern-btn-primary px-8 py-2.5 text-[11px] tracking-widest rounded-xl shadow-[0_8px_25px_rgba(29,78,216,0.4)] transition-transform hover:-translate-y-1" data-i18n="hdrLogin">Login</a>
                         </div>
                     </div>
                     <div class="p-6 sm:p-8 border-b border-white/5 flex items-start gap-4 flex-1">
@@ -2809,8 +2811,23 @@
                 btn.setAttribute('data-expanded', 'true');
             }
         }
+        function decodePostCodeEntities(value) {
+            const source = String(value || '');
+            const decoder = document.createElement('textarea');
+            decoder.innerHTML = source;
+            return decoder.value.replace(/<;(?=[!/?a-z])/gi, '<').replace(/>;(?=\s|$|\n)/g, '>');
+        }
         function normalizePostCodeWhitespace(value) {
-            return String(value || '').replace(/\r\n?/g, '\n').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+            return decodePostCodeEntities(value).replace(/\r\n?/g, '\n').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+        }
+        function isCodeContainingPost(post) {
+            const source = String(post && post.content || '');
+            if (/<\/?(pre|code)\b/i.test(source) || /```[\s\S]*```/.test(source)) return true;
+            if (post && Array.isArray(post.hashtags) && post.hashtags.some(tag => ['#code', '#snippet', '#html', '#javascript', '#python', '#sql'].includes(String(tag).toLowerCase()))) return true;
+            const plain = decodePostCodeEntities(source).replace(/<[^>]+>/g, ' ');
+            const signals = (plain.match(/(^|\n)\s*(const|let|var|function|class|def|import|from|SELECT|INSERT|UPDATE|DELETE|#include|<!DOCTYPE|<\/?[a-z][^>]*>|#!)/g) || []).length;
+            const operators = (plain.match(/=>|===|!==|\{[^\n]*\}|;\s*(?:\n|$)/g) || []).length;
+            return signals + operators >= 2;
         }
         function highlightPostCode(code) {
             const escaped = escapePostCode(normalizePostCodeWhitespace(code));
@@ -2821,7 +2838,7 @@
             highlighted = highlighted.replace(/\b(const|let|var|function|return|if|else|for|while|class|new|import|from|export|async|await|def|try|catch|finally|throw|SELECT|FROM|WHERE|INSERT|INTO|UPDATE|DELETE|CREATE|TABLE)\b/g, '<span class="post-code-keyword">$1</span>');
             highlighted = highlighted.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="post-code-number">$1</span>');
             highlighted = highlighted.replace(/\b([A-Za-z_$][\w$]*)(?=\s*\()/g, '<span class="post-code-function">$1</span>');
-            highlighted = highlighted.replace(/(===|!==|=>|==|!=|\+\+|--|&&|\|\||[{}()[\];=+\-*\/%<>])/g, '<span class="post-code-operator">$1</span>');
+            highlighted = highlighted.replace(/(===|!==|=>|==|!=|\+\+|--|&&|\|\||[{}()[\];=+\-*\/%<>])/g, '<span class="post-code-operator"></span>');
             highlighted = highlighted.replace(/\u0000(\d+)\u0000/g, (_, index) => protectedParts[Number(index)]);
             return highlighted;
         }
@@ -2847,12 +2864,12 @@
         function renderPostContentWithCode(content) {
             const wrapper = document.createElement('div');
             wrapper.innerHTML = content || '';
-            Array.from(wrapper.querySelectorAll('pre')).forEach(pre => { pre.outerHTML = createPostCodeBlock(pre.textContent, pre.getAttribute('data-language') || 'CODE'); });
+            Array.from(wrapper.querySelectorAll('pre')).forEach(pre => { pre.outerHTML = createPostCodeBlock(decodePostCodeEntities(pre.textContent), pre.getAttribute('data-language') || 'CODE'); });
             if (!wrapper.querySelector('.post-code-shell')) {
                 const plain = wrapper.textContent || '';
                 const fenced = plain.match(/```([a-zA-Z0-9+#.-]*)\s*\n?([\s\S]*?)```/);
                 const codeSignals = (plain.match(/(^|\n)\s*(const|let|var|function|class|def|import|from|SELECT|INSERT|UPDATE|DELETE|<\/?[a-z][^>]*>|#!|\{.*\}|=>)/g) || []).length;
-                if (fenced) return createPostCodeBlock(fenced[2], fenced[1] || 'CODE');
+                if (fenced) return createPostCodeBlock(decodePostCodeEntities(fenced[2]), fenced[1] || 'CODE');
                 if (plain.includes('\n') && codeSignals >= 2) return createPostCodeBlock(plain, 'CODE');
             }
             return wrapper.innerHTML;
@@ -3290,7 +3307,7 @@
             currentFilteredPosts = allCommunityPosts;
             if (currentFilter === 'mine' && currentUser) currentFilteredPosts = currentFilteredPosts.filter(p => p.user_id === currentUser.id);
             else if (currentFilter === 'saved' && currentUser) currentFilteredPosts = currentFilteredPosts.filter(p => p.marketplace_saves && p.marketplace_saves.some(s => s.user_id === currentUser.id));
-            else if (currentFilter === 'snippets') currentFilteredPosts = currentFilteredPosts.filter(p => p.hashtags && p.hashtags.some(t => t.toLowerCase() === '#snippet' || t.toLowerCase() === '#code'));
+            else if (currentFilter === 'snippets') currentFilteredPosts = currentFilteredPosts.filter(isCodeContainingPost);
             else if (currentFilter === 'qa') currentFilteredPosts = currentFilteredPosts.filter(p => p.hashtags && p.hashtags.some(t => t.toLowerCase() === '#help' || t.toLowerCase() === '#qa' || t.toLowerCase() === '#question'));
             
             if (searchQuery !== '') currentFilteredPosts = currentFilteredPosts.filter(p => (p.content && p.content.toLowerCase().includes(searchQuery)) || (p.author_name && p.author_name.toLowerCase().includes(searchQuery)) || (p.hashtags && p.hashtags.some(tag => tag.toLowerCase().includes(searchQuery))));
@@ -3327,7 +3344,8 @@
         function buildPostHTML(post, isDetailModal = false) {
             const dateStr = timeAgo(post.created_at); const avatar = post.author_avatar ? `<img src="${post.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-400"></i>`;
             const isOwner = currentUser && currentUser.id === post.user_id; const isSaved = currentUser && post.marketplace_saves && post.marketplace_saves.some(s => s.user_id === currentUser.id); const isLiked = currentUser && post.marketplace_likes && post.marketplace_likes.some(l => l.user_id === currentUser.id);
-            const commentCount = post.marketplace_comments?.[0]?.count || 0; const likeCount = post.marketplace_likes?.length || 0; 
+            const commentCount = post.marketplace_comments?.[0]?.count || 0; const likeCount = post.marketplace_likes?.length || 0;
+            const isCodePost = isCodeContainingPost(post);
             const editedBadge = post.updated_at ? `<span class="text-[9px] bg-white/10 text-gray-400 px-1.5 py-0.5 rounded ml-2 font-mono uppercase tracking-tighter">Edited (${timeAgo(post.updated_at)})</span>` : '';
             let safeContent = window.DOMPurify ? DOMPurify.sanitize(post.content, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span', 'pre', 'code'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-language'] }) : post.content;
             safeContent = renderPostContentWithCode(safeContent);
@@ -3370,6 +3388,7 @@
                         <div>
                             <h4 class="text-[15px] font-bold tracking-wide text-white flex items-center">${post.author_name} ${getRoleBadge(post.author_role)} ${editedBadge}</h4>
                             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-1 font-mono">${dateStr}</p>
+                            ${isCodePost ? `<button type="button" class="post-code-filter-badge" onclick="event.stopPropagation(); filterFeed('snippets')" title="Show all posts containing code"><i data-lucide="code-2" class="w-3 h-3"></i><span>Code post</span></button>` : ''}
                         </div>
                     </div>
                     <div class="relative">
