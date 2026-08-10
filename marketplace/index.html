@@ -111,6 +111,19 @@
         .post-content-render b, .post-content-render strong { font-weight: 700; color: #fff; }
         .post-content-render p { margin-bottom: 0.5rem; }
         .post-content-render p:last-child { margin-bottom: 0; }
+        .post-code-shell { background: #0d1117; border: 1px solid #30363d; border-radius: 14px; overflow: hidden; margin: 1rem 0; box-shadow: 0 12px 30px rgba(0,0,0,.22); }
+        .post-code-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .65rem .9rem; background: #161b22; border-bottom: 1px solid #30363d; color: #8b949e; font: 700 10px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; }
+        .post-code-copy { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #30363d; border-radius: 8px; padding: .4rem .65rem; background: #21262d; color: #c9d1d9; cursor: pointer; font: 700 10px/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; transition: .2s ease; }
+        .post-code-copy:hover { border-color: #58a6ff; color: #fff; background: #30363d; }
+        .post-code-shell pre { margin: 0; padding: 1rem; overflow-x: auto; color: #c9d1d9; font: 13px/1.7 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: pre; tab-size: 4; }
+        .post-code-shell code { font: inherit; color: inherit; }
+        .post-code-keyword { color: #ff7b72; }
+        .post-code-string { color: #a5d6ff; }
+        .post-code-number { color: #79c0ff; }
+        .post-code-comment { color: #8b949e; font-style: italic; }
+        .post-code-function { color: #d2a8ff; }
+        .post-code-operator { color: #ffab70; }
+        .editor-content pre { margin: .75rem 0; padding: .75rem 1rem; border: 1px solid rgba(88,166,255,.28); border-radius: 10px; background: #0d1117; color: #c9d1d9; font: 13px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; tab-size: 4; }
         
         .post-container { content-visibility: auto; contain-intrinsic-size: 400px; }
         
@@ -204,12 +217,16 @@
         body.light-mode-active .modal-base .bg-white { background-color: #0f172a !important; color: #ffffff !important; }
         body.light-mode-active .modal-base .hover\:text-white:hover { color: #0f172a !important; }
         
-        body.light-mode-active #jwtInsightModal textarea,
-        body.light-mode-active #cryptoVaultModal textarea { background-color: #ffffff !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
-        body.light-mode-active #jwtOutput pre, 
-        body.light-mode-active #cryptoResultText { background-color: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
-        body.light-mode-active #jwtOutput .text-gray-300, 
-        body.light-mode-active #cryptoOutput .text-gray-200 { color: #1e293b !important; }
+        body.light-mode-active #hashtagGenModal textarea,
+        body.light-mode-active #hashtagGenModal input,
+        body.light-mode-active #bioCardModal textarea,
+        body.light-mode-active #bioCardModal input { background-color: #ffffff !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+        body.light-mode-active #hashtagOutput pre,
+        body.light-mode-active #hashtagOutput .bg-black\/40,
+        body.light-mode-active #bioOutput pre,
+        body.light-mode-active #bioOutput .bg-black\/40 { background-color: #ffffff !important; color: #1e293b !important; border-color: #cbd5e1 !important; }
+        body.light-mode-active #hashtagOutput .text-gray-300,
+        body.light-mode-active #bioOutput .text-gray-200 { color: #1e293b !important; }
 
         .post-card {
             background: linear-gradient(145deg, rgba(15, 17, 21, 0.9) 0%, rgba(8, 9, 10, 0.95) 100%);
@@ -354,18 +371,33 @@
         }
 
         .action-icon-btn {
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            min-height: 40px;
+            transition: background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
             border-radius: 10px;
-            color: rgba(255,255,255,0.5);
-            background: transparent;
-            border: 1px solid transparent;
+            color: rgba(255,255,255,0.58);
+            background: rgba(255,255,255,0.015);
+            border: 1px solid rgba(255,255,255,0.06);
+            transform: none;
+            isolation: isolate;
         }
-        .action-icon-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: #2997ff;
-            transform: translateY(-1px);
+        .action-icon-btn:hover,
+        .action-icon-btn:focus-visible {
+            z-index: 5;
+            background: rgba(41,151,255,0.12);
+            border-color: rgba(41,151,255,0.42);
+            color: #70b7ff;
+            box-shadow: 0 4px 14px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,255,255,.04);
+            outline: none;
+            transform: none;
         }
+        .action-icon-btn:active { background: rgba(41,151,255,0.2); box-shadow: inset 0 1px 3px rgba(0,0,0,.25); }
+        .action-icon-btn.code-mode-active { background: rgba(41,151,255,0.16); border-color: rgba(41,151,255,.5); color: #70b7ff; box-shadow: inset 0 0 0 1px rgba(112,183,255,.1), 0 4px 14px rgba(0,0,0,.22); }
 
         body.light-mode-active .post-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.03); }
         body.light-mode-active .post-card::before { background: linear-gradient(90deg, transparent, rgba(0,0,0,0.02), transparent); }
@@ -377,7 +409,7 @@
         body.light-mode-active .tag-pill-modern:hover { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
         body.light-mode-active .avatar-inner { border-color: #ffffff; }
         body.light-mode-active .action-icon-btn { color: #64748b; }
-        body.light-mode-active .action-icon-btn:hover { background: #f1f5f9; border-color: #e2e8f0; color: #2563eb; }
+        body.light-mode-active .action-icon-btn:hover, body.light-mode-active .action-icon-btn:focus-visible { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; box-shadow: 0 4px 14px rgba(15,23,42,.12), inset 0 0 0 1px rgba(255,255,255,.75); }
 
     </style>
 </head>
@@ -652,13 +684,13 @@
             <div class="pt-6 border-t border-white/10">
                 <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-5 flex items-center gap-2"><i data-lucide="menu" class="w-3.5 h-3.5 text-myancode-accent"></i> Tools & Settings</h3>
                 <nav class="space-y-3 flex flex-col">
-                    <button onclick="toggleBottomDrawer(); openJwtInsight();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(99,102,241,0.1)] group">
-                        <div class="flex items-center gap-3"><div class="p-2 bg-indigo-500/20 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="key" class="w-4 h-4 text-indigo-400"></i></div> <span>JWT Insight</span></div>
-                        <span class="text-[9px] font-bold bg-indigo-500 text-white px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">Sec</span>
+                    <button onclick="toggleBottomDrawer(); openHashtagGen();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-violet-500/10 to-transparent border border-violet-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(139,92,246,0.1)] group">
+                        <div class="flex items-center gap-3"><div class="p-2 bg-violet-500/20 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-4 h-4 text-violet-400"></i></div> <span>Hashtag Generator</span></div>
+                        <span class="text-[9px] font-bold bg-violet-500 text-white px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">Social</span>
                     </button>
-                    <button onclick="toggleBottomDrawer(); openCryptoVault();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(244,63,94,0.1)] group">
-                        <div class="flex items-center gap-3"><div class="p-2 bg-rose-500/20 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-4 h-4 text-rose-400"></i></div> <span>Crypto Vault</span></div>
-                        <span class="text-[9px] font-bold bg-rose-500 text-white px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">Core</span>
+                    <button onclick="toggleBottomDrawer(); openBioCard();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(16,185,129,0.1)] group">
+                        <div class="flex items-center gap-3"><div class="p-2 bg-emerald-500/20 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div> <span>Bio Link & Share Card</span></div>
+                        <span class="text-[9px] font-bold bg-emerald-500 text-white px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">Social</span>
                     </button>
                     <button onclick="toggleBottomDrawer(); filterFeed('mine')" class="w-full flex items-center gap-3 px-5 py-3.5 modern-btn-secondary text-[13px] font-semibold transition-all rounded-2xl mt-2">
                         <i data-lucide="edit-3" class="w-4.5 h-4.5"></i> <span>Edit My Posts</span>
@@ -719,13 +751,13 @@
                     <div class="border-t border-white/10 pt-6">
                         <h3 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 ml-1 flex items-center gap-2"><i data-lucide="menu" class="w-3.5 h-3.5 text-myancode-accent"></i> Tools & Settings</h3>
                         <nav class="space-y-3 flex flex-col">
-                            <button onclick="openJwtInsight()" class="w-full flex items-center justify-between px-5 py-3.5 bg-gradient-to-br from-[#1a1c29] to-[#0f111a] border border-indigo-500/20 rounded-xl text-white text-[13px] font-semibold transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(99,102,241,0.15)] group">
-                                <div class="flex items-center gap-3"><div class="p-1.5 bg-indigo-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="key" class="w-4 h-4 text-indigo-400"></i></div> <span>JWT Insight</span></div>
-                                <span class="text-[9px] font-bold bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Sec</span>
+                            <button onclick="openHashtagGen()" class="w-full flex items-center justify-between px-5 py-3.5 bg-gradient-to-br from-[#1c1a29] to-[#12101a] border border-violet-500/20 rounded-xl text-white text-[13px] font-semibold transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(139,92,246,0.15)] group">
+                                <div class="flex items-center gap-3"><div class="p-1.5 bg-violet-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-4 h-4 text-violet-400"></i></div> <span>Hashtag Generator</span></div>
+                                <span class="text-[9px] font-bold bg-violet-600/20 text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Social</span>
                             </button>
-                            <button onclick="openCryptoVault()" class="w-full flex items-center justify-between px-5 py-3.5 bg-gradient-to-br from-[#291a1a] to-[#1a0f0f] border border-rose-500/20 rounded-xl text-white text-[13px] font-semibold transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(244,63,94,0.15)] group">
-                                <div class="flex items-center gap-3"><div class="p-1.5 bg-rose-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-4 h-4 text-rose-400"></i></div> <span>Crypto Vault</span></div>
-                                <span class="text-[9px] font-bold bg-rose-600/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Core</span>
+                            <button onclick="openBioCard()" class="w-full flex items-center justify-between px-5 py-3.5 bg-gradient-to-br from-[#1a291e] to-[#0f1a12] border border-emerald-500/20 rounded-xl text-white text-[13px] font-semibold transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(16,185,129,0.15)] group">
+                                <div class="flex items-center gap-3"><div class="p-1.5 bg-emerald-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div> <span>Bio Link & Share Card</span></div>
+                                <span class="text-[9px] font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Social</span>
                             </button>
                             <button onclick="filterFeed('mine')" class="w-full flex items-center gap-3 px-5 py-3.5 bg-white/5 border border-white/5 text-[13px] font-semibold transition-all hover:bg-white/10 hover:border-white/10 rounded-xl mt-1 text-gray-300 hover:text-white">
                                 <i data-lucide="edit-3" class="w-4 h-4 text-gray-400"></i> <span>Edit My Posts</span>
@@ -778,6 +810,7 @@
                             <button onclick="formatDoc('bold')" class="action-icon-btn p-2 tooltip flex-shrink-0" title="Bold"><i data-lucide="bold" class="w-4.5 h-4.5"></i></button>
                             <button onclick="formatDoc('italic')" class="action-icon-btn p-2 tooltip flex-shrink-0" title="Italic"><i data-lucide="italic" class="w-4.5 h-4.5"></i></button>
                             <button onclick="formatDoc('insertUnorderedList')" class="action-icon-btn p-2 tooltip flex-shrink-0" title="Bullet List"><i data-lucide="list" class="w-4.5 h-4.5"></i></button>
+                            <button id="btnFormatCode" onclick="formatCodeBlock()" class="action-icon-btn p-2 tooltip flex-shrink-0" title="Code Block" aria-label="Toggle code block" aria-pressed="false"><i data-lucide="code-2" class="w-4.5 h-4.5"></i></button>
                             <button onclick="addLink()" class="action-icon-btn p-2 tooltip flex-shrink-0" title="Add Link"><i data-lucide="link" class="w-4.5 h-4.5"></i></button>
                             <div class="w-px h-4 bg-white/10 mx-2 flex-shrink-0 hidden sm:block"></div>
                             <label class="action-icon-btn p-2 cursor-pointer flex items-center gap-2 relative flex-shrink-0">
@@ -1276,15 +1309,18 @@
         </div>
     </div>
 
-    <div id="shareModal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+    <div id="shareModal" class="fixed inset-0 z-[9990] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
         <div class="modal-base p-8 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300">
             <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-5">
-                <h4 class="text-sm font-bold uppercase tracking-widest text-white">Share Post</h4>
+                <div>
+                    <h4 id="shareModalTitle" class="text-sm font-bold uppercase tracking-widest text-white">Share</h4>
+                    <p id="shareModalDescription" class="text-[11px] text-gray-500 mt-1">Create a secure, short share link.</p>
+                </div>
                 <button onclick="closeShareModal()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="flex gap-3 mb-8">
-                <input type="text" id="shareUrlInput" readonly class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-[13px] font-medium text-gray-200 focus:outline-none shadow-inner">
-                <button onclick="copyShareLink()" class="modern-btn-primary px-5 py-3 font-bold text-[11px] uppercase tracking-widest">Copy</button>
+                <input type="text" id="shareUrlInput" readonly aria-label="Short share link" class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-[13px] font-medium text-gray-200 focus:outline-none shadow-inner">
+                <button onclick="copyShareLink()" class="modern-btn-primary px-5 py-3 font-bold text-[11px] uppercase tracking-widest">Copy Link</button>
             </div>
             <div class="grid grid-cols-5 gap-4">
                 <button onclick="shareSocial('facebook')" class="flex flex-col items-center gap-2 hover:-translate-y-1 transition-transform group">
@@ -1332,45 +1368,77 @@
         </div>
     </div>
 
-    <!-- JWT Insight Modal -->
-    <div id="jwtInsightModal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+    <div id="hashtagGenModal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300 px-4">
         <div class="modal-base w-full max-w-3xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center p-6 border-b border-white/10">
-                <h4 class="text-[13px] font-bold uppercase tracking-widest text-white flex items-center gap-3"><div class="p-1.5 bg-indigo-500/20 rounded-md"><i data-lucide="key" class="w-4 h-4 text-indigo-400"></i></div> JWT Insight</h4>
-                <button onclick="closeJwtInsight()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <h4 class="text-[13px] font-bold uppercase tracking-widest text-white flex items-center gap-3"><div class="p-1.5 bg-violet-500/20 rounded-md"><i data-lucide="hash" class="w-4 h-4 text-violet-400"></i></div> Hashtag Generator</h4>
+                <button onclick="closeHashtagGen()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="p-6 flex-1 overflow-y-auto no-scrollbar flex flex-col gap-5">
-                <textarea id="jwtInput" oninput="decodeJwt()" class="w-full h-24 bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 transition-colors font-mono resize-none shadow-inner" placeholder="Paste your JWT (JSON Web Token) here..."></textarea>
-                
-                <div class="flex-1 min-h-[220px] bg-[#050505] border border-white/10 rounded-2xl p-5 overflow-auto relative shadow-inner flex flex-col" id="jwtOutput">
-                    <span class="text-gray-500 text-[13px] italic font-medium m-auto">Awaiting token...</span>
+                <textarea id="hashtagInput" oninput="buildHashtags()" class="w-full h-28 bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-gray-200 focus:outline-none focus:border-violet-500 transition-colors resize-none shadow-inner" placeholder="Describe your topic, product, project, audience, or campaign and generate precise, relevant hashtags..."></textarea>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Characters</span>
+                        <span id="hgCharCount" class="text-2xl font-bold font-mono text-white">0</span>
+                    </div>
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Words</span>
+                        <span id="hgWordCount" class="text-2xl font-bold font-mono text-white">0</span>
+                    </div>
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Hashtags</span>
+                        <span id="hgReadTime" class="text-2xl font-bold font-mono text-white">0</span>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[240px] bg-[#050505] border border-white/10 rounded-2xl p-5 overflow-auto relative shadow-inner flex flex-col" id="hashtagOutput">
+                    <span class="text-gray-500 text-[13px] italic font-medium m-auto">Start describing your topic to generate intelligent hashtags...</span>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button onclick="copyHashtagOutput()" class="modern-btn-primary px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Hashtags</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Crypto Vault Modal -->
-    <div id="cryptoVaultModal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+    <div id="bioCardModal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300 px-4">
         <div class="modal-base w-full max-w-3xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center p-6 border-b border-white/10">
-                <h4 class="text-[13px] font-bold uppercase tracking-widest text-white flex items-center gap-3"><div class="p-1.5 bg-rose-500/20 rounded-md"><i data-lucide="hash" class="w-4 h-4 text-rose-400"></i></div> Crypto Vault</h4>
-                <button onclick="closeCryptoVault()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <h4 class="text-[13px] font-bold uppercase tracking-widest text-white flex items-center gap-3"><div class="p-1.5 bg-emerald-500/20 rounded-md"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div> Bio Link & Share Card</h4>
+                <button onclick="closeBioCard()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="p-6 flex-1 overflow-y-auto no-scrollbar flex flex-col gap-5">
-                <textarea id="cryptoInput" class="w-full h-24 bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-gray-200 focus:outline-none focus:border-rose-500 transition-colors font-mono resize-none shadow-inner" placeholder="Enter text to hash or encode..."></textarea>
-                
-                <div class="flex flex-wrap gap-3">
-                    <button onclick="processCrypto('sha256')" class="modern-btn-primary px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5"></i> SHA-256</button>
-                    <button onclick="processCrypto('base64enc')" class="modern-btn-secondary px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="code" class="w-3.5 h-3.5"></i> Base64 Encode</button>
-                    <button onclick="processCrypto('base64dec')" class="modern-btn-secondary px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="unlock" class="w-3.5 h-3.5"></i> Base64 Decode</button>
-                    <button onclick="processCrypto('uuid')" class="px-5 py-2.5 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-full shadow-lg text-[11px] font-bold uppercase tracking-wider hover:scale-105 transition-transform flex items-center gap-1.5 ml-auto"><i data-lucide="zap" class="w-3.5 h-3.5"></i> Gen UUID</button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="text" id="bioNameInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="Your name or brand">
+                    <input type="text" id="bioTagInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="Tagline (e.g. Full-Stack Developer)">
+                    <textarea id="bioDescInput" oninput="buildBioCard()" class="w-full sm:col-span-2 h-20 bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors resize-none shadow-inner" placeholder="Short bio (what you do, your skills, what people should check out)..."></textarea>
                 </div>
-                
-                <div class="flex-1 min-h-[160px] bg-[#050505] border border-white/10 rounded-2xl p-5 overflow-auto shadow-inner flex flex-col relative">
-                    <div class="absolute top-4 right-4 z-10"><button onclick="copyCryptoOutput()" class="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/10"><i data-lucide="copy" class="w-4 h-4"></i></button></div>
-                    <div id="cryptoOutput" class="flex-1 flex flex-col"><span class="text-gray-500 text-[13px] italic font-medium m-auto">Result will appear here...</span></div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <input type="url" id="bioFacebook" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="Facebook URL">
+                    <input type="url" id="bioTiktok" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="TikTok URL">
+                    <input type="url" id="bioGithub" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="GitHub URL">
+                    <input type="url" id="bioOther" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="Website / Portfolio">
+                </div>
+                <div class="flex-1 min-h-[220px] bg-[#050505] border border-white/10 rounded-2xl p-5 overflow-auto shadow-inner flex flex-col relative">
+                    <div class="absolute top-4 right-4 z-10"><button onclick="copyBioCard()" class="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/10"><i data-lucide="copy" class="w-4 h-4"></i></button></div>
+                    <div id="bioOutput" class="flex-1 flex flex-col"><span class="text-gray-500 text-[13px] italic font-medium m-auto">Fill in your details to build your share card...</span></div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="sharedBioCardModal" class="fixed inset-0 z-[9995] bg-black/80 backdrop-blur-xl hidden flex items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="modal-base w-full max-w-xl transform scale-95 transition-transform duration-300 overflow-hidden">
+            <div class="flex items-center justify-between p-5 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-emerald-500/20 rounded-lg"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div>
+                    <div>
+                        <h4 class="text-[13px] font-bold uppercase tracking-widest text-white">Bio Share Card</h4>
+                        <p class="text-[10px] text-gray-500 mt-1">Read-only shared profile</p>
+                    </div>
+                </div>
+                <button onclick="closeSharedBioCard()" aria-label="Close shared bio card" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="sharedBioCardOutput" class="p-6 sm:p-8"></div>
         </div>
     </div>
 
@@ -1478,92 +1546,236 @@
             return false;
         }
 
-        function openJwtInsight() {
-            const modal = document.getElementById('jwtInsightModal');
+        let selectedPlatforms = new Set(['twitter']);
+        function togglePlatform(btn, platform) {
+            if (selectedPlatforms.has(platform)) {
+                if (selectedPlatforms.size <= 1) { showToast('At least one platform must be selected!'); return; }
+                selectedPlatforms.delete(platform);
+                btn.className = 'px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-colors';
+            } else {
+                selectedPlatforms.add(platform);
+                btn.className = 'px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-violet-500/20 border border-violet-500/40 text-violet-300 transition-colors';
+            }
+            buildHashtags();
+        }
+        function extractKeywords(text) {
+            const stops = new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','by','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','can','this','that','it','its','i','me','my','we','our','you','your','he','him','his','she','her','they','them','their','what','which','who','whom','when','where','how','all','any','just','also','from','as','not','so','too','very','up','out','new','now','my','want','made','make','build','built','using','use','with','about','check','out','my','the','i','just','a','an','and','or','to','for','of']);
+            const words = text.toLowerCase().replace(/[^a-z0-9\u1000-\u109f ]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !stops.has(w));
+            const freq = {};
+            words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
+            return Object.entries(freq).sort((a, b) => b[1] - a[1]).map(e => e[0]).slice(0, 10);
+        }
+        function openHashtagGen() {
+            const modal = document.getElementById('hashtagGenModal');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('div').classList.remove('scale-95'); }, 10);
             document.body.classList.add('no-scroll');
         }
-        function closeJwtInsight() {
-            const modal = document.getElementById('jwtInsightModal');
+        function closeHashtagGen() {
+            const modal = document.getElementById('hashtagGenModal');
             modal.classList.add('opacity-0'); modal.querySelector('div').classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); document.body.classList.remove('no-scroll'); }, 300);
         }
-        function decodeJwt() {
-            const token = document.getElementById('jwtInput').value.trim();
-            const outputEl = document.getElementById('jwtOutput');
-            if(!token) { outputEl.innerHTML = '<span class="text-gray-500 text-[13px] italic font-medium m-auto">Awaiting token...</span>'; return; }
-            try {
-                const parts = token.split('.');
-                if(parts.length !== 3) throw new Error("Invalid JWT structure");
-                const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
-                const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-                let expStatus = '';
-                if(payload.exp) {
-                    const now = Math.floor(Date.now() / 1000);
-                    if(payload.exp < now) expStatus = '<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-[9px] uppercase tracking-wider ml-2">Expired</span>';
-                    else expStatus = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[9px] uppercase tracking-wider ml-2">Active</span>';
-                }
-                outputEl.innerHTML = `
-                    <div class="mb-4 text-left w-full"><div class="flex items-center mb-1.5"><span class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1.5"><i data-lucide="layout-template" class="w-3.5 h-3.5"></i> Header</span></div><pre class="text-[12px] text-gray-300 bg-black/40 p-3 rounded-xl border border-white/5 break-all whitespace-pre-wrap font-mono shadow-inner">${JSON.stringify(header, null, 2)}</pre></div>
-                    <div class="text-left w-full"><div class="flex items-center mb-1.5"><span class="text-emerald-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1.5"><i data-lucide="database" class="w-3.5 h-3.5"></i> Payload</span> ${expStatus}</div><pre class="text-[12px] text-gray-300 bg-black/40 p-3 rounded-xl border border-white/5 break-all whitespace-pre-wrap font-mono shadow-inner">${JSON.stringify(payload, null, 2)}</pre></div>
-                `;
-                if(typeof lucide !== 'undefined') lucide.createIcons();
-            } catch(e) {
-                outputEl.innerHTML = `<span class="text-red-400 text-[13px] font-medium m-auto flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Decode failed: ${e.message}</span>`;
-                if(typeof lucide !== 'undefined') lucide.createIcons();
+        const HASHTAG_STOP_WORDS = new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','by','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','can','this','that','it','its','i','me','my','we','our','you','your','he','him','his','she','her','they','them','their','what','which','who','whom','when','where','how','all','any','just','also','from','as','not','so','too','very','up','out','new','now','want','made','make','build','built','using','use','about','check','share','please','need','like','people','thing','things','here']);
+        const HASHTAG_GENERIC_TERMS = new Set(['rate','personal','website','web','site','page','demo','show','see','look','visit','post','project','content','profile','name','brand']);
+        const HASHTAG_EXPANSIONS = {
+            website: ['portfolio'],
+            portfolio: ['webdesign'],
+            rate: ['rating'],
+            rating: ['review'],
+            review: ['feedback'],
+            react: ['reactjs','frontenddevelopment'],
+            javascript: ['javascriptdeveloper','webdevelopment'],
+            typescript: ['typescript','webdevelopment'],
+            python: ['pythonprogramming'],
+            coding: ['programming','softwaredeveloper'],
+            developer: ['softwaredeveloper','webdevelopment'],
+            design: ['uidesign','uxdesign'],
+            marketing: ['digitalmarketing','contentmarketing'],
+            business: ['entrepreneurship','businessgrowth'],
+            startup: ['startuplife','entrepreneur'],
+            creator: ['contentcreator'],
+            education: ['learning'],
+            career: ['careerdevelopment'],
+            myanmar: ['myanmarbusiness']
+        };
+        function normalizeHashtagToken(value) {
+            return String(value || '').replace(/[^a-z0-9\u1000-\u109f]/gi, '').toLowerCase();
+        }
+        function toHashtagPhrase(words) {
+            return words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join('');
+        }
+        function generateSmartHashtags(text) {
+            const originalTokens = text.match(/[A-Za-z0-9\u1000-\u109f]+/g) || [];
+            const tokens = originalTokens.map(normalizeHashtagToken);
+            const scores = new Map();
+            const add = (tag, score) => {
+                const clean = normalizeHashtagToken(tag);
+                if (!clean || HASHTAG_STOP_WORDS.has(clean) || HASHTAG_GENERIC_TERMS.has(clean) || clean.length < 3) return;
+                scores.set(clean, (scores.get(clean) || 0) + score);
+            };
+            const meaningful = tokens.filter(token => !HASHTAG_STOP_WORDS.has(token) && !HASHTAG_GENERIC_TERMS.has(token) && token.length > 2);
+            const frequencies = {};
+            meaningful.forEach(token => { frequencies[token] = (frequencies[token] || 0) + 1; });
+            Object.entries(frequencies).forEach(([token, count]) => {
+                add(token, 7 + Math.min(5, count * 2));
+                (HASHTAG_EXPANSIONS[token] || []).forEach((tag, index) => add(tag, 3 - index));
+            });
+            for (let index = 0; index < tokens.length;) {
+                if (HASHTAG_STOP_WORDS.has(tokens[index]) || HASHTAG_GENERIC_TERMS.has(tokens[index]) || tokens[index].length <= 2) { index++; continue; }
+                const phrase = [];
+                let cursor = index;
+                while (cursor < tokens.length && phrase.length < 4 && !HASHTAG_STOP_WORDS.has(tokens[cursor]) && !HASHTAG_GENERIC_TERMS.has(tokens[cursor]) && tokens[cursor].length > 2) { phrase.push(tokens[cursor]); cursor++; }
+                if (phrase.length >= 2) add(toHashtagPhrase(phrase.slice(0, 3)), 22 - phrase.length);
+                index = cursor;
             }
+            if (/\b(website|portfolio|homepage|web\s*design)\b/i.test(text)) add('Portfolio', 5);
+            if (/\b(rate|rating|review|feedback)\b/i.test(text)) add('Rating', 5);
+            const ranked = Array.from(scores.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([tag]) => '#' + tag.charAt(0).toUpperCase() + tag.slice(1));
+            return Array.from(new Set(ranked)).slice(0, 10);
+        }
+        function buildHashtags() {
+            const text = document.getElementById('hashtagInput').value;
+            const outputEl = document.getElementById('hashtagOutput');
+            const chars = text.length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const hashtags = text.trim() ? generateSmartHashtags(text) : [];
+            document.getElementById('hgCharCount').innerText = chars;
+            document.getElementById('hgWordCount').innerText = words;
+            document.getElementById('hgReadTime').innerText = hashtags.length;
+            if (!text.trim()) { outputEl.innerHTML = '<span class="text-gray-500 text-[13px] italic font-medium m-auto">Start describing your topic to generate intelligent hashtags...</span>'; return; }
+            outputEl.innerHTML = `<div class="w-full"><div class="flex items-center justify-between mb-4"><span class="text-emerald-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Intelligent Hashtag Set</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${hashtags.length} relevant tags</span></div><div class="flex flex-wrap gap-2.5">${hashtags.map(tag => `<span class="tag-pill text-violet-300 border-violet-500/30 hover:border-violet-500">${tag}</span>`).join('')}</div><p class="text-[11px] text-gray-500 mt-5 leading-relaxed">Ranked from your description using topic signals, related concepts, industry vocabulary, and MyanCode community context.</p></div>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        function copyHashtagOutput() {
+            const text = document.getElementById('hashtagInput').value.trim();
+            if (!text) { showToast('Describe a topic first.'); return; }
+            const hashtags = generateSmartHashtags(text);
+            navigator.clipboard.writeText(hashtags.join(' ')).then(() => showToast('Hashtags copied!')).catch(() => showToast('Copy failed, select the hashtags manually.'));
+        }
+        async function createToolShareUrl(type, data, title, description) {
+            if (!supabaseInstance) { showToast('Sharing is temporarily unavailable.'); return null; }
+            const shareKey = crypto.randomUUID().replace(/-/g, '').slice(0, 12);
+            const { data: record, error } = await supabaseInstance.from('community_share_links').insert({ share_key: shareKey, content_type: type, title, description, payload: data }).select('share_key').single();
+            if (error || !record) { showToast('Unable to create a share link.'); return null; }
+            return `${window.location.origin}${window.location.pathname}?share=${encodeURIComponent(record.share_key)}`;
+        }
+        function openToolShareModal(url, text, title) {
+            if (!url) return;
+            const modal = document.getElementById('shareModal');
+            document.getElementById('shareUrlInput').value = url;
+            document.getElementById('shareModalTitle').innerText = title;
+            document.getElementById('shareModalDescription').innerText = 'Short link ready to share securely.';
+            modal.dataset.text = text;
+            modal.dataset.title = title;
+            const modalInner = modal.querySelector('div');
+            modal.classList.remove('hidden');
+            document.body.classList.add('no-scroll');
+            setTimeout(() => { modal.classList.remove('opacity-0'); modalInner.classList.remove('scale-95'); }, 10);
+        }
+        async function shareHashtagOutput() {
+            const text = document.getElementById('hashtagInput').value.trim();
+            if (!text) { showToast('Write something first!'); return; }
+            const keywords = extractKeywords(text);
+            const limit = selectedPlatforms.has('twitter') ? 3 : selectedPlatforms.has('instagram') ? 15 : selectedPlatforms.has('linkedin') ? 5 : 8;
+            const headline = text.trim().split(/[.!?]+/)[0].trim();
+            let caption = headline ? headline.charAt(0).toUpperCase() + headline.slice(1) : text.trim().substring(0, 150) + '...';
+            caption += '\n\n' + keywords.slice(0, limit).map(k => '#' + k).concat(['#MyanCode', '#Community', '#DevLife']).join(' ');
+            const url = await createToolShareUrl('hashtag', { text }, 'Hashtag Generator', caption);
+            openToolShareModal(url, caption, 'Hashtag Generator');
         }
 
-        function openCryptoVault() {
-            const modal = document.getElementById('cryptoVaultModal');
+        function openHashtagShareModal() {
+            shareHashtagOutput();
+        }
+
+        function openBioCard() {
+            const modal = document.getElementById('bioCardModal');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('div').classList.remove('scale-95'); }, 10);
             document.body.classList.add('no-scroll');
+            buildBioCard();
         }
-        function closeCryptoVault() {
-            const modal = document.getElementById('cryptoVaultModal');
+        function closeBioCard() {
+            const modal = document.getElementById('bioCardModal');
             modal.classList.add('opacity-0'); modal.querySelector('div').classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); document.body.classList.remove('no-scroll'); }, 300);
         }
-        async function processCrypto(action) {
-            const input = document.getElementById('cryptoInput').value;
-            const outputEl = document.getElementById('cryptoOutput');
-            try {
-                let result = '';
-                let title = '';
-                if(action === 'uuid') {
-                    result = crypto.randomUUID ? crypto.randomUUID() : 'UUID generation not supported.';
-                    title = 'Generated UUIDv4';
-                } else if(action === 'base64enc') {
-                    if(!input) throw new Error('Input required for Base64 Encoding.');
-                    result = btoa(unescape(encodeURIComponent(input)));
-                    title = 'Base64 Encoded';
-                } else if(action === 'base64dec') {
-                    if(!input) throw new Error('Input required for Base64 Decoding.');
-                    result = decodeURIComponent(escape(atob(input)));
-                    title = 'Base64 Decoded';
-                } else if(action === 'sha256') {
-                    if(!input) throw new Error('Input required for SHA-256 Hash.');
-                    const msgUint8 = new TextEncoder().encode(input);
-                    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    result = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                    title = 'SHA-256 Hash';
-                }
-                outputEl.innerHTML = `
-                    <div class="flex justify-between items-center mb-3 w-full"><span class="text-[10px] font-bold text-rose-400 uppercase tracking-widest flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> ${title}</span></div>
-                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 break-all font-mono text-[13px] text-gray-200 shadow-inner select-all w-full text-left" id="cryptoResultText">${result}</div>
-                `;
-                if(typeof lucide !== 'undefined') lucide.createIcons();
-            } catch(e) {
-                outputEl.innerHTML = `<span class="text-red-400 text-[13px] font-medium m-auto flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4"></i> ${e.message}</span>`;
-                if(typeof lucide !== 'undefined') lucide.createIcons();
-            }
+        function buildBioCard() {
+            const name = document.getElementById('bioNameInput').value.trim();
+            const tag = document.getElementById('bioTagInput').value.trim();
+            const desc = document.getElementById('bioDescInput').value.trim();
+            const fb = document.getElementById('bioFacebook').value.trim();
+            const tt = document.getElementById('bioTiktok').value.trim();
+            const gh = document.getElementById('bioGithub').value.trim();
+            const web = document.getElementById('bioOther').value.trim();
+            const outputEl = document.getElementById('bioOutput');
+            if (!name && !tag && !desc && !fb && !tt && !gh && !web) { outputEl.innerHTML = '<span class="text-gray-500 text-[13px] italic font-medium m-auto">Fill in your details to build your share card...</span>'; return; }
+            const linkBtn = (label, url) => `<a href="${url}" target="_blank" rel="noopener" class="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[12px] font-medium text-gray-200 hover:bg-white/10 hover:border-emerald-500/30 transition-colors group"><span class="flex items-center gap-2 truncate"><i data-lucide="link" class="w-3.5 h-3.5 text-emerald-400"></i> ${label}</span><i data-lucide="external-link" class="w-3.5 h-3.5 text-gray-500 group-hover:text-emerald-400 transition-colors"></i></a>`;
+            let linksHtml = '';
+            if (fb) linksHtml += linkBtn('Facebook', fb);
+            if (tt) linksHtml += linkBtn('TikTok', tt);
+            if (gh) linksHtml += linkBtn('GitHub', gh);
+            if (web) linksHtml += linkBtn('Website', web);
+            const initials = name ? name.split(' ').map(w => w.charAt(0)).slice(0, 2).join('').toUpperCase() : '?';
+            const shareText = [name, tag, desc, fb, tt, gh, web].filter(Boolean).join('\n');
+            outputEl.innerHTML = `
+                <div class="flex flex-col items-center text-center w-full">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500/30 to-emerald-600/10 border border-emerald-500/30 flex items-center justify-center mb-3"><span class="text-xl font-bold text-emerald-300 font-mono">${initials}</span></div>
+                    ${name ? `<div class="text-white font-bold text-[15px] mb-1">${name}</div>` : ''}
+                    ${tag ? `<div class="text-emerald-400 text-[12px] font-semibold uppercase tracking-widest mb-3">${tag}</div>` : ''}
+                    ${desc ? `<div class="text-gray-300 text-[13px] leading-relaxed mb-5 max-w-md">${desc}</div>` : ''}
+                    ${linksHtml ? `<div class="w-full max-w-md space-y-2.5">${linksHtml}</div>` : ''}
+                    <div class="mt-5 w-full max-w-md flex gap-3">
+                        <button onclick="copyBioText()" class="flex-1 modern-btn-secondary px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Text</button>
+                        <button onclick="openBioShare()" class="flex-1 modern-btn-primary px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"><i data-lucide="send" class="w-3.5 h-3.5"></i> Share Card</button>
+                    </div>
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
-        function copyCryptoOutput() {
-            const el = document.getElementById('cryptoResultText');
-            if(el) { navigator.clipboard.writeText(el.innerText); showToast('Copied to clipboard!'); }
+        function copyBioCard() {
+            copyBioText();
+        }
+        function copyBioText() {
+            const name = document.getElementById('bioNameInput').value.trim();
+            const tag = document.getElementById('bioTagInput').value.trim();
+            const desc = document.getElementById('bioDescInput').value.trim();
+            const fb = document.getElementById('bioFacebook').value.trim();
+            const tt = document.getElementById('bioTiktok').value.trim();
+            const gh = document.getElementById('bioGithub').value.trim();
+            const web = document.getElementById('bioOther').value.trim();
+            const lines = [];
+            if (name) lines.push(name);
+            if (tag) lines.push(tag);
+            if (desc) lines.push(desc);
+            if (fb) lines.push('Facebook: ' + fb);
+            if (tt) lines.push('TikTok: ' + tt);
+            if (gh) lines.push('GitHub: ' + gh);
+            if (web) lines.push('Website: ' + web);
+            if (lines.length === 0) { showToast('Fill in your details first!'); return; }
+            navigator.clipboard.writeText(lines.join('\n')).then(() => showToast('Bio card copied!')).catch(() => showToast('Copy failed, select text manually.'));
+        }
+        async function openBioShare() {
+            const name = document.getElementById('bioNameInput').value.trim();
+            if (!name && !document.getElementById('bioDescInput').value.trim()) { showToast('Fill in your details first!'); return; }
+            const tag = document.getElementById('bioTagInput').value.trim();
+            const desc = document.getElementById('bioDescInput').value.trim();
+            const fb = document.getElementById('bioFacebook').value.trim();
+            const tt = document.getElementById('bioTiktok').value.trim();
+            const gh = document.getElementById('bioGithub').value.trim();
+            const web = document.getElementById('bioOther').value.trim();
+            const lines = [];
+            if (name) lines.push(name);
+            if (tag) lines.push(tag);
+            if (desc) lines.push(desc);
+            if (fb) lines.push(fb);
+            if (tt) lines.push(tt);
+            if (gh) lines.push(gh);
+            if (web) lines.push(web);
+            const caption = lines.join(' | ');
+            const url = await createToolShareUrl('bio', { name, tag, desc, fb, tt, gh, web }, 'Bio Link & Share Card', caption);
+            openToolShareModal(url, caption.length > 200 ? caption.substring(0, 200) + '...' : caption, 'Bio Link & Share Card');
         }
 
         function toggleTheme() {
@@ -1581,8 +1793,62 @@
                 themeTexts.forEach(el => { el.innerText = 'Dark Mode'; });
             }
             
+            loadSharedToolContent();
             initCommunity(); 
         });
+
+        function escapeSharedCardHtml(value) {
+            return String(value || '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+        }
+        function getSafeSharedCardUrl(value) {
+            try {
+                const url = new URL(value);
+                return ['http:', 'https:'].includes(url.protocol) ? url.href : null;
+            } catch (error) {
+                return null;
+            }
+        }
+        function openSharedBioCard(data) {
+            const modal = document.getElementById('sharedBioCardModal');
+            const output = document.getElementById('sharedBioCardOutput');
+            const name = escapeSharedCardHtml(data.name);
+            const tag = escapeSharedCardHtml(data.tag);
+            const desc = escapeSharedCardHtml(data.desc);
+            const links = [
+                ['Facebook', data.fb, 'facebook'],
+                ['TikTok', data.tt, 'music-2'],
+                ['GitHub', data.gh, 'github'],
+                ['Website', data.web, 'globe']
+            ].map(([label, value, icon]) => {
+                const safeUrl = getSafeSharedCardUrl(value);
+                return safeUrl ? `<a href="${escapeSharedCardHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-[12px] font-semibold text-gray-200 hover:bg-white/10 hover:border-emerald-500/40 transition-colors"><span class="flex items-center gap-3"><i data-lucide="${icon}" class="w-4 h-4 text-emerald-400"></i>${label}</span><i data-lucide="external-link" class="w-4 h-4 text-gray-500"></i></a>` : '';
+            }).join('');
+            const initials = escapeSharedCardHtml(data.name ? data.name.split(' ').map(word => word.charAt(0)).slice(0, 2).join('').toUpperCase() : '?');
+            output.innerHTML = `<div class="flex flex-col items-center text-center"><div class="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500/30 to-emerald-600/10 border border-emerald-500/30 flex items-center justify-center mb-5"><span class="text-3xl font-bold text-emerald-300 font-mono">${initials}</span></div>${name ? `<div class="text-white font-bold text-2xl mb-2">${name}</div>` : ''}${tag ? `<div class="text-emerald-400 text-[11px] font-bold uppercase tracking-[0.2em] mb-5">${tag}</div>` : ''}${desc ? `<div class="text-gray-300 text-sm leading-7 mb-7 max-w-md">${desc}</div>` : ''}${links ? `<div class="w-full max-w-md space-y-3">${links}</div>` : ''}</div>`;
+            modal.classList.remove('hidden');
+            document.body.classList.add('no-scroll');
+            setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('.modal-base').classList.remove('scale-95'); }, 10);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        function closeSharedBioCard() {
+            const modal = document.getElementById('sharedBioCardModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-base').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); document.body.classList.remove('no-scroll'); }, 300);
+        }
+        async function loadSharedToolContent() {
+            const shareKey = new URLSearchParams(window.location.search).get('share');
+            if (!shareKey || !supabaseInstance) return;
+            const { data: payload, error } = await supabaseInstance.from('community_share_links').select('content_type, payload, title, description, expires_at').eq('share_key', shareKey).eq('is_active', true).maybeSingle();
+            if (error || !payload) { showToast('This share link is unavailable.'); return; }
+            if (payload.expires_at && new Date(payload.expires_at) <= new Date()) { showToast('This share link has expired.'); return; }
+            if (payload.content_type === 'hashtag' && payload.payload?.text) {
+                document.getElementById('hashtagInput').value = payload.payload.text;
+                buildHashtags();
+                openHashtagGen();
+            }
+            if (payload.content_type === 'bio' && payload.payload) openSharedBioCard(payload.payload);
+        }
 
         async function initCommunity() {
             renderInitialSkeletons();
@@ -1664,10 +1930,97 @@
             setupPostEditorLimits();
         }
 
+        function detectComposerCode(text) {
+            const source = String(text || '').trim();
+            if (!source) return null;
+            const fenced = source.match(/^```([a-zA-Z0-9+#.-]*)\s*\n?([\s\S]*?)```$/);
+            if (fenced) return { code: fenced[2].trimEnd(), language: fenced[1] || 'CODE' };
+            const lines = source.split(/\r?\n/).filter(line => line.trim());
+            const signals = (source.match(/(^|\n)\s*(const|let|var|function|class|def|import|from|SELECT|INSERT|UPDATE|DELETE|#include|<\/?[a-z][^>]*>|#!)/g) || []).length;
+            const operators = (source.match(/=>|===|!==|==|!=|\+=|-=|\+=|\{[^\n]*\}|;\s*(?:\n|$)/g) || []).length;
+            const singleLineCode = /^(const|let|var|function|class|def|import|from|SELECT|INSERT|UPDATE|DELETE|#include)\b/i.test(source) || /=>|\{.*\};?$/.test(source);
+            if ((lines.length >= 2 && signals + operators >= 2) || (lines.length === 1 && singleLineCode)) return { code: source, language: 'CODE' };
+            return null;
+        }
+        function autoFormatComposerBlocks(editor) {
+            if (!editor) return;
+            Array.from(editor.children).forEach(block => {
+                if (block.tagName === 'PRE' || block.querySelector('pre')) return;
+                const text = block.innerText || '';
+                const detected = detectComposerCode(text);
+                if (!detected || (!text.includes('\n') && !/^(const|let|var|function|class|def|import|from|SELECT|INSERT|UPDATE|DELETE|#include)\b/i.test(text.trim()))) return;
+                const pre = document.createElement('pre');
+                pre.setAttribute('data-language', detected.language);
+                pre.textContent = normalizePostCodeWhitespace(detected.code);
+                block.replaceWith(pre);
+            });
+        }
+        function getEditorElement(node) {
+            const element = node && node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+            return element && element.closest ? element.closest('#postEditor') : null;
+        }
+        function getEditorBlock(node) {
+            let element = node && node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+            while (element && element.id !== 'postEditor') {
+                if (['P', 'DIV', 'LI', 'PRE'].includes(element.tagName)) return element;
+                element = element.parentElement;
+            }
+            return null;
+        }
+        function unwrapEditorCodeBlock(pre) {
+            if (!pre) return;
+            const normal = document.createElement('div');
+            normal.textContent = pre.textContent || '';
+            pre.replaceWith(normal);
+            updateCodeToggleUI(false);
+        }
+        function formatCodeBlock() {
+            const editor = document.getElementById('postEditor');
+            const selection = window.getSelection();
+            if (!editor || !selection || !selection.rangeCount || !getEditorElement(selection.anchorNode)) return;
+            const range = selection.getRangeAt(0);
+            const existingPre = getEditorBlock(range.commonAncestorContainer);
+            if (existingPre && existingPre.tagName === 'PRE') {
+                unwrapEditorCodeBlock(existingPre);
+                editor.focus();
+                return;
+            }
+            const selectedText = selection.toString();
+            if (selectedText.trim()) {
+                const pre = document.createElement('pre');
+                pre.setAttribute('data-language', 'CODE');
+                pre.textContent = normalizePostCodeWhitespace(selectedText);
+                range.deleteContents();
+                range.insertNode(pre);
+                selection.removeAllRanges();
+                const after = document.createRange();
+                after.selectNodeContents(pre);
+                after.collapse(false);
+                selection.addRange(after);
+                updateCodeToggleUI(true);
+                editor.focus();
+                return;
+            }
+            const block = getEditorBlock(range.startContainer);
+            if (block && block !== editor && block.tagName !== 'PRE') {
+                const pre = document.createElement('pre');
+                pre.setAttribute('data-language', 'CODE');
+                pre.textContent = normalizePostCodeWhitespace(block.textContent || '');
+                block.replaceWith(pre);
+                updateCodeToggleUI(true);
+                editor.focus();
+                return;
+            }
+            document.execCommand('formatBlock', false, 'pre');
+            updateCodeToggleUI(true);
+            editor.focus();
+        }
         function setupPostEditorLimits() {
             const editor = document.getElementById('postEditor');
             if(editor) {
                 editor.addEventListener('input', function() {
+                    clearTimeout(window.composerAutoFormatTimer);
+                    window.composerAutoFormatTimer = setTimeout(() => autoFormatComposerBlocks(this), 650);
                     const text = this.innerText || '';
                     const letters = text.length;
                     const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
@@ -1709,6 +2062,9 @@
                             }
                         }
                     }
+                });
+                editor.addEventListener('paste', function() {
+                    setTimeout(() => autoFormatComposerBlocks(this), 20);
                 });
             }
         }
@@ -2386,18 +2742,34 @@
             const url = `${window.location.origin}${window.location.pathname}?post=${postId}`; document.getElementById('shareUrlInput').value = url;
             const modal = document.getElementById('shareModal'); const post = allCommunityPosts.find(p => p.id === postId);
             if (post) { let pt = post.content.replace(/<[^>]*>?/gm, '').trim(); modal.dataset.text = pt.length > 150 ? pt.substring(0, 150) + '...' : pt; } else modal.dataset.text = "Check out this post on MyanCode!";
-            const modalInner = modal.querySelector('div'); modal.classList.remove('hidden'); setTimeout(() => { modal.classList.remove('opacity-0'); modalInner.classList.remove('scale-95'); }, 10);
+            modal.dataset.title = 'Share Post';
+            document.getElementById('shareModalTitle').innerText = 'Share Post';
+            document.getElementById('shareModalDescription').innerText = 'Share this community post with your network.';
+            const modalInner = modal.querySelector('div'); modal.classList.remove('hidden'); document.body.classList.add('no-scroll'); setTimeout(() => { modal.classList.remove('opacity-0'); modalInner.classList.remove('scale-95'); }, 10);
         }
         function closeShareModal() {
             const modal = document.getElementById('shareModal'); const modalInner = modal.querySelector('div');
-            modal.classList.add('opacity-0'); modalInner.classList.add('scale-95'); setTimeout(() => modal.classList.add('hidden'), 300);
+            modal.classList.add('opacity-0'); modalInner.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); document.body.classList.remove('no-scroll'); }, 300);
         }
-        function copyShareLink(silent = false) { const input = document.getElementById('shareUrlInput'); input.select(); document.execCommand('copy'); if (!silent) showToast('Link copied!'); }
-        function shareSocial(platform) {
-            const url = document.getElementById('shareUrlInput').value; const text = document.getElementById('shareModal').dataset.text || "";
-            if (platform === 'facebook') window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-            else if (platform === 'linkedin') window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text + "\n\n" + url)}`, '_blank');
-            else { copyShareLink(true); showToast(`Copied! Opening ${platform}...`); setTimeout(() => { if (platform === 'tiktok') window.open(`https://www.tiktok.com/upload`, '_blank'); if (platform === 'instagram') window.open(`https://www.instagram.com/`, '_blank'); if (platform === 'github') window.open(`https://github.com/`, '_blank'); }, 1000); }
+        function copyShareLink(silent = false) {
+            const input = document.getElementById('shareUrlInput');
+            if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(input.value).then(() => { if (!silent) showToast('Link copied!'); });
+            else { input.select(); document.execCommand('copy'); if (!silent) showToast('Link copied!'); }
+        }
+        async function shareSocial(platform) {
+            const modal = document.getElementById('shareModal');
+            const url = document.getElementById('shareUrlInput').value;
+            const text = modal.dataset.text || '';
+            const title = modal.dataset.title || 'Share from MyanCode';
+            if (platform === 'facebook') window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
+            else if (platform === 'linkedin') window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
+            else if (platform === 'twitter') window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
+            else if (navigator.share) {
+                try { await navigator.share({ title, text, url }); } catch (error) { if (error.name !== 'AbortError') showToast('Sharing was not completed.'); }
+            } else {
+                await copyShareLink(true);
+                showToast('The share link was copied. Open your preferred app to send it.');
+            }
         }
 
         let imgScale = 1; let imgTx = 0; let imgTy = 0; let isImgDragging = false; let startX, startY;
@@ -2435,6 +2807,67 @@
                 el.classList.remove('line-clamp-custom');
                 btn.innerText = 'View less';
                 btn.setAttribute('data-expanded', 'true');
+            }
+        }
+        function normalizePostCodeWhitespace(value) {
+            return String(value || '').replace(/\r\n?/g, '\n').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+        }
+        function highlightPostCode(code) {
+            const escaped = escapePostCode(normalizePostCodeWhitespace(code));
+            const protectedParts = [];
+            const protect = value => { const index = protectedParts.push(value) - 1; return `\u0000${index}\u0000`; };
+            let highlighted = escaped.replace(/(\/\/[^\n]*|#[^\n]*|\/\*[\s\S]*?\*\/)/g, value => protect(`<span class="post-code-comment">${value}</span>`));
+            highlighted = highlighted.replace(/(&quot;.*?&quot;|&#39;.*?&#39;|`.*?`)/g, value => protect(`<span class="post-code-string">${value}</span>`));
+            highlighted = highlighted.replace(/\b(const|let|var|function|return|if|else|for|while|class|new|import|from|export|async|await|def|try|catch|finally|throw|SELECT|FROM|WHERE|INSERT|INTO|UPDATE|DELETE|CREATE|TABLE)\b/g, '<span class="post-code-keyword">$1</span>');
+            highlighted = highlighted.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="post-code-number">$1</span>');
+            highlighted = highlighted.replace(/\b([A-Za-z_$][\w$]*)(?=\s*\()/g, '<span class="post-code-function">$1</span>');
+            highlighted = highlighted.replace(/(===|!==|=>|==|!=|\+\+|--|&&|\|\||[{}()[\];=+\-*\/%<>])/g, '<span class="post-code-operator">$1</span>');
+            highlighted = highlighted.replace(/\u0000(\d+)\u0000/g, (_, index) => protectedParts[Number(index)]);
+            return highlighted;
+        }
+        function updateCodeToggleUI(isCode) {
+            const button = document.getElementById('btnFormatCode');
+            if (!button) return;
+            button.setAttribute('aria-pressed', isCode ? 'true' : 'false');
+            button.title = isCode ? 'Return to normal text' : 'Format as code';
+            button.setAttribute('aria-label', button.title);
+            button.classList.toggle('code-mode-active', isCode);
+        }
+        function escapePostCode(value) {
+            return String(value || '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+        }
+        function createPostCodeBlock(code, language = 'CODE') {
+            const normalizedCode = normalizePostCodeWhitespace(code);
+            const snippetId = `post-code-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+            window.postCodeSnippets = window.postCodeSnippets || {};
+            window.postCodeSnippets[snippetId] = normalizedCode;
+            const label = String(language || 'CODE').replace(/[^a-z0-9+#.-]/gi, '').slice(0, 12).toUpperCase() || 'CODE';
+            return `<div class="post-code-shell"><div class="post-code-toolbar"><span>${label}</span><button type="button" class="post-code-copy" onclick="copyPostCode('${snippetId}', this)"><i data-lucide="copy" class="w-3.5 h-3.5"></i><span>Copy</span></button></div><pre><code>${highlightPostCode(normalizedCode)}</code></pre></div>`;
+        }
+        function renderPostContentWithCode(content) {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = content || '';
+            Array.from(wrapper.querySelectorAll('pre')).forEach(pre => { pre.outerHTML = createPostCodeBlock(pre.textContent, pre.getAttribute('data-language') || 'CODE'); });
+            if (!wrapper.querySelector('.post-code-shell')) {
+                const plain = wrapper.textContent || '';
+                const fenced = plain.match(/```([a-zA-Z0-9+#.-]*)\s*\n?([\s\S]*?)```/);
+                const codeSignals = (plain.match(/(^|\n)\s*(const|let|var|function|class|def|import|from|SELECT|INSERT|UPDATE|DELETE|<\/?[a-z][^>]*>|#!|\{.*\}|=>)/g) || []).length;
+                if (fenced) return createPostCodeBlock(fenced[2], fenced[1] || 'CODE');
+                if (plain.includes('\n') && codeSignals >= 2) return createPostCodeBlock(plain, 'CODE');
+            }
+            return wrapper.innerHTML;
+        }
+        async function copyPostCode(snippetId, button) {
+            const code = window.postCodeSnippets && window.postCodeSnippets[snippetId];
+            if (!code) return;
+            try {
+                await navigator.clipboard.writeText(code);
+                const label = button.querySelector('span');
+                if (label) label.innerText = 'Copied';
+                setTimeout(() => { if (label) label.innerText = 'Copy'; }, 1600);
+                showToast('Code copied!');
+            } catch (error) {
+                showToast('Copy failed, select the code manually.');
             }
         }
         function formatDoc(cmd, value = null) { document.execCommand(cmd, false, value); document.getElementById('postEditor').focus(); }
@@ -2551,7 +2984,7 @@
             const confirmTitle = isEditingPost ? "Update Post" : "Publish Post";
             const confirmed = await customConfirm(confirmMsg, confirmTitle); if (!confirmed) return;
             
-            let safeContent = window.DOMPurify ? DOMPurify.sanitize(raw, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span'], ALLOWED_ATTR: ['href', 'target', 'rel'] }) : raw;
+            let safeContent = window.DOMPurify ? DOMPurify.sanitize(raw, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span', 'pre', 'code'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-language'] }) : raw;
             const btn = document.getElementById('btnPublishPost'); btn.disabled = true; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 spinner"></i>`; if (typeof lucide !== 'undefined') lucide.createIcons();
             
             try {
@@ -2896,7 +3329,8 @@
             const isOwner = currentUser && currentUser.id === post.user_id; const isSaved = currentUser && post.marketplace_saves && post.marketplace_saves.some(s => s.user_id === currentUser.id); const isLiked = currentUser && post.marketplace_likes && post.marketplace_likes.some(l => l.user_id === currentUser.id);
             const commentCount = post.marketplace_comments?.[0]?.count || 0; const likeCount = post.marketplace_likes?.length || 0; 
             const editedBadge = post.updated_at ? `<span class="text-[9px] bg-white/10 text-gray-400 px-1.5 py-0.5 rounded ml-2 font-mono uppercase tracking-tighter">Edited (${timeAgo(post.updated_at)})</span>` : '';
-            let safeContent = window.DOMPurify ? DOMPurify.sanitize(post.content) : post.content;
+            let safeContent = window.DOMPurify ? DOMPurify.sanitize(post.content, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span', 'pre', 'code'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-language'] }) : post.content;
+            safeContent = renderPostContentWithCode(safeContent);
             
             let imageGridHTML = '';
             if (post.images && post.images.length > 0) {
