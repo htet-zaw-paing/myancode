@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Website Templates | MyanCode</title>
+    <title>Website Templates - MyanCode</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -184,6 +184,8 @@
         
         select.custom-select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
         body.light-mode-active select.custom-select { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); }
+        
+        .toolbar-hidden { transform: translateY(-150%); opacity: 0; pointer-events: none; }
     </style>
 </head>
 
@@ -329,7 +331,7 @@
             <div class="space-y-6 text-base font-semibold text-white tracking-wide flex-1">
                 <a href="../package/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navStudio">Packages</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
                 <a href="../services/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navServices">Services</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
-                <a href="../templates/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
+                <a href="../templates/" class="flex justify-between items-center text-myancode-accent transition-colors"><span data-i18n="navWebsites">Templates</span> <i data-lucide="chevron-right" class="h-4 w-4 text-myancode-accent"></i></a>
                 <a href="../marketplace/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navCommunity">Community</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
                 <a href="../developers/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navDevelopers">Developers</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
                 <a href="../plan-purchase/" class="flex justify-between items-center hover:text-myancode-accent transition-colors"><span data-i18n="navPricing">Pricing</span> <i data-lucide="chevron-right" class="h-4 w-4 text-gray-500"></i></a>
@@ -425,27 +427,33 @@
 
         <div class="layout-width relative">
             
-            <div id="filterToolbar" class="sticky top-[76px] sm:top-[92px] z-[45] bg-[#0a0a0a]/95 backdrop-blur-2xl border border-white/10 rounded-[20px] p-4 sm:p-5 mb-10 shadow-2xl transition-all duration-500 transform-gpu w-full">
+            <div id="filterToolbar" class="relative sticky top-[76px] sm:top-[92px] z-[45] bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-3 sm:p-4 mb-10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-500 transform-gpu w-full">
                 
-                <div class="xl:hidden flex items-center justify-between cursor-pointer w-full select-none" onclick="document.getElementById('filterWrap').classList.toggle('hidden'); document.getElementById('filterWrap').classList.toggle('flex'); document.getElementById('filterIcon').classList.toggle('text-myancode-accent');">
+                <div class="xl:hidden flex items-center justify-between cursor-pointer w-full select-none" id="filterToggleBtn" onclick="toggleMobileFilters()">
                     <div class="flex items-center gap-3">
-                        <i data-lucide="menu" id="filterIcon" class="w-5 h-5 text-gray-400 transition-colors"></i>
-                        <span class="text-[13px] font-bold text-white tracking-wide font-sans">Search & Filters</span>
+                        <div class="bg-[#111] p-2 rounded-lg border border-white/10 shadow-sm">
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-myancode-accent"></i>
+                        </div>
+                        <span class="text-sm font-bold text-white tracking-wide font-sans">Search & Filters</span>
                     </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
+                    <i data-lucide="chevron-down" id="filterToggleIcon" class="w-5 h-5 text-gray-500 transition-transform duration-300"></i>
                 </div>
 
-                <div id="filterWrap" class="hidden xl:flex flex-col xl:flex-row items-center justify-between gap-4 w-full mt-4 xl:mt-0 transition-all">
-                    <div class="relative w-full xl:w-[400px]">
-                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500"></i>
-                        <input type="text" id="templateSearch" oninput="handleSearchRecommendations(event); handleTemplateFilter()" autocomplete="off" class="w-full pl-11 pr-4 py-3 bg-[#111] border border-white/10 rounded-xl text-[13px] font-medium text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Search templates, categories, tech...">
-                        
-                        <div id="searchRecommendations" class="absolute top-full left-0 right-0 mt-2 bg-[#181a20]/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-[50] hidden max-h-64 overflow-y-auto no-scrollbar"></div>
+                <div id="filterWrap" class="hidden xl:flex flex-col xl:flex-row gap-3 mt-0 xl:mt-0 transition-all duration-300 w-full absolute xl:static left-0 top-[calc(100%+12px)] bg-[#0a0a0a]/95 xl:bg-transparent backdrop-blur-2xl xl:backdrop-blur-none border border-white/10 xl:border-none p-5 xl:p-0 rounded-2xl xl:rounded-none shadow-[0_20px_50px_rgba(0,0,0,0.8)] xl:shadow-none z-[60]">
+                    <div class="relative w-full xl:flex-1 group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-5 h-5 text-gray-400 group-focus-within:text-myancode-accent transition-colors"></i>
+                        </div>
+                        <input type="text" id="templateSearch" oninput="handleSearchRecommendations(event); handleTemplateFilter()" autocomplete="off" class="w-full pl-12 pr-10 py-3.5 bg-[#111] hover:bg-[#161616] border border-white/10 focus:border-myancode-accent rounded-xl text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-myancode-accent/50 transition-all shadow-inner" placeholder="Search templates, categories, tech...">
+                        <button onclick="resetSearchInput()" id="clearTemplateSearchBtn" class="absolute inset-y-0 right-0 pr-4 flex items-center hidden text-gray-500 hover:text-white transition-colors">
+                            <i data-lucide="x-circle" class="w-5 h-5"></i>
+                        </button>
+                        <div id="searchRecommendations" class="absolute top-[calc(100%+12px)] left-0 right-0 bg-[#0f1115]/95 backdrop-blur-2xl border border-white/10 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] z-[50] hidden max-h-64 overflow-y-auto no-scrollbar transition-all duration-300 transform -translate-y-2"></div>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row flex-wrap items-center gap-4 w-full xl:w-auto">
+                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
                         <div class="relative w-full sm:w-[150px]">
-                            <select id="techFilter" onchange="handleTemplateFilter()" class="custom-select w-full pl-4 pr-10 py-3 bg-[#111] border border-white/10 rounded-xl text-[13px] font-medium text-white focus:outline-none focus:border-myancode-accent transition-colors cursor-pointer shadow-inner">
+                            <select id="techFilter" onchange="handleTemplateFilter()" class="custom-select w-full px-4 py-3.5 bg-[#111] hover:bg-[#161616] border border-white/10 focus:border-myancode-accent rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-1 focus:ring-myancode-accent/50 transition-all shadow-inner cursor-pointer appearance-none">
                                 <option value="all">All Tech</option>
                                 <option value="react">React</option>
                                 <option value="nextjs">Next.js</option>
@@ -459,7 +467,7 @@
                         </div>
 
                         <div class="relative w-full sm:w-[160px]">
-                            <select id="categoryFilter" onchange="handleTemplateFilter()" class="custom-select w-full pl-4 pr-10 py-3 bg-[#111] border border-white/10 rounded-xl text-[13px] font-medium text-white focus:outline-none focus:border-myancode-accent transition-colors cursor-pointer shadow-inner">
+                            <select id="categoryFilter" onchange="handleTemplateFilter()" class="custom-select w-full px-4 py-3.5 bg-[#111] hover:bg-[#161616] border border-white/10 focus:border-myancode-accent rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-1 focus:ring-myancode-accent/50 transition-all shadow-inner cursor-pointer appearance-none">
                                 <option value="all" data-i18n="catAll">All Categories</option>
                                 <option value="business">Business</option>
                                 <option value="portfolio">Portfolio</option>
@@ -486,7 +494,7 @@
                         </div>
 
                         <div class="relative w-full sm:w-[180px]">
-                            <select id="sortFilter" onchange="handleTemplateFilter()" class="custom-select w-full pl-4 pr-10 py-3 bg-[#111] border border-white/10 rounded-xl text-[13px] font-medium text-white focus:outline-none focus:border-myancode-accent transition-colors cursor-pointer shadow-inner">
+                            <select id="sortFilter" onchange="handleTemplateFilter()" class="custom-select w-full px-4 py-3.5 bg-[#111] hover:bg-[#161616] border border-white/10 focus:border-myancode-accent rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-1 focus:ring-myancode-accent/50 transition-all shadow-inner cursor-pointer appearance-none">
                                 <option value="newest" data-i18n="sortNewest">Newest Arrivals</option>
                                 <option value="price_low">Price: Low to High</option>
                                 <option value="price_high">Price: High to Low</option>
@@ -495,6 +503,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="text-sm text-gray-400 font-medium mb-6 px-2">
+                Showing <span class="text-white font-bold" id="resultCount">0</span> templates
             </div>
 
             <div id="templatesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
@@ -536,11 +548,13 @@
                 </div>
             </div>
             
-            <div id="emptyState" class="hidden text-center py-20 bg-[#0a0a0a] border border-white/5 rounded-3xl mt-8">
-                <i data-lucide="package-open" class="w-16 h-16 text-gray-600 mx-auto mb-6"></i>
-                <h3 class="text-xl font-bold text-white mb-2" data-i18n="emptyTitle">No templates found</h3>
-                <p class="text-gray-400 text-sm max-w-md mx-auto" data-i18n="emptyDesc">We couldn't find any templates matching your current filter criteria. Try adjusting your search or category.</p>
-                <button onclick="resetFilters()" class="mt-6 modern-btn-secondary px-6 py-2.5 text-xs uppercase tracking-widest font-bold">Clear Filters</button>
+            <div id="emptyState" class="hidden text-center py-20 bg-[#0a0a0a] border border-white/5 rounded-3xl mt-8 shadow-xl">
+                <div class="w-full flex flex-col items-center justify-center">
+                    <i data-lucide="package-open" class="w-16 h-16 text-gray-600 mx-auto mb-6"></i>
+                    <h3 class="text-xl font-bold text-white mb-2" data-i18n="emptyTitle">No templates found</h3>
+                    <p class="text-gray-400 text-sm max-w-md mx-auto" data-i18n="emptyDesc">We couldn't find any templates matching your current filter criteria. Try adjusting your search or category.</p>
+                    <button onclick="resetFilters()" class="mt-6 modern-btn-primary px-8 py-3 text-xs uppercase tracking-widest font-bold">Clear Filters</button>
+                </div>
             </div>
 
         </div>
@@ -1152,6 +1166,8 @@
         function renderTemplates() {
             const grid = document.getElementById('templatesGrid');
             const emptyState = document.getElementById('emptyState');
+            const countEl = document.getElementById('resultCount');
+            if (countEl) countEl.innerText = filteredTemplates.length;
 
             if (filteredTemplates.length === 0) {
                 grid.classList.add('hidden');
@@ -1207,7 +1223,7 @@
                                 <button onclick="toggleWishlist('${t.id}', '${safeName}', ${t.discount_price || t.price})" class="h-11 w-11 flex-shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all text-gray-300 group/btn shadow-inner" title="Add to Bag">
                                     <i data-lucide="shopping-bag" class="w-4.5 h-4.5 group-hover/btn:scale-110 transition-transform"></i>
                                 </button>
-                                <a href="../checkout/?product=${t.slug}" class="h-11 flex-1 rounded-xl modern-btn-primary flex items-center justify-center text-[11px] uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(41,151,255,0.2)] hover:shadow-[0_0_20px_rgba(41,151,255,0.4)]">
+                                <a href="../checkout/?product=${t.slug}" class="h-11 flex-1 rounded-xl modern-btn-primary flex items-center justify-center text-[11px] uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(41,151,255,0.2)] hover:shadow-[0_0_20px_rgba(41,151,255,0.4)] transition-all">
                                     Buy Now
                                 </a>
                             </div>
@@ -1226,18 +1242,24 @@
         const tf = document.getElementById('techFilter');
         if (tf) tf.value = 'all';
         document.getElementById('sortFilter').value = 'newest';
+        document.getElementById('clearTemplateSearchBtn').classList.add('hidden');
         handleTemplateFilter();
     }
 
     function handleSearchRecommendations(e) {
         const query = e.target.value.toLowerCase().trim();
         const suggBox = document.getElementById('searchRecommendations');
+        const clearBtn = document.getElementById('clearTemplateSearchBtn');
+        
         if (!suggBox) return;
         
         if (!query) {
             suggBox.classList.add('hidden');
+            if (clearBtn) clearBtn.classList.add('hidden');
             return;
         }
+
+        if (clearBtn) clearBtn.classList.remove('hidden');
 
         let matches = new Set();
         allTemplates.forEach(t => {
@@ -1267,6 +1289,30 @@
         document.getElementById('templateSearch').value = val;
         document.getElementById('searchRecommendations').classList.add('hidden');
         handleTemplateFilter();
+    }
+
+    function resetSearchInput() {
+        document.getElementById('templateSearch').value = '';
+        document.getElementById('searchRecommendations').classList.add('hidden');
+        document.getElementById('clearTemplateSearchBtn').classList.add('hidden');
+        handleTemplateFilter();
+    }
+
+    function toggleMobileFilters() {
+        const wrap = document.getElementById('filterWrap');
+        const icon = document.getElementById('filterToggleIcon');
+        const toolbar = document.getElementById('filterToolbar');
+        if (wrap.classList.contains('hidden')) {
+            wrap.classList.remove('hidden');
+            wrap.classList.add('flex');
+            icon.classList.add('rotate-180');
+            if (toolbar) toolbar.classList.add('filter-menu-open');
+        } else {
+            wrap.classList.add('hidden');
+            wrap.classList.remove('flex');
+            icon.classList.remove('rotate-180');
+            if (toolbar) toolbar.classList.remove('filter-menu-open');
+        }
     }
 
         function toggleMobileMenu() {
@@ -1504,26 +1550,36 @@
             }
         }
 
-        let lastScrollTop = 0;
+        let lastToolbarScroll = 0;
+
         window.addEventListener('scroll', () => { 
             const scrollThreshold = 50; 
-            const currentScrollY = window.scrollY || window.pageYOffset;
+            const currentScrollY = window.scrollY;
             const isScrolled = currentScrollY > scrollThreshold; 
             updateHeaderTheme('dark', isScrolled); 
-            
+            window.lastScrollY = currentScrollY;
+
+            // Handle Dynamic Sticky Filter Toolbar visibility
             const toolbar = document.getElementById('filterToolbar');
             if (toolbar) {
-                if (currentScrollY > lastScrollTop && currentScrollY > 350) {
-                    toolbar.style.transform = 'translateY(-150%)';
-                    toolbar.style.opacity = '0';
-                    toolbar.style.pointerEvents = 'none';
-                } else {
-                    toolbar.style.transform = 'translateY(0)';
-                    toolbar.style.opacity = '1';
-                    toolbar.style.pointerEvents = 'auto';
+                const isFilterOpen = toolbar.classList.contains('filter-menu-open');
+                
+                // Add a small threshold (15px) to prevent layout-shift micro-scrolls from triggering hide
+                if (Math.abs(currentScrollY - lastToolbarScroll) > 15) {
+                    if (currentScrollY > 250 && currentScrollY > lastToolbarScroll) {
+                        if (!isFilterOpen) {
+                            toolbar.classList.add('toolbar-hidden');
+                        } else if (currentScrollY - lastToolbarScroll > 40) {
+                            // Close menu if user scrolls down significantly while open
+                            toggleMobileFilters(); 
+                            toolbar.classList.add('toolbar-hidden');
+                        }
+                    } else if (currentScrollY < lastToolbarScroll || currentScrollY <= 250) {
+                        toolbar.classList.remove('toolbar-hidden');
+                    }
+                    lastToolbarScroll = currentScrollY <= 0 ? 0 : currentScrollY;
                 }
             }
-            lastScrollTop = currentScrollY <= 0 ? 0 : currentScrollY;
         });
 
         function toggleSearchOverlay() {

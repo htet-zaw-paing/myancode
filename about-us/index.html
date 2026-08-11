@@ -7,7 +7,7 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>About Us — MyanCode</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <script>
@@ -28,7 +28,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#050505">
@@ -54,46 +55,19 @@
                         myancode: {
                             black: '#050505',
                             gray: '#111111',
-                            darkgray: '#222222',
+                            darkgray: '#1a1a1a',
+                            border: '#2a2a2a',
                             blue: '#0066CC',
                             accent: '#2997ff',
                         }
                     },
                     animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'bounce-subtle': 'bounce-subtle 2s infinite',
-                        blob: "blob 10s infinite",
                         'reveal-up': 'revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'pulse-glow': 'pulseGlow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'shimmer': 'shimmer 2.5s infinite linear',
                     },
                     keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        },
-                        'bounce-subtle': {
-                            '0%, 100%': { transform: 'translateY(-10%)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' },
-                            '50%': { transform: 'translateY(10%)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' },
-                        },
-                        blob: {
-                            "0%": { transform: "translate(0px, 0px) scale(1)" },
-                            "33%": { transform: "translate(30px, -50px) scale(1.1)" },
-                            "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
-                            "100%": { transform: "translate(0px, 0px) scale(1)" },
-                        },
                         revealUp: {
                             '0%': { opacity: '0', transform: 'translateY(30px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' }
-                        },
-                        pulseGlow: {
-                            '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0.6' },
-                        },
-                        shimmer: {
-                            '0%': { backgroundPosition: '-1000px 0' },
-                            '100%': { backgroundPosition: '1000px 0' }
                         }
                     }
                 }
@@ -123,290 +97,45 @@
             line-height: 2.2;
         }
 
-        html[lang="mm"] h1,
-        html[lang="mm"] h2,
-        html[lang="mm"] h3,
-        html[lang="mm"] h4,
-        html[lang="mm"] h5 {
+        html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 {
             font-family: 'Jost', 'Noto Sans Myanmar', sans-serif;
         }
 
-        html[lang="mm"] h1 {
-            font-size: 2.5rem;
-            line-height: 1.6;
-            letter-spacing: normal;
-            font-weight: 700;
-        }
+        #mainNav { transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease; transform: translateZ(0); }
+        .glass-nav-dark { background: rgba(5, 5, 5, 0.8) !important; backdrop-filter: saturate(180%) blur(20px) !important; -webkit-backdrop-filter: saturate(180%) blur(20px) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; }
+        .nav-transparent { background: transparent !important; backdrop-filter: none !important; border-bottom: 1px solid transparent !important; }
+        .hover-underline { position: relative; }
+        .hover-underline::after { content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px; bottom: -2px; left: 0; background-color: currentColor; transform-origin: bottom right; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hover-underline:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+        .search-overlay { clip-path: circle(0% at 85% 5%); opacity: 0; pointer-events: none; transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease; }
+        .search-overlay.open { clip-path: circle(150% at 85% 5%); opacity: 1; pointer-events: auto; }
+        @media (max-width: 640px) { .search-overlay { clip-path: circle(0px at calc(100% - 80px) 30px); } .search-overlay.open { clip-path: circle(150% at calc(100% - 80px) 30px); } }
+        .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; transform: translateZ(0); }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .drawer-left { transform: translate3d(-100%, 0, 0); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+        .drawer-left.open { transform: translate3d(0, 0, 0); }
+        .drawer-right { transform: translate3d(100%, 0, 0); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+        .drawer-right.open { transform: translate3d(0, 0, 0); }
+        .dropdown-menu { transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform-origin: top right; }
+        .dropdown-hidden { opacity: 0; transform: scale(0.95) translate3d(0, -10px, 0); pointer-events: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .layout-width { width: 96%; max-width: 1536px; margin-left: auto; margin-right: auto; }
+        .btn-hover-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateZ(0); }
+        .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(255, 255, 255, 0.1); }
+        .user-avatar-global { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease; }
 
-        html[lang="mm"] h2 {
-            font-size: 2rem;
-            line-height: 1.6;
-            letter-spacing: normal;
-            font-weight: 700;
-        }
-
-        html[lang="mm"] h3 {
-            font-size: 1.25rem;
-            line-height: 1.7;
-            letter-spacing: normal;
-        }
-
-        html[lang="mm"] p {
-            font-size: 0.95rem;
-            line-height: 2.2;
-        }
-
-        html[lang="mm"] .uppercase,
-        html[lang="mm"] .capitalize {
-            text-transform: none;
-        }
-
-        html[lang="mm"] .tracking-widest,
-        html[lang="mm"] .tracking-wide,
-        html[lang="mm"] .tracking-\[0\.4em\] {
-            letter-spacing: normal;
-        }
-
-        html[lang="mm"] .font-mono {
-            font-family: '"JetBrains Mono"', 'Noto Sans Myanmar', monospace;
-        }
-
-        @media (min-width: 768px) {
-            html[lang="mm"] h1 {
-                font-size: 3.5rem;
-            }
-
-            html[lang="mm"] h2 {
-                font-size: 2.5rem;
-            }
-        }
-
-        #mainNav {
-            transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
-            transform: translateZ(0);
-        }
-
-        .glass-nav-dark {
-            background: rgba(5, 5, 5, 0.8) !important;
-            backdrop-filter: saturate(180%) blur(20px) !important;
-            -webkit-backdrop-filter: saturate(180%) blur(20px) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-        }
-
-        .nav-transparent {
-            background: transparent !important;
-            backdrop-filter: none !important;
-            border-bottom: 1px solid transparent !important;
-        }
-
-        .hover-underline {
-            position: relative;
-        }
-
-        .hover-underline::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            transform: scaleX(0);
-            height: 1px;
-            bottom: -2px;
-            left: 0;
-            background-color: currentColor;
-            transform-origin: bottom right;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .hover-underline:hover::after {
-            transform: scaleX(1);
-            transform-origin: bottom left;
-        }
-
-        .btn-hover-effect {
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            transform: translateZ(0);
-        }
-
-        .btn-hover-effect:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px -10px rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-hover-effect:active:not(:disabled) {
-            transform: translateY(1px);
-        }
-
-        .btn-hover-effect:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .search-overlay {
-            clip-path: circle(0% at 85% 5%);
-            opacity: 0;
-            pointer-events: none;
-            transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease;
-        }
-
-        .search-overlay.open {
-            clip-path: circle(150% at 85% 5%);
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        @media (max-width: 640px) {
-            .search-overlay {
-                clip-path: circle(0px at calc(100% - 80px) 30px);
-            }
-
-            .search-overlay.open {
-                clip-path: circle(150% at calc(100% - 80px) 30px);
-            }
-        }
-
-        .drawer-overlay {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-            transform: translateZ(0);
-        }
-
-        .drawer-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .drawer-left {
-            transform: translate3d(-100%, 0, 0);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            will-change: transform;
-        }
-
-        .drawer-left.open {
-            transform: translate3d(0, 0, 0);
-        }
-
-        .drawer-right {
-            transform: translate3d(100%, 0, 0);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            will-change: transform;
-        }
-
-        .drawer-right.open {
-            transform: translate3d(0, 0, 0);
-        }
-
-        .dropdown-menu {
-            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            transform-origin: top right;
-        }
-
-        .dropdown-hidden {
-            opacity: 0;
-            transform: scale(0.95) translate3d(0, -10px, 0);
-            pointer-events: none;
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        .bg-grid-dark {
-            background-size: 50px 50px;
+        .bg-grid-formal {
+            background-size: 40px 40px;
             background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-        }
-
-        .layout-width {
-            width: 96%;
-            max-width: 1536px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .user-avatar-global {
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
-        }
-
-        .group:hover .user-avatar-global {
-            transform: scale(1.1);
-            border-color: #2997ff;
-            box-shadow: 0 8px 24px rgba(41, 151, 255, 0.4);
-        }
-
-        .perspective-1000 {
-            perspective: 1500px;
-        }
-
-        .transform-style-3d {
-            transform-style: preserve-3d;
-        }
-
-        .backface-hidden {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-        }
-
-        .biz-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.875rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-            color: #e5e5e5;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-            backdrop-filter: blur(10px);
-        }
-
-        .biz-btn:hover {
-            background: #2997ff;
-            border-color: #2997ff;
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(41, 151, 255, 0.3);
-        }
-
-        .biz-btn-web {
-            width: 100%;
-            background: #ffffff;
-            color: #0a0a0a;
-            border: 1px solid #ffffff;
-            font-weight: 700;
-            padding: 0.875rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.3s ease;
-        }
-
-        .biz-btn-web:hover {
-            background: #e5e5e5;
-            border-color: #e5e5e5;
-            color: #000;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(255, 255, 255, 0.2);
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
         }
 
         .scroll-reveal {
             opacity: 0;
-            transform: translateY(40px);
-            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .scroll-reveal.visible {
@@ -414,115 +143,141 @@
             transform: translateY(0);
         }
 
-        .text-gradient {
-            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+        .formal-text-gradient {
+            background: linear-gradient(180deg, #ffffff 0%, #a0a0a0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .dark-glass-panel {
-            background: linear-gradient(145deg, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        .enterprise-border {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
         }
 
-        .hover-glow {
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        .id-card-container {
+            background: linear-gradient(135deg, #111111 0%, #050505 100%);
+            position: relative;
+            overflow: hidden;
+            --mouse-x: 50%;
+            --mouse-y: 50%;
         }
 
-        .hover-glow:hover {
-            box-shadow: 0 0 50px -10px rgba(41, 151, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.2);
+        .id-card-watermark-base {
+            position: absolute;
+            inset: -50%;
+            pointer-events: none;
+            z-index: 0;
+            background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4mbHQ7LyZndDs8L3RleHQ+PC9zdmc+");
+            background-repeat: repeat;
+            transform: rotate(-15deg);
+            opacity: 0.026;
         }
 
-        .img-glow-wrap::before {
+        .id-card-watermark-spotlight {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            -webkit-mask-image: radial-gradient(circle 250px at var(--mouse-x) var(--mouse-y), black 0%, transparent 100%);
+            mask-image: radial-gradient(circle 250px at var(--mouse-x) var(--mouse-y), black 0%, transparent 100%);
+            overflow: hidden;
+        }
+
+        .id-card-watermark-spotlight::before {
             content: '';
             position: absolute;
-            inset: -15px;
-            background: linear-gradient(135deg, #2997ff, #a855f7, #2997ff);
-            background-size: 200% 200%;
-            filter: blur(25px);
-            opacity: 0.15;
-            border-radius: inherit;
-            z-index: -1;
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-            animation: shimmer 5s ease infinite;
+            inset: -50%;
+            background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4mbHQ7LyZndDs8L3RleHQ+PC9zdmc+");
+            background-repeat: repeat;
+            transform: rotate(-15deg);
+            opacity: 0.08; 
         }
 
-        .group:hover .img-glow-wrap::before {
-            opacity: 0.4;
-        }
-
-        .card-gradient-ring {
-            position: absolute;
-            inset: -2px;
-            border-radius: inherit;
-            background: linear-gradient(135deg, rgba(41, 151, 255, 0.4), transparent 40%, transparent 60%, rgba(168, 85, 247, 0.4));
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .group:hover .card-gradient-ring {
+        .id-card-container:hover .id-card-watermark-spotlight {
             opacity: 1;
         }
 
-        .ultra-modern-btn {
+        .id-card-content {
             position: relative;
-            overflow: hidden;
-            z-index: 1;
+            z-index: 10;
         }
 
-        .ultra-modern-btn::before {
+        .mrz-font {
+            font-family: '"JetBrains Mono"', monospace;
+            letter-spacing: 0.15em;
+            word-break: break-all;
+            text-transform: uppercase;
+        }
+
+        .id-photo-frame {
+            position: relative;
+            background: #1a1a1a;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .id-photo-frame::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
+            inset: 0;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+        
+        .formal-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            background: #ffffff;
+            color: #000000;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .formal-btn:hover {
+            background: transparent;
+            color: #ffffff;
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .formal-btn-outline {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .formal-btn-outline:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .qr-code-container img {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-            z-index: -1;
-        }
-
-        .ultra-modern-btn:hover::before {
-            left: 100%;
-        }
-
-        .skeleton {
-            position: relative !important;
-            pointer-events: none !important;
-            color: transparent !important;
-            -webkit-text-fill-color: transparent !important;
-            background-color: #111111 !important;
-            background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent) !important;
-            background-size: 300px 100% !important;
-            background-repeat: no-repeat !important;
-            border-color: transparent !important;
-            box-shadow: none !important;
-            overflow: hidden !important;
-            animation: skeleton-load 1.5s infinite ease-in-out !important;
-        }
-
-        .skeleton * {
-            opacity: 0 !important;
-        }
-
-        @keyframes skeleton-load {
-            0% {
-                background-position: -300px 0;
-            }
-
-            100% {
-                background-position: calc(100% + 300px) 0;
-            }
+            height: auto;
+            border-radius: 2px;
         }
     </style>
 </head>
 
 <body class="font-sans selection:bg-white selection:text-black bg-[#050505] flex flex-col min-h-screen">
 
+    
     <nav id="mainNav"
         class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
         <div class="layout-width">
@@ -891,614 +646,373 @@
             </button>
         </div>
     </div>
+    
 
-    <main class="flex-grow flex flex-col w-full relative z-10 overflow-hidden pt-16 sm:pt-20">
-        <div class="absolute inset-0 z-0 bg-grid-dark pointer-events-none opacity-40"></div>
-        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-            <div
-                class="absolute top-0 left-[10%] w-[500px] h-[500px] sm:w-[900px] sm:h-[900px] bg-myancode-blue/5 rounded-full mix-blend-screen filter blur-[140px] sm:blur-[180px] opacity-70 animate-blob">
-            </div>
-            <div
-                class="absolute top-[30%] right-[5%] w-[400px] h-[400px] sm:w-[700px] sm:h-[700px] bg-indigo-500/5 rounded-full mix-blend-screen filter blur-[140px] sm:blur-[180px] opacity-60 animate-blob animation-delay-2000">
-            </div>
-            <div
-                class="absolute bottom-[10%] left-[30%] w-[400px] h-[400px] sm:w-[800px] sm:h-[800px] bg-purple-500/5 rounded-full mix-blend-screen filter blur-[140px] sm:blur-[180px] opacity-50 animate-blob animation-delay-4000">
-            </div>
-        </div>
+    
+    <main class="flex-grow flex flex-col w-full relative z-10 overflow-hidden pt-16 sm:pt-20 bg-[#050505]">
+        
+        <div class="absolute inset-0 z-0 bg-grid-formal pointer-events-none"></div>
 
-        <section class="relative w-full layout-width mx-auto px-4 sm:px-6 lg:px-8 z-10 mt-10">
-            <div
-                class="relative w-full h-[500px] sm:h-[600px] md:h-[700px] lg:h-[800px] rounded-[2.5rem] sm:rounded-[4rem] overflow-hidden group shadow-2xl border border-white/20 bg-[#111]">
-                <img src="../imgs/web-banners/myancode-billboard-1.png" alt="MyanCode Workspace"
-                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-[2.5s] ease-out group-hover:scale-105 filter saturate-[1.5] brightness-[0.6] contrast-[1.2]"
-                    loading="lazy">
-
-                <div
-                    class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent flex flex-col justify-end p-8 sm:p-16 lg:p-24 z-10">
-                    <div class="max-w-5xl animate-reveal-up relative z-20">
-                        <div
-                            class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-[#111]/80 backdrop-blur-xl border border-white/10 text-white text-[10px] sm:text-[11px] font-bold font-mono uppercase tracking-[0.2em] mb-8 shadow-2xl transition-all duration-500 hover:bg-[#222]/80 cursor-default">
-                            <span
-                                class="w-2 h-2 rounded-full bg-myancode-accent animate-pulse-glow shadow-[0_0_12px_#2997ff]"></span>
-                            <span data-i18n="heroTag">Enterprise Digital Agency</span>
-                        </div>
-                        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem] font-display font-black tracking-tighter text-transparent bg-clip-text text-gradient mb-6 leading-[1.05]"
-                            data-i18n="abtHeroTitle">Engineering the Future of Digital Experiences.</h1>
-                        <p class="text-base sm:text-xl md:text-2xl text-gray-400 leading-relaxed max-w-3xl font-medium tracking-wide"
-                            data-i18n="abtHeroSub">We build modern, highly-scalable architectures for ambitious
-                            businesses and visionary creators worldwide.</p>
-                    </div>
+        <section class="relative w-full layout-width mx-auto px-4 sm:px-6 lg:px-8 z-10 mt-8 mb-20 sm:mb-32">
+            <div class="relative w-full min-h-[500px] sm:min-h-[600px] md:min-h-[700px] flex items-center justify-start rounded-2xl sm:rounded-3xl overflow-hidden enterprise-border bg-[#0a0a0a]">
+                
+                <div class="absolute inset-0 w-full h-full">
+                    <img src="../imgs/web-banners/myancode-billboard-1.png" alt="MyanCode Workspace"
+                        class="w-full h-full object-cover object-right opacity-40 mix-blend-luminosity" loading="lazy">
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/90 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/50"></div>
                 </div>
-                <div
-                    class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-myancode-blue/10 to-transparent pointer-events-none mix-blend-overlay">
+
+                <div class="relative z-10 p-8 sm:p-16 lg:p-24 max-w-5xl animate-reveal-up">
+                    <div class="inline-flex items-center gap-3 px-4 py-1.5 border border-white/20 text-white text-[10px] font-bold font-mono uppercase tracking-widest mb-8 bg-white/5 backdrop-blur-sm">
+                        <span class="w-1.5 h-1.5 bg-myancode-accent"></span>
+                        <span data-i18n="heroTag">Enterprise Digital Solutions</span>
+                    </div>
+                    
+                    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-[5rem] font-display font-medium tracking-tight text-white mb-6 leading-[1.1]"
+                        data-i18n="abtHeroTitle">Building the future of digital experiences.</h1>
+                    
+                    <div class="h-px w-24 bg-white/20 mb-6"></div>
+                    
+                    <p class="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed max-w-2xl font-light"
+                        data-i18n="abtHeroSub">We create fast, secure, and modern platforms for growing businesses worldwide. Simple solutions for complex digital needs.</p>
                 </div>
             </div>
         </section>
 
-        <section id="genesis-section"
-            class="relative z-10 w-full layout-width mx-auto px-4 sm:px-6 py-32 sm:py-48 scroll-reveal">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-
-                <div class="lg:col-span-6 flex flex-col justify-center order-2 lg:order-1">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="h-[2px] w-12 bg-gradient-to-r from-myancode-accent to-transparent"></div>
-                        <h2 class="text-[11px] font-bold font-mono text-myancode-accent uppercase tracking-[0.25em]"
-                            data-i18n="launchTag">Our Story</h2>
+        <section id="genesis-section" class="relative z-10 w-full layout-width mx-auto px-4 sm:px-6 py-20 sm:py-32 scroll-reveal border-t border-white/5">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+                
+                <div class="flex flex-col justify-center">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-2 h-2 bg-myancode-accent"></div>
+                        <h2 class="text-[10px] font-bold font-mono text-gray-400 uppercase tracking-widest" data-i18n="launchTag">Company History</h2>
                     </div>
-                    <h3 class="text-4xl sm:text-5xl md:text-[4rem] font-display font-black text-white mb-8 leading-[1.05] tracking-tighter text-gradient"
-                        data-i18n="launchTitle">The Genesis of MyanCode</h3>
-                    <p class="text-lg sm:text-xl text-gray-400 leading-relaxed mb-6 font-medium"
-                        data-i18n="launchDesc1">
-                        Officially launched around April 10, 2026, MyanCode was born out of a collective vision by
-                        expert developers with over 7+ years of profound, real-world experience in Software Engineering and Web Developing industry. We
-                        recognized a critical gap between complex software engineering and elegant, accessible user
-                        interfaces.
-                    </p>
-                    <p class="text-lg sm:text-xl text-gray-400 leading-relaxed mb-12 font-medium"
-                        data-i18n="launchDesc2">
-                        Our foundation is built on delivering enterprise-level solutions. From day one, we've dedicated
-                        ourselves to architecting digital products that not only look phenomenal but operate with
-                        uncompromising security, performance, and scalability.
-                    </p>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 relative">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-r from-myancode-blue/10 to-transparent rounded-3xl -z-10 blur-2xl">
-                        </div>
-
-                        <div
-                            class="bg-[#111] border border-white/10 p-6 sm:p-8 rounded-3xl hover-glow flex flex-col justify-center shadow-sm">
-                            <div
-                                class="text-4xl sm:text-5xl font-display font-black text-white mb-2 tracking-tighter flex items-center">
-                                <span id="yearsExperienceCount">0</span><span class="text-white ml-1">+</span></div>
-                            <div class="text-[10px] sm:text-[11px] font-bold font-mono text-gray-500 uppercase tracking-[0.15em]"
-                                data-i18n="statExp">Years Experience</div>
-                        </div>
-                        <div
-                            class="bg-[#111] border border-white/10 p-6 sm:p-8 rounded-3xl hover-glow flex flex-col justify-center shadow-sm">
-                            <div
-                                class="text-4xl sm:text-5xl font-display font-black text-white mb-2 tracking-tighter flex items-center">
-                                <span id="projectsDeliveredCount">0</span><span class="text-white ml-1">+</span></div>
-                            <div class="text-[10px] sm:text-[11px] font-bold font-mono text-gray-500 uppercase tracking-[0.15em]"
-                                data-i18n="statProjects">Projects Delivered</div>
-                        </div>
-                        <div
-                            class="bg-[#111] border border-white/10 p-6 sm:p-8 rounded-3xl hover-glow flex flex-col justify-center shadow-sm col-span-2 sm:col-span-1">
-                            <div
-                                class="text-3xl sm:text-4xl font-display font-black text-white mb-2 tracking-tighter text-gradient">
-                                Apr '26</div>
-                            <div class="text-[10px] sm:text-[11px] font-bold font-mono text-gray-500 uppercase tracking-[0.15em]"
-                                data-i18n="statLaunch">Official Launch</div>
-                        </div>
+                    
+                    <h3 class="text-3xl sm:text-4xl md:text-5xl font-display font-medium text-white mb-8 tracking-tight" data-i18n="launchTitle">How we started.</h3>
+                    
+                    <div class="space-y-6 text-gray-400 font-light text-base sm:text-lg leading-relaxed">
+                        <p data-i18n="launchDesc1">
+                            MyanCode started in April 2026. We are a team of developers with over 7 years of real experience. We saw that many businesses struggle with complex software. We wanted to fix that by making systems that are powerful but easy to use.
+                        </p>
+                        <p data-i18n="launchDesc2">
+                            We focus on enterprise solutions. Since day one, we have worked hard to build digital products that are safe, fast, and ready to grow with your business. We keep things simple and secure.
+                        </p>
                     </div>
                 </div>
 
-                <div class="lg:col-span-6 relative group order-1 lg:order-2">
-                    <div
-                        class="absolute inset-0 bg-myancode-accent/5 rounded-[3rem] transform translate-x-4 translate-y-4 transition-transform duration-700 group-hover:translate-x-6 group-hover:translate-y-6 blur-md">
+                <div class="flex flex-col gap-8">
+                    <div class="w-full aspect-video rounded-xl enterprise-border overflow-hidden relative">
+                        <img src="../imgs/web-banners/myancode-poster-1.png" alt="Company Focus" class="w-full h-full object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-700">
                     </div>
-                    <div class="relative img-glow-wrap rounded-[3rem] z-10">
-                        <img src="../imgs/web-banners/myancode-poster-1.png" alt="Team Collaboration"
-                            class="relative rounded-[3rem] w-full h-auto object-cover shadow-[0_20px_60px_-10px_rgba(0,0,0,0.5)] border border-white/10 transition-transform duration-1000 group-hover:scale-[1.02] filter brightness-90">
-                    </div>
-
-                    <div
-                        class="absolute -bottom-8 -left-8 hidden sm:flex bg-[#111] border border-white/10 p-5 pr-8 rounded-3xl z-20 hover-glow items-center gap-5 shadow-2xl">
-                        <div
-                            class="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white shadow-inner">
-                            <i data-lucide="globe" class="w-7 h-7"></i>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="enterprise-border bg-[#0a0a0a] p-6 sm:p-8 rounded-xl flex flex-col justify-center">
+                            <div class="text-3xl sm:text-4xl font-display font-medium text-white mb-2 flex items-center">
+                                <span id="yearsExperienceCount">0</span><span class="text-myancode-accent ml-1">+</span>
+                            </div>
+                            <div class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest" data-i18n="statExp">Years Experience</div>
                         </div>
-                        <div>
-                            <div class="text-[9px] font-bold font-mono text-gray-500 uppercase tracking-[0.2em] mb-1">
-                                INTRODUCING</div>
-                            <div class="text-lg font-display font-black text-white leading-none tracking-tight">
-                                MyanCode.</div>
+                        <div class="enterprise-border bg-[#0a0a0a] p-6 sm:p-8 rounded-xl flex flex-col justify-center">
+                            <div class="text-3xl sm:text-4xl font-display font-medium text-white mb-2 flex items-center">
+                                <span id="projectsDeliveredCount">0</span><span class="text-myancode-accent ml-1">+</span>
+                            </div>
+                            <div class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest" data-i18n="statProjects">Projects Completed</div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="relative z-10 w-full py-24 sm:py-32">
+        <section class="relative z-10 w-full bg-[#0a0a0a] border-y border-white/5 py-24 sm:py-32">
             <div class="layout-width mx-auto px-4 sm:px-6">
-                <div class="text-center max-w-4xl mx-auto mb-20 scroll-reveal">
-                    <h2 class="text-4xl sm:text-5xl md:text-[4rem] font-display font-black tracking-tighter text-white mb-6 text-gradient"
-                        data-i18n="vmaMainTitle">Vision, Mission & Aim</h2>
-                    <p class="text-xl md:text-2xl text-gray-400 font-medium tracking-wide" data-i18n="vmaMainDesc">
-                        Guided by innovation, grounded by technical excellence.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-10">
-                    <div
-                        class="bg-[#0a0a0a] border border-[#222] hover:border-[#444] p-10 sm:p-12 xl:p-14 rounded-[2rem] flex flex-col items-start scroll-reveal group relative overflow-hidden transition-all duration-500 hover:shadow-[0_15px_40px_-10px_rgba(255,255,255,0.05)]">
-
-                        <h3 class="text-2xl sm:text-3xl font-display font-black text-white mb-4 tracking-tighter relative z-10"
-                            data-i18n="vTitle">Our Vision</h3>
-                        <p class="text-gray-400 leading-relaxed font-light text-base sm:text-lg relative z-10"
-                            data-i18n="vDesc">To be the frontier of digital transformation globally, setting the gold
-                            standard for how robust web applications and digital interfaces are designed, engineered,
-                            and delivered in the modern era.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 divide-y md:divide-y-0 md:divide-x divide-white/10">
+                    
+                    <div class="flex flex-col items-start scroll-reveal md:pr-12 py-8 md:py-0">
+                        <div class="text-[10px] font-mono text-myancode-accent tracking-widest uppercase mb-4" data-i18n="vTitle">Vision</div>
+                        <h3 class="text-2xl font-display font-medium text-white mb-4 tracking-tight">Our Goal</h3>
+                        <p class="text-gray-400 leading-relaxed font-light text-sm sm:text-base" data-i18n="vDesc">
+                            To lead global digital growth by setting the standard for how web applications are built today. We want to be the trusted partner for digital success.
+                        </p>
                     </div>
 
-                    <div class="bg-[#0a0a0a] border border-[#222] hover:border-[#444] p-10 sm:p-12 xl:p-14 rounded-[2rem] flex flex-col items-start scroll-reveal group relative overflow-hidden transition-all duration-500 hover:shadow-[0_15px_40px_-10px_rgba(255,255,255,0.05)]"
-                        style="transition-delay: 100ms;">
-
-                        <h3 class="text-2xl sm:text-3xl font-display font-black text-white mb-4 tracking-tighter relative z-10"
-                            data-i18n="mTitle">Our Mission</h3>
-                        <p class="text-gray-400 leading-relaxed font-light text-base sm:text-lg relative z-10"
-                            data-i18n="mDesc">We focus on performance, design, and supreme usability. Our mission is to
-                            simplify the web development process, bridging the gap between heavy, complex engineering
-                            and beautifully elegant user interfaces.</p>
+                    <div class="flex flex-col items-start scroll-reveal md:px-12 py-8 md:py-0" style="transition-delay: 100ms;">
+                        <div class="text-[10px] font-mono text-myancode-accent tracking-widest uppercase mb-4" data-i18n="mTitle">Mission</div>
+                        <h3 class="text-2xl font-display font-medium text-white mb-4 tracking-tight">Our Work</h3>
+                        <p class="text-gray-400 leading-relaxed font-light text-sm sm:text-base" data-i18n="mDesc">
+                            To make web development simple. We combine strong engineering with beautiful, easy-to-use designs, making complex technology feel easy.
+                        </p>
                     </div>
 
-                    <div class="bg-[#0a0a0a] border border-[#222] hover:border-[#444] p-10 sm:p-12 xl:p-14 rounded-[2rem] flex flex-col items-start scroll-reveal group relative overflow-hidden transition-all duration-500 hover:shadow-[0_15px_40px_-10px_rgba(255,255,255,0.05)]"
-                        style="transition-delay: 200ms;">
-
-                        <h3 class="text-2xl sm:text-3xl font-display font-black text-white mb-4 tracking-tighter relative z-10"
-                            data-i18n="aTitle">Our Aim</h3>
-                        <p class="text-gray-400 leading-relaxed font-light text-base sm:text-lg relative z-10"
-                            data-i18n="aDesc">To empower 1,000+ businesses by 2030 with scalable infrastructure. We aim
-                            to continuously push the boundaries of modern frameworks, ensuring our clients are always
-                            technologically ahead of the curve.</p>
+                    <div class="flex flex-col items-start scroll-reveal md:pl-12 py-8 md:py-0" style="transition-delay: 200ms;">
+                        <div class="text-[10px] font-mono text-myancode-accent tracking-widest uppercase mb-4" data-i18n="aTitle">Aim</div>
+                        <h3 class="text-2xl font-display font-medium text-white mb-4 tracking-tight">Our Target</h3>
+                        <p class="text-gray-400 leading-relaxed font-light text-sm sm:text-base" data-i18n="aDesc">
+                            To help 1,000+ businesses grow with reliable digital tools by 2030. We focus on keeping our clients ahead with the latest, secure technology.
+                        </p>
                     </div>
+
                 </div>
             </div>
         </section>
 
-        <section class="relative z-10 w-full layout-width mx-auto px-4 sm:px-6 py-32 sm:py-48">
-            <div class="text-center mb-24 scroll-reveal">
-                <div
-                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#111] border border-white/10 text-myancode-accent text-[10px] sm:text-[11px] font-bold font-mono uppercase tracking-[0.25em] mb-6 shadow-sm">
-                    <span data-i18n="teamTag">The Experts</span>
+        <section class="relative z-10 w-full layout-width mx-auto px-4 sm:px-6 py-24 sm:py-32">
+            
+            <div class="mb-16 scroll-reveal flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/10 pb-8">
+                <div>
+                    <h2 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3" data-i18n="teamTag">Executive Board</h2>
+                    <h3 class="text-3xl sm:text-4xl md:text-5xl font-display font-medium text-white tracking-tight" data-i18n="teamSectionTitle">Leadership Team.</h3>
                 </div>
-                <h3 class="text-4xl sm:text-5xl md:text-[4rem] font-display font-black tracking-tighter text-white text-gradient leading-[1.1]"
-                    data-i18n="teamSectionTitle">Meet the Innovators</h3>
+                <div class="text-gray-400 text-sm font-light max-w-md">
+                    The experts guiding our enterprise vision, strategy, and technological advancements.
+                </div>
             </div>
 
-            <div class="relative grid grid-cols-1 lg:grid-cols-3 gap-10 xl:gap-12 lg:pt-12">
+            <div class="flex flex-col gap-12 sm:gap-16">
 
-                <div
-                    class="group relative w-full h-[640px] sm:h-[680px] lg:h-[720px] xl:h-[660px] scroll-reveal cursor-pointer order-2 lg:order-1 lg:mt-12 rounded-[2rem] border border-[#222] overflow-hidden bg-[#0a0a0a]">
+                
+                <div class="scroll-reveal id-card-container rounded-xl enterprise-border p-2 sm:p-3">
+                    <div class="relative border border-white/10 rounded-lg p-6 sm:p-10 bg-[#050505] overflow-hidden">
+                        
+                        
+                        <div class="id-card-watermark-base"></div>
+                        
+                        <div class="id-card-watermark-spotlight"></div>
 
-                    <!-- BACK (Revealed on Hover) -->
-                    <div
-                        class="absolute inset-0 z-10 bg-[#0a0a0a] flex flex-col justify-center items-center text-center p-8 border border-blue-500/20 shadow-[inset_0_0_50px_rgba(41,151,255,0.1)]">
-                        <div
-                            class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(41,151,255,0.15),transparent_60%)] pointer-events-none">
+                        
+                        <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/10 pb-4 mb-8 gap-4">
+                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-gray-400 font-bold">Official Executive Identification</div>
+                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-white bg-white/10 px-3 py-1 rounded-sm">ID: MC-001</div>
                         </div>
 
-                        <div
-                            class="w-20 h-20 sm:w-24 sm:h-24 rounded-[2rem] overflow-hidden shadow-2xl border border-blue-500/30 shrink-0 mb-6 mx-auto relative bg-white/5 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-100">
-                            <img src="../imgs/members/founder.png"
-                                class="w-full h-full object-cover saturate-[1.1] filter brightness-90"
-                                alt="Win Khant Paing">
-                        </div>
-
-                        <h4 class="text-[22px] sm:text-[26px] font-display font-black text-white tracking-tighter leading-none mb-2 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-150"
-                            data-i18n="t2Name">Win Khant Paing</h4>
-                        <p class="text-[9px] font-bold font-mono text-blue-400 uppercase tracking-[0.25em] mb-8 sm:mb-10 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-200"
-                            data-i18n="connectTitle2">Connect & Collaborate</p>
-
-                        <div
-                            class="w-full grid grid-cols-2 gap-3 mb-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-300">
-                            <a href="mailto:winkhantpaing@myancode.com"
-                                class="biz-btn !bg-blue-500/10 !border-blue-500/30 hover:!bg-blue-600 hover:!border-blue-500 hover:!text-white"><i
-                                    data-lucide="mail" class="w-4 h-4"></i> Mail</a>
-                            <a href="#"
-                                class="biz-btn !bg-blue-500/10 !border-blue-500/30 hover:!bg-blue-600 hover:!border-blue-500 hover:!text-white"><i
-                                    data-lucide="message-square" class="w-4 h-4"></i> Discord</a>
-                        </div>
-
-                        <div
-                            class="w-full grid grid-cols-2 gap-3 mb-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-300">
-                            <a href="tel:+959782611101"
-                                class="biz-btn !bg-blue-500/10 !border-blue-500/30 hover:!bg-blue-600 hover:!border-blue-500 hover:!text-white"><i
-                                    data-lucide="phone" class="w-4 h-4"></i> Call Now</a>
-                            <a href="https://winkhantpaing.site" target="_blank"
-                                class="biz-btn !bg-blue-500/10 !border-blue-500/30 hover:!bg-blue-600 hover:!border-blue-500 hover:!text-white"><i
-                                    data-lucide="globe" class="w-4 h-4"></i> Website</a>
-                        </div>
-
-                        <a href="../innovators/win-khant-paing/"
-                            class="biz-btn-web group/web flex justify-center items-center text-black bg-white hover:bg-gray-200 w-full opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-[500ms]">
-                            <span data-i18n="btnWebsite">View Detail</span> <i data-lucide="arrow-up-right"
-                                class="w-4 h-4 ml-1 group-hover/web:translate-x-1 group-hover/web:-translate-y-1 transition-transform"></i>
-                        </a>
-                    </div>
-
-                    <!-- FRONT (Curtain - Left Half) -->
-                    <div class="absolute inset-0 z-20 transition-transform duration-[800ms] ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:-translate-x-full pointer-events-none"
-                        style="clip-path: inset(0 calc(50% - 1px) 0 0);">
-                        <div class="w-full h-full bg-[#0a0a0a] flex flex-col relative">
-                            <div class="w-full h-72 sm:h-80 relative overflow-hidden bg-[#111]">
-                                <img src="../imgs/members/founder.png"
-                                    class="w-full h-full object-cover object-top grayscale-[0.8]" alt="Win Khant Paing">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent">
+                        
+                        <div class="relative z-10 flex flex-col md:flex-row gap-8 lg:gap-12 items-start">
+                            
+                            
+                            <div class="w-40 sm:w-48 lg:w-56 shrink-0">
+                                <div class="id-photo-frame w-full aspect-[3/4]">
+                                    <img src="../imgs/members/htetzawpaing.jpg" class="w-full h-full object-cover grayscale brightness-95 contrast-[110%]" alt="Htet Zaw Paing">
                                 </div>
                             </div>
-                            <div class="p-8 sm:p-10 -mt-16 flex-1 flex flex-col relative z-10">
-                                <span
-                                    class="text-[9px] sm:text-[10px] font-bold font-mono uppercase tracking-[0.2em] text-blue-400 block mb-2"
-                                    data-i18n="t2Role">Chief Technology Officer</span>
-                                <h4 class="text-2xl sm:text-[28px] font-display font-black text-white tracking-tighter leading-[1.1] mb-6"
-                                    data-i18n="t2Name">Win Khant Paing</h4>
-                                <div class="w-12 h-[1px] bg-[#444] mb-6"></div>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 mb-8 leading-[1.8] font-light line-clamp-4"
-                                    data-i18n="t2Bio">Specializing in scalable backend architectures, cloud
-                                    infrastructure, and ensuring peak enterprise performance across all our digital
-                                    products.</p>
-                                <div class="space-y-4 mb-10">
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Exp</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t2Exp">7+ Years in Software Engineering and Web Developing</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Edu</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t2Edu">Info Myanmar
-                                            University · Edinburgh Napier</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Loc</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t2Loc">Yangon,
-                                            Myanmar</span></div>
+
+                            
+                            <div class="flex-1 w-full flex flex-col h-full justify-between">
+                                <div class="space-y-6">
+                                    <div>
+                                        <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Full Name</div>
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="text-2xl sm:text-3xl font-display font-medium text-white tracking-tight" data-i18n="t1Name">Htet Zaw Paing</h4>
+                                            <img src="../imgs/web-banners/founder-badge.png" class="w-5 h-5 object-contain" alt="" title="" onerror="this.style.display='none'">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div>
+                                            <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Designated Role</div>
+                                            <div class="text-sm sm:text-base text-white" data-i18n="t1Role">Founder & Chief Executive Officer</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Department</div>
+                                            <div class="text-sm sm:text-base text-white">Executive Board</div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Professional Background</div>
+                                        <p class="text-sm text-gray-400 leading-relaxed font-light" data-i18n="t1Bio">Leading MyanCode with a focus on business strategy, system design, and security. Ensuring the company meets its goals and delivers top-quality digital solutions to clients.</p>
+                                    </div>
                                 </div>
-                                <div
-                                    class="mt-auto pt-6 border-t border-[#222] flex items-center justify-center opacity-70">
-                                    <span
-                                        class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500">More</span>
+
+                                
+                                <div class="mt-8 flex flex-row items-end justify-between w-full">
+                                    <div>
+                                        <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Authorized Contact</div>
+                                        <div class="flex flex-wrap gap-3">
+                                            <a href="mailto:htetzawpaing@myancode.com" class="formal-btn">Mail</a>
+                                            <a href="tel:+959944861000" class="formal-btn-outline">Phone</a>
+                                            <a href="https://htetzawpaing.site" target="_blank" class="formal-btn-outline">Profile</a>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="w-16 h-16 sm:w-[72px] sm:h-[72px] p-1 bg-white rounded-sm shrink-0 ml-4 qr-code-container" id="qr-ceo"></div>
                                 </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="relative z-10 mt-10 pt-4 border-t border-white/5 overflow-hidden">
+                            <div class="mrz-font text-gray-600 text-[10px] sm:text-xs md:text-sm whitespace-nowrap opacity-60">
+                                P&lt;MMKHTET&lt;&lt;ZAW&lt;PAING&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>
+                                MC001&lt;&lt;&lt;&lt;&lt;&lt;&lt;260410M&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
                             </div>
                         </div>
                     </div>
-
-                    <!-- FRONT (Curtain - Right Half) -->
-                    <div class="absolute inset-0 z-20 transition-transform duration-[800ms] ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:translate-x-full pointer-events-none"
-                        style="clip-path: inset(0 0 0 calc(50% - 1px));">
-                        <div class="w-full h-full bg-[#0a0a0a] flex flex-col relative">
-                            <div class="w-full h-72 sm:h-80 relative overflow-hidden bg-[#111]">
-                                <img src="../imgs/members/founder.png"
-                                    class="w-full h-full object-cover object-top grayscale-[0.8]" alt="Win Khant Paing">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent">
-                                </div>
-                            </div>
-                            <div class="p-8 sm:p-10 -mt-16 flex-1 flex flex-col relative z-10">
-                                <span
-                                    class="text-[9px] sm:text-[10px] font-bold font-mono uppercase tracking-[0.2em] text-blue-400 block mb-2"
-                                    data-i18n="t2Role">Chief Technology Officer</span>
-                                <h4 class="text-2xl sm:text-[28px] font-display font-black text-white tracking-tighter leading-[1.1] mb-6"
-                                    data-i18n="t2Name">Win Khant Paing</h4>
-                                <div class="w-12 h-[1px] bg-[#444] mb-6"></div>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 mb-8 leading-[1.8] font-light line-clamp-4"
-                                    data-i18n="t2Bio">Specializing in scalable backend architectures, cloud
-                                    infrastructure, and ensuring peak enterprise performance across all our digital
-                                    products.</p>
-                                <div class="space-y-4 mb-10">
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Exp</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t2Exp">7+ Years in Software Engineering and Web Developing</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Edu</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t2Edu">Info Myanmar
-                                            University · Edinburgh Napier</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Loc</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t2Loc">Yangon,
-                                            Myanmar</span></div>
-                                </div>
-                                <div
-                                    class="mt-auto pt-6 border-t border-[#222] flex items-center justify-center opacity-70">
-                                    <span
-                                        class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500">More</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
-                <div
-                    class="group relative w-full h-[640px] sm:h-[680px] lg:h-[720px] xl:h-[660px] scroll-reveal cursor-pointer order-1 lg:order-2 lg:-mt-12 rounded-[2rem] border border-[#222] overflow-hidden bg-[#0a0a0a]">
+                
+                <div class="scroll-reveal id-card-container rounded-xl enterprise-border p-2 sm:p-3">
+                    <div class="relative border border-white/10 rounded-lg p-6 sm:p-10 bg-[#050505] overflow-hidden">
+                        
+                        
+                        <div class="id-card-watermark-base"></div>
+                        
+                        <div class="id-card-watermark-spotlight"></div>
 
-                    <!-- BACK (Revealed on Hover) -->
-                    <div
-                        class="absolute inset-0 z-10 bg-[#0a0a0a] flex flex-col justify-center items-center text-center p-8 border border-purple-500/20 shadow-[inset_0_0_50px_rgba(168,85,247,0.1)]">
-                        <div
-                            class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.15),transparent_60%)] pointer-events-none">
+                        
+                        <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/10 pb-4 mb-8 gap-4">
+                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-gray-400 font-bold">Official Executive Identification</div>
+                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-white bg-white/10 px-3 py-1 rounded-sm">ID: MC-002</div>
                         </div>
 
-                        <div
-                            class="w-20 h-20 sm:w-24 sm:h-24 rounded-[2rem] overflow-hidden shadow-2xl border border-purple-500/30 shrink-0 mb-6 mx-auto relative bg-white/5 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-100">
-                            <img src="../imgs/members/htetzawpaing.jpg"
-                                class="w-full h-full object-cover saturate-[1.1] filter brightness-90"
-                                alt="Htet Zaw Paing">
-                        </div>
-
-                        <h4 class="text-[22px] sm:text-[26px] font-display font-black text-white tracking-tighter leading-none mb-2 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-150"
-                            data-i18n="t1Name">Htet Zaw Paing</h4>
-                        <p class="text-[9px] font-bold font-mono text-purple-400 uppercase tracking-[0.25em] mb-8 sm:mb-10 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-200"
-                            data-i18n="connectTitle1">Connect & Collaborate</p>
-
-                        <div
-                            class="w-full grid grid-cols-2 gap-3 mb-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-300">
-                            <a href="mailto:htetzawpaing@myancode.com"
-                                class="biz-btn !bg-purple-500/10 !border-purple-500/30 hover:!bg-purple-600 hover:!border-purple-500 hover:!text-white"><i
-                                    data-lucide="mail" class="w-4 h-4"></i> Mail</a>
-                            <a href="https://discord.com/" target="_blank"
-                                class="biz-btn !bg-purple-500/10 !border-purple-500/30 hover:!bg-purple-600 hover:!border-purple-500 hover:!text-white"><i
-                                    data-lucide="message-square" class="w-4 h-4"></i> Discord</a>
-                        </div>
-
-                        <div
-                            class="w-full grid grid-cols-2 gap-3 mb-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-300">
-                            <a href="tel:+959944861000"
-                                class="biz-btn !bg-blue-500/10 !border-blue-500/30 hover:!bg-blue-600 hover:!border-blue-500 hover:!text-white"><i
-                                    data-lucide="phone" class="w-4 h-4"></i> Call Now</a>
-                            <a href="https://htetzawpaing.site" target="_blank"
-                                class="biz-btn !bg-blue-500/10 !border-blue-500/30 hover:!bg-blue-600 hover:!border-blue-500 hover:!text-white"><i
-                                    data-lucide="globe" class="w-4 h-4"></i> Website</a>
-                        </div>
-
-                        <a href="../innovators/htet-zaw-paing/"
-                            class="biz-btn-web group/web flex justify-center items-center text-black bg-white hover:bg-gray-200 w-full opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-[500ms]">
-                            <span data-i18n="btnWebsite">View Detail</span> <i data-lucide="arrow-up-right"
-                                class="w-4 h-4 ml-1 group-hover/web:translate-x-1 group-hover/web:-translate-y-1 transition-transform"></i>
-                        </a>
-                    </div>
-
-                    <!-- FRONT (Curtain - Left Half) -->
-                    <div class="absolute inset-0 z-20 transition-transform duration-[800ms] ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:-translate-x-full pointer-events-none"
-                        style="clip-path: inset(0 calc(50% - 1px) 0 0);">
-                        <div class="w-full h-full bg-[#0a0a0a] flex flex-col relative">
-                            <div class="w-full h-72 sm:h-80 relative overflow-hidden bg-[#111]">
-                                <img src="../imgs/members/htetzawpaing.jpg"
-                                    class="w-full h-full object-cover object-top grayscale-[0.8]" alt="Htet Zaw Paing">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent">
+                        
+                        <div class="relative z-10 flex flex-col md:flex-row gap-8 lg:gap-12 items-start">
+                            
+                            
+                            <div class="w-40 sm:w-48 lg:w-56 shrink-0">
+                                <div class="id-photo-frame w-full aspect-[3/4]">
+                                    <img src="../imgs/members/winkhantpaing.jpg" class="w-full h-full object-cover" alt="Win Khant Paing">
                                 </div>
                             </div>
-                            <div class="p-8 sm:p-10 -mt-16 flex-1 flex flex-col relative z-10">
-                                <span
-                                    class="text-[9px] sm:text-[10px] font-bold font-mono uppercase tracking-[0.2em] text-purple-400 block mb-2"
-                                    data-i18n="t1Role">Founder & Chief Executive Officer</span>
-                                <h4 class="text-2xl sm:text-[28px] font-display font-black text-white tracking-tighter leading-[1.1] mb-6"
-                                    data-i18n="t1Name">Htet Zaw Paing</h4>
-                                <div class="w-12 h-[1px] bg-[#444] mb-6"></div>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 mb-8 leading-[1.8] font-light line-clamp-4"
-                                    data-i18n="t1Bio">Spearheading MyanCode's vision through full-stack development,
-                                    UI/UX design, continuous creation & innovation, robust security integration,
-                                    business strategy, and deep data analysis.</p>
-                                <div class="space-y-4 mb-10">
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Exp</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t1Exp">7+ Years in Software Engineering and Web Developing</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Edu</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t1Edu">Info Myanmar
-                                            University · Edinburgh Napier</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Loc</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t1Loc">Yangon,
-                                            Myanmar</span></div>
+
+                            
+                            <div class="flex-1 w-full flex flex-col h-full justify-between">
+                                <div class="space-y-6">
+                                    <div>
+                                        <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Full Name</div>
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="text-2xl sm:text-3xl font-display font-medium text-white tracking-tight" data-i18n="t2Name">Win Khant Paing</h4>
+                                            <img src="../imgs/web-banners/verified-admin.png" class="w-5 h-5 object-contain" alt="" title="" onerror="this.style.display='none'">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div>
+                                            <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Designated Role</div>
+                                            <div class="text-sm sm:text-base text-white" data-i18n="t2Role">Chief Technology Officer</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Department</div>
+                                            <div class="text-sm sm:text-base text-white">Engineering</div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Professional Background</div>
+                                        <p class="text-sm text-gray-400 leading-relaxed font-light" data-i18n="t2Bio">Expert in building strong server systems and managing cloud technology. Responsible for making sure all our digital platforms run smoothly and securely.</p>
+                                    </div>
                                 </div>
-                                <div
-                                    class="mt-auto pt-6 border-t border-[#222] flex items-center justify-center opacity-70">
-                                    <span
-                                        class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500">More</span>
+
+                                
+                                <div class="mt-8 flex flex-row items-end justify-between w-full">
+                                    <div>
+                                        <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Authorized Contact</div>
+                                        <div class="flex flex-wrap gap-3">
+                                            <a href="mailto:winkhantpaing@myancode.com" class="formal-btn">Mail</a>
+                                            <a href="tel:+959782611101" class="formal-btn-outline">Phone</a>
+                                            <a href="https://winkhantpaing.site" target="_blank" class="formal-btn-outline">Profile</a>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="w-16 h-16 sm:w-[72px] sm:h-[72px] p-1 bg-white rounded-sm shrink-0 ml-4 qr-code-container" id="qr-cto"></div>
                                 </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="relative z-10 mt-10 pt-4 border-t border-white/5 overflow-hidden">
+                            <div class="mrz-font text-gray-600 text-[10px] sm:text-xs md:text-sm whitespace-nowrap opacity-60">
+                                P&lt;MMKWIN&lt;&lt;KHANT&lt;PAING&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+                                <br>MC002&lt;&lt;&lt;&lt;&lt;&lt;&lt;260410M&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
                             </div>
                         </div>
                     </div>
-
-                    <!-- FRONT (Curtain - Right Half) -->
-                    <div class="absolute inset-0 z-20 transition-transform duration-[800ms] ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:translate-x-full pointer-events-none"
-                        style="clip-path: inset(0 0 0 calc(50% - 1px));">
-                        <div class="w-full h-full bg-[#0a0a0a] flex flex-col relative">
-                            <div class="w-full h-72 sm:h-80 relative overflow-hidden bg-[#111]">
-                                <img src="../imgs/members/htetzawpaing.jpg"
-                                    class="w-full h-full object-cover object-top grayscale-[0.8]" alt="Htet Zaw Paing">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent">
-                                </div>
-                            </div>
-                            <div class="p-8 sm:p-10 -mt-16 flex-1 flex flex-col relative z-10">
-                                <span
-                                    class="text-[9px] sm:text-[10px] font-bold font-mono uppercase tracking-[0.2em] text-purple-400 block mb-2"
-                                    data-i18n="t1Role">Founder & Chief Executive Officer</span>
-                                <h4 class="text-2xl sm:text-[28px] font-display font-black text-white tracking-tighter leading-[1.1] mb-6"
-                                    data-i18n="t1Name">Htet Zaw Paing</h4>
-                                <div class="w-12 h-[1px] bg-[#444] mb-6"></div>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 mb-8 leading-[1.8] font-light line-clamp-4"
-                                    data-i18n="t1Bio">Spearheading MyanCode's vision through full-stack development,
-                                    UI/UX design, continuous creation & innovation, robust security integration,
-                                    business strategy, and deep data analysis.</p>
-                                <div class="space-y-4 mb-10">
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Exp</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t1Exp">7+ Years in Software Engineering and Web Developing</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Edu</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t1Edu">Info Myanmar
-                                            University · Edinburgh Napier</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Loc</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t1Loc">Yangon,
-                                            Myanmar</span></div>
-                                </div>
-                                <div
-                                    class="mt-auto pt-6 border-t border-[#222] flex items-center justify-center opacity-70">
-                                    <span
-                                        class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500">More</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
-                <div
-                    class="group relative w-full h-[640px] sm:h-[680px] lg:h-[720px] xl:h-[660px] scroll-reveal cursor-pointer order-3 lg:order-3 lg:mt-12 rounded-[2rem] border border-[#222] overflow-hidden bg-[#0a0a0a]">
+                
+                <div class="scroll-reveal id-card-container rounded-xl enterprise-border p-2 sm:p-3">
+                    <div class="relative border border-white/10 rounded-lg p-6 sm:p-10 bg-[#050505] overflow-hidden">
+                        
+                        
+                        <div class="id-card-watermark-base"></div>
+                        
+                        <div class="id-card-watermark-spotlight"></div>
 
-                    <!-- BACK (Revealed on Hover) -->
-                    <div
-                        class="absolute inset-0 z-10 bg-[#0a0a0a] flex flex-col justify-center items-center text-center p-8 border border-emerald-500/20 shadow-[inset_0_0_50px_rgba(16,185,129,0.1)]">
-                        <div
-                            class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.15),transparent_60%)] pointer-events-none">
+                        
+                        <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/10 pb-4 mb-8 gap-4">
+                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-gray-400 font-bold">Official Executive Identification</div>
+                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-white bg-white/10 px-3 py-1 rounded-sm">ID: MC-003</div>
                         </div>
 
-                        <div
-                            class="w-20 h-20 sm:w-24 sm:h-24 rounded-[2rem] overflow-hidden shadow-2xl border border-emerald-500/30 shrink-0 mb-6 mx-auto relative bg-white/5 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-100">
-                            <img src="../imgs/members/kyawlinmyint.jpg"
-                                class="w-full h-full object-cover saturate-[1.1] filter brightness-90"
-                                alt="Kyaw Lin Myint">
-                        </div>
-
-                        <h4 class="text-[22px] sm:text-[26px] font-display font-black text-white tracking-tighter leading-none mb-2 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-150"
-                            data-i18n="t3Name">Kyaw Lin Myint</h4>
-                        <p class="text-[9px] font-bold font-mono text-emerald-400 uppercase tracking-[0.25em] mb-8 sm:mb-10 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-200"
-                            data-i18n="connectTitle3">Connect & Collaborate</p>
-
-                        <div
-                            class="w-full grid grid-cols-2 gap-3 mb-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-300">
-                            <a href="mailto:kyawlinmyint@myancode.com"
-                                class="biz-btn !bg-emerald-500/10 !border-emerald-500/30 hover:!bg-emerald-600 hover:!border-emerald-500 hover:!text-white"><i
-                                    data-lucide="mail" class="w-4 h-4"></i> Mail</a>
-                            <a href="#" target="_blank"
-                                class="biz-btn !bg-emerald-500/10 !border-emerald-500/30 hover:!bg-emerald-600 hover:!border-emerald-500 hover:!text-white"><i
-                                    data-lucide="message-square" class="w-4 h-4"></i> Discord</a>
-                        </div>
-
-                        <div
-                            class="w-full grid grid-cols-2 gap-3 mb-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-300">
-                            <a href="tel:+959456382248"
-                                class="biz-btn !bg-blue-500/10 !border-blue-500/30 hover:!bg-blue-600 hover:!border-blue-500 hover:!text-white"><i
-                                    data-lucide="phone" class="w-4 h-4"></i> Call Now</a>
-                            <a href="https://kyawlinmyint.site" target="_blank"
-                                class="biz-btn !bg-blue-500/10 !border-blue-500/30 hover:!bg-blue-600 hover:!border-blue-500 hover:!text-white"><i
-                                    data-lucide="globe" class="w-4 h-4"></i> Website</a>
-                        </div>
-
-                        <a href="../innovators/kyaw-lin-myint/"
-                            class="biz-btn-web group/web flex justify-center items-center text-black bg-white hover:bg-gray-200 w-full opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-[500ms]">
-                            <span data-i18n="btnWebsite">View Detail</span> <i data-lucide="arrow-up-right"
-                                class="w-4 h-4 ml-1 group-hover/web:translate-x-1 group-hover/web:-translate-y-1 transition-transform"></i>
-                        </a>
-                    </div>
-
-                    <!-- FRONT (Curtain - Left Half) -->
-                    <div class="absolute inset-0 z-20 transition-transform duration-[800ms] ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:-translate-x-full pointer-events-none"
-                        style="clip-path: inset(0 calc(50% - 1px) 0 0);">
-                        <div class="w-full h-full bg-[#0a0a0a] flex flex-col relative">
-                            <div class="w-full h-72 sm:h-80 relative overflow-hidden bg-[#111]">
-                                <img src="../imgs/members/kyawlinmyint.jpg"
-                                    class="w-full h-full object-cover object-top grayscale-[0.8]" alt="Kyaw Lin Myint">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent">
+                        
+                        <div class="relative z-10 flex flex-col md:flex-row gap-8 lg:gap-12 items-start">
+                            
+                            
+                            <div class="w-40 sm:w-48 lg:w-56 shrink-0">
+                                <div class="id-photo-frame w-full aspect-[3/4]">
+                                    <img src="../imgs/members/kyawlinmyint.jpg" class="w-full h-full object-cover" alt="Kyaw Lin Myint">
                                 </div>
                             </div>
-                            <div class="p-8 sm:p-10 -mt-16 flex-1 flex flex-col relative z-10">
-                                <span
-                                    class="text-[9px] sm:text-[10px] font-bold font-mono uppercase tracking-[0.2em] text-emerald-400 block mb-2"
-                                    data-i18n="t3Role">Chief Operating Officer</span>
-                                <h4 class="text-2xl sm:text-[28px] font-display font-black text-white tracking-tighter leading-[1.1] mb-6"
-                                    data-i18n="t3Name">Kyaw Lin Myint</h4>
-                                <div class="w-12 h-[1px] bg-[#444] mb-6"></div>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 mb-8 leading-[1.8] font-light line-clamp-4"
-                                    data-i18n="t3Bio">Leading market operations, client relations, and strategic growth
-                                    initiatives to align our technological capabilities with real-world enterprise
-                                    objectives.</p>
-                                <div class="space-y-4 mb-10">
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Exp</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t3Exp">7+ Years in Software Engineering and Web Developing</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Edu</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t3Edu">Info Myanmar
-                                            University · Edinburgh Napier</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Loc</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t3Loc">Yangon,
-                                            Myanmar</span></div>
+
+                            
+                            <div class="flex-1 w-full flex flex-col h-full justify-between">
+                                <div class="space-y-6">
+                                    <div>
+                                        <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Full Name</div>
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="text-2xl sm:text-3xl font-display font-medium text-white tracking-tight" data-i18n="t3Name">Kyaw Lin Myint</h4>
+                                            <img src="../imgs/web-banners/verified-admin.png" class="w-5 h-5 object-contain" alt="" title="" onerror="this.style.display='none'">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div>
+                                            <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Designated Role</div>
+                                            <div class="text-sm sm:text-base text-white" data-i18n="t3Role">Chief Operating Officer</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Department</div>
+                                            <div class="text-sm sm:text-base text-white">Operations</div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">Professional Background</div>
+                                        <p class="text-sm text-gray-400 leading-relaxed font-light" data-i18n="t3Bio">Directs daily operations, client relations, and team management. Focuses on connecting our technical work with the real-world needs of our clients.</p>
+                                    </div>
                                 </div>
-                                <div
-                                    class="mt-auto pt-6 border-t border-[#222] flex items-center justify-center opacity-70">
-                                    <span
-                                        class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500">More</span>
+
+                                
+                                <div class="mt-8 flex flex-row items-end justify-between w-full">
+                                    <div>
+                                        <div class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">Authorized Contact</div>
+                                        <div class="flex flex-wrap gap-3">
+                                            <a href="mailto:kyawlinmyint@myancode.com" class="formal-btn">Mail</a>
+                                            <a href="tel:+959456382248" class="formal-btn-outline">Phone</a>
+                                            <a href="https://kyawlinmyint.site" target="_blank" class="formal-btn-outline">Profile</a>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="w-16 h-16 sm:w-[72px] sm:h-[72px] p-1 bg-white rounded-sm shrink-0 ml-4 qr-code-container" id="qr-coo"></div>
                                 </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="relative z-10 mt-10 pt-4 border-t border-white/5 overflow-hidden">
+                            <div class="mrz-font text-gray-600 text-[10px] sm:text-xs md:text-sm whitespace-nowrap opacity-60">
+                                P&lt;MMKKYAW&lt;&lt;LIN&lt;MYINT&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+                                <br>MC003&lt;&lt;&lt;&lt;&lt;&lt;&lt;260410M&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
                             </div>
                         </div>
                     </div>
-
-                    <!-- FRONT (Curtain - Right Half) -->
-                    <div class="absolute inset-0 z-20 transition-transform duration-[800ms] ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:translate-x-full pointer-events-none"
-                        style="clip-path: inset(0 0 0 calc(50% - 1px));">
-                        <div class="w-full h-full bg-[#0a0a0a] flex flex-col relative">
-                            <div class="w-full h-72 sm:h-80 relative overflow-hidden bg-[#111]">
-                                <img src="../imgs/members/kyawlinmyint.jpg"
-                                    class="w-full h-full object-cover object-top grayscale-[0.8]" alt="Kyaw Lin Myint">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent">
-                                </div>
-                            </div>
-                            <div class="p-8 sm:p-10 -mt-16 flex-1 flex flex-col relative z-10">
-                                <span
-                                    class="text-[9px] sm:text-[10px] font-bold font-mono uppercase tracking-[0.2em] text-emerald-400 block mb-2"
-                                    data-i18n="t3Role">Chief Operating Officer</span>
-                                <h4 class="text-2xl sm:text-[28px] font-display font-black text-white tracking-tighter leading-[1.1] mb-6"
-                                    data-i18n="t3Name">Kyaw Lin Myint</h4>
-                                <div class="w-12 h-[1px] bg-[#444] mb-6"></div>
-                                <p class="text-[13px] sm:text-[14px] text-gray-400 mb-8 leading-[1.8] font-light line-clamp-4"
-                                    data-i18n="t3Bio">Leading market operations, client relations, and strategic growth
-                                    initiatives to align our technological capabilities with real-world enterprise
-                                    objectives.</p>
-                                <div class="space-y-4 mb-10">
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Exp</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t3Exp">7+ Years in Software Engineering and Web Developing</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Edu</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t3Edu">Info Myanmar
-                                            University · Edinburgh Napier</span></div>
-                                    <div class="flex items-start gap-4"><span
-                                            class="text-[10px] font-mono text-gray-600 tracking-widest uppercase w-20 shrink-0">Loc</span><span
-                                            class="text-[12px] text-gray-300 font-medium" data-i18n="t3Loc">Yangon,
-                                            Myanmar</span></div>
-                                </div>
-                                <div
-                                    class="mt-auto pt-6 border-t border-[#222] flex items-center justify-center opacity-70">
-                                    <span
-                                        class="text-[9px] font-mono uppercase tracking-[0.2em] text-gray-500">More</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
             </div>
         </section>
     </main>
 
-    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
+    
+    <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans border-t border-white/5">
         <div class="layout-width relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
                 <div class="lg:col-span-4 pr-4">
@@ -1936,39 +1450,39 @@
                 loadingInit: "Initializing Data...", loadingAuth: "Authenticating...",
                 ftDownloadApp: "Download", ftGetIosApp: "Get iOS App", ftGetAndroidApp: "Get Android App",
 
-                heroTag: "Enterprise Digital Agency",
-                abtHeroTitle: "Engineering the Future of Digital Experiences.",
-                abtHeroSub: "We build modern, highly-scalable architectures for ambitious businesses and visionary creators worldwide.",
+                heroTag: "Enterprise Digital Solutions",
+                abtHeroTitle: "Building the future of digital experiences.",
+                abtHeroSub: "We create fast, secure, and modern platforms for growing businesses worldwide. Simple solutions for complex digital needs.",
 
-                launchTag: "Our Story", launchTitle: "The Genesis of MyanCode",
-                launchDesc1: "Officially launched around April 10, 2026, MyanCode was born out of a collective vision by expert developers with over 7+ years of profound, real-world experience in Software Engineering and Web Developing industry. We recognized a critical gap between complex software engineering and elegant, accessible user interfaces.",
-                launchDesc2: "Our foundation is built on delivering enterprise-level solutions. From day one, we've dedicated ourselves to architecting digital products that not only look phenomenal but operate with uncompromising security, performance, and scalability.",
-                statExp: "Years Experience", statLaunch: "Official Launch", statProjects: "Projects Delivered",
+                launchTag: "Company History", launchTitle: "How we started.",
+                launchDesc1: "MyanCode started in April 2026. We are a team of developers with over 7 years of real experience. We saw that many businesses struggle with complex software. We wanted to fix that by making systems that are powerful but easy to use.",
+                launchDesc2: "We focus on enterprise solutions. Since day one, we have worked hard to build digital products that are safe, fast, and ready to grow with your business. We keep things simple and secure.",
+                statExp: "Years Experience", statLaunch: "Official Launch", statProjects: "Projects Completed",
 
                 vmaMainTitle: "Vision, Mission & Aim", vmaMainDesc: "Guided by innovation, grounded by technical excellence.",
-                vTitle: "Our Vision", vDesc: "To be the frontier of digital transformation globally, setting the gold standard for how robust web applications and digital interfaces are designed, engineered, and delivered in the modern era.",
-                mTitle: "Our Mission", mDesc: "We focus on performance, design, and supreme usability. Our mission is to simplify the web development process, bridging the gap between heavy, complex engineering and beautifully elegant user interfaces.",
-                aTitle: "Our Aim", aDesc: "To empower 1,000+ businesses by 2030 with scalable infrastructure. We aim to continuously push the boundaries of modern frameworks, ensuring our clients are always technologically ahead of the curve.",
+                vTitle: "Vision", vDesc: "To lead global digital growth by setting the standard for how web applications are built today. We want to be the trusted partner for digital success.",
+                mTitle: "Mission", mDesc: "To make web development simple. We combine strong engineering with beautiful, easy-to-use designs, making complex technology feel easy.",
+                aTitle: "Aim", aDesc: "To help 1,000+ businesses grow with reliable digital tools by 2030. We focus on keeping our clients ahead with the latest, secure technology.",
 
-                teamTag: "The Experts", teamSectionTitle: "Meet the Innovators", btnContactCard: "Contact", btnBackCard: "Back",
+                teamTag: "Executive Board", teamSectionTitle: "Leadership Team.", btnContactCard: "Contact", btnBackCard: "Back",
                 connectTitle1: "Connect & Collaborate", connectTitle2: "Connect & Collaborate", connectTitle3: "Connect & Collaborate",
 
                 t1Name: "Htet Zaw Paing", t1Role: "Founder & Chief Executive Officer",
-                t1Bio: "Spearheading MyanCode's vision through full-stack development, UI/UX design, continuous creation & innovation, robust security integration, business strategy, and deep data analysis.",
+                t1Bio: "Leading MyanCode with a focus on business strategy, system design, and security. Ensuring the company meets its goals and delivers top-quality digital solutions to clients.",
                 t1Exp: "7+ Years in Software Engineering and Web Developing", t1Edu: "Info Myanmar University · Edinburgh Napier", t1Loc: "Yangon, Myanmar",
 
                 t2Name: "Win Khant Paing", t2Role: "Chief Technology Officer",
-                t2Bio: "Specializing in scalable backend architectures, cloud infrastructure, and ensuring peak enterprise performance across all our digital products.",
+                t2Bio: "Expert in building strong server systems and managing cloud technology. Responsible for making sure all our digital platforms run smoothly and securely.",
                 t2Exp: "7+ Years in Software Engineering and Web Developing", t2Edu: "Info Myanmar University · Edinburgh Napier", t2Loc: "Yangon, Myanmar",
 
                 t3Name: "Kyaw Lin Myint", t3Role: "Chief Operating Officer",
-                t3Bio: "Leading market operations, client relations, and strategic growth initiatives to align our technological capabilities with real-world enterprise objectives.",
+                t3Bio: "Directs daily operations, client relations, and team management. Focuses on connecting our technical work with the real-world needs of our clients.",
                 t3Exp: "7+ Years in Software Engineering and Web Developing", t3Edu: "Info Myanmar University · Edinburgh Napier", t3Loc: "Yangon, Myanmar",
 
                 btnWebsite: "View Detail", msgUnderMaintenance: "Projects website is currently under maintenance.",
 
                 nlTitle: "Stay Updated", nlDesc: "Get the latest templates, updates and offers straight to your inbox.",
-                nlPlaceholder: "Enter your email address address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
+                nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
                 msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
                 tradeInTitle: "Web Development", newArrivals: "Premium Templates", bulkTitle: "SEO Optimization",
             },
@@ -2450,9 +1964,45 @@
             }
             showToast(dict[currentLang].msgLoggedOut);
         }
+        
+        function generateQRCodes() {
+            if (typeof QRCode === 'undefined') return;
+
+            const qrConfig = {
+                width: 72,
+                height: 72,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            };
+
+            const ceoUrl = "https://htetzawpaing.site";
+            if(document.getElementById("qr-ceo")) new QRCode(document.getElementById("qr-ceo"), { text: ceoUrl, ...qrConfig });
+
+            const ctoUrl = "https://winkhantpaing.site";
+            if(document.getElementById("qr-cto")) new QRCode(document.getElementById("qr-cto"), { text: ctoUrl, ...qrConfig });
+
+            const cooUrl = "https://kyawlinmyint.site";
+            if(document.getElementById("qr-coo")) new QRCode(document.getElementById("qr-coo"), { text: cooUrl, ...qrConfig });
+        }
 
         window.addEventListener('load', () => {
-            setActiveNavLinks(); renderLanguage(); document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+            setActiveNavLinks(); 
+            renderLanguage(); 
+            document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+            
+            generateQRCodes();
+
+            document.querySelectorAll('.id-card-container').forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            });
+
             const loader = document.getElementById('globalLoader');
             if (loader) {
                 setTimeout(() => { loader.classList.remove('opacity-100', 'visibility-visible'); loader.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); setTimeout(() => loader.classList.add('visibility-hidden'), 600); }, 600);
