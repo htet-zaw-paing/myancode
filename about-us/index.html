@@ -170,7 +170,7 @@
             background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4mbHQ7LyZndDs8L3RleHQ+PC9zdmc+");
             background-repeat: repeat;
             transform: rotate(-15deg);
-            opacity: 0.026;
+            opacity: 0.050;
         }
 
         .id-card-watermark-spotlight {
@@ -1260,7 +1260,7 @@
                     </div>
                 </div>
 
-                <div class="w-full xl:w-1/3 flex justify-center">
+                <div class="w-full xl:w-1/3 flex flex-col justify-center items-center gap-4">
                     <form id="newsletterForm" onsubmit="handleSubscribe(event)"
                         class="relative flex items-center bg-transparent border border-white/20 rounded-lg p-1 transition-all focus-within:border-white w-full max-w-sm">
                         <input type="email" id="newsletterEmail" required
@@ -1270,7 +1270,7 @@
                             class="bg-white text-black px-6 py-2.5 rounded-md text-[12px] font-bold hover:bg-gray-200 transition btn-hover-effect whitespace-nowrap"
                             data-i18n="btnSubscribe">Subscribe</button>
                     </form>
-                    <div class="cf-turnstile hidden" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="dark"></div>
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="dark"></div>
                 </div>
 
                 <div class="hidden md:flex items-center gap-8 justify-center xl:justify-end w-full xl:w-1/3">
@@ -1425,6 +1425,30 @@
     </div>
 
     <script>
+        let toastTimeout, errorToastTimeout;
+        
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            if (toast && toastMsg) {
+                toastMsg.innerHTML = msg;
+                toast.classList.remove('translate-y-24', 'opacity-0');
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3000);
+            }
+        }
+        
+        function showErrorToast(msg) {
+            const errorToast = document.getElementById('error-toast');
+            const errorToastMsg = document.getElementById('error-toast-msg');
+            if (errorToast && errorToastMsg) {
+                errorToastMsg.innerHTML = msg;
+                errorToast.classList.remove('translate-y-24', 'opacity-0');
+                clearTimeout(errorToastTimeout);
+                errorToastTimeout = setTimeout(() => errorToast.classList.add('translate-y-24', 'opacity-0'), 3000);
+            }
+        }
+
         function initIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); }
         initIcons();
 
@@ -1875,36 +1899,36 @@
 
         async function handleSubscribe(e) {
             e.preventDefault();
-
-            if (!supabaseInstance) {
-                showErrorToast("Database connection offline.");
-                return;
+            
+            if (!supabaseInstance) { 
+                showErrorToast("Database connection offline."); 
+                return; 
             }
-
-            const emailInput = document.getElementById('newsletterEmail');
+            
+            const emailInput = document.getElementById('newsletterEmail'); 
             const btn = document.getElementById('btnSubscribe');
-            const email = emailInput.value.trim();
-
+            const email = emailInput.value.trim(); 
+            
             const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
-
-            if (!turnstileResponse) {
-                showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။");
-                return;
+            
+            if (!turnstileResponse) { 
+                showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); 
+                return; 
             }
-
+            
             if (!email) return;
-
-            btn.disabled = true;
-            const originalBtnText = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-
+            
+            btn.disabled = true; 
+            const originalBtnText = btn.innerHTML; 
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`; 
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+            
             try {
                 if (currentUser && email.toLowerCase() !== currentUser.email.toLowerCase()) {
                     throw new Error(
-                        currentLang === 'en'
-                            ? "Authorization Error: You may only subscribe using your registered account email."
-                            : "ခွင့်ပြုချက် မရှိပါ: လူကြီးမင်း၏ အကောင့် အီးမေးလ်ဖြင့်သာ စာရင်းသွင်းနိုင်ပါသည်။"
+                        currentLang === 'en' 
+                        ? "Authorization Error: You may only subscribe using your registered account email." 
+                        : "ခွင့်ပြုချက် မရှိပါ: လူကြီးမင်း၏ အကောင့် အီးမေးလ်ဖြင့်သာ စာရင်းသွင်းနိုင်ပါသည်။"
                     );
                 } else if (!currentUser) {
                     const { data: profileRecord, error: profileErr } = await supabaseInstance
@@ -1912,35 +1936,35 @@
                         .select('email')
                         .eq('email', email)
                         .maybeSingle();
-
+                        
                     if (profileErr || !profileRecord) {
                         throw new Error(
-                            currentLang === 'en'
-                                ? "Verification Failed: The provided email address does not exist in our system or is unauthorized."
-                                : "စစ်ဆေးမှု မအောင်မြင်ပါ: ပေးထားသော အီးမေးလ်သည် ကျွန်ုပ်တို့၏ စနစ်တွင် မရှိပါ သို့မဟုတ် ခွင့်ပြုချက် မရှိပါ။"
+                            currentLang === 'en' 
+                            ? "Verification Failed: The provided email address does not exist in our system or is unauthorized." 
+                            : "စစ်ဆေးမှု မအောင်မြင်ပါ: ပေးထားသော အီးမေးလ်သည် ကျွန်ုပ်တို့၏ စနစ်တွင် မရှိပါ သို့မဟုတ် ခွင့်ပြုချက် မရှိပါ။"
                         );
                     }
                 }
-
+                
                 const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
-
-                if (error) {
-                    if (error.code === '23505') {
-                        showToast(dict[currentLang].msgSubscribedAlready);
-                    } else {
-                        throw error;
-                    }
-                } else {
-                    showToast(dict[currentLang].msgSubscribedSuccess);
-                    emailInput.value = '';
-                    if (window.turnstile) turnstile.reset();
+                
+                if (error) { 
+                    if (error.code === '23505') { 
+                        showToast(dict[currentLang].msgSubscribedAlready); 
+                    } else { 
+                        throw error; 
+                    } 
+                } else { 
+                    showToast(dict[currentLang].msgSubscribedSuccess); 
+                    emailInput.value = ''; 
+                    if (window.turnstile) turnstile.reset(); 
                 }
-
-            } catch (err) {
-                showErrorToast(err.message || "Subscription processing failed.");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalBtnText;
+                
+            } catch (err) { 
+                showErrorToast(err.message || "Subscription processing failed."); 
+            } finally { 
+                btn.disabled = false; 
+                btn.innerHTML = originalBtnText; 
             }
         }
 
