@@ -782,7 +782,7 @@
                         
                         <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/10 pb-4 mb-8 gap-4">
                             <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-gray-400 font-bold">Official Executive Identification</div>
-                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-white bg-white/10 px-3 py-1 rounded-sm">ID: MC-001</div>
+                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-white bg-white/10 px-3 py-1 rounded-sm">ID: MYC-L001</div>
                         </div>
 
                         
@@ -861,7 +861,7 @@
                         
                         <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/10 pb-4 mb-8 gap-4">
                             <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-gray-400 font-bold">Official Executive Identification</div>
-                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-white bg-white/10 px-3 py-1 rounded-sm">ID: MC-002</div>
+                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-white bg-white/10 px-3 py-1 rounded-sm">ID: MYC-L002</div>
                         </div>
 
                         
@@ -940,7 +940,7 @@
                         
                         <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/10 pb-4 mb-8 gap-4">
                             <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-gray-400 font-bold">Official Executive Identification</div>
-                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-white bg-white/10 px-3 py-1 rounded-sm">ID: MC-003</div>
+                            <div class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-mono text-white bg-white/10 px-3 py-1 rounded-sm">ID: MYC-L003</div>
                         </div>
 
                         
@@ -1270,7 +1270,7 @@
                             class="bg-white text-black px-6 py-2.5 rounded-md text-[12px] font-bold hover:bg-gray-200 transition btn-hover-effect whitespace-nowrap"
                             data-i18n="btnSubscribe">Subscribe</button>
                     </form>
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="dark"></div>
+                    <div class="cf-turnstile hidden" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="dark"></div>
                 </div>
 
                 <div class="hidden md:flex items-center gap-8 justify-center xl:justify-end w-full xl:w-1/3">
@@ -1899,36 +1899,36 @@
 
         async function handleSubscribe(e) {
             e.preventDefault();
-            
-            if (!supabaseInstance) { 
-                showErrorToast("Database connection offline."); 
-                return; 
+
+            if (!supabaseInstance) {
+                showErrorToast("Database connection offline.");
+                return;
             }
-            
-            const emailInput = document.getElementById('newsletterEmail'); 
+
+            const emailInput = document.getElementById('newsletterEmail');
             const btn = document.getElementById('btnSubscribe');
-            const email = emailInput.value.trim(); 
-            
+            const email = emailInput.value.trim();
+
             const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
-            
-            if (!turnstileResponse) { 
-                showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); 
-                return; 
+
+            if (!turnstileResponse) {
+                showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။");
+                return;
             }
-            
+
             if (!email) return;
-            
-            btn.disabled = true; 
-            const originalBtnText = btn.innerHTML; 
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`; 
-            if(typeof lucide !== 'undefined') lucide.createIcons();
-            
+
+            btn.disabled = true;
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
             try {
                 if (currentUser && email.toLowerCase() !== currentUser.email.toLowerCase()) {
                     throw new Error(
-                        currentLang === 'en' 
-                        ? "Authorization Error: You may only subscribe using your registered account email." 
-                        : "ခွင့်ပြုချက် မရှိပါ: လူကြီးမင်း၏ အကောင့် အီးမေးလ်ဖြင့်သာ စာရင်းသွင်းနိုင်ပါသည်။"
+                        currentLang === 'en'
+                            ? "Authorization Error: You may only subscribe using your registered account email."
+                            : "ခွင့်ပြုချက် မရှိပါ: လူကြီးမင်း၏ အကောင့် အီးမေးလ်ဖြင့်သာ စာရင်းသွင်းနိုင်ပါသည်။"
                     );
                 } else if (!currentUser) {
                     const { data: profileRecord, error: profileErr } = await supabaseInstance
@@ -1936,35 +1936,35 @@
                         .select('email')
                         .eq('email', email)
                         .maybeSingle();
-                        
+
                     if (profileErr || !profileRecord) {
                         throw new Error(
-                            currentLang === 'en' 
-                            ? "Verification Failed: The provided email address does not exist in our system or is unauthorized." 
-                            : "စစ်ဆေးမှု မအောင်မြင်ပါ: ပေးထားသော အီးမေးလ်သည် ကျွန်ုပ်တို့၏ စနစ်တွင် မရှိပါ သို့မဟုတ် ခွင့်ပြုချက် မရှိပါ။"
+                            currentLang === 'en'
+                                ? "Verification Failed: The provided email address does not exist in our system or is unauthorized."
+                                : "စစ်ဆေးမှု မအောင်မြင်ပါ: ပေးထားသော အီးမေးလ်သည် ကျွန်ုပ်တို့၏ စနစ်တွင် မရှိပါ သို့မဟုတ် ခွင့်ပြုချက် မရှိပါ။"
                         );
                     }
                 }
-                
+
                 const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
-                
-                if (error) { 
-                    if (error.code === '23505') { 
-                        showToast(dict[currentLang].msgSubscribedAlready); 
-                    } else { 
-                        throw error; 
-                    } 
-                } else { 
-                    showToast(dict[currentLang].msgSubscribedSuccess); 
-                    emailInput.value = ''; 
-                    if (window.turnstile) turnstile.reset(); 
+
+                if (error) {
+                    if (error.code === '23505') {
+                        showToast(dict[currentLang].msgSubscribedAlready);
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    showToast(dict[currentLang].msgSubscribedSuccess);
+                    emailInput.value = '';
+                    if (window.turnstile) turnstile.reset();
                 }
-                
-            } catch (err) { 
-                showErrorToast(err.message || "Subscription processing failed."); 
-            } finally { 
-                btn.disabled = false; 
-                btn.innerHTML = originalBtnText; 
+
+            } catch (err) {
+                showErrorToast(err.message || "Subscription processing failed.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
             }
         }
 
