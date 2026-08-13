@@ -103,23 +103,18 @@
 
         .user-avatar-global { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease; }
         .group:hover .user-avatar-global { transform: scale(1.1); border-color: #2997ff; box-shadow: 0 8px 24px rgba(41, 151, 255, 0.4); }
+
+        #globalLoader { background: #050505; }
+        #globalLoader .skeleton-loader-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid rgba(255,255,255,0.1); background: #050505; }
+        #globalLoader .skeleton-plan-card { min-height: 500px; padding: 2.5rem; border-right: 1px solid rgba(255,255,255,0.1); }
+        #globalLoader .skeleton-plan-card:last-child { border-right: 0; }
+        #globalLoader .animate-pulse { background: linear-gradient(100deg, rgba(255,255,255,0.06) 20%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0.06) 80%); background-size: 200% 100%; animation: skeletonShimmer 1.4s ease-in-out infinite !important; }
+        @keyframes skeletonShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        @media (max-width: 1023px) { #globalLoader .skeleton-loader-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } #globalLoader .skeleton-plan-card:nth-child(2) { border-right: 0; } #globalLoader .skeleton-plan-card:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.1); } }
+        @media (max-width: 767px) { #globalLoader .skeleton-loader-grid { grid-template-columns: 1fr; } #globalLoader .skeleton-plan-card { min-height: 430px; padding: 2rem; border-right: 0; border-bottom: 1px solid rgba(255,255,255,0.1); } #globalLoader .skeleton-plan-card:last-child { border-bottom: 0; } }
     </style>
 </head>
 <body class="font-sans flex flex-col min-h-screen bg-[#050505]">
-
-    <div id="globalLoader" class="fixed inset-0 z-[999999] bg-[#050505] flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="relative w-16 h-16 mb-8 flex items-center justify-center">
-            <i data-lucide="code-2" class="h-8 w-8 text-white absolute animate-pulse"></i>
-        </div>
-        <div class="w-64 max-w-[80vw]">
-            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div class="w-1/2 h-full bg-white rounded-full animate-[lineAnim_1.5s_infinite]"></div>
-            </div>
-        </div>
-        <div class="mt-6 flex flex-col items-center gap-1 font-mono">
-            <span id="loaderText" class="text-[11px] font-bold tracking-[0.2em] text-gray-400 uppercase" data-i18n="loadAuth">Authenticating...</span>
-        </div>
-    </div>
 
     <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[60] nav-transparent border-transparent transition-all duration-400">
         <div class="layout-width">
@@ -496,9 +491,67 @@
 
             <div class="relative w-full mt-20 min-h-[550px]" id="wizardContainer">
                 
-                <div id="step-1" class="wizard-step active-step w-full max-w-[1536px] mx-auto text-left">
+                <div id="step-1" class="wizard-step active-step relative w-full max-w-[1536px] mx-auto text-left">
+                    <div id="globalLoader" class="absolute inset-0 z-30 bg-[#050505] flex items-start justify-center overflow-y-auto px-4 py-8 transition-opacity duration-500">
+                        <div class="w-full">
+                            <div class="skeleton-loader-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border border-white/10 bg-[#050505]">
+                                <div class="skeleton-plan-card min-h-[500px] border-b border-white/10 p-8 sm:p-10 lg:border-b-0 lg:border-r">
+                                    <div class="h-12 w-12 rounded-xl bg-white/10 animate-pulse"></div>
+                                    <div class="mt-6 h-6 w-3/4 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-4 h-3 w-1/2 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-10 h-9 w-2/5 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-10 space-y-4">
+                                        <div class="h-3 w-full rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-5/6 rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-4/5 rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-11/12 rounded bg-white/10 animate-pulse"></div>
+                                    </div>
+                                    <div class="mt-10 h-12 w-full rounded bg-white/10 animate-pulse"></div>
+                                </div>
+                                <div class="skeleton-plan-card min-h-[500px] border-b border-white/10 p-8 sm:p-10 lg:border-b-0 lg:border-r">
+                                    <div class="h-12 w-12 rounded-xl bg-white/10 animate-pulse"></div>
+                                    <div class="mt-6 h-6 w-3/4 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-4 h-3 w-1/2 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-10 h-9 w-2/5 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-10 space-y-4">
+                                        <div class="h-3 w-full rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-5/6 rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-4/5 rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-11/12 rounded bg-white/10 animate-pulse"></div>
+                                    </div>
+                                    <div class="mt-10 h-12 w-full rounded bg-white/10 animate-pulse"></div>
+                                </div>
+                                <div class="skeleton-plan-card min-h-[500px] border-b border-white/10 p-8 sm:p-10 lg:border-b-0 lg:border-r">
+                                    <div class="h-12 w-12 rounded-xl bg-white/10 animate-pulse"></div>
+                                    <div class="mt-6 h-6 w-3/4 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-4 h-3 w-1/2 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-10 h-9 w-2/5 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-10 space-y-4">
+                                        <div class="h-3 w-full rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-5/6 rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-4/5 rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-11/12 rounded bg-white/10 animate-pulse"></div>
+                                    </div>
+                                    <div class="mt-10 h-12 w-full rounded bg-white/10 animate-pulse"></div>
+                                </div>
+                                <div class="skeleton-plan-card min-h-[500px] p-8 sm:p-10">
+                                    <div class="h-12 w-12 rounded-xl bg-white/10 animate-pulse"></div>
+                                    <div class="mt-6 h-6 w-3/4 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-4 h-3 w-1/2 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-10 h-9 w-2/5 rounded bg-white/10 animate-pulse"></div>
+                                    <div class="mt-10 space-y-4">
+                                        <div class="h-3 w-full rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-5/6 rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-4/5 rounded bg-white/10 animate-pulse"></div>
+                                        <div class="h-3 w-11/12 rounded bg-white/10 animate-pulse"></div>
+                                    </div>
+                                    <div class="mt-10 h-12 w-full rounded bg-white/10 animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 w-full mb-16 text-left border border-white/10 relative z-10 bg-[#050505]">
-                        <div id="card-starter" class="group border-r border-b lg:border-b-0 border-white/10 p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#0a0a0a] relative h-full cursor-pointer" onclick="selectPlan('starter')">
+                        <div id="card-starter" class="group border-r border-b lg:border-b-0 border-white/10 p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#0a0a0a] relative h-full">
                             <div class="w-12 h-12 rounded-xl border border-zinc-800 bg-zinc-900/30 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(113,113,122,0.2)] transition-all duration-300 overflow-hidden">
                                 <img src="../imgs/web-banners/starter-icon.png" alt="Starter" class="w-6 h-6 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/24x24/18181b/a1a1aa?text=S';">
                             </div>
@@ -513,10 +566,10 @@
                                 <li class="flex items-start gap-3"><div class="w-1 h-1 bg-white mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="s_feat5">Basic Security Updates</span></li>
                                 <li class="flex items-start gap-3"><div class="w-1 h-1 bg-white mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="s_feat6">Email Support</span></li>
                             </ul>
-                            <button type="button" data-i18n="btnStarter" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block z-10 pointer-events-none">Get Starter</button>
+                            <button type="button" onclick="selectPlan('starter')" data-i18n="btnStarter" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block z-10">Get Starter</button>
                         </div>
                         
-                        <div id="card-plus" class="group border-r lg:border-b-0 border-b border-white/10 p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#0a1630]/20 relative h-full cursor-pointer" onclick="selectPlan('plus')">
+                        <div id="card-plus" class="group border-r lg:border-b-0 border-b border-white/10 p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#0a1630]/20 relative h-full">
                             <div class="w-12 h-12 rounded-xl border border-blue-900/50 bg-blue-900/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 overflow-hidden">
                                 <img src="../imgs/web-banners/plus-icon.png" alt="Plus" class="w-6 h-6 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/24x24/1e3a8a/60a5fa?text=P';">
                             </div>
@@ -532,10 +585,10 @@
                                 <li class="flex items-start gap-3"><div class="w-1 h-1 bg-blue-500 mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="p_feat5">Monthly Health Report</span></li>
                                 <li class="flex items-start gap-3"><div class="w-1 h-1 bg-blue-500 mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="p_feat6">1 Content Update / Month</span></li>
                             </ul>
-                            <button type="button" data-i18n="btnPlus" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block z-10 pointer-events-none">Choose Plus</button>
+                            <button type="button" onclick="selectPlan('plus')" data-i18n="btnPlus" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block z-10">Choose Plus</button>
                         </div>
                         
-                        <div id="card-pro" class="group border-r lg:border-b-0 border-b border-white/10 p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#1c0f2e]/20 relative h-full cursor-pointer" onclick="selectPlan('pro')">
+                        <div id="card-pro" class="group border-r lg:border-b-0 border-b border-white/10 p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#1c0f2e]/20 relative h-full">
                             <div class="w-12 h-12 rounded-xl border border-purple-900/50 bg-purple-900/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300 overflow-hidden">
                                 <img src="../imgs/web-banners/pro-icon.png" alt="Pro" class="w-6 h-6 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/24x24/581c87/c084fc?text=P';">
                             </div>
@@ -551,10 +604,10 @@
                                 <li class="flex items-start gap-3"><div class="w-1 h-1 bg-purple-500 mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="pr_feat5">5 Content Updates / Month</span></li>
                                 <li class="flex items-start gap-3"><div class="w-1 h-1 bg-purple-500 mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="pr_feat6">System & Deployment Management</span></li>
                             </ul>
-                            <button type="button" data-i18n="btnPro" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block z-10 pointer-events-none">Go Pro</button>
+                            <button type="button" onclick="selectPlan('pro')" data-i18n="btnPro" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block z-10">Go Pro</button>
                         </div>
                         
-                        <div id="card-ultra" class="group p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#141208]/20 relative h-full cursor-pointer" onclick="selectPlan('ultra')">
+                        <div id="card-ultra" class="group p-8 sm:p-10 flex flex-col transition-colors hover:bg-[#141208]/20 relative h-full">
                             <div class="w-12 h-12 rounded-xl border border-yellow-900/50 bg-yellow-900/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(234,179,8,0.3)] transition-all duration-300 overflow-hidden">
                                 <img src="../imgs/web-banners/ultra-icon.png" alt="Ultra" class="w-6 h-6 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/24x24/713f12/facc15?text=U';">
                             </div>
@@ -574,7 +627,7 @@
                                 <li class="flex items-start gap-3"><div class="w-1 h-1 bg-yellow-500 mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="u_feat9">Hosting + Domain Management</span></li>
                                 <li class="flex items-start gap-3"><div class="w-1 h-1 bg-yellow-500 mt-1.5 shrink-0 rounded-full"></div> <span data-i18n="u_feat10">Dedicated Account Manager</span></li>
                             </ul>
-                            <button type="button" data-i18n="btnUltra" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block z-10 pointer-events-none">Go Ultra</button>
+                            <button type="button" onclick="selectPlan('ultra')" data-i18n="btnUltra" class="w-full border border-white/20 text-white hover:bg-white hover:text-black py-4 text-xs font-bold tracking-widest uppercase transition-colors text-center mt-auto block z-10">Go Ultra</button>
                         </div>
                     </div>
                 </div>
@@ -1380,38 +1433,20 @@
 
         async function initAuth() {
             renderLanguage();
-            if (!supabaseInstance) { window.location.replace('../login/'); return; }
+            if (!supabaseInstance) {
+                document.getElementById('globalLoader').classList.add('opacity-0', 'pointer-events-none');
+                document.body.classList.remove('no-scroll');
+                return;
+            }
             const { data: { session }, error } = await supabaseInstance.auth.getSession();
-            if (error || !session) { window.location.replace('../login/'); return; }
+            if (error || !session) {
+                document.getElementById('globalLoader').classList.add('opacity-0', 'pointer-events-none');
+                document.body.classList.remove('no-scroll');
+                return;
+            }
             
             currentUser = { id: session.user.id, email: session.user.email, name: session.user.user_metadata?.full_name || session.user.email.split('@')[0], avatar_url: session.user.user_metadata?.avatar_url || null, role: session.user.app_metadata?.role || session.user.user_metadata?.role || 'client' };
             currentUserCart = session.user.user_metadata?.wishlist || [];
-
-            const allowedRoles = ['client', 'partner'];
-            if (!allowedRoles.includes(currentUser.role)) {
-                const errMsg = currentLang === 'en' 
-                    ? "Access Restricted. Subscription plans are exclusively available for client and partner accounts. Administrative staff cannot initiate standard purchases."
-                    : "ဝင်ရောက်ခွင့်မပြုပါ။ ဤအစီအစဉ်များကို ဖောက်သည်များနှင့် ပါတနာများသာ ဝယ်ယူနိုင်ပါသည်။";
-                showErrorToast(errMsg);
-                document.getElementById('globalLoader').innerHTML = `
-                    <div class="flex flex-col items-center text-center max-w-md px-6">
-                        <i data-lucide="shield-alert" class="w-16 h-16 text-red-500 mb-6"></i>
-                        <h2 class="text-2xl font-bold font-display text-white mb-3">Access Restricted</h2>
-                        <p class="text-gray-400 text-sm mb-6">${errMsg}</p>
-                        <div class="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                    </div>
-                `;
-                if(typeof lucide !== 'undefined') lucide.createIcons();
-                
-                setTimeout(() => {
-                    if (document.referrer && !document.referrer.includes('login') && !document.referrer.includes('register')) {
-                        window.history.back();
-                    } else {
-                        window.location.replace('../hub/');
-                    }
-                }, 4000);
-                return;
-            }
 
             document.getElementById('custName').value = currentUser.name;
             document.getElementById('custEmail').value = currentUser.email;
@@ -1677,6 +1712,21 @@
         }
 
         function selectPlan(planId) {
+            if (!currentUser) {
+                window.location.href = '../login/';
+                return;
+            }
+
+            const allowedRoles = ['client', 'partner'];
+            const userRole = (currentUser.role || 'client').toLowerCase();
+            if (!allowedRoles.includes(userRole)) {
+                const errMsg = currentLang === 'en'
+                    ? "Access Restricted. Subscription plans are exclusively available for client and partner accounts. Administrative staff cannot initiate standard purchases."
+                    : "ဝင်ရောက်ခွင့်မပြုပါ။ ဤအစီအစဉ်များကို ဖောက်သည်များနှင့် ပါတနာများသာ ဝယ်ယူနိုင်ပါသည်။";
+                showErrorToast(errMsg);
+                return;
+            }
+
             if (activePlanId === planId) {
                 const msg = currentLang === 'en' ? `You already have the ${activePlanName} plan active.` : `လူကြီးမင်းသည် ${activePlanName} ကို လက်ရှိအသုံးပြုနေပါသည်။`;
                 showErrorToast(msg);
