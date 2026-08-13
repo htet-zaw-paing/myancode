@@ -133,15 +133,19 @@
         }
 
         .scroll-reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+            transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .scroll-reveal.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translate3d(0, 0, 0);
         }
+
+        main { contain: layout style; }
+        main .id-card-container { contain: layout paint; }
+        main img { content-visibility: auto; }
 
         .formal-text-gradient {
             background: linear-gradient(180deg, #ffffff 0%, #a0a0a0 100%);
@@ -674,7 +678,7 @@
                 
                 <div class="absolute inset-0 w-full h-full">
                     <img src="../imgs/web-banners/myancode-billboard-1.png" alt="MyanCode Workspace"
-                        class="w-full h-full object-cover object-right opacity-40 mix-blend-luminosity" loading="lazy">
+                        class="w-full h-full object-cover object-right opacity-40 mix-blend-luminosity" fetchpriority="high" decoding="async">
                     <div class="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/90 to-transparent"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/50"></div>
                 </div>
@@ -719,7 +723,7 @@
 
                 <div class="flex flex-col gap-8">
                     <div class="w-full aspect-video rounded-xl enterprise-border overflow-hidden relative">
-                        <img src="../imgs/web-banners/myancode-poster-1.png" alt="Company Focus" class="w-full h-full object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-700">
+                        <img src="../imgs/web-banners/myancode-poster-1.png" alt="Company Focus" class="w-full h-full object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-700" loading="lazy" decoding="async">
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4">
@@ -815,7 +819,7 @@
                                 <div class="w-32 sm:w-40 lg:w-48 shrink-0 flex flex-col gap-4">
                                     <div class="id-photo-frame w-full aspect-[3/4] rounded-lg overflow-hidden border border-white/20 relative p-1 bg-white/5">
                                         <img src="../imgs/members/htetzawpaing.jpg" class="absolute inset-0 w-full h-full object-cover opacity-20 blur-[2px] scale-110 saturate-0" alt="">
-                                        <img src="../imgs/members/htetzawpaing.jpg" class="relative z-10 w-full h-full object-cover contrast-[115%]" alt="Htet Zaw Paing">
+                                        <img src="../imgs/members/htetzawpaing.jpg" class="relative z-10 w-full h-full object-cover contrast-[115%]" alt="Htet Zaw Paing" loading="lazy" decoding="async">
                                         <div class="absolute inset-0 z-20 bg-gradient-to-tr from-blue-500/10 to-transparent mix-blend-overlay pointer-events-none"></div>
                                     </div>
                                     <div class="w-full bg-white/90 p-1.5 rounded-md qr-code-container shrink-0 aspect-square mx-auto shadow-inner" id="qr-ceo"></div>
@@ -919,7 +923,7 @@
                                 <div class="w-32 sm:w-40 lg:w-48 shrink-0 flex flex-col gap-4">
                                     <div class="id-photo-frame w-full aspect-[3/4] rounded-lg overflow-hidden border border-white/20 relative p-1 bg-white/5">
                                         <img src="../imgs/members/winkhantpaing.jpg" class="absolute inset-0 w-full h-full object-cover opacity-20 blur-[2px] scale-110 saturate-0" alt="">
-                                        <img src="../imgs/members/winkhantpaing.jpg" class="relative z-10 w-full h-full object-cover saturate-[1.2]" alt="Win Khant Paing">
+                                        <img src="../imgs/members/winkhantpaing.jpg" class="relative z-10 w-full h-full object-cover saturate-[1.2]" alt="Win Khant Paing" loading="lazy" decoding="async">
                                         <div class="absolute inset-0 z-20 bg-gradient-to-tr from-blue-500/10 to-transparent mix-blend-overlay pointer-events-none"></div>
                                     </div>
                                     <div class="w-full bg-white/90 p-1.5 rounded-md qr-code-container shrink-0 aspect-square mx-auto shadow-inner" id="qr-cto"></div>
@@ -1023,7 +1027,7 @@
                                 <div class="w-32 sm:w-40 lg:w-48 shrink-0 flex flex-col gap-4">
                                     <div class="id-photo-frame w-full aspect-[3/4] rounded-lg overflow-hidden border border-white/20 relative p-1 bg-white/5">
                                         <img src="../imgs/members/kyawlinmyint.jpg" class="absolute inset-0 w-full h-full object-cover opacity-20 blur-[2px] scale-110 saturate-0" alt="">
-                                        <img src="../imgs/members/kyawlinmyint.jpg" class="relative z-10 w-full h-full object-cover" alt="Kyaw Lin Myint">
+                                        <img src="../imgs/members/kyawlinmyint.jpg" class="relative z-10 w-full h-full object-cover" alt="Kyaw Lin Myint" loading="lazy" decoding="async">
                                         <div class="absolute inset-0 z-20 bg-gradient-to-tr from-blue-500/10 to-transparent mix-blend-overlay pointer-events-none"></div>
                                     </div>
                                     <div class="w-full bg-white/90 p-1.5 rounded-md qr-code-container shrink-0 aspect-square mx-auto shadow-inner" id="qr-coo"></div>
@@ -2420,10 +2424,17 @@
             if(document.getElementById("qr-coo")) new QRCode(document.getElementById("qr-coo"), { text: cooUrl, ...qrConfig });
         }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('main .scroll-reveal').forEach(el => el.classList.add('visible'));
+            document.querySelectorAll('main img:not([loading])').forEach(img => {
+                img.decoding = 'async';
+            });
+        });
+
         window.addEventListener('load', () => {
             setActiveNavLinks(); 
             renderLanguage(); 
-            document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+            document.querySelectorAll('main .scroll-reveal').forEach(el => observer.observe(el));
             
             generateQRCodes();
 
@@ -2439,7 +2450,7 @@
 
             const loader = document.getElementById('globalLoader');
             if (loader) {
-                setTimeout(() => { loader.classList.remove('opacity-100', 'visibility-visible'); loader.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); setTimeout(() => loader.classList.add('visibility-hidden'), 600); }, 600);
+                requestAnimationFrame(() => { loader.classList.remove('opacity-100', 'visibility-visible'); loader.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('no-scroll'); setTimeout(() => loader.classList.add('visibility-hidden'), 180); });
             }
         });
     </script>
