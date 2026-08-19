@@ -1200,6 +1200,29 @@
             if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
         }
 
+        async function handleLogout() {
+            if (!supabaseInstance) {
+                showErrorToast(currentLang === 'en' ? 'Unable to sign out. Please try again.' : 'အကောင့်ထွက်၍ မရပါ။ ထပ်မံကြိုးစားပါ။');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseInstance.auth.signOut();
+                if (error) throw error;
+
+                currentUser = null;
+                currentUserCart = [];
+                document.getElementById('profileDropdown')?.classList.add('dropdown-hidden');
+                document.getElementById('mobileDrawer')?.classList.remove('open');
+                document.body.classList.remove('no-scroll');
+                updateAuthUI();
+                showToast(dict[currentLang].msgLoggedOut);
+            } catch (error) {
+                console.error('Logout error:', error);
+                showErrorToast(currentLang === 'en' ? 'Unable to sign out. Please try again.' : 'အကောင့်ထွက်၍ မရပါ။ ထပ်မံကြိုးစားပါ။');
+            }
+        }
+
         document.addEventListener('click', (e) => {
             const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
             if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
