@@ -1780,7 +1780,16 @@
         let supabaseInstance = null;
         let currentUser = null;
         let currentUserCart = []; 
-        if (window.supabase) supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_FUNCTION_PROXY = `${window.location.origin}/api/supabase/functions`;
+        const supabaseFunctionFetch = (input, init) => {
+            const requestUrl = typeof input === 'string' ? input : input.url;
+            if (requestUrl && requestUrl.startsWith(`${SUPABASE_URL}/functions/v1/`)) {
+                const proxiedUrl = `${SUPABASE_FUNCTION_PROXY}${requestUrl.slice(`${SUPABASE_URL}/functions/v1`.length)}`;
+                return window.fetch(proxiedUrl, init);
+            }
+            return window.fetch(input, init);
+        };
+        if (window.supabase) supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { global: { fetch: supabaseFunctionFetch } });
         
         let selectedImages = []; let existingImagesForEdit = []; let allCommunityPosts = []; let currentFilter = 'all';
         let currentFilteredPosts = []; let displayedPostsCount = 5; const POSTS_PER_PAGE = 5; let feedObserver = null;
