@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MyanCode Community & Marketplace | Digital Assets, Services & Developers</title>
+    <title>MyanCode Community & Marketplace - Digital Assets, Services & Developers</title>
     <meta name="description" content="Explore the MyanCode community and marketplace for digital assets, developer resources, services, discussions, and professional collaboration.">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -15,7 +15,7 @@
     <link rel="alternate" hreflang="x-default" href="https://myancode.com/marketplace/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MyanCode">
-    <meta property="og:title" content="MyanCode Community & Marketplace | Digital Assets, Services & Developers">
+    <meta property="og:title" content="MyanCode Community & Marketplace - Digital Assets, Services & Developers">
     <meta property="og:description" content="Discover digital assets, developer resources, services, discussions, and professional collaboration in the MyanCode community marketplace.">
     <meta property="og:url" content="https://myancode.com/marketplace/">
     <meta property="og:locale" content="en_US">
@@ -23,7 +23,7 @@
     <meta property="og:image:alt" content="MyanCode community and digital marketplace">
     <meta property="og:image:type" content="image/jpeg">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MyanCode Community & Marketplace | Digital Assets, Services & Developers">
+    <meta name="twitter:title" content="MyanCode Community & Marketplace - Digital Assets, Services & Developers">
     <meta name="twitter:description" content="Discover digital assets, developer resources, services, discussions, and professional collaboration in the MyanCode community marketplace.">
     <meta name="twitter:image" content="https://myancode.com/imgs/web-banners/bannerii.jpg">
     <meta name="twitter:image:alt" content="MyanCode community and digital marketplace">
@@ -1658,13 +1658,22 @@
         let hasAnimatedStats = false; 
         let statsDataReady = false; 
 
-        const SUPABASE_URL = 'https://dnretdraqjwdiwxccmpd.supabase.co';
+        const SUPABASE_URL = window.location.origin + '/supabase-proxy';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucmV0ZHJhcWp3ZGl3eGNjbXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Mjk1OTgsImV4cCI6MjA5NDUwNTU5OH0.gmXci7KsgPRFvVtRzY2F--qV5TshCPejf580JTJpl20';
         
         let supabaseInstance = null;
         let currentUser = null;
         let currentUserCart = []; 
-        if (window.supabase) supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_FUNCTION_PROXY = `${window.location.origin}/api/supabase/functions`;
+        const supabaseFunctionFetch = (input, init) => {
+            const requestUrl = typeof input === 'string' ? input : input.url;
+            if (requestUrl && requestUrl.startsWith(`${SUPABASE_URL}/functions/v1/`)) {
+                const proxiedUrl = `${SUPABASE_FUNCTION_PROXY}${requestUrl.slice(`${SUPABASE_URL}/functions/v1`.length)}`;
+                return window.fetch(proxiedUrl, init);
+            }
+            return window.fetch(input, init);
+        };
+        if (window.supabase) supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { global: { fetch: supabaseFunctionFetch } });
         
         let selectedImages = []; let existingImagesForEdit = []; let allCommunityPosts = []; let currentFilter = 'all';
         let currentFilteredPosts = []; let displayedPostsCount = 5; const POSTS_PER_PAGE = 5; let feedObserver = null;
