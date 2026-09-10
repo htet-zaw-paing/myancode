@@ -857,19 +857,14 @@
                      data-width="360">
                 </div>
 
-                <div class="mt-2 mb-2 flex items-center justify-between w-full">
-                    <span class="border-b border-white/10 w-full"></span>
-                    <span class="text-[10px] text-gray-600 font-bold font-mono px-4 uppercase tracking-widest"
-                        data-i18n="orDivider">OR</span>
-                    <span class="border-b border-white/10 w-full"></span>
+                <div class="flex justify-center w-full">
+                    <button type="button" onclick="openMagicLinkModal()"
+                        class="w-[360px] h-[40px] bg-[#131314] border border-[#8e918f] text-[#e3e3e3] hover:bg-[#2b2b2b] hover:text-white transition-colors flex items-center justify-center gap-3 font-medium text-[14px]"
+                        style="border-radius: 4px !important; letter-spacing: 0.25px;">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-[18px] w-[18px] object-contain" />
+                        <span>Continue with MyanCode</span>
+                    </button>
                 </div>
-
-                <button type="button" onclick="openMagicLinkModal()"
-                    class="w-full bg-white border border-gray-300 hover:border-gray-400 py-3.5 px-5 text-sm font-semibold text-gray-900 transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-3">
-                    <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-5 w-5 object-contain" />
-
-                    <span>Continue with MyanCode</span>
-                </button>
             </div>
 
             <p class="text-center text-xs text-gray-400 mt-8 font-medium border-t border-white/5 pt-6">
@@ -2961,12 +2956,51 @@
                 });
 
                 if (error) throw error;
-
+                
                 showToast(currentLang === 'en' ? "Login successful! Redirecting..." : "အကောင့်ဝင်ခြင်း အောင်မြင်ပါသည်။");
             } catch (error) {
                 hideLoader();
                 console.error("Google ID Token Error:", error);
                 showErrorToast(error.message || (currentLang === 'en' ? "Google login failed." : "Google ဖြင့် ဝင်ရောက်မှု မအောင်မြင်ပါ။"));
+            }
+        }
+
+        async function handleGithubLogin() {
+            const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
+            if (emailInput && emailInput.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                showLoader('loadingAuth');
+                const status = await fetchLockoutStatus(emailInput);
+                if (status.fails >= 21 || Date.now() < status.lockoutTime) {
+                    hideLoader();
+                    showErrorToast(currentLang === 'en' ? "Account is permanently blocked or locked." : "ဝင်ရောက်ခွင့် ပိတ်ပင်ထားပါသည်။");
+                    return;
+                }
+            }
+
+            showLoader('loadingAuth');
+            try {
+                let currentIntent = sessionStorage.getItem('smart_redirect');
+                if (currentIntent) {
+                    const redirectData = { url: currentIntent, timestamp: Date.now() };
+                    localStorage.setItem('smart_redirect_data', JSON.stringify(redirectData));
+                }
+
+                let cleanUrl = window.location.origin.replace(/\/$/, '') + '/login/';
+
+                if (currentIntent) {
+                    cleanUrl += '?redirect=' + encodeURIComponent(currentIntent);
+                }
+
+                const { data, error } = await supabaseInstance.auth.signInWithOAuth({
+                    provider: 'github',
+                    options: {
+                        redirectTo: cleanUrl
+                    }
+                });
+                if (error) throw error;
+            } catch (error) {
+                hideLoader();
+                showErrorToast(error.message || (currentLang === 'en' ? "GitHub login failed." : "GitHub ဖြင့် ဝင်ရောက်မှု မအောင်မြင်ပါ။"));
             }
         }
 
