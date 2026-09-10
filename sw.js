@@ -3,7 +3,7 @@ self.addEventListener("install", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  if (e.request.url.includes("api.myancode.com")) {
+  if (e.request.url.includes("/supabase-proxy")) {
     return; 
   }
   e.respondWith(fetch(e.request));
