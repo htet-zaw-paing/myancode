@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+6<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 
 <head>
@@ -845,27 +845,38 @@
                  data-ux_mode="popup"
                  data-callback="handleGoogleIdToken"
                  data-auto_prompt="false">
-            </div>
+                </div>
             
-            <div class="g_id_signin flex justify-center w-full"
-                 data-type="standard"
-                 data-shape="rectangular"
-                 data-theme="filled_black"
-                 data-text="signin_with"
-                 data-size="large"
-                 data-logo_alignment="center"
-                 data-width="384">
+                <div class="flex justify-center w-full">
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-shape="rectangular"
+                         data-theme="filled_black"
+                         data-text="signin_with"
+                         data-size="large"
+                         data-logo_alignment="center"
+                         data-width="360">
+                    </div>
+                </div>
+            
+                <div class="flex justify-center w-full">
+                    <button type="button" onclick="openMagicLinkModal()"
+                        class="w-full h-[40px] bg-[#131314] border border-[#8e918f] text-[#e3e3e3] hover:bg-[#2b2b2b] hover:text-white transition-colors flex items-center justify-center gap-3 font-medium text-[14px]"
+                        style="border-radius: 4px !important; letter-spacing: 0.25px;">
+                        <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-[18px] w-[18px] object-contain" />
+                        <span>Continue with MyanCode</span>
+                    </button>
+                </div>
+            
+                <div class="flex justify-center w-full">
+                    <button type="button" onclick="handlePasskeyLogin()"
+                        class="w-full h-[40px] bg-[#131314] border border-[#8e918f] text-[#e3e3e3] hover:bg-[#2b2b2b] hover:text-white transition-colors flex items-center justify-center gap-3 font-medium text-[14px]"
+                        style="border-radius: 4px !important; letter-spacing: 0.25px;">
+                        <i data-lucide="key" class="h-[18px] w-[18px]"></i>
+                        <span>Sign in with Passkey</span>
+                    </button>
+                </div>
             </div>
-
-            <div class="flex justify-center w-full">
-                <button type="button" onclick="openMagicLinkModal()"
-                    class="w-full py-4 bg-[#131314] border border-[#8e918f] text-[#e3e3e3] hover:bg-[#2b2b2b] hover:text-white transition-colors flex items-center justify-center gap-3 font-medium text-sm"
-                    style="border-radius: 4px !important; letter-spacing: 0.25px;">
-                    <img src="../imgs/web-banners/favicon.png" alt="MyanCode" class="h-[18px] w-[18px] object-contain" />
-                    <span>Continue with MyanCode</span>
-                </button>
-            </div>
-        </div>
 
         <p class="text-center text-xs text-gray-400 mt-8 font-medium border-t border-white/5 pt-6">
                 <span data-i18n="noAccount">Don't have an account?</span>
@@ -2965,42 +2976,32 @@
             }
         }
 
-        async function handleGithubLogin() {
-            const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
-            if (emailInput && emailInput.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-                showLoader('loadingAuth');
-                const status = await fetchLockoutStatus(emailInput);
-                if (status.fails >= 21 || Date.now() < status.lockoutTime) {
-                    hideLoader();
-                    showErrorToast(currentLang === 'en' ? "Account is permanently blocked or locked." : "ဝင်ရောက်ခွင့် ပိတ်ပင်ထားပါသည်။");
-                    return;
-                }
+        async function handlePasskeyLogin() {
+            if (!supabaseInstance) {
+                showErrorToast("Database connection offline.");
+                return;
             }
-
+            
             showLoader('loadingAuth');
             try {
-                let currentIntent = sessionStorage.getItem('smart_redirect');
-                if (currentIntent) {
-                    const redirectData = { url: currentIntent, timestamp: Date.now() };
-                    localStorage.setItem('smart_redirect_data', JSON.stringify(redirectData));
+                let authResult;
+                // Safely handling different versions of the Supabase JS client method names for Passkeys
+                if (typeof supabaseInstance.auth.signInWithPasskey === 'function') {
+                    authResult = await supabaseInstance.auth.signInWithPasskey();
+                } else if (typeof supabaseInstance.auth.signInWithWeAuthn === 'function') {
+                    authResult = await supabaseInstance.auth.signInWithWeAuthn();
+                } else {
+                    throw new Error("Passkey login is not supported by your current Supabase JS version.");
                 }
 
-                let cleanUrl = window.location.origin.replace(/\/$/, '') + '/login/';
-
-                if (currentIntent) {
-                    cleanUrl += '?redirect=' + encodeURIComponent(currentIntent);
-                }
-
-                const { data, error } = await supabaseInstance.auth.signInWithOAuth({
-                    provider: 'github',
-                    options: {
-                        redirectTo: cleanUrl
-                    }
-                });
-                if (error) throw error;
+                if (authResult.error) throw authResult.error;
+                
+                showToast(currentLang === 'en' ? "Passkey authenticated! Redirecting..." : "Passkey ဖြင့်ဝင်ရောက်ခြင်း အောင်မြင်ပါသည်။");
+                // The onAuthStateChange listener will automatically handle redirection
             } catch (error) {
                 hideLoader();
-                showErrorToast(error.message || (currentLang === 'en' ? "GitHub login failed." : "GitHub ဖြင့် ဝင်ရောက်မှု မအောင်မြင်ပါ။"));
+                console.error("Passkey Login Error:", error);
+                showErrorToast(error.message || (currentLang === 'en' ? "Passkey login failed or cancelled." : "Passkey ဖြင့် ဝင်ရောက်မှု မအောင်မြင်ပါ။"));
             }
         }
 
