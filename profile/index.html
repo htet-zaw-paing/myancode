@@ -448,6 +448,15 @@
                     </div>
                 </div>
 
+                <div class="bg-[#111] rounded-3xl p-6 sm:p-10 shadow-sm border border-white/10 reveal" style="transition-delay: 75ms;">
+                    <h3 class="text-lg font-bold tracking-tight text-white mb-2 flex items-center gap-2"><img src="../imgs/icons/key.png" alt="Passkey" class="h-5 w-5 object-contain" style="filter: brightness(0) invert(1);" onerror="this.src='https://placehold.co/20x20/000000/ffffff?text=K'"> <span data-i18n="profPasskey">Passwordless Auth</span></h3>
+                    <p class="text-sm font-medium text-gray-400 mb-6" data-i18n="profPasskeyDesc">Set up a passkey (FaceID, TouchID, or security key) for faster, more secure sign-ins.</p>
+                    <button onclick="registerNewPasskey()" class="btn-hover-effect bg-white text-black hover:bg-gray-200 text-xs px-8 py-3.5 rounded-full font-bold uppercase tracking-widest shadow-sm w-full sm:w-auto transition-colors flex items-center justify-center gap-2 sm:inline-flex">
+                        <img src="../imgs/icons/key.png" alt="Passkey" class="h-4 w-4 object-contain" />
+                        <span data-i18n="profPasskeyBtn">Create Passkey</span>
+                    </button>
+                </div>
+
                 <div class="bg-[#1a0a0a] rounded-3xl p-6 sm:p-10 shadow-sm border border-red-500/20 reveal" style="transition-delay: 100ms;">
                     <h3 class="text-lg font-bold tracking-tight text-red-500 mb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="h-5 w-5"></i> <span data-i18n="profDanger">Danger Zone</span></h3>
                     <p class="text-sm font-medium text-red-400/80 mb-6" data-i18n="profDeleteText">Once you delete your account, there is no going back. Please be certain.</p>
@@ -960,6 +969,7 @@
                 profSettings: "Account Settings", profSub: "Manage your personal details and security preferences.",
                 profPublic: "Public Profile", profUpload: "Upload", profName: "Full Name", profUpdateBtn: "Save Changes", profRemoveAv: "Remove Icon",
                 profSecurity: "Security", profOldPass: "Current Password", profPass: "New Password", profPassConfirm: "Confirm Password", profUpdatePassBtn: "Update Password",
+                profPasskey: "Passwordless Auth", profPasskeyDesc: "Set up a passkey (FaceID, TouchID, or security key) for faster, more secure sign-ins.", profPasskeyBtn: "Create Passkey",
                 profDanger: "Danger Zone", profDeleteText: "Once you delete your account, there is no going back. Please be certain.", profDeleteBtn: "Delete Account",
                 cropTitle: "Crop Photo", cropCancel: "Cancel", cropSave: "Save"
             },
@@ -992,6 +1002,7 @@
                 profSettings: "အကောင့်ဆက်တင်များ", profSub: "သင့်ကိုယ်ရေးအချက်အလက်များနှင့် လုံခြုံရေးများကို ပြင်ဆင်ပါ။",
                 profPublic: "ကိုယ်ရေးအကျဉ်း", profUpload: "ပြောင်းမည်", profName: "အမည်အပြည့်အစုံ", profUpdateBtn: "အချက်အလက်များ သိမ်းဆည်းရန်", profRemoveAv: "ပုံဖယ်ရှားမည်",
                 profSecurity: "လုံခြုံရေး", profOldPass: "လက်ရှိ စကားဝှက်", profPass: "စကားဝှက်အသစ်", profPassConfirm: "စကားဝှက်အသစ် အတည်ပြုရန်", profUpdatePassBtn: "စကားဝှက် ပြောင်းရန်",
+                profPasskey: "စကားဝှက်မပါဘဲ ဝင်ရောက်ခြင်း", profPasskeyDesc: "ပိုမိုလုံခြုံမြန်ဆန်စွာ ဝင်ရောက်ရန် Passkey (FaceID, TouchID သို့မဟုတ် လုံခြုံရေးသော့) ကို သတ်မှတ်ပါ။", profPasskeyBtn: "Passkey ဖန်တီးမည်",
                 profDanger: "အကောင့်ဖျက်သိမ်းရေး", profDeleteText: "အကောင့်ကို ဖျက်လိုက်ပါက ပြန်လည်ရယူ၍ မရနိုင်တော့ပါ။ ကျေးဇူးပြု၍ သေချာစွာ စဉ်းစားပါ။", profDeleteBtn: "အကောင့် ဖျက်မည်",
                 cropTitle: "ဓာတ်ပုံဖြတ်မည်", cropCancel: "ပယ်ဖျက်မည်", cropSave: "သိမ်းဆည်းမည်"
             }
@@ -1024,7 +1035,10 @@
         if (window.supabase) {
             supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
                 auth: {
-                    detectSessionInUrl: false
+                    detectSessionInUrl: false,
+                    experimental: {
+                        passkey: true
+                    }
                 }
             });
         }
@@ -1545,6 +1559,25 @@
                 showErrorToast(err.message);
             } finally {
                 hideLoader();
+            }
+        }
+
+        async function registerNewPasskey() {
+            showLoader('loadingSec');
+            try {
+                const { data, error } = await supabaseInstance.auth.registerPasskey();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                hideLoader();
+                showToast(currentLang === 'en' ? "Passkey registered successfully! You can now use it to log in." : "Passkey အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ။ နောက်တစ်ကြိမ်တွင် အသုံးပြုနိုင်ပါသည်။");
+                
+            } catch (err) {
+                hideLoader();
+                console.error("Passkey Registration Error:", err);
+                showErrorToast(err.message || (currentLang === 'en' ? "Failed to register passkey. Device may not support it." : "Passkey ဖန်တီးခြင်း မအောင်မြင်ပါ။ စက်ပစ္စည်းက မပံ့ပိုးတာမျိုး ဖြစ်နိုင်ပါသည်။"));
             }
         }
 
