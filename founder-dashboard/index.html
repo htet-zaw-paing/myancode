@@ -1375,7 +1375,17 @@
             try {
                 const { error: invErr } = await supabaseInstance.from('user_invitations').upsert({ email: email, role: role, invited_by: currentUser.id });
                 if(invErr) throw invErr;
-                const { error: otpErr } = await supabaseInstance.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true, data: { is_invite: true }, emailRedirectTo: new URL('../login/', window.location.href).href }});
+                
+                const displayRole = role.charAt(0).toUpperCase() + role.slice(1);
+                const { error: otpErr } = await supabaseInstance.auth.signInWithOtp({ 
+                    email: email, 
+                    options: { 
+                        shouldCreateUser: true, 
+                        data: { is_invite: true, invited_role: displayRole }, 
+                        emailRedirectTo: new URL('../login/', window.location.href).href 
+                    }
+                });
+                
                 if(otpErr) throw otpErr;
                 showToast("Invitation link secured and sent."); closeInviteModal(); document.getElementById('inviteEmailInput').value = ''; fetchUsersData();
             } catch(e) { showErrorToast(e.message); } finally { btn.disabled = false; btn.innerHTML = ob; }
