@@ -1504,11 +1504,50 @@
             }
         }
 
+        function showVerificationModalForDelete() {
+            const modal = document.getElementById('verificationModal');
+            const content = document.getElementById('verificationModalContent');
+            if(modal && content) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                void modal.offsetWidth;
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }
+        }
+
+        function closeVerificationModal() {
+            const modal = document.getElementById('verificationModal');
+            const content = document.getElementById('verificationModalContent');
+            if(modal && content) {
+                modal.classList.add('opacity-0');
+                content.classList.add('scale-95');
+                setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            }
+        }
+
+        function checkPendingDeletion() {
+            const hashStr = window.location.hash;
+            if (localStorage.getItem('myancode_pending_deletion') === 'true' && (hashStr.includes('type=reauth') || hashStr.includes('type=recovery'))) {
+                localStorage.removeItem('myancode_pending_deletion');
+                showLoader('loadingSec');
+                supabaseInstance.rpc('delete_user').then(({error}) => {
+                    if (error) {
+                        hideLoader();
+                        showErrorToast(error.message);
+                    } else {
+                        supabaseInstance.auth.signOut().then(() => {
+                            showToast(currentLang === 'en' ? "Account deleted permanently." : "အကောင့်ကို အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။");
+                            setTimeout(() => { window.location.href = '../'; }, 1500);
+                        });
+                    }
+                });
+            }
+        }
+
         function deleteAccount() {
             const title = currentLang === 'en' ? "Delete Account" : "အကောင့် ဖျက်မည်";
-            const confirmMsg = currentLang === 'en' 
-                ? "Are you absolutely sure you want to delete your account? This action is irreversible." 
-                : "အကောင့်ကို ဖျက်ပစ်ရန် သေချာပါသလား? ဤလုပ်ငန်းစဉ်ကို နောက်ပြန်ဆုတ်၍ မရနိုင်ပါ။";
+            const confirmMsg = currentLang === 'en' ? "Are you absolutely sure you want to delete your account? This action is irreversible." : "အကောင့်ကို ဖျက်ပစ်ရန် သေချာပါသလား? ဤလုပ်ငန်းစဉ်ကို နောက်ပြန်ဆုတ်၍ မရနိုင်ပါ။";
             
             showConfirmModal(title, confirmMsg, 'danger', true, 'DELETE MY ACCOUNT', async () => {
                 showLoader('loadingSec');
@@ -1518,7 +1557,6 @@
                     
                     if (error) {
                         const errMsg = error.message.toLowerCase();
-                        // Smart Fallback: Bypasses email if it's an OAuth user, or if Supabase blocks the email due to rate limits
                         if (errMsg.includes('oauth') || errMsg.includes('provider') || errMsg.includes('error sending reauth') || errMsg.includes('rate limit')) {
                             const { error: delError } = await supabaseInstance.rpc('delete_user');
                             if (delError) throw delError;
