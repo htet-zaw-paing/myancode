@@ -286,7 +286,9 @@
             </div>
             <div class="border-t border-white/10 mt-8 pt-8 pb-10 flex flex-col flex-shrink-0">
                 <div id="mobileAuthContainer" class="w-full flex flex-col"></div>
-                <a href="../contact-us/" class="mt-6 flex justify-center items-center w-full bg-myancode-accent text-white py-3.5 text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-md" data-i18n="btnHireUsLong">Book Now</a>
+                <a href="../contact-us/" class="mt-6 flex justify-center items-center w-full bg-myancode-accent text-white py-3.5 text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-md" data-i18n="btnHireUsLong">
+                    Book Now
+                </a>
             </div>
         </div>
     </div>
@@ -411,10 +413,10 @@
                 </div>
 
                 <div class="bg-[#111] rounded-3xl p-6 sm:p-10 shadow-sm border border-white/10">
-                    <h3 class="text-lg font-bold tracking-tight text-white mb-2 flex items-center gap-2"><img src="../imgs/icons/key.png" alt="Passkey" class="h-5 w-5 object-contain" style="filter: none;"> <span data-i18n="profPasskey">Passwordless Auth</span></h3>
+                    <h3 class="text-lg font-bold tracking-tight text-white mb-2 flex items-center gap-2"><img src="../imgs/icons/key.png" alt="Passkey" class="h-5 w-5 object-contain"> <span data-i18n="profPasskey">Passwordless Auth</span></h3>
                     <p class="text-sm font-medium text-gray-400 mb-6" data-i18n="profPasskeyDesc">Set up a passkey (FaceID, TouchID, or security key) for faster, more secure sign-ins.</p>
                     <button type="button" onclick="registerNewPasskey()" class="w-full sm:max-w-[360px] h-[40px] bg-[#131314] border border-[#8e918f] text-[#e3e3e3] hover:bg-[#2b2b2b] hover:text-white transition-colors flex items-center justify-center gap-3 font-medium text-[14px]" style="border-radius: 4px !important; letter-spacing: 0.25px;">
-                        <img src="../imgs/icons/key.png" alt="Passkey" class="h-[18px] w-[18px] object-contain" style="filter: none;" />
+                        <img src="../imgs/icons/key.png" alt="Passkey" class="h-[18px] w-[18px] object-contain" />
                         <span data-i18n="profPasskeyBtn" class="uppercase text-[11px] font-bold tracking-widest font-sans">Create Passkey</span>
                     </button>
                 </div>
@@ -932,7 +934,7 @@
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrHub: "Hub", hdrLogout: "Sign Out", hdrWorkplace: "Workplace", msgLoggedOut: "Signed out securely.",
                 tradeInTitle: "Web Development", newArrivals: "Premium Templates", bulkTitle: "SEO Optimization",
                 
-                loadingInit: "Initializing Data...", loadingAuth: "Creating Account...", loadingData: "Syncing Catalog...", loadingSec: "Preparing Interface...",
+                loadingInit: "Initializing Data...", loadingAuth: "Creating Account...", loadingData: "Syncing Catalog...", loadingSec: "Processing...",
                 
                 nlTitle: "Stay Ahead of the Curve", nlDesc: "Subscribe to our enterprise newsletter for the latest tech insights, UI templates, and industry news.",
                 nlPlaceholder: "Enter your email address address", btnSubscribe: "Subscribe", nlDisclaimer: "We respect your privacy. No spam, ever.",
@@ -986,22 +988,21 @@
 
         let currentLang = localStorage.getItem('myancode_lang') || 'en';
 
-        const globalLoader = document.getElementById('globalLoader');
-        const loaderText = document.getElementById('loaderText');
-
-        function showLoader(i18nKey = 'loadingInit') {
-            loaderText.setAttribute('data-i18n', i18nKey);
-            loaderText.innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingInit'];
-            globalLoader.classList.remove('opacity-0', 'pointer-events-none', 'visibility-hidden');
-            globalLoader.classList.add('opacity-100', 'visibility-visible');
-            document.body.classList.add('no-scroll');
+        function showLoader(i18nKey = 'loadingSec') {
+            const loaderText = document.getElementById('actionLoaderText');
+            if(loaderText) {
+                loaderText.setAttribute('data-i18n', i18nKey);
+                loaderText.innerText = dict[currentLang][i18nKey] || dict[currentLang]['loadingSec'];
+            }
+            const overlay = document.getElementById('actionOverlay');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100', 'pointer-events-auto');
         }
 
         function hideLoader() {
-            globalLoader.classList.remove('opacity-100', 'visibility-visible');
-            globalLoader.classList.add('opacity-0', 'pointer-events-none');
-            document.body.classList.remove('no-scroll');
-            setTimeout(() => globalLoader.classList.add('visibility-hidden'), 600);
+            const overlay = document.getElementById('actionOverlay');
+            overlay.classList.remove('opacity-100', 'pointer-events-auto');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
         }
 
         const SUPABASE_URL = window.location.origin + '/supabase-proxy';
@@ -1035,20 +1036,8 @@
             });
         } else {
             updateAuthUI();
-        }
-
-        function setupUserSession(session) {
-            currentUser = {
-                name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
-                email: session.user.email,
-                id: session.user.id,
-                avatar_url: session.user.user_metadata?.avatar_url || null,
-                role: session.user.app_metadata?.role || 'client'
-            };
-            currentUserWishlist = session.user.user_metadata?.wishlist || [];
-            populateProfileData();
-            updateAuthUI();
-            checkPendingDeletion();
+            document.getElementById('profileSkeletonContent').classList.add('hidden');
+            document.getElementById('profileActualContent').classList.remove('hidden');
         }
 
         function checkPendingDeletion() {
@@ -1068,6 +1057,33 @@
                     }
                 });
             }
+        }
+
+        function setupUserSession(session) {
+            currentUser = {
+                name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                email: session.user.email,
+                id: session.user.id,
+                avatar_url: session.user.user_metadata?.avatar_url || null,
+                role: session.user.app_metadata?.role || 'client'
+            };
+            currentUserWishlist = session.user.user_metadata?.wishlist || [];
+            populateProfileData();
+            updateAuthUI();
+
+            checkPendingDeletion();
+
+            setTimeout(() => {
+                const skel = document.getElementById('profileSkeletonContent');
+                const actual = document.getElementById('profileActualContent');
+                if(skel && actual) {
+                    skel.classList.add('hidden');
+                    actual.classList.remove('hidden');
+                    setTimeout(() => actual.classList.remove('opacity-0'), 50);
+                    if(typeof reveal === 'function') reveal();
+                    if(typeof lucide !== 'undefined') lucide.createIcons();
+                }
+            }, 150);
         }
 
         function renderLanguage() {
@@ -1139,15 +1155,12 @@
                             <div class="px-5 py-3 border-b border-white/10 mb-1 text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center">
                                 <span class="truncate">${currentUser.name}</span> ${badgeHTML}
                             </div>
-                            
                             <a href="${dashConfig.url}" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
                                 ${dashConfig.label} <i data-lucide="layout-dashboard" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i>
                             </a>
-                            
                             <a href="./" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
                                 ${dict[currentLang].hdrProfile} <i data-lucide="user" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i>
                             </a>
-                            
                             <button onclick="handleLogout()" class="w-full text-left px-5 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors flex items-center justify-between group/btn">
                                 ${dict[currentLang].hdrLogout} <i data-lucide="log-out" class="h-3.5 w-3.5 text-red-400 group-hover/btn:translate-x-1 transition-transform"></i>
                             </button>
@@ -1192,7 +1205,7 @@
                 `;
             }
             updateWishlistCount();
-            lucide.createIcons();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
             setActiveNavLinks();
         }
 
@@ -1210,10 +1223,7 @@
         let confirmActionCallback = null;
 
         function showConfirmModal(title, message, type = 'warning', requireCheckbox = false, requireTextMatch = null, onConfirm) {
-            if (typeof requireTextMatch === 'function') {
-                onConfirm = requireTextMatch;
-                requireTextMatch = null;
-            }
+            if (typeof requireTextMatch === 'function') { onConfirm = requireTextMatch; requireTextMatch = null; }
 
             const modal = document.getElementById('confirmModal');
             const content = document.getElementById('confirmModalContent');
@@ -1222,11 +1232,9 @@
             const iconContainer = document.getElementById('confirmModalIcon');
             const btn = document.getElementById('confirmModalBtn');
             const cancelBtn = document.getElementById('confirmModalCancelBtn');
-            
             const checkboxContainer = document.getElementById('confirmModalCheckboxContainer');
             const checkbox = document.getElementById('confirmModalCheckbox');
             const checkboxText = document.getElementById('confirmModalCheckboxText');
-
             const textContainer = document.getElementById('confirmModalTextContainer');
             const textInput = document.getElementById('confirmModalTextInput');
             const textLabel = document.getElementById('confirmModalTextLabel');
@@ -1248,32 +1256,19 @@
                 if (requireCheckbox && !checkbox.checked) isValid = false;
                 if (requireTextMatch && textInput.value !== requireTextMatch) isValid = false;
                 
-                if (isValid) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
-                }
+                if (isValid) { btn.disabled = false; btn.classList.remove('opacity-50', 'cursor-not-allowed'); } 
+                else { btn.disabled = true; btn.classList.add('opacity-50', 'cursor-not-allowed'); }
             };
 
-            if (requireCheckbox) {
-                checkboxContainer.classList.remove('hidden');
-                checkbox.onchange = validateBtn;
-            } else {
-                checkboxContainer.classList.add('hidden');
-            }
+            if (requireCheckbox) { checkboxContainer.classList.remove('hidden'); checkbox.onchange = validateBtn; } 
+            else { checkboxContainer.classList.add('hidden'); }
 
             if (requireTextMatch) {
                 textContainer.classList.remove('hidden');
-                textLabel.innerText = currentLang === 'en'
-                    ? `Please type "${requireTextMatch}" to confirm`
-                    : `အတည်ပြုရန် "${requireTextMatch}" ဟု ရိုက်ထည့်ပါ`;
+                textLabel.innerText = currentLang === 'en' ? `Please type "${requireTextMatch}" to confirm` : `အတည်ပြုရန် "${requireTextMatch}" ဟု ရိုက်ထည့်ပါ`;
                 textInput.placeholder = requireTextMatch;
                 textInput.oninput = validateBtn;
-            } else {
-                textContainer.classList.add('hidden');
-            }
+            } else { textContainer.classList.add('hidden'); }
 
             validateBtn();
 
@@ -1289,7 +1284,7 @@
                 btn.innerText = currentLang === 'en' ? 'Confirm' : 'အတည်ပြုမည်';
             }
             
-            lucide.createIcons();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -1309,10 +1304,7 @@
             const content = document.getElementById('confirmModalContent');
             modal.classList.add('opacity-0');
             content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
         
         function handleCopyAttempt(e) {
@@ -1335,24 +1327,21 @@
         function closeFunnyModal() {
             const modal = document.getElementById('funnyWarningModal');
             const content = document.getElementById('funnyWarningModalContent');
-            
             modal.classList.add('opacity-0');
             content.classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
         function showVerificationModalForDelete() {
             const modal = document.getElementById('verificationModal');
             const content = document.getElementById('verificationModalContent');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
+            if(modal && content) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                void modal.offsetWidth;
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }
         }
 
         function closeVerificationModal() {
@@ -1397,22 +1386,12 @@
                 modal.classList.remove('opacity-0');
                 modalContent.classList.remove('scale-95');
 
-                if (cropperInstance) {
-                    cropperInstance.destroy();
-                }
+                if (cropperInstance) cropperInstance.destroy();
 
                 cropperInstance = new Cropper(imageToCrop, {
-                    aspectRatio: 1, 
-                    viewMode: 1,
-                    dragMode: 'move', 
-                    autoCropArea: 1,
-                    restore: false,
-                    guides: true,
-                    center: true,
-                    highlight: false,
-                    cropBoxMovable: false,
-                    cropBoxResizable: false,
-                    toggleDragModeOnDblclick: false,
+                    aspectRatio: 1, viewMode: 1, dragMode: 'move', autoCropArea: 1, restore: false,
+                    guides: true, center: true, highlight: false, cropBoxMovable: false,
+                    cropBoxResizable: false, toggleDragModeOnDblclick: false,
                 });
             };
             reader.readAsDataURL(file);
@@ -1422,17 +1401,11 @@
         function cancelCrop() {
             const modal = document.getElementById('cropperModal');
             const modalContent = document.getElementById('cropperModalContent');
-            
             modal.classList.add('opacity-0');
             modalContent.classList.add('scale-95');
-            
             setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                if (cropperInstance) {
-                    cropperInstance.destroy();
-                    cropperInstance = null;
-                }
+                modal.classList.add('hidden'); modal.classList.remove('flex');
+                if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
             }, 300);
         }
 
@@ -1440,21 +1413,12 @@
             if (!cropperInstance || !supabaseInstance) return;
             
             showLoader('loadingSec');
-            
-            const canvas = cropperInstance.getCroppedCanvas({
-                width: 256,
-                height: 256,
-                fillColor: '#0a0a0a' 
-            });
-            
+            const canvas = cropperInstance.getCroppedCanvas({ width: 256, height: 256, fillColor: '#0a0a0a' });
             const base64Avatar = canvas.toDataURL('image/jpeg', 0.8);
             cancelCrop(); 
             
             try {
-                const { error: updateError } = await supabaseInstance.auth.updateUser({
-                    data: { avatar_url: base64Avatar }
-                });
-                
+                const { error: updateError } = await supabaseInstance.auth.updateUser({ data: { avatar_url: base64Avatar } });
                 if (updateError) throw updateError;
                 
                 const { error: dbError } = await supabaseInstance.from('profiles').update({ avatar_url: base64Avatar }).eq('id', currentUser.id);
@@ -1466,23 +1430,18 @@
                 showToast(currentLang === 'en' ? 'Avatar updated successfully' : 'ဓာတ်ပုံပြင်ဆင်မှု အောင်မြင်ပါသည်');
             } catch(err) {
                 showErrorToast(err.message);
-            } finally {
-                hideLoader();
-            }
+            } finally { hideLoader(); }
         }
 
         function removeAvatar() {
             if (!currentUser || !supabaseInstance) return;
-            
             const title = currentLang === 'en' ? "Remove Icon" : "ပုံဖယ်ရှားမည်";
             const msg = currentLang === 'en' ? "Are you sure you want to remove your custom profile icon?" : "သင့်ကိုယ်ရေးအကျဉ်းပုံကို ဖယ်ရှားရန် သေချာပါသလား?";
             
             showConfirmModal(title, msg, 'warning', false, null, async () => {
                 showLoader('loadingSec');
                 try {
-                    const { error } = await supabaseInstance.auth.updateUser({
-                        data: { avatar_url: null }
-                    });
+                    const { error } = await supabaseInstance.auth.updateUser({ data: { avatar_url: null } });
                     if (error) throw error;
                     
                     const { error: dbError } = await supabaseInstance.from('profiles').update({ avatar_url: null }).eq('id', currentUser.id);
@@ -1492,11 +1451,7 @@
                     document.getElementById('profileAvatarPreview').src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>";
                     updateAuthUI();
                     showToast(currentLang === 'en' ? 'Icon removed successfully' : 'ဓာတ်ပုံဖယ်ရှားမှု အောင်မြင်ပါသည်');
-                } catch(err) {
-                    showErrorToast(err.message);
-                } finally {
-                    hideLoader();
-                }
+                } catch(err) { showErrorToast(err.message); } finally { hideLoader(); }
             });
         }
 
@@ -1506,23 +1461,15 @@
             
             showLoader('loadingSec');
             try {
-                const { error } = await supabaseInstance.auth.updateUser({
-                    data: { full_name: newName }
-                });
-                
+                const { error } = await supabaseInstance.auth.updateUser({ data: { full_name: newName } });
                 if (error) throw error;
                 
                 const { error: dbError } = await supabaseInstance.from('profiles').update({ full_name: newName }).eq('id', currentUser.id);
                 if (dbError) throw dbError;
                 
-                currentUser.name = newName;
-                updateAuthUI();
+                currentUser.name = newName; updateAuthUI();
                 showToast(currentLang === 'en' ? 'Profile updated successfully' : 'ကိုယ်ရေးအချက်အလက် ပြင်ဆင်မှု အောင်မြင်ပါသည်');
-            } catch(err) {
-                showErrorToast(err.message);
-            } finally {
-                hideLoader();
-            }
+            } catch(err) { showErrorToast(err.message); } finally { hideLoader(); }
         }
 
         async function updatePassword() {
@@ -1530,33 +1477,17 @@
             const pass1 = document.getElementById('profilePassInput').value;
             const pass2 = document.getElementById('profilePassConfirmInput').value;
             
-            if (!oldPass) {
-                showErrorToast(currentLang === 'en' ? 'Please enter your current password' : 'စကားဝှက်အဟောင်းကို ရိုက်ထည့်ပါ');
-                return;
-            }
-            if (!pass1 || pass1.length < 6) {
-                showErrorToast(currentLang === 'en' ? 'Password must be at least 6 characters' : 'စကားဝှက်အနည်းဆုံး ၆ လုံးရှိရမည်');
-                return;
-            }
-            if (pass1 !== pass2) {
-                showErrorToast(currentLang === 'en' ? 'Passwords do not match' : 'စကားဝှက်များ မတူညီပါ');
-                return;
-            }
+            if (!oldPass) { showErrorToast(currentLang === 'en' ? 'Please enter your current password' : 'စကားဝှက်အဟောင်းကို ရိုက်ထည့်ပါ'); return; }
+            if (!pass1 || pass1.length < 6) { showErrorToast(currentLang === 'en' ? 'Password must be at least 6 characters' : 'စကားဝှက်အနည်းဆုံး ၆ လုံးရှိရမည်'); return; }
+            if (pass1 !== pass2) { showErrorToast(currentLang === 'en' ? 'Passwords do not match' : 'စကားဝှက်များ မတူညီပါ'); return; }
             
             showLoader('loadingSec');
             try {
                 const { error } = await supabaseInstance.auth.updateUser({ password: pass1 });
                 if (error) throw error;
-                
-                document.getElementById('profileOldPassInput').value = '';
-                document.getElementById('profilePassInput').value = '';
-                document.getElementById('profilePassConfirmInput').value = '';
+                document.getElementById('profileOldPassInput').value = ''; document.getElementById('profilePassInput').value = ''; document.getElementById('profilePassConfirmInput').value = '';
                 showToast(currentLang === 'en' ? 'Password updated successfully' : 'စကားဝှက် ပြင်ဆင်မှု အောင်မြင်ပါသည်');
-            } catch(err) {
-                showErrorToast(err.message);
-            } finally {
-                hideLoader();
-            }
+            } catch(err) { showErrorToast(err.message); } finally { hideLoader(); }
         }
 
         async function registerNewPasskey() {
@@ -1610,9 +1541,7 @@
 
         async function syncWishlistToSupabase() {
             if (supabaseInstance && currentUser) {
-                const { error } = await supabaseInstance.auth.updateUser({
-                    data: { wishlist: currentUserWishlist }
-                });
+                const { error } = await supabaseInstance.auth.updateUser({ data: { wishlist: currentUserWishlist } });
                 if (error) console.error("Error syncing bag:", error);
             }
         }
@@ -1620,7 +1549,6 @@
         function updateWishlistCount() {
             const countSpan = document.getElementById('wishlist-count');
             if (!countSpan) return;
-            
             if (currentUserWishlist.length > 0) { countSpan.textContent = currentUserWishlist.length; countSpan.classList.remove('opacity-0'); } 
             else { countSpan.classList.add('opacity-0'); }
         }
@@ -1635,11 +1563,10 @@
         }
 
         function renderWishlistItems() {
-            const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal');
-            let total = 0;
+            const container = document.getElementById('wishlistItemsContainer'); const totalDisplay = document.getElementById('wishlistTotal'); let total = 0;
             if (currentUserWishlist.length === 0) {
                 container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500"><i data-lucide="shopping-bag" class="h-12 w-12 mb-4 opacity-50"></i><p class="text-sm font-medium tracking-wide">${dict[currentLang].emptyWishlist}</p></div>`;
-                totalDisplay.textContent = `0 MMK`; lucide.createIcons(); return;
+                totalDisplay.textContent = `0 MMK`; if(typeof lucide !== 'undefined') lucide.createIcons(); return;
             }
             container.innerHTML = currentUserWishlist.map(item => {
                 total += item.price;
@@ -1652,42 +1579,25 @@
                     <button onclick="toggleWishlist('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="text-[11px] font-bold tracking-wider text-red-400 hover:text-red-300 p-2.5 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors uppercase">${dict[currentLang].removeFromWishlist}</button>
                 </div>
             `}).join('');
-            totalDisplay.textContent = `${total.toLocaleString()} MMK`;
-            lucide.createIcons();
+            totalDisplay.textContent = `${total.toLocaleString()} MMK`; if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function toggleWishlist(id, name, price) {
             if (!currentUser) { window.location.href = '../login/'; return; }
-            
             const isStaff = ['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role);
-            if (isStaff) {
-                showErrorToast(currentLang === 'en' ? "Access Denied: Staff members cannot add to bag." : "ဝန်ထမ်းများ စာရင်းသို့ ထည့်ခွင့်မရှိပါ။");
-                return;
-            }
-
+            if (isStaff) { showErrorToast(currentLang === 'en' ? "Access Denied: Staff members cannot add to bag." : "ဝန်ထမ်းများ စာရင်းသို့ ထည့်ခွင့်မရှိပါ။"); return; }
             const index = currentUserWishlist.findIndex(i => i.id === id);
             
-            if (index > -1) { 
-                currentUserWishlist.splice(index, 1); 
-                showToast(currentLang === 'en' ? "Removed from bag" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); 
-            } else { 
-                currentUserWishlist.push({ id, name, price }); 
-                showToast(currentLang === 'en' ? "Added to bag" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); 
-            }
+            if (index > -1) { currentUserWishlist.splice(index, 1); showToast(currentLang === 'en' ? "Removed from bag" : "စာရင်းမှ ဖယ်ရှားလိုက်ပါပြီ"); } 
+            else { currentUserWishlist.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to bag" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
             
-            syncWishlistToSupabase();
-            updateWishlistCount(); renderWishlistItems();
+            syncWishlistToSupabase(); updateWishlistCount(); renderWishlistItems();
         }
 
         window.proceedToCheckout = function() {
             if (!currentUser) { showErrorToast(currentLang === 'en' ? "Please log in to proceed" : "အကောင့်အရင်ဝင်ပါ"); return; }
-            
             const isStaff = ['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role);
-            if (isStaff) {
-                showErrorToast(currentLang === 'en' ? "Access Denied: Staff cannot checkout." : "ဝန်ထမ်းများ ဝယ်ယူခွင့်မရှိပါ။");
-                return;
-            }
-            
+            if (isStaff) { showErrorToast(currentLang === 'en' ? "Access Denied: Staff cannot checkout." : "ဝန်ထမ်းများ ဝယ်ယူခွင့်မရှိပါ။"); return; }
             if (currentUserWishlist.length === 0) { showErrorToast(currentLang === 'en' ? "Your bag is empty" : "ဝယ်ယူရန်စာရင်း လွတ်နေပါသည်"); return; }
             window.location.href = `../checkout/?source=cart`;
         }
@@ -1695,11 +1605,7 @@
         async function handleLogout() {
             showLoader('loadingInit');
             if (supabaseInstance) await supabaseInstance.auth.signOut();
-            try {
-                window.location.href = '../login/';
-            } catch (e) {
-                window.location.reload();
-            }
+            try { window.location.href = '../login/'; } catch (e) { window.location.reload(); }
         }
 
         function toggleMobileMenu() {
@@ -1708,16 +1614,9 @@
             drawer.classList.toggle('open'); document.body.classList.toggle('no-scroll', drawer.classList.contains('open'));
         }
 
-        function toggleLangDropdown(e) {
-            e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden');
-            if(document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden');
-        }
-
-        function toggleProfile(e) {
-            e.stopPropagation(); const profDrop = document.getElementById('profileDropdown');
-            if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
-        }
-
+        function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('dropdown-hidden'); if(document.getElementById('profileDropdown')) document.getElementById('profileDropdown').classList.add('dropdown-hidden'); }
+        function toggleProfile(e) { e.stopPropagation(); const profDrop = document.getElementById('profileDropdown'); if (profDrop) { profDrop.classList.toggle('dropdown-hidden'); document.getElementById('langDropdown').classList.add('dropdown-hidden'); } }
+        
         document.addEventListener('click', (e) => {
             const langBtn = document.getElementById('langContainer'); const langDrop = document.getElementById('langDropdown');
             if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
@@ -1726,30 +1625,13 @@
         });
 
         window.addEventListener('scroll', () => {
-            const nav = document.getElementById('mainNav');
-            const scrollThreshold = 10;
-            if (window.scrollY > scrollThreshold) {
-                nav.classList.add('glass-nav-dark');
-                nav.classList.remove('nav-transparent', 'border-transparent');
-            } else {
-                nav.classList.remove('glass-nav-dark');
-                nav.classList.add('nav-transparent', 'border-transparent');
-            }
+            const nav = document.getElementById('mainNav'); const scrollThreshold = 10;
+            if (window.scrollY > scrollThreshold) { nav.classList.add('glass-nav-dark'); nav.classList.remove('nav-transparent', 'border-transparent'); } 
+            else { nav.classList.remove('glass-nav-dark'); nav.classList.add('nav-transparent', 'border-transparent'); }
         });
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').textContent = msg;
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
-        }
-
-        function showErrorToast(msg) { 
-            const toast = document.getElementById('error-toast'); 
-            document.getElementById('error-toast-msg').textContent = msg; 
-            toast.classList.remove('translate-y-24', 'opacity-0'); 
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); 
-        }
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500); }
+        function showErrorToast(msg) { const toast = document.getElementById('error-toast'); document.getElementById('error-toast-msg').textContent = msg; toast.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000); }
 
         function reveal() {
             var reveals = document.querySelectorAll(".reveal");
@@ -1822,288 +1704,88 @@
             const query = e.target.value.toLowerCase().trim();
             const resultsContainer = document.getElementById('megaSearchResults');
 
-            if (!query) {
-                clearTimeout(searchDebounceTimer);
-                resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint}</p>`;
-                return;
-            }
-
-            resultsContainer.innerHTML = `
-                <div class="flex justify-center py-6">
-                    <i data-lucide="loader-2" class="h-6 w-6 animate-spin text-white"></i>
-                </div>`;
-            lucide.createIcons();
-
+            if (!query) { clearTimeout(searchDebounceTimer); resultsContainer.innerHTML = `<p class="text-gray-500 text-sm font-medium italic">${dict[currentLang].searchHint}</p>`; return; }
+            resultsContainer.innerHTML = `<div class="flex justify-center py-6"><i data-lucide="loader-2" class="h-6 w-6 animate-spin text-white"></i></div>`; lucide.createIcons();
             clearTimeout(searchDebounceTimer);
             searchDebounceTimer = setTimeout(async () => {
                 let combined = [];
-
-                SUPER_STATIC_PAGES.forEach(p => {
-                    const searchStr = `${p.title_en} ${p.title_mm} ${p.desc_en} ${p.desc_mm} ${p.type}`.toLowerCase();
-                    if (searchStr.includes(query)) {
-                        combined.push({
-                            type: p.type, name: p.title_en, mm: p.title_mm, icon: p.icon,
-                            desc_en: p.desc_en, desc_mm: p.desc_mm, url: p.url, action: null, score: 1000
-                        });
-                    }
-                });
+                SUPER_STATIC_PAGES.forEach(p => { const searchStr = `${p.title_en} ${p.title_mm} ${p.desc_en} ${p.desc_mm} ${p.type}`.toLowerCase(); if (searchStr.includes(query)) combined.push({ type: p.type, name: p.title_en, mm: p.title_mm, icon: p.icon, desc_en: p.desc_en, desc_mm: p.desc_mm, url: p.url, action: null, score: 1000 }); });
 
                 if (supabaseInstance) {
                     const promises = [];
-
-                    promises.push(
-                        supabaseInstance.from('pkg_categories')
-                            .select('id, name_en, name_mm, icon')
-                            .or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`)
-                            .limit(4)
-                            .then(({data}) => {
-                                if(data) data.forEach(c => combined.push({ 
-                                    id: c.id, type: 'Website Foundations', name: c.name_en, mm: c.name_mm || c.name_en, 
-                                    icon: getCategoryIcon(c), desc_en: 'Explore this package in our Packages', desc_mm: 'ဝယ်ယူရန် ဤနေရာကို နှိပ်ပါ',
-                                    url: '../package/', action: null, score: 900 
-                                }));
-                            })
-                    );
-
-                    promises.push(
-                        supabaseInstance.from('pkg_features')
-                            .select('id, name_en, name_mm, feature_type')
-                            .or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`)
-                            .limit(4)
-                            .then(({data}) => {
-                                if(data) data.forEach(f => combined.push({ 
-                                    id: f.id, type: 'Features & Systems', name: f.name_en, mm: f.name_mm || f.name_en, 
-                                    icon: 'cpu', desc_en: 'Enterprise system feature available in builder', desc_mm: 'ထည့်သွင်းအသုံးပြုနိုင်သော စနစ်',
-                                    url: '../package/', action: null, score: 800 
-                                }));
-                            })
-                    );
-
-                    promises.push(
-                        supabaseInstance.from('services')
-                            .select('id, title_en, title_mm, icon')
-                            .or(`title_en.ilike.%${query}%,title_mm.ilike.%${query}%`)
-                            .limit(4)
-                            .then(({data}) => {
-                                if(data) data.forEach(s => combined.push({ 
-                                    id: s.id, type: 'Services', name: s.title_en, mm: s.title_mm || s.title_en, 
-                                    icon: s.icon || 'briefcase', desc_en: 'Professional digital service offering', desc_mm: 'ကျွမ်းကျင်သော ဒီဂျစ်တယ် ဝန်ဆောင်မှု',
-                                    url: `../services/?id=${s.id}`, action: null, score: 850 
-                                }));
-                            })
-                    );
-
-                    promises.push(
-                        supabaseInstance.from('products')
-                            .select('*')
-                            .eq('product_status', 'active')
-                            .then(({data}) => {
-                                const products = data || [];
-                                products.forEach(item => {
-                                    const searchStr = [
-                                        item.product_name_en || '', item.product_name_mm || '', 
-                                        item.product_description_en || '', item.product_description_mm || '', 
-                                        item.category_id || '', item.product_slug || ''
-                                    ].join(' ').toLowerCase();
-                                    
-                                    let score = 0;
-                                    
-                                    if (searchStr.includes(query)) {
-                                        score = -100;
-                                    } else {
-                                        const queryWords = query.split(/\s+/).filter(w => w);
-                                        const targetWords = searchStr.split(/[\s,.\-_]+/);
-                                        let matchedWords = 0;
-                                        
-                                        for (const qWord of queryWords) {
-                                            let minWordDist = qWord.length;
-                                            for (const tWord of targetWords) {
-                                                if (!tWord) continue;
-                                                if (tWord.includes(qWord) || qWord.includes(tWord)) { minWordDist = -10; break; }
-                                                const dist = getSimilarityScore(qWord, tWord);
-                                                if (dist < minWordDist) minWordDist = dist;
-                                            }
-                                            const maxAllowedTypos = Math.max(1, Math.floor(qWord.length / 2) + 1);
-                                            if (minWordDist <= maxAllowedTypos || minWordDist < 0) matchedWords++;
-                                            score += minWordDist;
-                                        }
-                                        if (matchedWords < queryWords.length) score += 1000;
-                                    }
-                                    
-                                    if (score < 1000) {
-                                        const productSlug = item.product_slug || item.slug || item.product_id;
-                                        combined.push({
-                                            id: item.product_id, type: 'Templates', 
-                                            name: item.product_name_en || item.product_name_mm || 'Unnamed Product', 
-                                            mm: item.product_name_mm || item.product_name_en || 'အမည်မရှိ', 
-                                            icon: 'layout', image: item.product_image,
-                                            desc_en: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_en || 'Premium Website Template'}`, 
-                                            desc_mm: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_mm || 'အဆင့်မြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းပုံစံ'}`,
-                                            url: `../template-detail/?product=${productSlug}`, action: null,
-                                            score: 1000 - score
-                                        });
-                                    }
-                                });
-                            })
-                    );
-
-                    try {
-                        await Promise.allSettled(promises);
-                    } catch (err) {
-                        console.error("Parallel DB fetch error:", err);
-                    }
+                    promises.push(supabaseInstance.from('pkg_categories').select('id, name_en, name_mm, icon').or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`).limit(4).then(({data}) => { if(data) data.forEach(c => combined.push({ id: c.id, type: 'Website Foundations', name: c.name_en, mm: c.name_mm || c.name_en, icon: getCategoryIcon(c), desc_en: 'Explore this package in our Packages', desc_mm: 'ဝယ်ယူရန် ဤနေရာကို နှိပ်ပါ', url: '../package/', action: null, score: 900 })); }));
+                    promises.push(supabaseInstance.from('pkg_features').select('id, name_en, name_mm, feature_type').or(`name_en.ilike.%${query}%,name_mm.ilike.%${query}%`).limit(4).then(({data}) => { if(data) data.forEach(f => combined.push({ id: f.id, type: 'Features & Systems', name: f.name_en, mm: f.name_mm || f.name_en, icon: 'cpu', desc_en: 'Enterprise system feature available in builder', desc_mm: 'ထည့်သွင်းအသုံးပြုနိုင်သော စနစ်', url: '../package/', action: null, score: 800 })); }));
+                    promises.push(supabaseInstance.from('services').select('id, title_en, title_mm, icon').or(`title_en.ilike.%${query}%,title_mm.ilike.%${query}%`).limit(4).then(({data}) => { if(data) data.forEach(s => combined.push({ id: s.id, type: 'Services', name: s.title_en, mm: s.title_mm || s.title_en, icon: s.icon || 'briefcase', desc_en: 'Professional digital service offering', desc_mm: 'ကျွမ်းကျင်သော ဒီဂျစ်တယ် ဝန်ဆောင်မှု', url: `../services/?id=${s.id}`, action: null, score: 850 })); }));
+                    promises.push(supabaseInstance.from('products').select('*').eq('product_status', 'active').then(({data}) => {
+                        const products = data || [];
+                        products.forEach(item => {
+                            const searchStr = [item.product_name_en || '', item.product_name_mm || '', item.product_description_en || '', item.product_description_mm || '', item.category_id || '', item.product_slug || ''].join(' ').toLowerCase(); let score = 0;
+                            if (searchStr.includes(query)) score = -100; else {
+                                const queryWords = query.split(/\s+/).filter(w => w); const targetWords = searchStr.split(/[\s,.\-_]+/); let matchedWords = 0;
+                                for (const qWord of queryWords) {
+                                    let minWordDist = qWord.length;
+                                    for (const tWord of targetWords) { if (!tWord) continue; if (tWord.includes(qWord) || qWord.includes(tWord)) { minWordDist = -10; break; } const dist = getSimilarityScore(qWord, tWord); if (dist < minWordDist) minWordDist = dist; }
+                                    const maxAllowedTypos = Math.max(1, Math.floor(qWord.length / 2) + 1); if (minWordDist <= maxAllowedTypos || minWordDist < 0) matchedWords++; score += minWordDist;
+                                } if (matchedWords < queryWords.length) score += 1000;
+                            }
+                            if (score < 1000) combined.push({ id: item.product_id, type: 'Templates', name: item.product_name_en || item.product_name_mm || 'Unnamed Product', mm: item.product_name_mm || item.product_name_en || 'အမည်မရှိ', icon: 'layout', image: item.product_image, desc_en: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_en || 'Premium Website Template'}`, desc_mm: `${item.product_price ? Number(item.product_price).toLocaleString() + ' ' + (item.currency || 'MMK') + ' - ' : ''}${item.product_description_mm || 'အဆင့်မြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းပုံစံ'}`, url: `../template-detail/?product=${item.product_slug || item.slug || item.product_id}`, action: null, score: 1000 - score });
+                        });
+                    }));
+                    try { await Promise.allSettled(promises); } catch (err) { console.error("Parallel DB fetch error:", err); }
                 }
 
                 combined.sort((a, b) => b.score - a.score);
 
                 if (combined.length === 0) {
-                    resultsContainer.innerHTML = `
-                        <div class="py-8 text-center border border-white/10 bg-[#111] rounded-2xl">
-                            <i data-lucide="search-x" class="h-8 w-8 text-gray-500 mx-auto mb-3"></i>
-                            <p class="text-white text-sm tracking-wide font-medium mb-1">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p>
-                            <p class="text-xs text-gray-500 tracking-wide">Try searching for alternative keywords.</p>
-                        </div>`;
-                    lucide.createIcons();
-                    return;
+                    resultsContainer.innerHTML = `<div class="py-8 text-center border border-white/10 bg-[#111] rounded-2xl"><i data-lucide="search-x" class="h-8 w-8 text-gray-500 mx-auto mb-3"></i><p class="text-white text-sm tracking-wide font-medium mb-1">${currentLang === 'en' ? 'No results found for' : 'ရလဒ်မတွေ့ပါ'} "${e.target.value}"</p><p class="text-xs text-gray-500 tracking-wide">Try searching for alternative keywords.</p></div>`;
+                    lucide.createIcons(); return;
                 }
 
-                const groupOrder = [
-                    'Website Foundations', 'Templates', 'Services', 'Features & Systems', 
-                    'Pages & Navigation', 'User Dashboard', 'Company', 'Policies & Legal', 'Support & Help'
-                ];
-
-                const grouped = combined.reduce((acc, item) => {
-                    if (!acc[item.type]) acc[item.type] = [];
-                    if (acc[item.type].length < 4) acc[item.type].push(item);
-                    return acc;
-                }, {});
-
-                const sortedKeys = Object.keys(grouped).sort((a, b) => {
-                    let idxA = groupOrder.indexOf(a); let idxB = groupOrder.indexOf(b);
-                    if (idxA === -1) idxA = 999; if (idxB === -1) idxB = 999;
-                    return idxA - idxB;
-                });
+                const groupOrder = ['Website Foundations', 'Templates', 'Services', 'Features & Systems', 'Pages & Navigation', 'User Dashboard', 'Company', 'Policies & Legal', 'Support & Help'];
+                const grouped = combined.reduce((acc, item) => { if (!acc[item.type]) acc[item.type] = []; if (acc[item.type].length < 4) acc[item.type].push(item); return acc; }, {});
+                const sortedKeys = Object.keys(grouped).sort((a, b) => { let idxA = groupOrder.indexOf(a); let idxB = groupOrder.indexOf(b); if (idxA === -1) idxA = 999; if (idxB === -1) idxB = 999; return idxA - idxB; });
 
                 let html = '';
                 for (const type of sortedKeys) {
                     const items = grouped[type];
-                    html += `
-                    <div class="mb-8 last:mb-0 reveal active">
-                        <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            ${type} <span class="bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded-full text-[9px]">${items.length}</span>
-                        </h4>
-                        <div class="grid grid-cols-1 gap-2">`;
-                    
+                    html += `<div class="mb-8 last:mb-0 reveal active"><h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">${type} <span class="bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded-full text-[9px]">${items.length}</span></h4><div class="grid grid-cols-1 gap-2">`;
                     html += items.map(item => {
                         const title = currentLang === 'en' ? item.name : item.mm;
                         const desc = currentLang === 'en' ? (item.desc_en || '') : (item.desc_mm || item.desc_en || '');
                         const fallbackImg = 'https://placehold.co/150x150/111111/444444?text=IMG';
-                        
-                        let finalImgUrl = item.image || fallbackImg;
-                        if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', './');
-
-                        const imgBlock = item.image 
-                            ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>`
-                            : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-5 w-5"></i></div>`;
-
-                        return `
-                        <a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">
-                            ${imgBlock}
-                            <div class="flex-1 min-w-0 z-10">
-                                <h5 class="text-sm font-bold font-display tracking-tight text-white group-hover:text-myancode-accent transition-colors truncate">${title}</h5>
-                                ${desc ? `<p class="text-[11px] font-medium text-gray-400 line-clamp-1 mt-0.5">${desc}</p>` : ''}
-                            </div>
-                            <div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-myancode-accent transition-colors z-10 opacity-0 sm:opacity-100">
-                                <i data-lucide="arrow-right" class="h-4 w-4 ml-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i>
-                            </div>
-                        </a>`;
+                        let finalImgUrl = item.image || fallbackImg; if (finalImgUrl.startsWith('../')) finalImgUrl = finalImgUrl.replace('../', './');
+                        const imgBlock = item.image ? `<div class="h-12 w-12 mr-4 overflow-hidden border border-white/10 rounded-xl flex-shrink-0 group-hover:border-white/30 transition-colors z-10"><img src="${finalImgUrl}" class="w-full h-full object-cover saturate-[1.02] contrast-[1.01] hover:saturate-[1.05] transition-all" onerror="this.src='${fallbackImg}'"></div>` : `<div class="p-3 bg-white/5 border border-white/10 rounded-xl mr-4 group-hover:bg-white group-hover:text-black text-gray-400 transition-colors duration-300 z-10 flex-shrink-0"><i data-lucide="${item.icon || 'search'}" class="h-5 w-5"></i></div>`;
+                        return `<a href="${item.url}" ${item.action ? `onclick="${item.action}; toggleSearchOverlay(); return false;"` : `onclick="toggleSearchOverlay()"`} class="flex items-center p-3 bg-[#111] hover:bg-[#1a1a1a] border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 group cursor-pointer relative overflow-hidden">${imgBlock}<div class="flex-1 min-w-0 z-10"><h5 class="text-sm font-bold font-display tracking-tight text-white group-hover:text-myancode-accent transition-colors truncate">${title}</h5>${desc ? `<p class="text-[11px] font-medium text-gray-400 line-clamp-1 mt-0.5">${desc}</p>` : ''}</div><div class="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-myancode-accent transition-colors z-10 opacity-0 sm:opacity-100"><i data-lucide="arrow-right" class="h-4 w-4 ml-4 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i></div></a>`;
                     }).join('');
-                    
                     html += `</div></div>`;
                 }
-
-                resultsContainer.innerHTML = html;
-                lucide.createIcons();
-
+                resultsContainer.innerHTML = html; lucide.createIcons();
             }, 300); 
         }
 
         async function handleSubscribe(e) {
             e.preventDefault();
-
-            if (!supabaseInstance) {
-                showErrorToast("Database connection offline.");
-                return;
-            }
-
-            const emailInput = document.getElementById('newsletterEmail');
-            const btn = document.getElementById('btnSubscribe');
-            const email = emailInput.value.trim();
-
+            if (!supabaseInstance) { showErrorToast("Database connection offline."); return; }
+            const emailInput = document.getElementById('newsletterEmail'); const btn = document.getElementById('btnSubscribe'); const email = emailInput.value.trim();
             const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
-
-            if (!turnstileResponse) {
-                showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။");
-                return;
-            }
-
+            if (!turnstileResponse) { showErrorToast(currentLang === 'en' ? "Please complete the security check." : "လုံခြုံရေးစစ်ဆေးမှုကို ဖြေဆိုပါ။"); return; }
             if (!email) return;
-
-            btn.disabled = true;
-            const originalBtnText = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            btn.disabled = true; const originalBtnText = btn.innerHTML; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-black"></i>`; if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
-                if (currentUser && email.toLowerCase() !== currentUser.email.toLowerCase()) {
-                    throw new Error(
-                        currentLang === 'en'
-                            ? "Authorization Error: You may only subscribe using your registered account email."
-                            : "ခွင့်ပြုချက် မရှိပါ: လူကြီးမင်း၏ အကောင့် အီးမေးလ်ဖြင့်သာ စာရင်းသွင်းနိုင်ပါသည်။"
-                    );
-                } else if (!currentUser) {
-                    const { data: profileRecord, error: profileErr } = await supabaseInstance
-                        .from('profiles')
-                        .select('email')
-                        .eq('email', email)
-                        .maybeSingle();
-
-                    if (profileErr || !profileRecord) {
-                        throw new Error(
-                            currentLang === 'en'
-                                ? "Verification Failed: The provided email address does not exist in our system or is unauthorized."
-                                : "စစ်ဆေးမှု မအောင်မြင်ပါ: ပေးထားသော အီးမေးလ်သည် ကျွန်ုပ်တို့၏ စနစ်တွင် မရှိပါ သို့မဟုတ် ခွင့်ပြုချက် မရှိပါ။"
-                        );
-                    }
+                if (currentUser && email.toLowerCase() !== currentUser.email.toLowerCase()) throw new Error(currentLang === 'en' ? "Authorization Error: You may only subscribe using your registered account email." : "ခွင့်ပြုချက် မရှိပါ: လူကြီးမင်း၏ အကောင့် အီးမေးလ်ဖြင့်သာ စာရင်းသွင်းနိုင်ပါသည်။");
+                else if (!currentUser) {
+                    const { data: profileRecord, error: profileErr } = await supabaseInstance.from('profiles').select('email').eq('email', email).maybeSingle();
+                    if (profileErr || !profileRecord) throw new Error(currentLang === 'en' ? "Verification Failed: The provided email address does not exist in our system or is unauthorized." : "စစ်ဆေးမှု မအောင်မြင်ပါ: ပေးထားသော အီးမေးလ်သည် ကျွန်ုပ်တို့၏ စနစ်တွင် မရှိပါ သို့မဟုတ် ခွင့်ပြုချက် မရှိပါ။");
                 }
-
                 const { error } = await supabaseInstance.from('subscribers').insert([{ email }]);
-
-                if (error) {
-                    if (error.code === '23505') {
-                        showToast(dict[currentLang].msgSubscribedAlready);
-                    } else {
-                        throw error;
-                    }
-                } else {
-                    showToast(dict[currentLang].msgSubscribedSuccess);
-                    emailInput.value = '';
-                    if (window.turnstile) turnstile.reset();
-                }
-
-            } catch (err) {
-                showErrorToast(err.message || "Subscription processing failed.");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalBtnText;
-            }
+                if (error) { if (error.code === '23505') showToast(dict[currentLang].msgSubscribedAlready); else throw error; } 
+                else { showToast(dict[currentLang].msgSubscribedSuccess); emailInput.value = ''; if (window.turnstile) turnstile.reset(); }
+            } catch (err) { showErrorToast(err.message || "Subscription processing failed."); } 
+            finally { btn.disabled = false; btn.innerHTML = originalBtnText; }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            setActiveNavLinks();
-            renderLanguage(); 
-            window.addEventListener('load', () => setTimeout(hideLoader, 600));
-        });
+        document.addEventListener('DOMContentLoaded', () => { setActiveNavLinks(); renderLanguage(); });
     </script>
 </body>
 </html>
