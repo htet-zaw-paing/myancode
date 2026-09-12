@@ -1071,9 +1071,7 @@
             populateProfileData();
             updateAuthUI();
 
-            if (typeof checkPendingDeletion === 'function') {
-                checkPendingDeletion();
-            }
+            checkPendingDeletion();
 
             setTimeout(() => {
                 const skel = document.getElementById('profileSkeletonContent');
@@ -1510,9 +1508,6 @@
             const modal = document.getElementById('verificationModal');
             const content = document.getElementById('verificationModalContent');
             if(modal && content) {
-                document.querySelector('#verificationModalContent h3').innerText = dict[currentLang].verifTitle || "Check Your Email";
-                document.querySelector('#verificationModalContent p').innerText = currentLang === 'en' ? "We've sent a reauthentication link to your email address. Please click the link to confirm and finalize your account deletion." : "အတည်ပြုရန်လင့်ခ်ကို သင့်အီးမေးလ်သို့ ပေးပို့ထားပါသည်။ အကောင့်ကို အပြီးအပိုင်ဖျက်ရန် လင့်ခ်ကို နှိပ်ပါ။";
-                
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
                 void modal.offsetWidth;
@@ -1562,19 +1557,15 @@
                     
                     if (error) {
                         const errMsg = error.message.toLowerCase();
-                        
-                        // ONLY instantly delete for OAuth providers (Google) who CANNOT receive these emails.
-                        if (errMsg.includes('oauth') || errMsg.includes('provider')) {
+                        if (errMsg.includes('oauth') || errMsg.includes('provider') || errMsg.includes('error sending reauth') || errMsg.includes('rate limit')) {
                             const { error: delError } = await supabaseInstance.rpc('delete_user');
                             if (delError) throw delError;
                             
                             await supabaseInstance.auth.signOut();
                             showToast(currentLang === 'en' ? "Account deleted permanently." : "အကောင့်ကို အပြီးအပိုင် ဖျက်လိုက်ပါပြီ။");
-                            setTimeout(() => { try { window.location.href = '../'; } catch(e) { window.location.reload(); } }, 1500);
+                            setTimeout(() => { window.location.href = '../'; }, 1500);
                             return;
                         }
-                        
-                        // If it's a rate limit or email error, throw it so the user sees it on screen!
                         throw error;
                     }
                     hideLoader();
