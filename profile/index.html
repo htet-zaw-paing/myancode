@@ -1517,7 +1517,9 @@
                     const { error } = await supabaseInstance.auth.reauthenticate();
                     
                     if (error) {
-                        if (error.message.toLowerCase().includes('oauth') || error.message.toLowerCase().includes('provider')) {
+                        const errMsg = error.message.toLowerCase();
+                        // Smart Fallback: Bypasses email if it's an OAuth user, or if Supabase blocks the email due to rate limits
+                        if (errMsg.includes('oauth') || errMsg.includes('provider') || errMsg.includes('error sending reauth') || errMsg.includes('rate limit')) {
                             const { error: delError } = await supabaseInstance.rpc('delete_user');
                             if (delError) throw delError;
                             
