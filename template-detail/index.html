@@ -494,7 +494,7 @@
                             
                             <div class="flex gap-3 relative z-10">
                                 <button id="btnAddToBag" class="w-[54px] h-[54px] flex-shrink-0 rounded-[16px] bg-transparent border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors text-white group/bag" title="Add to Saved Items">
-                                    <i data-lucide="shopping-bag" class="w-6 h-6 group-hover/bag:scale-110 transition-transform"></i>
+                                    <i data-lucide="bookmark" class="w-6 h-6 fill-none group-hover/bag:scale-110 transition-transform"></i>
                                 </button>
                                 <a id="btnBuyNow" href="#" class="flex-1 h-[54px] rounded-[16px] bg-[#1177ff] hover:bg-[#0066ee] flex items-center justify-center text-[14px] uppercase tracking-widest font-bold text-white shadow-[0_0_30px_rgba(17,119,255,0.25)] hover:shadow-[0_0_30px_rgba(17,119,255,0.4)] transition-all">
                                     BUY NOW
@@ -1227,6 +1227,8 @@
             document.getElementById('btnBuyNow').href = `../checkout/?product=${t.slug}`;
             document.getElementById('btnAddToBag').onclick = () => toggleWishlist(t.id, safeName, activePrice);
 
+            updateTemplateSaveButton();
+
             if (t.live_demo_url) {
                 document.getElementById('btnLiveDemo').href = t.live_demo_url;
             } else {
@@ -1244,6 +1246,23 @@
                 else document.getElementById('infoContact').href = `tel:${t.contact_info}`;
             }
 
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function updateTemplateSaveButton() {
+            if (!currentTemplateData) return;
+            const btnAdd = document.getElementById('btnAddToBag');
+            const isSaved = currentUserCart.some(item => item.id === currentTemplateData.id);
+            
+            if (isSaved) {
+                btnAdd.className = "w-[54px] h-[54px] flex-shrink-0 rounded-[16px] bg-myancode-accent/10 border border-myancode-accent/30 flex items-center justify-center transition-colors text-myancode-accent group/bag shadow-inner";
+                btnAdd.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6 fill-current group-hover/bag:scale-110 transition-transform"></i>`;
+                btnAdd.title = currentLang === 'en' ? 'Remove from Saved Items' : 'စာရင်းမှ ဖယ်ရှားမည်';
+            } else {
+                btnAdd.className = "w-[54px] h-[54px] flex-shrink-0 rounded-[16px] bg-transparent border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors text-white group/bag";
+                btnAdd.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6 fill-none group-hover/bag:scale-110 transition-transform"></i>`;
+                btnAdd.title = currentLang === 'en' ? 'Add to Saved Items' : 'စာရင်းသို့ ထည့်သွင်းမည်';
+            }
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
@@ -1397,6 +1416,7 @@
             updateAuthUI(); 
             const wDrawer = document.getElementById('wishlistDrawer');
             if(wDrawer && wDrawer.classList.contains('open')) renderWishlistItems();
+            if (typeof updateTemplateSaveButton === 'function') updateTemplateSaveButton();
         }
 
         function setLanguage(lang) {
@@ -1519,6 +1539,7 @@
             syncWishlistToSupabase(); updateWishlistCount();
             const wDrawer = document.getElementById('wishlistDrawer');
             if(wDrawer && wDrawer.classList.contains('open')) renderWishlistItems();
+            if (typeof updateTemplateSaveButton === 'function') updateTemplateSaveButton();
         }
 
         window.proceedToCheckout = function() {

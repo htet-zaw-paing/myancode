@@ -654,7 +654,7 @@
 
                         <div class="space-y-4" id="dtActionContainer">
                             <button id="btnAddToCart" onclick="addToBagFromDetail()" class="w-full modern-btn-primary py-4 text-[13px] flex justify-center items-center gap-2">
-                                <i data-lucide="shopping-bag" class="w-4 h-4"></i> <span data-i18n="addBag">Add to Saved Items</span>
+                                <i data-lucide="bookmark" class="w-4 h-4 fill-none"></i> <span data-i18n="addBag">Add to Saved Items</span>
                             </button>
                             <button id="btnBuyNow" onclick="buyNowFromDetail()" class="w-full btn-secondary py-4 text-[13px] flex justify-center items-center gap-2">
                                 <span data-i18n="buyNow">Buy Now</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -1392,8 +1392,26 @@
                 btnAdd.disabled = true;
                 btnBuy.disabled = true;
                 document.getElementById('dtUnavailableMsg').classList.remove('hidden');
+            } else {
+                updateDetailSaveButton();
             }
 
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function updateDetailSaveButton() {
+            if (!currentServiceData) return;
+            const btnAdd = document.getElementById('btnAddToCart');
+            const isSaved = currentUserCart.some(item => item.id === currentServiceData.id);
+            
+            if (isSaved) {
+                btnAdd.className = "w-full py-4 text-[13px] flex justify-center items-center gap-2 rounded-xl border border-myancode-accent/30 bg-myancode-accent/10 text-myancode-accent font-bold transition-all";
+                btnAdd.innerHTML = `<i data-lucide="bookmark" class="w-4 h-4 fill-current"></i> <span>${currentLang === 'en' ? 'Remove from Saved Items' : 'စာရင်းမှ ဖယ်ရှားမည်'}</span>`;
+            } else {
+                btnAdd.className = "w-full modern-btn-primary py-4 text-[13px] flex justify-center items-center gap-2";
+                btnAdd.innerHTML = `<i data-lucide="bookmark" class="w-4 h-4 fill-none"></i> <span data-i18n="addBag">${dict[currentLang].addBag || 'Add to Saved Items'}</span>`;
+            }
+            
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
@@ -1526,6 +1544,7 @@
             updateAuthUI(); 
             const wDrawer = document.getElementById('wishlistDrawer');
             if(wDrawer && wDrawer.classList.contains('open')) renderWishlistItems();
+            if (typeof updateDetailSaveButton === 'function') updateDetailSaveButton();
         }
 
         function setLanguage(lang) {
@@ -1666,6 +1685,7 @@
             syncWishlistToSupabase(); updateWishlistCount();
             const wDrawer = document.getElementById('wishlistDrawer');
             if(wDrawer && wDrawer.classList.contains('open')) renderWishlistItems();
+            if (typeof updateDetailSaveButton === 'function') updateDetailSaveButton();
         }
 
         async function syncWishlistToSupabase() {
