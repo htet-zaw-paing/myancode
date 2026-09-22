@@ -181,8 +181,13 @@
         }
         
         input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
             cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        input[type="datetime-local"]:focus::-webkit-calendar-picker-indicator,
+        input[type="datetime-local"]:hover::-webkit-calendar-picker-indicator {
+            opacity: 1;
         }
     </style>
 </head>
@@ -448,7 +453,6 @@
         <div class="absolute top-1/3 right-1/4 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] bg-purple-500/10 rounded-full mix-blend-screen filter blur-[80px] sm:blur-[120px] opacity-30 animate-blob animation-delay-2000 pointer-events-none z-10"></div>
         <div class="absolute -bottom-10 left-1/3 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-blue-500/10 rounded-full mix-blend-screen filter blur-[80px] sm:blur-[120px] opacity-30 animate-blob animation-delay-4000 pointer-events-none z-10"></div>
 
-        <!-- =================== DYNAMIC HERO SECTION =================== -->
         <div id="contactHeroSection" class="relative z-20 text-center max-w-3xl mx-auto px-4 sm:px-6 w-full pt-12 sm:pt-20 pb-12 sm:pb-20 transition-all duration-500 block opacity-100">
             <div class="inline-flex items-center justify-center px-4 py-2 border-l-2 border-myancode-accent bg-transparent mb-6 shadow-sm">
                 <span class="text-[10px] font-bold tracking-widest font-mono uppercase text-white" data-i18n="contactBadge">Enterprise Support</span>
@@ -457,10 +461,8 @@
             <p class="text-base sm:text-lg text-gray-400 font-medium leading-relaxed max-w-2xl mx-auto" data-i18n="contactDesc">Whether you have a technical question, a business inquiry, or just want to explore our enterprise solutions, our team is ready to assist you round the clock.</p>
         </div>
 
-        <!-- =================== CHOICE VIEW (INITIAL) =================== -->
         <div id="choiceView" class="relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 block transition-all duration-500">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 max-w-5xl mx-auto">
-                <!-- Choice 1: Let us contact you -->
                 <button onclick="toggleContactView('appointmentView')" class="text-left bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-12 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:-translate-y-1 hover:border-myancode-accent/50 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500 pointer-events-none">
                         <i data-lucide="calendar-clock" class="w-40 h-40 text-myancode-accent"></i>
@@ -475,7 +477,6 @@
                     </div>
                 </button>
 
-                <!-- Choice 2: I want to contact you -->
                 <button onclick="toggleContactView('directContactView')" class="text-left bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-12 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:-translate-y-1 hover:border-white/40 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500 pointer-events-none">
                         <i data-lucide="phone-outgoing" class="w-40 h-40 text-white"></i>
@@ -492,54 +493,53 @@
             </div>
         </div>
 
-        <!-- =================== APPOINTMENT FORM VIEW =================== -->
         <div id="appointmentView" class="hidden relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 transition-all duration-500">
             <div class="max-w-4xl mx-auto">
                 <button onclick="toggleContactView('choiceView')" class="mb-8 flex items-center text-[11px] font-bold font-mono tracking-widest uppercase text-gray-400 hover:text-white transition-colors group">
                     <i data-lucide="arrow-left" class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"></i> <span data-i18n="btnBackOptions">Return to Options</span>
                 </button>
 
-                <div class="bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-12 relative overflow-hidden shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
+                <div class="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 sm:p-12 relative overflow-hidden shadow-2xl">
                     <div class="mb-10 border-b border-white/10 pb-8">
-                        <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-3 uppercase" data-i18n="formApptTitle">Meeting Request Form</h3>
+                        <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-3" data-i18n="formApptTitle">Meeting Request Form</h3>
                         <p class="text-sm font-medium text-gray-400 leading-relaxed" data-i18n="formApptDesc">Please provide your comprehensive details. Appointments must be scheduled at least 12 hours in advance.</p>
                     </div>
 
-                    <form id="appointmentForm" onsubmit="handleAppointmentSubmit(event)" class="space-y-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <form id="appointmentForm" onsubmit="handleAppointmentSubmit(event)" class="space-y-7">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-7">
                             <div>
-                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblFullName">Full Name</label>
-                                <input type="text" id="apptName" required autocomplete="name" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600">
+                                <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblFullName">Full Name</label>
+                                <input type="text" id="apptName" required autocomplete="name" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblEmail">Email Address</label>
-                                <input type="email" id="apptEmail" required autocomplete="email" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600">
+                                <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblEmail">Email Address</label>
+                                <input type="email" id="apptEmail" required autocomplete="email" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblPhone">Contact Number</label>
-                                <input type="tel" id="apptPhone" required autocomplete="tel" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600">
+                                <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblPhone">Phone Number</label>
+                                <input type="tel" id="apptPhone" required autocomplete="tel" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblApptTime">Preferred Appointment Time</label>
-                                <input type="datetime-local" id="apptTime" required class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600 appearance-none color-scheme-dark">
+                                <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblApptTime">Date & Time</label>
+                                <input type="datetime-local" id="apptTime" required class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner appearance-none color-scheme-dark">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblSocials">Social Chat Links (Optional)</label>
-                            <input type="text" id="apptSocials" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600" placeholder="e.g. t.me/username">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblSocials">Social Links (Optional)</label>
+                            <input type="text" id="apptSocials" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner" placeholder="e.g. t.me/username">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblAddress">Meeting Location / Address (Optional)</label>
-                            <textarea id="apptAddress" rows="3" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600 resize-none" placeholder="Enter physical location for outside meeting..."></textarea>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblAddress">Meeting Location (Optional)</label>
+                            <textarea id="apptAddress" rows="3" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner resize-none" placeholder="Enter physical location for outside meeting..."></textarea>
                         </div>
                         
                         <div>
-                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2" data-i18n="lblRemarks">Additional Remarks / Notes (Optional)</label>
-                            <textarea id="apptRemarks" rows="4" class="w-full px-5 py-3.5 bg-[#050505] border border-white/10 rounded-none focus:outline-none focus:border-myancode-accent transition-all text-sm font-medium text-white placeholder-gray-600 resize-none" placeholder="Any specific requirements or topics to discuss..."></textarea>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblRemarks">Additional Notes (Optional)</label>
+                            <textarea id="apptRemarks" rows="4" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner resize-none" placeholder="Any specific requirements or topics to discuss..."></textarea>
                         </div>
                         
                         <div class="pt-6">
-                            <button type="submit" id="btnSubmitAppt" class="w-full bg-white text-black py-4 rounded-none text-xs font-mono font-bold tracking-widest uppercase hover:bg-gray-200 transition border border-white/20 flex justify-center items-center gap-2">
+                            <button type="submit" id="btnSubmitAppt" class="w-full bg-myancode-accent text-white py-4 rounded-xl text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-[0_0_15px_rgba(41,151,255,0.3)] flex justify-center items-center gap-2">
                                 <span data-i18n="btnSubmitAppt">Submit Request</span> <i data-lucide="send" class="w-4 h-4 ml-1"></i>
                             </button>
                         </div>
@@ -548,7 +548,6 @@
             </div>
         </div>
 
-        <!-- =================== SUCCESS VIEW =================== -->
         <div id="successView" class="hidden relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 transition-all duration-500">
             <div class="max-w-3xl mx-auto">
                 <div class="bg-[#0a0a0a] border border-white/10 border-t-2 border-t-myancode-accent rounded-none p-10 sm:p-16 relative overflow-hidden shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)] text-center flex flex-col items-center">
@@ -573,7 +572,6 @@
             </div>
         </div>
 
-        <!-- =================== DIRECT CONTACT VIEW =================== -->
         <div id="directContactView" class="hidden relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 transition-all duration-500">
             <div class="max-w-5xl mx-auto mb-8">
                 <button onclick="toggleContactView('choiceView')" class="flex items-center text-[11px] font-bold font-mono tracking-widest uppercase text-gray-400 hover:text-white transition-colors group">
@@ -1182,7 +1180,6 @@
                 contactTitle: "Get Started with MyanCode",
                 contactDesc: "Whether you have a technical question, a business inquiry, or just want to explore our enterprise solutions, our team is ready to assist you round the clock.",
                 
-                // Contact Choice Keys
                 optConsultTitle: "Request a Meeting",
                 optConsultDesc: "Choose your preferred date and time. Our team will confirm the meeting after reviewing your request.",
                 btnBookAppt: "Schedule Appointment",
@@ -1191,20 +1188,19 @@
                 btnViewDirs: "View Contact Details",
                 btnBackOptions: "Return to Options",
 
-                // Appointment Form Keys
                 formApptTitle: "Meeting Request Form",
                 formApptDesc: "Please provide your comprehensive details. Appointments must be scheduled at least 12 hours in advance.",
                 lblFullName: "Full Name",
-                lblPhone: "Contact Number",
-                lblAddress: "Meeting Location / Address (Optional)",
-                lblSocials: "Social Chat Links (Optional)",
-                lblApptTime: "Preferred Appointment Time",
-                lblRemarks: "Additional Remarks / Notes (Optional)",
+                lblEmail: "Email Address",
+                lblPhone: "Phone Number",
+                lblAddress: "Meeting Location (Optional)",
+                lblSocials: "Social Links (Optional)",
+                lblApptTime: "Date & Time",
+                lblRemarks: "Additional Notes (Optional)",
                 btnSubmitAppt: "Submit Request",
                 msgApptSuccess: "Your consultation request has been officially recorded. We will contact you at the designated time.",
                 errTime12hr: "The preferred time must be at least 12 hours from the current time.",
                 
-                // Success View Keys
                 succTitle: "Consultation Request Confirmed",
                 succDesc: "Your executive consultation request has been officially recorded in our secure system. Our team will review your requirements and align with your preferred schedule. You can monitor the real-time status of your appointment via your User Hub dashboard.",
                 btnToHub: "Navigate to User Hub",
@@ -1243,7 +1239,6 @@
                 contactTitle: "MyanCode နှင့် အတူ စတင်ရန်",
                 contactDesc: "နည်းပညာပိုင်းဆိုင်ရာ မေးခွန်းများ၊ စီးပွားရေးပိုင်းဆိုင်ရာ ဆွေးနွေးမှုများနှင့် ဝန်ဆောင်မှုများအကြောင်း သိရှိလိုပါက အချိန်မရွေး ဆက်သွယ်မေးမြန်းနိုင်ပါသည်။",
 
-                // Contact Choice Keys (MM)
                 optConsultTitle: "ကိုယ်စားလှယ်နှင့် တိုင်ပင်ဆွေးနွေးရန်",
                 optConsultDesc: "ကျွန်ုပ်တို့၏ ကျွမ်းကျင်ကိုယ်စားလှယ်များမှ သင့်ထံသို့ သတ်မှတ်ထားသော အချိန်တွင် တိုက်ရိုက်ဆက်သွယ်ပေးပါမည်။",
                 btnBookAppt: "ရက်ချိန်းယူမည်",
@@ -1252,20 +1247,19 @@
                 btnViewDirs: "ဖုန်းနှင့် အီးမေးလ်များ ကြည့်ရန်",
                 btnBackOptions: "နောက်သို့ ပြန်သွားရန်",
 
-                // Appointment Form Keys (MM)
                 formApptTitle: "ဆွေးနွေးတိုင်ပင်ရန် ဖောင်",
                 formApptDesc: "ကျေးဇူးပြု၍ လိုအပ်သော အချက်အလက်များကို ဖြည့်စွက်ပေးပါ။ အချိန်ကို အနည်းဆုံး ၁၂ နာရီ ကြိုတင် ရွေးချယ်ပေးရပါမည်။",
                 lblFullName: "အမည်အပြည့်အစုံ",
-                lblPhone: "ဆက်သွယ်ရန် ဖုန်းနံပါတ်",
-                lblAddress: "တွေ့ဆုံမည့် နေရာ / လိပ်စာ (ရွေးချယ်ရန်)",
-                lblSocials: "လူမှုကွန်ရက် လင့်ခ်များ (Messenger, Telegram စသည်)",
-                lblApptTime: "ဆက်သွယ်ရမည့် အချိန်",
+                lblEmail: "အီးမေးလ် လိပ်စာ",
+                lblPhone: "ဖုန်းနံပါတ်",
+                lblAddress: "တွေ့ဆုံမည့် နေရာ (ရွေးချယ်ရန်)",
+                lblSocials: "လူမှုကွန်ရက် လင့်ခ်များ (ရွေးချယ်ရန်)",
+                lblApptTime: "ရက်စွဲ နှင့် အချိန်",
                 lblRemarks: "အခြားမှတ်ချက်များ (ရွေးချယ်ရန်)",
                 btnSubmitAppt: "ပေးပို့မည်",
                 msgApptSuccess: "သင့်၏ တောင်းဆိုမှုကို လက်ခံရရှိပါပြီ။ သတ်မှတ်ထားသော အချိန်တွင် ဆက်သွယ်ပေးပါမည်။",
                 errTime12hr: "အချိန်ကို အနည်းဆုံး ယခုအချိန်မှ ၁၂ နာရီ နောက်ဆုတ်၍ ရွေးချယ်ပေးပါ။",
                 
-                // Success View Keys
                 succTitle: "ရက်ချိန်းတောင်းဆိုမှု အောင်မြင်ပါသည်",
                 succDesc: "သင့်၏ ဆွေးနွေးတိုင်ပင်ရန် ရက်ချိန်းတောင်းဆိုမှုကို ကျွန်ုပ်တို့၏စနစ်တွင် မှတ်တမ်းတင်ထားပြီးဖြစ်ပါသည်။ သင့်အချက်အလက်များကို စစ်ဆေးပြီးနောက် ဆက်သွယ်ပေးပါမည်။ သင့်ရက်ချိန်း၏ အခြေအနေကို User Hub (ဗဟိုဌာန) တွင် အချိန်မရွေး ဝင်ရောက်စစ်ဆေးနိုင်ပါသည်။",
                 btnToHub: "ဗဟိုဌာနသို့ သွားရန်",
