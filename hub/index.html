@@ -71,6 +71,8 @@
         .status-expired { background-color: rgba(156, 163, 175, 0.1); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.2); }
         .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
         .status-completed { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-failed { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .status-serving { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
         
         .status-reviewing { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
         .status-planning { background-color: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
@@ -105,8 +107,8 @@
 
         @media print {
             body * { visibility: hidden; }
-            #pkgPrintableArea, #pkgPrintableArea * { visibility: visible; }
-            #pkgPrintableArea { position: absolute; left: 0; top: 0; width: 100%; height: auto; border: none; box-shadow: none; background: #050505; color: #fff; }
+            #pkgPrintableArea, #pkgPrintableArea *, #orderPrintableArea, #orderPrintableArea * { visibility: visible; }
+            #pkgPrintableArea, #orderPrintableArea { position: absolute; left: 0; top: 0; width: 100%; height: auto; border: none; box-shadow: none; background: #050505; color: #fff; }
             .print-scroll-expand { height: auto !important; max-height: none !important; overflow: visible !important; }
             .print-scroll-expand > div { overflow: visible !important; }
         }
@@ -145,6 +147,11 @@
             <button onclick="switchTab('overview')" id="nav-overview" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOverview">Overview</span>
+            </button>
+
+            <button onclick="switchTab('orders')" id="nav-orders" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="shopping-bag" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOrders">My Orders</span>
             </button>
 
             <button onclick="switchTab('subscriptions')" id="nav-subscriptions" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
@@ -248,7 +255,17 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    <div class="glass-panel p-8 rounded-[2rem] border border-white/5 reveal active hover:border-white/10 transition-colors cursor-pointer" onclick="switchTab('orders')">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                                <i data-lucide="shopping-bag" class="w-5 h-5 text-emerald-400"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-400 text-xs font-bold font-mono uppercase tracking-widest mb-1">Products & Services</h3>
+                        <div class="text-3xl font-display font-bold text-white" id="ovTotalCheckoutOrders">0</div>
+                    </div>
+
                     <div class="glass-panel p-8 rounded-[2rem] border border-white/5 reveal active hover:border-white/10 transition-colors cursor-pointer" onclick="switchTab('subscriptions')">
                         <div class="flex justify-between items-start mb-6">
                             <div class="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
@@ -291,6 +308,38 @@
                         </div>
                     </div>
                     <button onclick="switchTab('settings')" class="px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold uppercase tracking-widest transition-colors w-full sm:w-auto text-center">Manage Profile</button>
+                </div>
+            </div>
+
+            <div id="view-orders" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
+                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display">
+                            <i data-lucide="shopping-bag" class="h-7 w-7 text-emerald-400"></i> 
+                            <span data-i18n="ordersOrderHist">Checkout Orders</span>
+                        </h3>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scroll pb-4">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
+                                    <th class="pb-4 pl-4" data-i18n="thOrder">Order ID</th>
+                                    <th class="pb-4" data-i18n="thOrderItems">Items</th>
+                                    <th class="pb-4" data-i18n="thAmount">Total</th>
+                                    <th class="pb-4" data-i18n="thMethod">Method</th>
+                                    <th class="pb-4" data-i18n="thDate">Date</th>
+                                    <th class="pb-4" data-i18n="thStatus">Status</th>
+                                    <th class="pb-4 pr-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checkoutOrdersTableBody" class="text-sm font-medium text-gray-300">
+                                <tr>
+                                    <td colspan="7" class="py-12 text-center text-gray-500 italic" data-i18n="loadingCheckoutOrders">Loading your checkout orders...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -554,6 +603,87 @@
         </div>
     </div>
 
+    <!-- NEW CHECKOUT ORDER DETAIL MODAL -->
+    <div id="orderDetailModal" class="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-6 sm:py-8">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-5xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="orderDetailModalContent">
+            
+            <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between bg-[#111]/50">
+                <h3 class="text-xl sm:text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                        <i data-lucide="receipt" class="w-5 h-5 text-emerald-400"></i>
+                    </div>
+                    <span data-i18n="orderDetTitle">Order Invoice</span>
+                </h3>
+                <div class="flex items-center gap-3">
+                    <button onclick="downloadStandardOrderPDF()" id="btnDownloadStdPdf" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                        <i data-lucide="download" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> <span class="hidden xs:inline" data-i18n="btnDownloadPdf">Download PDF</span>
+                    </button>
+                    <button onclick="closeOrderDetailModal()" class="p-2 sm:p-2.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors focus:outline-none">
+                        <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-8 bg-[#050505]">
+                <div id="orderPrintableArea" class="bg-[#050505] rounded-3xl p-6 sm:p-10 border border-white/10 relative overflow-visible shadow-inner">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 pb-8 border-b border-white/10 gap-6 relative z-10">
+                        <div>
+                            <img src="../imgs/web-banners/favicon.png" class="h-10 w-10 mb-4" alt="Logo" onerror="this.style.display='none';">
+                            <h2 class="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">Invoice Receipt</h2>
+                            <div class="text-sm font-mono text-gray-400 mt-2" id="ordModalId">#ID</div>
+                        </div>
+                        <div class="flex flex-col sm:items-end text-left sm:text-right gap-2">
+                            <div id="ordModalStatus"></div>
+                            <div class="text-xs font-mono text-gray-500" id="ordModalDate">Date</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 relative z-10">
+                        <div class="lg:col-span-8 space-y-8">
+                            <div>
+                                <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <i data-lucide="shopping-cart" class="w-4 h-4 text-emerald-400"></i> <span data-i18n="ordItemsPurchased">Items Purchased</span>
+                                </h4>
+                                <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 space-y-2" id="ordModalItemsList">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <i data-lucide="user" class="w-4 h-4 text-emerald-400"></i> <span data-i18n="ordCustDetails">Customer Details</span>
+                                </h4>
+                                <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                    <div><span class="text-gray-500 block text-[10px] uppercase font-mono tracking-widest mb-1">Name</span><span class="text-white font-medium" id="ordCustName">...</span></div>
+                                    <div><span class="text-gray-500 block text-[10px] uppercase font-mono tracking-widest mb-1">Email</span><span class="text-white font-medium" id="ordCustEmail">...</span></div>
+                                    <div><span class="text-gray-500 block text-[10px] uppercase font-mono tracking-widest mb-1">Phone</span><span class="text-white font-medium" id="ordCustPhone">...</span></div>
+                                    <div><span class="text-gray-500 block text-[10px] uppercase font-mono tracking-widest mb-1">Company</span><span class="text-white font-medium" id="ordCustCompany">...</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-4 space-y-8">
+                            <div class="bg-[#111] border border-emerald-500/20 rounded-2xl p-6 shadow-[0_0_20px_rgba(16,185,129,0.05)] text-left sm:text-right lg:sticky lg:top-0">
+                                <span class="block text-[10px] font-bold font-mono text-emerald-400 uppercase tracking-widest mb-2" data-i18n="ordTotalPaid">Total Paid</span>
+                                <span class="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight block leading-none mb-4"><span id="ordModalTotal">0</span> <span class="text-base font-medium text-gray-500 ml-1">MMK</span></span>
+                                
+                                <div class="border-t border-white/10 pt-4 flex justify-between sm:justify-end items-center gap-4">
+                                    <span class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest">Method</span>
+                                    <span class="text-xs font-bold text-white bg-white/10 px-2 py-1 rounded" id="ordModalMethod">...</span>
+                                </div>
+                                <div class="mt-2 flex justify-between sm:justify-end items-center gap-4">
+                                    <span class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest">Transaction ID</span>
+                                    <span class="text-xs font-mono text-white" id="ordModalTransId">...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="forcePasswordModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-2xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 px-4">
         <div class="glass-panel border border-myancode-accent/20 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-[0_0_50px_rgba(41,151,255,0.1)] transform scale-95 transition-transform duration-500" id="forcePasswordModalContent">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-myancode-accent/10 border border-myancode-accent/20 mb-6">
@@ -585,16 +715,6 @@
                 <button id="confirmModalBtn" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700 btn-hover-effect">Confirm</button>
             </div>
         </div>
-    </div>
-
-    <div id="toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
-        <i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i>
-        <span id="toast-msg">Success!</span>
-    </div>
-
-    <div id="error-toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide">
-        <i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-red-500"></i>
-        <span id="error-toast-msg">Error!</span>
     </div>
 
     <div id="imagePreviewModal" class="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300" onclick="closeImagePreview()">
@@ -639,7 +759,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabSubs: "Subscriptions", tabPackages: "My Packages", tabAppointments: "Appointments",
+                menuMain: "Main Menu", tabOverview: "Overview", tabSettings: "System Settings", tabSubs: "Subscriptions", tabPackages: "My Packages", tabAppointments: "Appointments", tabOrders: "My Orders",
                 btnLogout: "Sign Out",
                 overviewTitle: "Overview Coming Soon", overviewDesc: "We are preparing personalized metrics and data visualizations for your dashboard. Stay tuned.",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
@@ -653,17 +773,21 @@
                 filterAll: "All Status", filterPending: "Pending", filterConfirmed: "Confirmed", filterExpired: "Expired", filterCancelled: "Cancelled",
                 thOrder: "Order ID", thPlan: "Plan", thCompany: "Company", thAmount: "Total", thMethod: "Method", thDate: "Date", thStatus: "Status", thProof: "Proof",
                 loadingOrders: "Loading your orders...", noOrders: "No orders found.", viewProof: "View Proof",
-                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo", statCompleted: "Completed",
+                statPending: "Pending", statConfirmed: "Confirmed", statExpired: "Expired", statCancelled: "Cancelled", moUnit: "Mo", statCompleted: "Completed", statFailed: "Failed", statServing: "Serving",
                 pkgOrderHist: "My Package Orders", thPkg: "Package", thAddons: "Add-ons",
                 loadingPkgs: "Loading your packages...", noPkgs: "No package orders found.",
-                btnHelp: "Help", btnCall: "Call", btnDetails: "Details", btnDownloadPdf: "Download PDF",
+                
+                ordersOrderHist: "Checkout Orders", thOrderItems: "Items", loadingCheckoutOrders: "Loading your checkout orders...", noCheckoutOrders: "No checkout orders found.",
+                orderDetTitle: "Order Invoice", ordItemsPurchased: "Items Purchased", ordCustDetails: "Customer Details", ordTotalPaid: "Total Paid", btnDownloadPdf: "Download PDF",
+                
+                btnHelp: "Help", btnCall: "Call", btnDetails: "Details",
                 detTitle: "Order Details", detBaseInfo: "Base Package Information", detAddons: "Selected Add-ons", detNotes: "Admin Remarks & Notes", detTotal: "Total Estimated Price", noAdminNotes: "No remarks from admin yet.",
                 statReviewing: "Reviewing", statPlanning: "Planning", statDeveloping: "Developing", statTesting: "Testing", statDeployed: "Deployed",
                 apptHist: "My Consultations", thApptDate: "Requested Time", thApptSubmitted: "Submitted On", thApptStatus: "Status", loadingAppts: "Loading appointments...", noAppts: "No appointments found.", btnCancelAppt: "Cancel Booking"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabSubs: "အစီအစဉ်များ", tabPackages: "ပက်ကေ့ချ်များ", tabAppointments: "ရက်ချိန်းများ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabSettings: "စနစ် ဆက်တင်များ", tabSubs: "အစီအစဉ်များ", tabPackages: "ပက်ကေ့ချ်များ", tabAppointments: "ရက်ချိန်းများ", tabOrders: "ဝယ်ယူမှုမှတ်တမ်း",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 overviewTitle: "မကြာမီလာမည်", overviewDesc: "သင့်အတွက် လိုအပ်သော အချက်အလက်များကို ပြင်ဆင်နေပါသည်။",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
@@ -677,10 +801,14 @@
                 filterAll: "အခြေအနေအားလုံး", filterPending: "စစ်ဆေးဆဲ", filterConfirmed: "အတည်ပြုပြီး", filterExpired: "သက်တမ်းကုန်", filterCancelled: "ပယ်ဖျက်ထားသည်",
                 thOrder: "အော်ဒါ ID", thPlan: "အစီအစဉ်", thCompany: "ကုမ္ပဏီ", thAmount: "စုစုပေါင်း", thMethod: "ငွေချေမှု", thDate: "ရက်စွဲ", thStatus: "အခြေအနေ", thProof: "ပြေစာ",
                 loadingOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noOrders: "အော်ဒါများ မရှိသေးပါ။", viewProof: "ပြေစာကြည့်ရန်",
-                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ", statCompleted: "ပြီးစီးသည်",
+                statPending: "စစ်ဆေးဆဲ", statConfirmed: "အတည်ပြုပြီး", statExpired: "သက်တမ်းကုန်", statCancelled: "ပယ်ဖျက်သည်", moUnit: "လ", statCompleted: "ပြီးစီးသည်", statFailed: "မအောင်မြင်ပါ", statServing: "ဝန်ဆောင်မှုပေးနေသည်",
                 pkgOrderHist: "မှာယူထားသော ပက်ကေ့ချ်များ", thPkg: "ပက်ကေ့ချ်", thAddons: "အပိုလုပ်ဆောင်ချက်များ",
                 loadingPkgs: "ပက်ကေ့ချ်များ ရှာဖွေနေပါသည်...", noPkgs: "ပက်ကေ့ချ်များ မရှိသေးပါ။",
-                btnHelp: "အကူအညီ", btnCall: "ဆက်သွယ်ရန်", btnDetails: "အသေးစိတ်", btnDownloadPdf: "PDF ဒေါင်းလုပ်",
+                
+                ordersOrderHist: "ဝယ်ယူမှု မှတ်တမ်း", thOrderItems: "ပစ္စည်းများ", loadingCheckoutOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noCheckoutOrders: "အော်ဒါများ မရှိသေးပါ။",
+                orderDetTitle: "အော်ဒါ ပြေစာ", ordItemsPurchased: "ဝယ်ယူထားသော ပစ္စည်းများ", ordCustDetails: "ဝယ်ယူသူ အချက်အလက်", ordTotalPaid: "စုစုပေါင်း ပေးချေငွေ", btnDownloadPdf: "PDF ဒေါင်းလုပ်",
+                
+                btnHelp: "အကူအညီ", btnCall: "ဆက်သွယ်ရန်", btnDetails: "အသေးစိတ်",
                 detTitle: "အော်ဒါ အသေးစိတ်", detBaseInfo: "အခြေခံ ပက်ကေ့ချ် အချက်အလက်", detAddons: "ရွေးချယ်ထားသော အပိုလုပ်ဆောင်ချက်များ", detNotes: "စီမံသူ၏ မှတ်ချက်များ", detTotal: "စုစုပေါင်း ခန့်မှန်းကုန်ကျစရိတ်", noAdminNotes: "စီမံသူထံမှ မှတ်ချက် မရှိသေးပါ။",
                 statReviewing: "သုံးသပ်ဆဲ", statPlanning: "စီစဉ်နေဆဲ", statDeveloping: "ရေးဆွဲနေဆဲ", statTesting: "စမ်းသပ်ဆဲ", statDeployed: "လွှင့်တင်ပြီး",
                 apptHist: "မှာယူထားသော ရက်ချိန်းများ", thApptDate: "တွေ့ဆုံမည့် အချိန်", thApptSubmitted: "တင်သွင်းခဲ့သည့်ရက်", thApptStatus: "အခြေအနေ", loadingAppts: "ရက်ချိန်းများ ရှာဖွေနေပါသည်...", noAppts: "ရက်ချိန်းများ မရှိသေးပါ။", btnCancelAppt: "ပယ်ဖျက်မည်"
@@ -720,6 +848,7 @@
         let allOrders = [];
         let myPackageOrders = [];
         let myAppointments = [];
+        let myCheckoutOrders = [];
 
         if (supabaseInstance) {
             supabaseInstance.auth.getSession().then(({ data: { session }, error }) => {
@@ -804,6 +933,7 @@
             fetchMyOrders();
             fetchMyPackageOrders();
             fetchMyAppointments();
+            fetchMyCheckoutOrders();
             setupRealtimeSubscription();
             hideLoader();
         }
@@ -868,6 +998,24 @@
                 .on('postgres_changes', { 
                     event: '*', 
                     schema: 'public', 
+                    table: 'orders',
+                    filter: `user_id=eq.${currentUser.id}`
+                }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        if (!myCheckoutOrders.find(o => o.id === payload.new.id)) myCheckoutOrders.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = myCheckoutOrders.findIndex(o => o.id === payload.new.id);
+                        if (idx > -1) myCheckoutOrders[idx] = Object.assign({}, myCheckoutOrders[idx], payload.new);
+                        else myCheckoutOrders.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        myCheckoutOrders = myCheckoutOrders.filter(o => o.id !== payload.old.id);
+                    }
+                    renderCheckoutOrdersTable(myCheckoutOrders);
+                    updateOverviewStats();
+                })
+                .on('postgres_changes', { 
+                    event: '*', 
+                    schema: 'public', 
                     table: 'contact_appointments'
                 }, payload => {
                     if ((payload.new && payload.new.email === currentUser.email) || (payload.old && payload.old.email === currentUser.email)) {
@@ -890,9 +1038,11 @@
             const subsEl = document.getElementById('ovTotalSubs');
             const pkgsEl = document.getElementById('ovTotalPkgs');
             const apptsEl = document.getElementById('ovTotalAppts');
+            const chkOrdersEl = document.getElementById('ovTotalCheckoutOrders');
             if(subsEl) subsEl.innerText = allOrders.length;
             if(pkgsEl) pkgsEl.innerText = myPackageOrders.length;
             if(apptsEl) apptsEl.innerText = myAppointments.length;
+            if(chkOrdersEl) chkOrdersEl.innerText = myCheckoutOrders.length;
         }
 
         async function fetchMyOrders() {
@@ -950,6 +1100,26 @@
 
             } catch (err) {
                 console.error("Error fetching package orders:", err);
+            }
+        }
+
+        async function fetchMyCheckoutOrders() {
+            if(!supabaseInstance || !currentUser) return;
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('orders')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if(error) throw error;
+                
+                myCheckoutOrders = data || [];
+                renderCheckoutOrdersTable(myCheckoutOrders);
+                updateOverviewStats();
+
+            } catch (err) {
+                console.error("Error fetching checkout orders:", err);
             }
         }
 
@@ -1119,13 +1289,60 @@
                                 <button onclick="openPackageDetailModal('${order.id}')" class="px-3 py-1.5 rounded-xl bg-white text-black hover:bg-gray-200 transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                                     <i data-lucide="layout-template" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline" data-i18n="btnDetails">Details</span>
                                 </button>
-                                <a href="mailto:support@myancode.com?subject=Help with Package Order #${orderIdShort}" class="px-3 py-1.5 rounded-xl bg-myancode-accent/10 border border-myancode-accent/20 hover:bg-myancode-accent hover:text-white transition-all text-xs font-bold text-myancode-accent flex items-center gap-1.5" title="Help / Meeting">
-                                    <i data-lucide="life-buoy" class="w-3.5 h-3.5"></i> <span class="hidden xl:inline" data-i18n="btnHelp">Help</span>
-                                </a>
-                                <a href="tel:+959795000000" class="p-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-gray-300" title="Call Us">
-                                    <i data-lucide="phone" class="w-4 h-4"></i>
-                                </a>
                             </div>
+                        </td>
+                    </tr>`;
+                }).join('');
+            }
+            
+            lucide.createIcons();
+            if(typeof updateOverviewStats === 'function') updateOverviewStats();
+        }
+
+        function renderCheckoutOrdersTable(orders) {
+            const tbody = document.getElementById('checkoutOrdersTableBody');
+            
+            if(orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-gray-500 italic">${dict[currentLang].noCheckoutOrders}</td></tr>`;
+            } else {
+                tbody.innerHTML = orders.map(order => {
+                    const dateStr = new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                    
+                    let status = (order.status || 'pending').toLowerCase();
+                    let statusClass = 'status-pending';
+                    let statusTrans = dict[currentLang]['stat' + status.charAt(0).toUpperCase() + status.slice(1)] || status.charAt(0).toUpperCase() + status.slice(1);
+                    
+                    if(status === 'confirmed') statusClass = 'status-confirmed';
+                    else if(status === 'completed') statusClass = 'status-completed';
+                    else if(status === 'cancelled') statusClass = 'status-cancelled';
+                    else if(status === 'failed') statusClass = 'status-failed';
+                    else if(status === 'serving') statusClass = 'status-serving';
+
+                    const itemCount = (order.items || []).length;
+                    const orderIdShort = order.id.toString().split('-')[0].substring(0,8).toUpperCase();
+                    
+                    let itemDesc = '';
+                    if (itemCount > 0) {
+                        const types = [...new Set(order.items.map(i => i.type))].join(', ');
+                        itemDesc = `<div class="font-bold text-white">${itemCount} Items</div><div class="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">${types}</div>`;
+                    }
+
+                    return `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                        <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">#${orderIdShort}</td>
+                        <td class="py-4">${itemDesc}</td>
+                        <td class="py-4 font-bold text-white">${parseInt(order.total_amount).toLocaleString()} <span class="text-[10px] text-gray-500">MMK</span></td>
+                        <td class="py-4">
+                            <span class="inline-flex items-center px-2 py-1 rounded-md bg-[#111] border border-white/10 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
+                                ${order.payment_method}
+                            </span>
+                        </td>
+                        <td class="py-4 text-xs font-medium text-gray-400">${dateStr}</td>
+                        <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
+                        <td class="py-4 pr-4 text-right">
+                            <button onclick="openOrderDetailModal('${order.id}')" class="px-3 py-1.5 rounded-xl bg-white text-black hover:bg-gray-200 transition-all text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(255,255,255,0.2)] ml-auto">
+                                <i data-lucide="receipt" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline" data-i18n="btnDetails">Details</span>
+                            </button>
                         </td>
                     </tr>`;
                 }).join('');
@@ -1275,13 +1492,120 @@
             const orderIdText = document.getElementById('detOrderId').innerText.replace('#', '');
             const opt = {
                 margin:       [0.5, 0.5, 0.5, 0.5],
-                filename:     `MyanCode_Order_${orderIdText}.pdf`,
+                filename:     `MyanCode_PackageOrder_${orderIdText}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#050505' },
                 jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
             
             const btn = document.getElementById('btnDownloadPdf');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span class="hidden xs:inline">Wait...</span>`;
+            btn.disabled = true;
+            lucide.createIcons();
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                lucide.createIcons();
+                showToast(currentLang === 'en' ? "PDF downloaded successfully!" : "PDF ဒေါင်းလုပ်ဆွဲခြင်း အောင်မြင်ပါသည်");
+            }).catch(err => {
+                console.error("PDF generation failed:", err);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showErrorToast("Failed to generate PDF.");
+                lucide.createIcons();
+            });
+        }
+
+        function openOrderDetailModal(id) {
+            const order = myCheckoutOrders.find(o => o.id === id);
+            if(!order) return;
+
+            const orderIdShort = order.id.split('-')[0].toUpperCase();
+            document.getElementById('ordModalId').innerText = '#' + orderIdShort;
+            
+            const dt = new Date(order.created_at);
+            document.getElementById('ordModalDate').innerText = dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            let status = (order.status || 'pending').toLowerCase();
+            let statusClass = 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
+            if(status === 'confirmed') statusClass = 'text-green-400 bg-green-500/10 border-green-500/20';
+            else if(status === 'completed') statusClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+            else if(status === 'cancelled') statusClass = 'text-red-400 bg-red-500/10 border-red-500/20';
+            else if(status === 'failed') statusClass = 'text-red-500 bg-red-500/15 border-red-500/30';
+            else if(status === 'serving') statusClass = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+            
+            let formattedStatus = status.charAt(0).toUpperCase() + status.slice(1);
+            let statusTrans = dict[currentLang]['stat' + formattedStatus] || formattedStatus;
+            document.getElementById('ordModalStatus').innerHTML = `<span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border inline-block ${statusClass}">${statusTrans}</span>`;
+            
+            const itemsList = document.getElementById('ordModalItemsList');
+            if(order.items && order.items.length > 0) {
+                itemsList.innerHTML = order.items.map(i => {
+                    const priceText = i.price > 0 ? `${(i.price).toLocaleString()} MMK` : 'Custom';
+                    const iconName = i.type === 'service' ? 'briefcase' : 'layout-template';
+                    return `
+                    <div class="flex justify-between items-center py-3 border-b border-white/5 last:border-0 gap-4">
+                        <span class="text-sm text-gray-300 flex items-center gap-3 min-w-0">
+                            <i data-lucide="${iconName}" class="w-4 h-4 text-myancode-accent shrink-0"></i> 
+                            <div class="flex flex-col truncate">
+                                <span class="font-bold text-white truncate">${i.name}</span>
+                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">${i.type}</span>
+                            </div>
+                        </span>
+                        <span class="text-sm font-mono shrink-0 text-white font-bold">${priceText}</span>
+                    </div>
+                `;}).join('');
+            } else {
+                itemsList.innerHTML = `<div class="text-xs text-gray-500 italic py-2">No items found.</div>`;
+            }
+
+            if(order.customer_info) {
+                document.getElementById('ordCustName').innerText = order.customer_info.name || '-';
+                document.getElementById('ordCustEmail').innerText = order.customer_info.email || '-';
+                document.getElementById('ordCustPhone').innerText = order.customer_info.phone || '-';
+                document.getElementById('ordCustCompany').innerText = order.customer_info.company || '-';
+            }
+
+            document.getElementById('ordModalTotal').innerText = (order.total_amount || 0).toLocaleString();
+            document.getElementById('ordModalMethod').innerText = order.payment_method || '-';
+            document.getElementById('ordModalTransId').innerText = order.transaction_id || '-';
+
+            const modal = document.getElementById('orderDetailModal');
+            const content = document.getElementById('orderDetailModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            
+            lucide.createIcons();
+        }
+
+        function closeOrderDetailModal() {
+            const modal = document.getElementById('orderDetailModal');
+            const content = document.getElementById('orderDetailModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function downloadStandardOrderPDF() {
+            const element = document.getElementById('orderPrintableArea');
+            const orderIdText = document.getElementById('ordModalId').innerText.replace('#', '');
+            const opt = {
+                margin:       [0.5, 0.5, 0.5, 0.5],
+                filename:     `MyanCode_OrderInvoice_${orderIdText}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#050505' },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            
+            const btn = document.getElementById('btnDownloadStdPdf');
             const originalText = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span class="hidden xs:inline">Wait...</span>`;
             btn.disabled = true;
@@ -1374,8 +1698,8 @@
                 if (dict[currentLang][key]) el.placeholder = dict[currentLang][key];
             });
             
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages', 'appointments': 'Appointments' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ', 'appointments': 'ရက်ချိန်းများ' };
+            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages', 'appointments': 'Appointments', 'orders': 'My Orders' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ', 'appointments': 'ရက်ချိန်းများ', 'orders': 'ဝယ်ယူမှုမှတ်တမ်း' };
             
             let activeTab = window.location.hash.replace('#', '') || 'overview';
             const titleStr = currentLang === 'en' ? (titleMap[activeTab] || 'Dashboard') : (titleMapMM[activeTab] || 'Dashboard');
@@ -1389,6 +1713,7 @@
             filterOrders();
             renderPackageOrdersTable(myPackageOrders);
             renderAppointmentsTable(myAppointments);
+            renderCheckoutOrdersTable(myCheckoutOrders);
         }
 
         function populateSidebar() {
@@ -1493,8 +1818,8 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages', 'appointments': 'Appointments' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ', 'appointments': 'ရက်ချိန်းများ' };
+            const titleMap = { 'overview': 'Overview', 'settings': 'System Settings', 'subscriptions': 'Subscriptions', 'packages': 'My Packages', 'appointments': 'Appointments', 'orders': 'My Orders' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'settings': 'စနစ် ဆက်တင်များ', 'subscriptions': 'အစီအစဉ်များ', 'packages': 'ပက်ကေ့ချ်များ', 'appointments': 'ရက်ချိန်းများ', 'orders': 'ဝယ်ယူမှုမှတ်တမ်း' };
             
             const titleStr = currentLang === 'en' ? (titleMap[tabId] || 'Dashboard') : (titleMapMM[tabId] || 'Dashboard');
             document.getElementById('headerTitle').innerText = titleStr;
@@ -1688,12 +2013,14 @@
                 const confirmModal = document.getElementById('confirmModal');
                 const imgModal = document.getElementById('imagePreviewModal');
                 const packageDetailModal = document.getElementById('packageDetailModal');
+                const orderDetailModal = document.getElementById('orderDetailModal');
                 
                 if (e.key === 'Escape') {
                     if (!cropperModal.classList.contains('hidden')) cancelCrop();
                     if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
                     if (!imgModal.classList.contains('hidden')) closeImagePreview();
                     if (!packageDetailModal.classList.contains('hidden')) closePackageDetailModal();
+                    if (!orderDetailModal.classList.contains('hidden')) closeOrderDetailModal();
                 }
             });
         });
