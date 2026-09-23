@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secure Checkout - MyanCode</title>
+    <title>Checkout - MyanCode</title>
     <meta name="description" content="Securely checkout and finalize your MyanCode templates and digital services orders.">
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="../imgs/web-banners/favicon.png">
@@ -57,7 +57,6 @@
         .btn-hover-effect:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(255, 255, 255, 0.1); }
         .btn-hover-effect:active:not(:disabled) { transform: translateY(1px); }
         
-        /* Modals & Overlays (Exact copy from templates/services) */
         .search-overlay-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); opacity: 0; visibility: hidden; pointer-events: none; transform: translateZ(0); -webkit-transform: translateZ(0); will-change: opacity; transition: opacity 0.4s ease, visibility 0s linear 0.4s; }
         .search-overlay-backdrop.open { opacity: 1; visibility: visible; transition: opacity 0.4s ease; }
         .search-overlay { position: fixed; inset: 0; z-index: 101; clip-path: circle(0% at 85% 5%); -webkit-clip-path: circle(0% at 85% 5%); opacity: 0; visibility: hidden; pointer-events: none; overflow-y: auto; transform: translateZ(0); -webkit-transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; will-change: clip-path, opacity; transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), -webkit-clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease, visibility 0s linear 0.7s; }
@@ -85,7 +84,6 @@
         .glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(41, 151, 255, 0.15); }
         .glow-2 { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(88, 86, 214, 0.15); }
 
-        /* Light Mode Specifics */
         body.light-mode-active main::before { content: ''; position: absolute; top: 80px; left: 0; right: 0; bottom: 0; background-color: #f8fafc; z-index: 0; border-top: 1px solid #e2e8f0; }
         body.light-mode-active .ambient-glow { display: none; }
         body.light-mode-active main > div { z-index: 10; position: relative; }
@@ -96,7 +94,8 @@
         body.light-mode-active main .bg-\[\#111\] { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; }
         body.light-mode-active main input, body.light-mode-active main textarea { background-color: #ffffff !important; border-color: #cbd5e1 !important; color: #0f172a !important; }
         body.light-mode-active main input:focus, body.light-mode-active main textarea:focus { border-color: #2997ff !important; box-shadow: 0 0 0 1px #2997ff !important; }
-
+        body.light-mode-active .wizard-step { background: transparent !important; }
+        
         .modern-btn-primary {
             background: linear-gradient(135deg, #2997ff 0%, #0066CC 100%);
             color: #ffffff !important;
@@ -115,6 +114,15 @@
         .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
         @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         body.light-mode-active .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; }
+
+        .step-circle { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .step-line { transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        .wizard-step { opacity: 0; transform: translateY(20px) scale(0.98); transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s; pointer-events: none; position: absolute; inset: 0; visibility: hidden; z-index: 1; }
+        .wizard-step.active-step { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; position: relative; visibility: visible; z-index: 10; }
+        
+        .drop-zone { border: 1px dashed rgba(255,255,255,0.2); transition: all 0.2s ease; }
+        .drop-zone.dragover { border-color: #ffffff; background: rgba(255,255,255,0.05); }
     </style>
 </head>
 
@@ -151,7 +159,6 @@
                     <a href="../projects/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/portfolio/" data-i18n="navCaseStudies">Projects</a>
                     <a href="../about-us/" class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link text-white/90" data-nav-path="/about-us/" data-i18n="navAbout">About</a>
 
-                    <!-- EXACT Mega Menu from services.html -->
                     <div class="relative group h-full flex items-center">
                         <button class="hover-underline transition-colors duration-300 hover:text-myancode-accent nav-link flex items-center gap-1 cursor-pointer text-white/90" data-i18n="navSupport">Support <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i></button>
                         <div class="absolute top-[80%] left-0 w-full h-8"></div>
@@ -211,7 +218,6 @@
                     
                     <div id="desktopAuthContainer" class="hidden sm:flex items-center space-x-3 sm:space-x-4"></div>
 
-                    <!-- EXACT Get Started Button -->
                     <a href="../contact-us/" class="hidden md:flex items-center justify-center px-5 py-2 bg-myancode-accent text-white text-[11px] uppercase tracking-wider font-bold hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)] hover:shadow-[0_0_20px_rgba(41,151,255,0.5)] transform hover:-translate-y-0.5" data-i18n="btnHireUs">
                         Get Started
                     </a>
@@ -359,11 +365,34 @@
     </div>
 
     <main class="flex-grow pt-28 sm:pt-36 pb-24 w-full relative z-10 text-white min-h-screen">
-        <div class="layout-width">
+        <div class="layout-width" id="mainCheckoutContent">
             
-            <div class="mb-10 text-center sm:text-left border-b border-white/10 pb-6">
+            <div class="flex flex-col items-center mb-12 text-center">
                 <h1 class="text-3xl sm:text-4xl font-bold font-display tracking-tight text-white mb-2" data-i18n="chkTitle">Secure Checkout</h1>
-                <p class="text-gray-400 text-sm font-medium" data-i18n="chkSubtitle">Complete your purchase details below.</p>
+                <p class="text-gray-400 text-sm font-medium mb-8" data-i18n="chkSubtitle">Complete your purchase details below.</p>
+                
+                <div class="flex items-center justify-center w-full max-w-lg mx-auto px-4">
+                    <div class="flex flex-col items-center relative z-10 w-16 cursor-pointer group transition-opacity hover:opacity-80" onclick="navigateStep(1)">
+                        <div id="step1-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-white text-black font-bold font-mono text-sm border-2 border-white step-circle shadow-[0_0_15px_rgba(255,255,255,0.4)]">1</div>
+                        <span id="step1-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap" data-i18n="stepInfo">Details</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-[#111] mx-2 rounded-full relative overflow-hidden">
+                        <div id="step1-line" class="absolute top-0 left-0 h-full bg-white w-0 step-line"></div>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 w-16 cursor-pointer group transition-opacity hover:opacity-80" onclick="navigateStep(2)">
+                        <div id="step2-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle">2</div>
+                        <span id="step2-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap" data-i18n="stepPayment">Method</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-[#111] mx-2 rounded-full relative overflow-hidden">
+                        <div id="step2-line" class="absolute top-0 left-0 h-full bg-white w-0 step-line"></div>
+                    </div>
+
+                    <div class="flex flex-col items-center relative z-10 w-16 cursor-pointer group transition-opacity hover:opacity-80" onclick="navigateStep(3)">
+                        <div id="step3-circle" class="w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle">3</div>
+                        <span id="step3-text" class="absolute top-12 text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap" data-i18n="stepConfirm">Verify</span>
+                    </div>
+                </div>
             </div>
 
             <div id="loadingOverlay" class="w-full py-20 flex flex-col items-center justify-center">
@@ -371,22 +400,17 @@
                 <p class="text-gray-400 text-sm font-medium animate-pulse" data-i18n="chkLoading">Preparing your checkout session...</p>
             </div>
 
-            <div id="checkoutContent" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div id="checkoutContent" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-10 max-w-[1200px] mx-auto">
                 
-                <div class="lg:col-span-8 space-y-8">
+                <div class="lg:col-span-8 relative min-h-[500px]" id="wizardContainer">
                     
-                    <!-- Billing Form -->
-                    <div class="bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                            <i data-lucide="user-square" class="w-24 h-24"></i>
-                        </div>
-                        <h2 class="text-lg font-bold font-display mb-6 flex items-center gap-3"><i data-lucide="receipt" class="w-5 h-5 text-myancode-accent"></i> <span data-i18n="chkBilling">Billing Details</span></h2>
-                        
+                    <!-- Step 1: Details -->
+                    <div id="step-1" class="wizard-step active-step bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl">
+                        <h2 class="text-lg font-bold font-display mb-6 flex items-center gap-3 border-b border-white/10 pb-4"><i data-lucide="user" class="w-5 h-5 text-myancode-accent"></i> <span data-i18n="chkBilling">Billing Details</span></h2>
                         <form id="checkoutForm" class="space-y-5">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <div class="space-y-1.5">
                                     <label class="text-xs font-bold text-gray-400 uppercase tracking-widest" data-i18n="chkFullName">Full Name *</label>
-                                    <!-- Using direct tailwind classes instead of the invalid .form-input class -->
                                     <input type="text" id="b_name" required class="w-full px-5 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-myancode-accent focus:ring-1 focus:ring-myancode-accent/50 transition-all shadow-inner" placeholder="John Doe">
                                 </div>
                                 <div class="space-y-1.5">
@@ -394,7 +418,6 @@
                                     <input type="email" id="b_email" required readonly class="w-full px-5 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm text-gray-400 cursor-not-allowed shadow-inner opacity-70">
                                 </div>
                             </div>
-
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <div class="space-y-1.5">
                                     <label class="text-xs font-bold text-gray-400 uppercase tracking-widest" data-i18n="chkPhone">Phone Number *</label>
@@ -405,115 +428,125 @@
                                     <input type="text" id="b_company" class="w-full px-5 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-myancode-accent focus:ring-1 focus:ring-myancode-accent/50 transition-all shadow-inner" placeholder="Acme Corp">
                                 </div>
                             </div>
-
                             <div class="space-y-1.5">
                                 <label class="text-xs font-bold text-gray-400 uppercase tracking-widest" data-i18n="chkNotes">Order Notes (Optional)</label>
                                 <textarea id="b_notes" rows="3" class="w-full px-5 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-myancode-accent focus:ring-1 focus:ring-myancode-accent/50 transition-all shadow-inner resize-none" placeholder="Any specific requirements or instructions..."></textarea>
                             </div>
                         </form>
+                        <div class="mt-8 pt-6 border-t border-white/10 flex justify-end">
+                            <button type="button" onclick="navigateStep(2)" class="modern-btn-primary px-8 py-3.5 rounded-xl text-xs tracking-widest uppercase font-bold flex items-center gap-2">Proceed <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                        </div>
                     </div>
 
-                    <!-- Payment Selection -->
-                    <div class="bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl">
-                        <h2 class="text-lg font-bold font-display mb-6 flex items-center gap-3"><i data-lucide="credit-card" class="w-5 h-5 text-myancode-accent"></i> <span data-i18n="chkPayment">Payment Method</span></h2>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                            <!-- KBZPay -->
-                            <label class="payment-card rounded-2xl p-4 cursor-pointer flex items-center gap-4 relative group hover:bg-white/5 selected" id="pm_kbzpay_label">
-                                <input type="radio" name="payment_method" value="kbzpay" class="hidden" checked onchange="handlePaymentChange(this)">
-                                <img src="../imgs/payment/kbzpay.png" class="w-10 h-10 object-contain rounded-lg" alt="KBZPay">
-                                <div>
-                                    <h4 class="font-bold text-white text-sm">KBZPay</h4>
-                                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">Mobile Wallet</p>
-                                </div>
-                                <div class="absolute right-4 w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center pm-radio-indicator">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-myancode-accent hidden"></div>
-                                </div>
-                            </label>
-
-                            <!-- UABPay -->
-                            <label class="payment-card rounded-2xl p-4 cursor-pointer flex items-center gap-4 relative group hover:bg-white/5" id="pm_uabpay_label">
-                                <input type="radio" name="payment_method" value="uabpay" class="hidden" onchange="handlePaymentChange(this)">
-                                <img src="../imgs/payment/uabpay.png" class="w-10 h-10 object-contain rounded-lg" alt="UABPay">
-                                <div>
-                                    <h4 class="font-bold text-white text-sm">UABPay</h4>
-                                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">Mobile Wallet</p>
-                                </div>
-                                <div class="absolute right-4 w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center pm-radio-indicator">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-myancode-accent hidden"></div>
-                                </div>
-                            </label>
-
-                            <!-- Bank Transfer -->
-                            <label class="payment-card rounded-2xl p-4 cursor-pointer flex items-center gap-4 relative group hover:bg-white/5 sm:col-span-2" id="pm_bank_label">
-                                <input type="radio" name="payment_method" value="bank_transfer" class="hidden" onchange="handlePaymentChange(this)">
+                    <!-- Step 2: Payment Method -->
+                    <div id="step-2" class="wizard-step bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl">
+                        <h2 class="text-lg font-bold font-display mb-6 flex items-center gap-3 border-b border-white/10 pb-4"><i data-lucide="credit-card" class="w-5 h-5 text-myancode-accent"></i> <span data-i18n="chkPayment">Payment Method</span></h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                            <div class="payment-card selected p-6 rounded-2xl cursor-pointer flex flex-col items-center justify-center text-center group h-40" onclick="selectPayment('KBZPay', this)">
+                                <img src="../imgs/web-banners/kbzpay.png" alt="KBZPay" class="w-14 h-14 object-contain rounded-[6px] mb-4 group-hover:scale-110 transition-transform bg-white">
+                                <h4 class="text-white font-bold text-sm">KBZPay</h4>
+                            </div>
+                            <div class="payment-card p-6 rounded-2xl cursor-pointer flex flex-col items-center justify-center text-center group h-40" onclick="selectPayment('UABPay', this)">
+                                <img src="../imgs/web-banners/uabpay.png" alt="UABPay" class="w-14 h-14 object-contain mb-4 group-hover:scale-110 transition-transform">
+                                <h4 class="text-white font-bold text-sm">UABPay</h4>
+                            </div>
+                            <div class="payment-card sm:col-span-2 p-6 rounded-2xl cursor-pointer flex flex-row items-center justify-center gap-4 text-center group h-auto opacity-50" onclick="showToast('Coming Soon!')">
                                 <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
                                     <i data-lucide="building-2" class="w-5 h-5 text-gray-300"></i>
                                 </div>
-                                <div>
-                                    <h4 class="font-bold text-white text-sm">Direct Bank Transfer</h4>
-                                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">KBZ / CB / AYA</p>
-                                </div>
-                                <div class="absolute right-4 w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center pm-radio-indicator">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-myancode-accent hidden"></div>
-                                </div>
-                            </label>
+                                <h4 class="text-white font-bold text-sm">Direct Bank Transfer (Coming Soon)</h4>
+                            </div>
                         </div>
+                        <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
+                            <button onclick="navigateStep(1)" class="bg-transparent text-gray-400 hover:text-white px-4 py-3 text-xs font-bold tracking-wide transition-colors flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+                            <button onclick="navigateStep(3)" class="modern-btn-primary px-8 py-3.5 rounded-xl text-xs tracking-widest uppercase font-bold flex items-center gap-2">Continue <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
 
-                        <div id="paymentInstructions" class="bg-[#111] p-5 rounded-xl border border-white/5 text-sm text-gray-300 leading-relaxed font-medium">
-                            Please complete your checkout to receive the secure KBZPay QR code and account details.
+                    <!-- Step 3: Verify & Upload -->
+                    <div id="step-3" class="wizard-step bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl">
+                        <h2 class="text-lg font-bold font-display mb-6 flex items-center gap-3 border-b border-white/10 pb-4"><i data-lucide="check-shield" class="w-5 h-5 text-myancode-accent"></i> <span>Finalize & Verify</span></h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="bg-[#111] border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center relative">
+                                <div class="absolute top-2 left-2 text-[10px] font-mono text-gray-500 tracking-widest uppercase" id="qrMethodName">KBZPay</div>
+                                <div id="qrBoxContainer" class="w-40 h-40 bg-white rounded-xl flex items-center justify-center mb-4 mt-2 shadow-md border-4 border-[#0057B7] overflow-hidden">
+                                    <img id="qrImageDisplay" src="../imgs/web-qrs/kbz-qr.jpg" alt="Payment QR" class="w-full h-full object-cover">
+                                </div>
+                                <p class="text-[11px] text-gray-400 font-medium text-center px-2">Scan QR code to pay exact amount: <strong class="text-white" id="qrAmountDisplay">0 MMK</strong></p>
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <div class="mb-5">
+                                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Transaction ID *</label>
+                                    <input type="text" id="transId" required class="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-myancode-accent shadow-inner transition-colors" placeholder="e.g. 20240101XXXX">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2">Payment Screenshot *</label>
+                                    <div id="dropZone" onclick="document.getElementById('proofInput').click()" class="drop-zone w-full h-[120px] rounded-xl bg-[#111] border-2 border-dashed border-white/10 hover:border-white/30 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
+                                        <div id="uploadContent" class="flex flex-col items-center text-center pointer-events-none transition-opacity">
+                                            <i data-lucide="upload-cloud" class="w-5 h-5 text-gray-500 mb-2 group-hover:text-white transition-colors"></i>
+                                            <span class="text-xs font-medium text-gray-400 group-hover:text-white transition-colors">Click or drag image</span>
+                                        </div>
+                                        <img id="proofPreview" src="" class="absolute inset-0 w-full h-full object-cover hidden transition-opacity" alt="Proof">
+                                        <button id="removeProofBtn" onclick="removeProof(event)" class="absolute top-2 right-2 p-1.5 bg-red-500/80 hover:bg-red-600 text-white rounded-lg hidden shadow-md transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                        <input type="file" id="proofInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
+                            <button onclick="navigateStep(2)" class="bg-transparent text-gray-400 hover:text-white px-4 py-3 text-xs font-bold tracking-wide transition-colors flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+                            <button id="btnSubmitOrder" onclick="submitOrder()" class="modern-btn-primary px-8 py-3.5 rounded-xl text-xs tracking-[0.2em] uppercase font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(41,151,255,0.3)]">Place Order <i data-lucide="check" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                 </div>
 
                 <div class="lg:col-span-4">
                     <div class="bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] sticky top-32">
-                        <h2 class="text-lg font-bold font-display mb-6 flex items-center gap-3"><i data-lucide="shopping-bag" class="w-5 h-5 text-myancode-accent"></i> <span data-i18n="chkSummaryTitle">Order Summary</span></h2>
+                        <h2 class="text-lg font-bold font-display mb-6 flex items-center gap-3 border-b border-white/10 pb-4"><i data-lucide="shopping-bag" class="w-5 h-5 text-myancode-accent"></i> <span data-i18n="chkSummaryTitle">Order Summary</span></h2>
                         
-                        <div id="orderItemsList" class="space-y-4 mb-6 max-h-[40vh] overflow-y-auto no-scrollbar border-b border-white/10 pb-6">
+                        <div id="orderItemsList" class="space-y-4 mb-6 max-h-[30vh] overflow-y-auto no-scrollbar border-b border-white/10 pb-6">
                             <!-- Items populated by JS -->
                         </div>
 
-                        <div class="space-y-3 mb-8">
+                        <div class="space-y-3 mb-6">
                             <div class="flex justify-between text-sm text-gray-400">
-                                <span data-i18n="chkSubtotal">Subtotal</span>
+                                <span>Subtotal</span>
                                 <span id="summarySubtotal" class="font-mono text-white">0 MMK</span>
                             </div>
                             <div class="flex justify-between text-sm text-emerald-400 hidden" id="discountRow">
-                                <span data-i18n="chkDiscount">Discount</span>
+                                <span>Discount</span>
                                 <span id="summaryDiscount" class="font-mono">-0 MMK</span>
                             </div>
                             <div class="flex justify-between text-lg font-bold text-white pt-3 border-t border-white/10">
-                                <span data-i18n="chkTotal">Total</span>
-                                <span id="summaryTotal" class="font-mono text-myancode-accent">0 MMK</span>
+                                <span>Total</span>
+                                <span id="summaryTotal" class="font-mono text-myancode-accent text-xl tracking-tight">0 MMK</span>
                             </div>
                         </div>
 
-                        <div class="mb-6 flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                            <i data-lucide="shield-check" class="w-8 h-8 text-green-400 flex-shrink-0"></i>
-                            <p class="text-[10px] text-gray-400 leading-tight"><span class="text-white font-bold block mb-0.5">Secure Transaction</span> 256-bit SSL encrypted checkout process.</p>
+                        <div class="flex items-start gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-green-400 shrink-0 mt-0.5"></i>
+                            <p class="text-[10px] text-gray-400 leading-relaxed font-medium">Orders are manually verified. You will gain access immediately after payment is confirmed.</p>
                         </div>
-
-                        <button id="btnPlaceOrder" onclick="processOrder()" class="w-full modern-btn-primary py-4 text-xs tracking-[0.2em] uppercase rounded-xl flex items-center justify-center gap-2">
-                            <span data-i18n="chkPlaceOrder">Place Order</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
                     </div>
                 </div>
 
             </div>
         </div>
-    </main>
 
-    <div id="successModal" class="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-[#111] border border-white/10 p-8 rounded-[2rem] w-full max-w-md shadow-2xl transform scale-95 transition-transform duration-300 relative text-center">
-            <div class="w-20 h-20 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
-                <i data-lucide="check-circle" class="w-10 h-10"></i>
+        <div id="successModal" class="hidden w-full max-w-[700px] mx-auto pt-10 relative z-20">
+            <div class="flex flex-col items-center mb-8 text-center px-4">
+                <div class="w-20 h-20 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                    <i data-lucide="check" class="w-10 h-10 text-green-400"></i>
+                </div>
+                <h2 class="text-3xl font-display font-bold text-white mb-2" data-i18n="chkSuccessTitle">Order Successfully Placed!</h2>
+                <p class="text-sm text-gray-400" data-i18n="chkSuccessDesc">Your digital receipt has been generated. Our team will verify your transaction shortly.</p>
             </div>
-            <h3 class="text-2xl font-bold text-white mb-2 font-display" data-i18n="chkSuccessTitle">Order Placed Successfully!</h3>
-            <p class="text-sm text-gray-400 mb-8 leading-relaxed" data-i18n="chkSuccessDesc">Your order has been recorded. Our team will verify the payment and contact you shortly.</p>
-            <a href="../hub/" class="block w-full modern-btn-primary px-4 py-4 rounded-xl text-xs font-bold uppercase tracking-widest text-white transition-colors" data-i18n="chkGoToHub">View in My Hub</a>
+            
+            <div class="mt-8 flex justify-center gap-4 px-4">
+                <a href="../hub/" class="modern-btn-primary px-8 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-white transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)]">View Dashboard</a>
+            </div>
         </div>
-    </div>
+    </main>
 
     <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
         <div class="absolute inset-0">
@@ -527,394 +560,76 @@
                     <a href="../" class="flex items-center cursor-pointer group mb-6">
                         <img src="../imgs/web-banners/favicon.png" alt="MyanCode"
                             class="h-8 w-auto mr-3 transition-transform duration-500 group-hover:scale-105">
-                        <span
-                            class="font-display font-bold text-2xl tracking-tight text-white group-hover:text-myancode-accent transition-colors">MyanCode</span>
+                        <span class="font-display font-bold text-2xl tracking-tight text-white group-hover:text-myancode-accent transition-colors">MyanCode</span>
                     </a>
-                    <p class="text-[13px] text-gray-400 font-medium leading-relaxed mb-8 max-w-sm"
-                        data-i18n="heroDesc2">
+                    <p class="text-[13px] text-gray-400 font-medium leading-relaxed mb-8 max-w-sm" data-i18n="heroDesc2">
                         We design and develop high-performance digital platforms built for scalability, reliability, and the evolving demands of modern businesses.
                     </p>
                     <div class="flex space-x-6 mb-8">
-                        <a href="https://facebook.com/myancode" target="_blank" rel="noopener noreferrer"
-                            class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="../imgs/web-banners/facebook.png" class="h-6 w-6 object-contain" alt="Facebook">
-                        </a>
-                        <a href="https://tiktok.com/@myancode" target="_blank" rel="noopener noreferrer"
-                            class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="../imgs/web-banners/tiktok.png" class="h-6 w-6 object-contain" alt="Tik Tok">
-                        </a>
-                        <a href="https://linkedin.com/company/myancode" target="_blank" rel="noopener noreferrer"
-                            class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="../imgs/web-banners/linkedin.png" class="h-6 w-6 object-contain" alt="LinkedIn">
-                        </a>
-                        <a href="https://github.com/myancode" target="_blank" rel="noopener noreferrer"
-                            class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="../imgs/web-banners/github.png" class="h-6 w-6 object-contain" alt="GitHub">
-                        </a>
-                        <a href="https://instagram.com/myancode.mm" target="_blank" rel="noopener noreferrer"
-                            class="opacity-100 transition-transform hover:-translate-y-1">
-                            <img src="../imgs/web-banners/instagram.png" class="h-6 w-6 object-contain" alt="Instagram">
-                        </a>
-                    </div>
-    
-                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                        <a href="#"
-                            onclick="showToast(currentLang === 'en' ? 'iOS App coming soon!' : 'iOS App မကြာမီလာမည်!'); return false;"
-                            class="inline-flex justify-center sm:justify-start items-center gap-3 bg-[#111] border border-white/20 text-white px-5 py-3 text-[13px] font-bold tracking-wide hover:bg-white/10 hover:border-white/40 transition-all btn-hover-effect flex-1 sm:flex-none">
-                            <svg class="w-6 h-6 fill-current" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
-                            </svg>
-                            <div class="flex flex-col items-start leading-none text-left">
-                                <span class="text-[10px] text-gray-400 font-mono tracking-widest uppercase mb-1"
-                                    data-i18n="ftDownloadApp">Download</span>
-                                <span data-i18n="ftGetIosApp">Get iOS App</span>
-                            </div>
-                        </a>
-                        <a href="https://github.com/htet-zaw-paing/myancode/releases/download/v1.2.0/myancode.apk" download="MyanCode.apk"
-                            class="inline-flex justify-center sm:justify-start items-center gap-3 bg-white text-black px-5 py-3 text-[13px] font-bold tracking-wide hover:bg-gray-200 transition-colors btn-hover-effect flex-1 sm:flex-none">
-                            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0004.551-.4482.9997-.9993.9993m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993 0 .551-.4483.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 0 0-.1521-.5676.416.416 0 0 0-.5676.1521l-2.0223 3.503C15.5902 8.244 13.8533 7.851 12 7.851c-1.8533 0-3.5902.393-5.1367 1.099L4.841 5.4466a.416.416 0 0 0-.5676-.1521.416.416 0 0 0-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396" />
-                            </svg>
-                            <div class="flex flex-col items-start leading-none text-left">
-                                <span class="text-[10px] text-gray-500 font-mono tracking-widest uppercase mb-1"
-                                    data-i18n="ftDownloadApp">Download</span>
-                                <span data-i18n="ftGetAndroidApp">Get Android App</span>
-                            </div>
-                        </a>
+                        <a href="https://facebook.com/myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1"><img src="../imgs/web-banners/facebook.png" class="h-6 w-6 object-contain" alt="Facebook"></a>
+                        <a href="https://tiktok.com/@myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1"><img src="../imgs/web-banners/tiktok.png" class="h-6 w-6 object-contain" alt="Tik Tok"></a>
+                        <a href="https://linkedin.com/company/myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1"><img src="../imgs/web-banners/linkedin.png" class="h-6 w-6 object-contain" alt="LinkedIn"></a>
+                        <a href="https://github.com/myancode" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1"><img src="../imgs/web-banners/github.png" class="h-6 w-6 object-contain" alt="GitHub"></a>
+                        <a href="https://instagram.com/myancode.mm" target="_blank" rel="noopener noreferrer" class="opacity-100 transition-transform hover:-translate-y-1"><img src="../imgs/web-banners/instagram.png" class="h-6 w-6 object-contain" alt="Instagram"></a>
                     </div>
                 </div>
-    
+
                 <div class="lg:col-span-2">
-                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
-                        data-i18n="ftStoreTitle">STORE</h4>
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftStoreTitle">STORE</h4>
                     <ul class="space-y-4">
-                        <li><a href="../package/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftPackages">Packages</span></a></li>
-                        <li><a href="../templates/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftTemplates">Templates</span></a></li>
-                        <li><a href="../services/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftServices">Services</span></a></li>
-                        <li><a href="../maintenance/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftMaintenance">Maintenance</span></a></li>
-                        <li><a href="../plan-purchase/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftPricing">Pricing</span></a></li>
-                        <li><a href="../marketplace/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftMarketplace">Marketplace</span></a></li>
+                        <li><a href="../package/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="ftPackages">Packages</span></a></li>
+                        <li><a href="../templates/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="ftTemplates">Templates</span></a></li>
+                        <li><a href="../services/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="ftServices">Services</span></a></li>
+                        <li><a href="../plan-purchase/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="ftPricing">Pricing</span></a></li>
                     </ul>
                 </div>
-    
+
                 <div class="lg:col-span-2">
-                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
-                        data-i18n="ftCompanyTitle">Company</h4>
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftCompanyTitle">Company</h4>
                     <ul class="space-y-4">
-                        <li><a href="../about-us/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftAboutUs">About Us</span></a></li>
-                        <li><a href="../case-studies/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="navCaseStudies">Projects</span></a></li>
-                        <li><a href="../marketplace/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftCommunity">Community</span></a></li>
-                        <li><a href="../marketplace/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftUpdates">Updates & News</span></a></li>
-                        <li><a href="../contact-us/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftContactUs">Contact Us</span></a></li>
-                        <li><a href="../partners/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftParnters">Partners</span></a></li>
-                        <li><a href="../developers/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftDevelopers">Developers</span></a></li>
-                        <li><a href="../careers/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftCareers">Careers</span></a></li>
+                        <li><a href="../about-us/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="ftAboutUs">About Us</span></a></li>
+                        <li><a href="../projects/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="navCaseStudies">Projects</span></a></li>
+                        <li><a href="../marketplace/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="ftCommunity">Community</span></a></li>
+                        <li><a href="../contact-us/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="ftContactUs">Contact Us</span></a></li>
                     </ul>
                 </div>
-    
+
                 <div class="lg:col-span-2">
-                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono"
-                        data-i18n="ftSupportTitle">Support</h4>
+                    <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono" data-i18n="ftSupportTitle">Support</h4>
                     <ul class="space-y-4">
-                        <li><a href="../docs/guides/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="supGuides">Guides</span></a></li>
-                        <li><a href="../help/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="supHelp">Help Center</span></a></li>
-                        <li><a href="../faq/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="supFaq">FAQs</span></a></li>
-                        <li><a href="../marketplace/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftReport">Report</span></a></li>
-                        <li><a href="../marketplace/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftAskQ">Ask Questions</span></a></li>
-                        <li><a href="../contact-us/"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="ftCustomerSupport">Customer Support</span></a></li>
+                        <li><a href="../docs/guides/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="supGuides">Guides</span></a></li>
+                        <li><a href="../help/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="supHelp">Help Center</span></a></li>
+                        <li><a href="../faq/" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="supFaq">FAQs</span></a></li>
                     </ul>
                 </div>
-    
+
                 <div class="lg:col-span-2">
                     <h4 class="text-white font-bold tracking-widest text-[11px] uppercase mb-6 font-mono">Legal</h4>
                     <ul class="space-y-4">
-                        <li><a href="../legal/#privacy-policy"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="polPrivacy">Privacy Policy</span></a></li>
-                        <li><a href="../legal/#terms-of-service"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="polTerms">Terms & Conditions</span></a></li>
-                        <li><a href="../legal/#refund-policy"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="polRefund">Refund Policy</span></a></li>
-                        <li><a href="../legal/#package-policy"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="polPackage">Package Policy</span></a></li>
-                        <li><a href="../legal/#template-policy"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="polTemplate">Template Policy</span></a></li>
-                        <li><a href="../legal/#service-policy"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="polService">Service Policy</span></a></li>
-                        <li><a href="../legal/#maintenance-policy"
-                                class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i
-                                    data-lucide="chevron-right"
-                                    class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent transition-colors"></i>
-                                <span data-i18n="polMaintenance">Maintenance Policy</span></a></li>
+                        <li><a href="../legal/#privacy-policy" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="polPrivacy">Privacy Policy</span></a></li>
+                        <li><a href="../legal/#terms-of-service" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="polTerms">Terms & Conditions</span></a></li>
+                        <li><a href="../legal/#refund-policy" class="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"><i data-lucide="chevron-right" class="h-3 w-3 mr-2 text-gray-600 group-hover:text-myancode-accent"></i><span data-i18n="polRefund">Refund Policy</span></a></li>
                     </ul>
                 </div>
             </div>
     
-            <div
-                class="border-y border-white/10 py-10 mb-8 flex flex-col xl:flex-row items-center justify-between gap-10">
+            <div class="border-y border-white/10 py-10 mb-8 flex flex-col xl:flex-row items-center justify-between gap-10">
                 <div class="flex items-center gap-4 w-full max-w-[450px] mx-auto text-left">
-                    <div
-                        class="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center shrink-0 bg-[#0a0a0a]">
-                        <i data-lucide="mail" class="w-5 h-5 text-gray-400"></i>
-                    </div>
-    
+                    <div class="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center shrink-0 bg-[#0a0a0a]"><i data-lucide="mail" class="w-5 h-5 text-gray-400"></i></div>
                     <div>
-                        <h4 class="text-white font-bold text-[14px]" data-i18n="ftStayUpdated">
-                            Stay Updated
-                        </h4>
-    
-                        <p class="text-gray-400 text-[12px] mt-1 leading-relaxed" data-i18n="ftStayUpdatedDesc">
-                            Get the latest templates, updates and offers straight to your inbox.
-                        </p>
+                        <h4 class="text-white font-bold text-[14px]">Stay Updated</h4>
+                        <p class="text-gray-400 text-[12px] mt-1 leading-relaxed">Get the latest updates and offers straight to your inbox.</p>
                     </div>
                 </div>
-    
                 <div class="w-full xl:w-1/3 flex justify-center">
-                    <form id="newsletterForm" onsubmit="handleSubscribe(event)"
-                        class="relative flex items-center bg-transparent border border-white/20 rounded-lg p-1 transition-all focus-within:border-white w-full max-w-sm">
-                        <input type="email" id="newsletterEmail" required
-                            class="w-full py-2.5 px-4 bg-transparent border-none outline-none text-[13px] font-medium text-white placeholder-gray-500 focus:ring-0"
-                            placeholder="Enter your email address" data-i18n-placeholder="nlPlaceholder">
-                        <button type="submit" id="btnSubscribe"
-                            class="bg-white text-black px-6 py-2.5 rounded-md text-[12px] font-bold hover:bg-gray-200 transition btn-hover-effect whitespace-nowrap"
-                            data-i18n="btnSubscribe">Subscribe</button>
+                    <form id="newsletterForm" onsubmit="handleSubscribe(event)" class="relative flex items-center bg-transparent border border-white/20 rounded-lg p-1 transition-all focus-within:border-white w-full max-w-sm">
+                        <input type="email" id="newsletterEmail" required class="w-full py-2.5 px-4 bg-transparent border-none outline-none text-[13px] font-medium text-white placeholder-gray-500 focus:ring-0" placeholder="Enter your email address">
+                        <button type="submit" id="btnSubscribe" class="bg-white text-black px-6 py-2.5 rounded-md text-[12px] font-bold hover:bg-gray-200 transition btn-hover-effect whitespace-nowrap">Subscribe</button>
                     </form>
                     <div class="cf-turnstile hidden" data-sitekey="0x4AAAAAACrknTc-s1yaMFg8" data-theme="dark"></div>
                 </div>
-    
-                <div class="hidden md:flex items-center gap-8 justify-center xl:justify-end w-full xl:w-1/3">
-                    <div class="flex flex-col items-center gap-2">
-                        <i data-lucide="shield-check" class="w-6 h-6 text-gray-400"></i>
-                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight"
-                            data-i18n="ftTrust1">Trusted by<br>Enterprises</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 border-l border-white/10 pl-8">
-                        <i data-lucide="award" class="w-6 h-6 text-gray-400"></i>
-                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight"
-                            data-i18n="ftTrust2">Verified<br>Developers</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 border-l border-white/10 pl-8">
-                        <i data-lucide="headphones" class="w-6 h-6 text-gray-400"></i>
-                        <span class="text-gray-400 text-[10px] text-center font-medium leading-tight"
-                            data-i18n="ftTrust3">24/7<br>Support</span>
-                    </div>
-                </div>
             </div>
-            <div
-                class="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-gray-400 font-medium">
-    
-                <div class="flex items-center gap-4 opacity-60">
-    
-                    <a href="https://www.kbzpay.com/" target="_blank" rel="noopener noreferrer" class="group relative">
-                        <img src="../imgs/payment/kbzpay.png" alt="KBZPay"
-                            class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
-                        <div
-                            class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
-                            <div
-                                class="relative rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,.45)] whitespace-nowrap">
-                                <p class="text-xs font-semibold text-white">KBZPay</p>
-                                <div class="mt-1 flex items-center gap-1 text-[11px] text-green-400">
-                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                    Available
-                                </div>
-                                <div
-                                    class="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-[#111]/95 border-r border-b border-white/10 rotate-45 rounded-[2px]">
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="https://www.uab.com.mm/" target="_blank" rel="noopener noreferrer" class="group relative">
-                        <img src="../imgs/payment/uabpay.png" alt="UABPay"
-                            class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
-                        <div
-                            class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
-                            <div
-                                class="relative rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,.45)] whitespace-nowrap">
-                                <p class="text-xs font-semibold text-white">UABPay</p>
-                                <div class="mt-1 flex items-center gap-1 text-[11px] text-green-400">
-                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                    Available
-                                </div>
-                                <div
-                                    class="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-[#111]/95 border-r border-b border-white/10 rotate-45 rounded-[2px]">
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="https://www.apple.com/apple-pay/" target="_blank" rel="noopener noreferrer"
-                        class="group relative">
-                        <img src="../imgs/payment/apple-pay.png" alt="Apple Pay"
-                            class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
-                        <div
-                            class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
-                            <div
-                                class="relative rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,.45)] whitespace-nowrap">
-                                <p class="text-xs font-semibold text-white">Apple Pay</p>
-    
-                                <div class="mt-1 flex items-center gap-1 text-[11px] text-yellow-400">
-                                    <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                                    Under Maintenance
-                                </div>
-    
-                                <div
-                                    class="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-[#111]/95 border-r border-b border-white/10 rotate-45 rounded-[2px]">
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    
-                    <div class="h-8 w-px bg-white/20 mx-1"></div>
-    
-                    <a href="https://www.visa.com/" target="_blank" rel="noopener noreferrer" class="group relative">
-                        <img src="../imgs/payment/visa.png" alt="Visa"
-                            class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
-                        <div
-                            class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
-                            <div
-                                class="relative rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,.45)] whitespace-nowrap">
-    
-                                <p class="text-xs font-semibold text-white">Visa</p>
-    
-                                <div class="mt-1 flex items-center gap-1 text-[11px] text-yellow-400">
-                                    <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                                    Under Maintenance
-                                </div>
-    
-                                <div
-                                    class="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-[#111]/95 border-r border-b border-white/10 rotate-45 rounded-[2px]">
-                                </div>
-    
-                            </div>
-                        </div>
-                    </a>
-                    <a href="https://www.mastercard.com/" target="_blank" rel="noopener noreferrer"
-                        class="group relative">
-                        <img src="../imgs/payment/mastercard.png" alt="Mastercard"
-                            class="h-8 w-auto object-contain rounded-md cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
-    
-                        <div
-                            class="absolute left-1/2 bottom-full mb-4 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
-                            <div
-                                class="relative rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,.45)] whitespace-nowrap">
-    
-                                <p class="text-xs font-semibold text-white">Mastercard</p>
-    
-                                <div class="mt-1 flex items-center gap-1 text-[11px] text-yellow-400">
-                                    <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                                    Under Maintenance
-                                </div>
-    
-                                <div
-                                    class="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-[#111]/95 border-r border-b border-white/10 rotate-45 rounded-[2px]">
-                                </div>
-    
-                            </div>
-                        </div>
-                    </a>
-                </div>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-gray-400 font-medium">
                 <div data-i18n="ftCopyright">&copy; 2026 MyanCode Inc. All rights reserved.</div>
             </div>
         </div>
@@ -924,7 +639,6 @@
         function initIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); }
         initIcons();
 
-        // Complete Dictionary combining Global + Checkout terms
         const dict = {
             en: {
                 navAbout: "About", navStudio: "Packages", navWebsites: "Templates", navServices: "Services", navSupport: "Support", navMaintenance: "Maintenance",
@@ -938,16 +652,16 @@
                 ftSupportTitle: "Support", supGuides: "Guides", supHelp: "Help Center", supFaq: "FAQ", supLegal: "Legal", supContact: "Contact", ftReport: "Report", ftAskQ: "Ask Questions", ftCustomerSupport: "Customer Support",
                 supHelpTitle: "Explore Support", supPoliciesTitle: "Service Policies", supLegalTitle: "Legal & Transactions",
                 polClient: "Customer Policy", polStudio: "Packages Policy", polTemplate: "Template Policy", polService: "Service Policy", polMaintenance: "Maintenance Policy", polPayment: "Payment Policy", polRefund: "Refund Policy", polPrivacy: "Privacy Policy", polTerms: "Terms of Service", polPackage: "Package Policy",
-                ftFollow: "Follow Us", ftCopyright: "© 2026 MyanCode Inc. All rights reserved.", ftDownloadApp: "Download", ftGetIosApp: "Get iOS App", ftGetAndroidApp: "Get Android App", ftStayUpdated: "Stay Updated", ftStayUpdatedDesc: "Get the latest templates, updates and offers straight to your inbox.", nlPlaceholder: "Enter your email address", btnSubscribe: "Subscribe", ftTrust1: "Trusted by<br>Enterprises", ftTrust2: "Verified<br>Developers", ftTrust3: "24/7<br>Support", heroDesc2: "We design and develop high-performance digital platforms built for scalability, reliability, and the evolving demands of modern businesses.",
+                ftCopyright: "© 2026 MyanCode Inc. All rights reserved.",
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrLogout: "Sign Out",
                 msgLoggedOut: "Signed out securely.", loadingInit: "Loading...", msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
                 
-                // Checkout specific
                 chkTitle: "Secure Checkout", chkSubtitle: "Complete your purchase details below.", chkLoading: "Preparing your checkout session...",
                 chkBilling: "Billing Details", chkFullName: "Full Name *", chkEmail: "Email Address *", chkPhone: "Phone Number *", 
                 chkCompany: "Company / Organization (Optional)", chkNotes: "Order Notes (Optional)", chkPayment: "Payment Method",
                 chkSummaryTitle: "Order Summary", chkSubtotal: "Subtotal", chkDiscount: "Discount", chkTotal: "Total",
-                chkPlaceOrder: "Place Order", chkSuccessTitle: "Order Placed Successfully!", chkSuccessDesc: "Your order has been recorded. Our team will verify the payment and contact you shortly.", chkGoToHub: "View in My Hub"
+                chkPlaceOrder: "Place Order", chkSuccessTitle: "Order Placed Successfully!", chkSuccessDesc: "Your order has been recorded. Our team will verify the payment and contact you shortly.", chkGoToHub: "View in My Hub",
+                stepInfo: "Details", stepPayment: "Method", stepConfirm: "Verify"
             },
             mm: {
                 navAbout: "ကျွန်ုပ်တို့အကြောင်း", navStudio: "စတူဒီယို", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ", navMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
@@ -961,16 +675,16 @@
                 ftSupportTitle: "အကူအညီ", supGuides: "အသုံးပြုနည်းများ", supHelp: "အကူအညီဌာန", supFaq: "အမေးများသောမေးခွန်းများ", supLegal: "တရားဝင်", supContact: "ဆက်သွယ်ရန်", ftReport: "အစီရင်ခံရန်", ftAskQ: "မေးခွန်းမေးရန်", ftCustomerSupport: "ဖောက်သည်ဝန်ဆောင်မှု",
                 supHelpTitle: "အကူအညီ ရယူရန်", supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ",
                 polClient: "ဖောက်သည် မူဝါဒ", polStudio: "စတူဒီယို မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ", polPackage: "ပက်ကေ့ချ် မူဝါဒ",
-                ftFollow: "နောက်ဆုံးရသတင်းများ", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။", ftDownloadApp: "ဒေါင်းလုဒ်ရယူရန်", ftGetIosApp: "iOS App ရယူရန်", ftGetAndroidApp: "Android App ရယူရန်", ftStayUpdated: "နောက်ဆုံးသတင်းများ ရယူပါ", ftStayUpdatedDesc: "ဝက်ဘ်ဆိုက်ဒီဇိုင်းများ၊ အသစ်များနှင့် ကမ်းလှမ်းမှုများကို သင့်အီးမေးလ်သို့ တိုက်ရိုက်ရယူပါ။", nlPlaceholder: "သင့်အီးမေးလ်ကို ထည့်ပါ", btnSubscribe: "စာရင်းသွင်းမည်", ftTrust1: "လုပ်ငန်းများ၏<br>ယုံကြည်စိတ်ချရမှု", ftTrust2: "စိစစ်ပြီးသော<br>Developers များ", ftTrust3: "24/7<br>အကူအညီ", heroDesc2: "လုပ်ငန်းသုံးအတွက် အထူးထုတ်လုပ်ထားသော အရည်အသွေးမြင့် ဝက်ဘ်ဆိုက်များကို ကျွန်ုပ်တို့ ဖန်တီးပေးပါသည်။",
+                ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။",
                 hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrLogout: "အကောင့်ထွက်ရန်",
                 msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။",
                 
-                // Checkout specific
                 chkTitle: "လုံခြုံသော ငွေပေးချေမှု", chkSubtitle: "ဝယ်ယူမှု အသေးစိတ်ကို ဖြည့်စွက်ပါ။", chkLoading: "ငွေပေးချေမှု စာမျက်နှာကို ပြင်ဆင်နေပါသည်...",
                 chkBilling: "ဝယ်သူ အချက်အလက်", chkFullName: "အမည်အပြည့်အစုံ *", chkEmail: "အီးမေးလ် *", chkPhone: "ဖုန်းနံပါတ် *",
                 chkCompany: "ကုမ္ပဏီ / အဖွဲ့အစည်း (မဖြည့်လည်းရပါသည်)", chkNotes: "မှတ်ချက် (မဖြည့်လည်းရပါသည်)", chkPayment: "ငွေပေးချေမည့် နည်းလမ်း",
                 chkSummaryTitle: "မှာယူမှု အကျဉ်းချုပ်", chkSubtotal: "စုစုပေါင်း", chkDiscount: "လျှော့စျေး", chkTotal: "ကျသင့်ငွေ",
-                chkPlaceOrder: "မှာယူမည်", chkSuccessTitle: "မှာယူမှု အောင်မြင်ပါသည်!", chkSuccessDesc: "လူကြီးမင်း၏ မှာယူမှုကို လက်ခံရရှိပါသည်။ ငွေပေးချေမှုကို စစ်ဆေးပြီး မကြာမီ ဆက်သွယ်ပေးပါမည်။", chkGoToHub: "My Hub တွင် ကြည့်မည်"
+                chkPlaceOrder: "မှာယူမည်", chkSuccessTitle: "မှာယူမှု အောင်မြင်ပါသည်!", chkSuccessDesc: "လူကြီးမင်း၏ မှာယူမှုကို လက်ခံရရှိပါသည်။ ငွေပေးချေမှုကို စစ်ဆေးပြီး မကြာမီ ဆက်သွယ်ပေးပါမည်။", chkGoToHub: "My Hub တွင် ကြည့်မည်",
+                stepInfo: "အချက်အလက်", stepPayment: "ငွေပေးချေမှု", stepConfirm: "အတည်ပြုရန်"
             }
         };
 
@@ -980,6 +694,9 @@
         let checkoutItems = [];
         let orderTotal = 0;
         let isFromCart = false;
+        let currentStep = 1;
+        let selectedPaymentMethod = 'KBZPay';
+        let proofFile = null;
 
         const SUPABASE_URL = window.location.origin + '/supabase-proxy';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucmV0ZHJhcWp3ZGl3eGNjbXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5Mjk1OTgsImV4cCI6MjA5NDUwNTU5OH0.gmXci7KsgPRFvVtRzY2F--qV5TshCPejf580JTJpl20';
@@ -990,8 +707,12 @@
             const savedTheme = localStorage.getItem('myancode_theme');
             if (savedTheme === 'light') document.body.classList.add('light-mode-active'); 
             
-            primeSearchOverlay();
             initPage(); 
+            
+            const dropZone = document.getElementById('dropZone');
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-white/40'); });
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('border-white/40'); });
+            dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('border-white/40'); if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]); });
         });
 
         async function initPage() {
@@ -1026,16 +747,10 @@
         }
 
         async function initCheckout() {
-            if (!supabaseInstance) {
-                showErrorToast("Database connection offline.");
-                return;
-            }
+            if (!supabaseInstance) { showErrorToast("Database connection offline."); return; }
 
             try {
-                if (!currentUser) {
-                    window.location.href = `../login/?redirect=${encodeURIComponent(window.location.href)}`;
-                    return;
-                }
+                if (!currentUser) { window.location.href = `../login/?redirect=${encodeURIComponent(window.location.href)}`; return; }
 
                 if (['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role)) {
                     document.getElementById('loadingOverlay').innerHTML = `
@@ -1060,10 +775,7 @@
 
                 if (source === 'cart') {
                     isFromCart = true;
-                    if (currentUserCart.length === 0) {
-                        window.location.href = '../templates/';
-                        return;
-                    }
+                    if (currentUserCart.length === 0) { window.location.href = '../templates/'; return; }
                     itemsToFetch = currentUserCart.map(item => ({ id: item.id, type: item.type || 'template' }));
                 } else if (productSlug) {
                     itemsToFetch = [{ slug: productSlug, type: 'template' }];
@@ -1083,29 +795,21 @@
         }
 
         async function fetchAndVerifyItems(targetItems) {
-            checkoutItems = [];
-            orderTotal = 0;
-
+            checkoutItems = []; orderTotal = 0;
             const templateTargets = targetItems.filter(i => i.type === 'template');
-            const serviceTargets = targetItems.filter(i => i.type === 'service' || !i.type); // fallback to checking service
+            const serviceTargets = targetItems.filter(i => i.type === 'service' || !i.type);
 
             try {
                 if (templateTargets.length > 0) {
                     let query = supabaseInstance.from('website_templates').select('id, template_name, price, discount_price, slug, thumbnail_url');
-                    if (templateTargets[0].slug) {
-                        query = query.in('slug', templateTargets.map(t => t.slug));
-                    } else {
-                        query = query.in('id', templateTargets.map(t => t.id));
-                    }
+                    if (templateTargets[0].slug) query = query.in('slug', templateTargets.map(t => t.slug));
+                    else query = query.in('id', templateTargets.map(t => t.id));
                     
                     const { data: templates } = await query;
                     if (templates) {
                         templates.forEach(t => {
                             const activePrice = t.discount_price && t.discount_price < t.price ? t.discount_price : t.price;
-                            checkoutItems.push({
-                                id: t.id, type: 'template', name: t.template_name, slug: t.slug,
-                                original_price: t.price, active_price: activePrice, thumb: t.thumbnail_url
-                            });
+                            checkoutItems.push({ id: t.id, type: 'template', name: t.template_name, slug: t.slug, original_price: t.price, active_price: activePrice, thumb: t.thumbnail_url });
                             orderTotal += activePrice;
                         });
                     }
@@ -1113,20 +817,14 @@
 
                 if (serviceTargets.length > 0) {
                     let query = supabaseInstance.from('website_services').select('id, service_name, price, discount_price, slug, thumbnail_url, cover_url');
-                    if (serviceTargets[0].slug) {
-                        query = query.in('slug', serviceTargets.map(t => t.slug));
-                    } else {
-                        query = query.in('id', serviceTargets.map(t => t.id));
-                    }
+                    if (serviceTargets[0].slug) query = query.in('slug', serviceTargets.map(t => t.slug));
+                    else query = query.in('id', serviceTargets.map(t => t.id));
 
                     const { data: services } = await query;
                     if (services) {
                         services.forEach(s => {
                             const activePrice = s.discount_price && s.discount_price < s.price ? s.discount_price : s.price;
-                            checkoutItems.push({
-                                id: s.id, type: 'service', name: s.service_name, slug: s.slug,
-                                original_price: s.price, active_price: activePrice, thumb: s.thumbnail_url || s.cover_url
-                            });
+                            checkoutItems.push({ id: s.id, type: 'service', name: s.service_name, slug: s.slug, original_price: s.price, active_price: activePrice, thumb: s.thumbnail_url || s.cover_url });
                             orderTotal += activePrice;
                         });
                     }
@@ -1142,9 +840,7 @@
                 document.getElementById('loadingOverlay').classList.add('hidden');
                 document.getElementById('checkoutContent').classList.remove('hidden');
 
-            } catch (err) {
-                showErrorToast("Failed to verify items.");
-            }
+            } catch (err) { showErrorToast("Failed to verify items."); }
         }
 
         function renderOrderSummary() {
@@ -1178,32 +874,123 @@
             }
 
             document.getElementById('summaryTotal').innerText = `${orderTotal.toLocaleString()} MMK`;
+            document.getElementById('qrAmountDisplay').innerText = `${orderTotal.toLocaleString()} MMK`;
         }
 
-        function handlePaymentChange(radioInput) {
-            document.querySelectorAll('.payment-card').forEach(card => {
-                card.classList.remove('selected');
-                card.querySelector('.pm-radio-indicator div').classList.add('hidden');
-            });
+        function navigateStep(targetStep) {
+            if (targetStep === currentStep) return;
             
-            const selectedLabel = radioInput.closest('label');
-            selectedLabel.classList.add('selected');
-            selectedLabel.querySelector('.pm-radio-indicator div').classList.remove('hidden');
-
-            const inst = document.getElementById('paymentInstructions');
-            if (radioInput.value === 'kbzpay') inst.innerText = 'Please complete your checkout to receive the secure KBZPay QR code and account details.';
-            else if (radioInput.value === 'uabpay') inst.innerText = 'Please complete your checkout to receive the UABPay transfer details.';
-            else if (radioInput.value === 'bank_transfer') inst.innerText = 'Bank transfer details (KBZ, CB, AYA) will be provided on the next step.';
-        }
-
-        async function processOrder() {
-            const form = document.getElementById('checkoutForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
+            if (targetStep > 1) {
+                const name = document.getElementById('b_name').value.trim(); 
+                const phone = document.getElementById('b_phone').value.trim();
+                if(!name || !phone || phone.length < 6) {
+                    showErrorToast(currentLang === 'en' ? "Please complete your billing details." : "အချက်အလက်များကို အပြည့်အစုံထည့်ပါ။");
+                    return;
+                }
+            }
+            if (targetStep === 3 && !selectedPaymentMethod) {
+                showErrorToast("Please select a payment method.");
                 return;
             }
+            goToStep(targetStep);
+        }
 
-            const btn = document.getElementById('btnPlaceOrder');
+        function goToStep(step) {
+            currentStep = step;
+            updateStepperUI();
+            
+            for(let i=1; i<=3; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                if (i === step) {
+                    stepEl.classList.remove('hidden');
+                    setTimeout(() => stepEl.classList.add('active-step'), 10);
+                } else {
+                    stepEl.classList.remove('active-step');
+                    stepEl.classList.add('hidden');
+                }
+            }
+        }
+
+        function updateStepperUI() {
+            for(let i=1; i<=3; i++) {
+                const circle = document.getElementById(`step${i}-circle`);
+                const line = document.getElementById(`step${i}-line`);
+                const text = document.getElementById(`step${i}-text`);
+                
+                if (i < currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center bg-white text-black font-bold font-mono text-sm border-2 border-white step-circle shadow-[0_0_15px_rgba(255,255,255,0.4)]";
+                    circle.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i>';
+                    if(line) line.style.width = "100%";
+                    if(text) { text.classList.remove('text-gray-500'); text.classList.add('text-white'); }
+                } else if (i === currentStep) {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center bg-white text-black font-bold font-mono text-sm border-2 border-white step-circle shadow-[0_0_15px_rgba(255,255,255,0.4)]";
+                    circle.innerHTML = i;
+                    if(line) line.style.width = "0%";
+                    if(text) { text.classList.remove('text-gray-500'); text.classList.add('text-white'); }
+                } else {
+                    circle.className = "w-10 h-10 rounded-full flex items-center justify-center bg-[#111] text-gray-500 font-bold font-mono text-sm border-2 border-[#222] step-circle";
+                    circle.innerHTML = i;
+                    if(line) line.style.width = "0%";
+                    if(text) { text.classList.remove('text-white'); text.classList.add('text-gray-500'); }
+                }
+            }
+            lucide.createIcons();
+        }
+
+        function selectPayment(method, el) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('.payment-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            el.classList.add('selected');
+            
+            document.getElementById('qrMethodName').innerText = method;
+            const qrImg = document.getElementById('qrImageDisplay'); 
+            const qrContainer = document.getElementById('qrBoxContainer');
+            
+            if (method === 'KBZPay') { 
+                qrImg.src = '../imgs/web-qrs/kbz-qr.jpg';
+                qrContainer.className = 'w-40 h-40 bg-white rounded-xl flex items-center justify-center mb-4 mt-2 shadow-md border-4 border-[#0057B7] overflow-hidden'; 
+            } else { 
+                qrImg.src = '../imgs/web-qrs/uab-qr.jpg';
+                qrContainer.className = 'w-40 h-40 bg-white rounded-xl flex items-center justify-center mb-4 mt-2 shadow-md border-4 border-purple-600 overflow-hidden'; 
+            }
+        }
+
+        function handleFileSelect(e) { if (e.target.files.length) processFile(e.target.files[0]); }
+
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) { showErrorToast('Please upload an image file.'); return; }
+            if (file.size > 10 * 1024 * 1024) { showErrorToast('Image must be under 10MB.'); return; }
+            proofFile = file; 
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('proofPreview'); 
+                preview.src = e.target.result; 
+                preview.classList.remove('hidden');
+                setTimeout(() => preview.classList.remove('opacity-0'), 10);
+                document.getElementById('uploadContent').classList.add('opacity-0'); 
+                document.getElementById('removeProofBtn').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeProof(e) {
+            e.stopPropagation(); 
+            proofFile = null; 
+            document.getElementById('proofInput').value = '';
+            document.getElementById('proofPreview').classList.add('opacity-0'); 
+            setTimeout(() => document.getElementById('proofPreview').classList.add('hidden'), 300);
+            document.getElementById('uploadContent').classList.remove('opacity-0'); 
+            document.getElementById('removeProofBtn').classList.add('hidden');
+        }
+
+        async function submitOrder() {
+            const transId = document.getElementById('transId').value.trim();
+            if(!transId) { showErrorToast("Transaction ID is required."); return; }
+            if(!proofFile) { showErrorToast("Payment screenshot is required."); return; }
+
+            const btn = document.getElementById('btnSubmitOrder');
             btn.disabled = true;
             const originalText = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing...`;
@@ -1218,18 +1005,26 @@
                     notes: document.getElementById('b_notes').value.trim()
                 };
 
-                const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+                // Upload Proof to Supabase Storage
+                const fileExt = proofFile.name.split('.').pop(); 
+                const filePath = `${currentUser.id}/${Date.now()}_cart_proof.${fileExt}`;
+                const { error: uploadError } = await supabaseInstance.storage.from('payment-proofs').upload(filePath, proofFile);
+                if (uploadError) throw uploadError;
+                
+                const { data: urlData } = supabaseInstance.storage.from('payment-proofs').getPublicUrl(filePath); 
+                const proofUrl = urlData.publicUrl;
 
                 const payload = {
                     user_id: currentUser.id,
                     items: checkoutItems.map(i => ({ id: i.id, type: i.type, name: i.name, slug: i.slug, price: i.active_price })),
                     total_amount: orderTotal,
-                    payment_method: paymentMethod,
+                    payment_method: selectedPaymentMethod,
+                    transaction_id: transId,
+                    payment_proof_url: proofUrl,
                     customer_info: customerInfo
                 };
 
                 const { error } = await supabaseInstance.from('orders').insert([payload]);
-                
                 if (error) throw error;
 
                 if (isFromCart) {
@@ -1238,13 +1033,11 @@
                     updateWishlistCount();
                 }
 
-                const modal = document.getElementById('successModal');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.querySelector('div').classList.remove('scale-95');
-                }, 10);
+                // Show Success Area
+                document.getElementById('wizardContainer').classList.add('hidden');
+                document.querySelector('.lg\\:col-span-4').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (err) {
                 console.error("Order processing failed:", err);
@@ -1254,11 +1047,7 @@
             }
         }
 
-        // Setup default radio highlight on load
-        document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-            if (radio.checked) handlePaymentChange(radio);
-        });
-
+        // Shared Navigation logic
         function renderLanguage() {
             document.documentElement.lang = currentLang; 
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1306,7 +1095,7 @@
                 const userRole = (currentUser.role || 'client').toLowerCase();
                 const badgeSrc = roleBadgesDict[userRole];
                 const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
-                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" alt="${userRole} verified" title="Verified ${userRole}" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
+                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" alt="${userRole} verified" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
                 const dashConfig = dashboardConfigs[userRole] || dashboardConfigs['client'];
                 const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 text-white"></i>`;
                 const mobileAvatarHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-white/10 shadow-sm">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-accent"></i>`;
@@ -1446,27 +1235,16 @@
                     ]);
                     templates = tplRes.data || [];
                     services = srvRes.data || [];
-                } catch (e) {
-                    console.error("Failed to fetch saved item slugs", e);
-                }
+                } catch (e) { console.error("Failed to fetch saved item slugs", e); }
             }
 
             const html = currentUserCart.map(item => {
                 const priceText = item.price === 0 ? 'Custom Price' : `${item.price.toLocaleString()} MMK`;
-                
-                let itemUrl = '#';
-                let badge = '';
-                
+                let itemUrl = '#'; let badge = '';
                 const tplMatch = templates.find(t => t.id === item.id);
                 const srvMatch = services.find(s => s.id === item.id);
-                
-                if (tplMatch && tplMatch.slug) {
-                    itemUrl = `../template-detail/?slug=${tplMatch.slug}`;
-                    badge = 'Template';
-                } else if (srvMatch && srvMatch.slug) {
-                    itemUrl = `../service-detail/?slug=${srvMatch.slug}`;
-                    badge = 'Service';
-                }
+                if (tplMatch && tplMatch.slug) { itemUrl = `../template-detail/?slug=${tplMatch.slug}`; badge = 'Template'; } 
+                else if (srvMatch && srvMatch.slug) { itemUrl = `../service-detail/?slug=${srvMatch.slug}`; badge = 'Service'; }
 
                 return `
                 <div class="flex flex-col p-5 bg-[#111] border border-white/10 rounded-2xl shadow-sm hover:border-myancode-accent/30 transition-all gap-4 group">
@@ -1495,38 +1273,26 @@
         function openRemoveAllConfirm() {
             const modal = document.getElementById('removeAllConfirmModal');
             const content = modal.querySelector('div');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
             void modal.offsetWidth;
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
+            modal.classList.remove('opacity-0'); content.classList.remove('scale-95');
         }
 
         function closeRemoveAllConfirm() {
             const modal = document.getElementById('removeAllConfirmModal');
             const content = modal.querySelector('div');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
         async function confirmRemoveAll() {
-            currentUserCart = [];
-            await syncWishlistToSupabase();
-            updateWishlistCount();
-            renderWishlistItems();
-            closeRemoveAllConfirm();
-            showToast(currentLang === 'en' ? "All saved items removed successfully." : "သိမ်းဆည်းထားသော အရာအားလုံးကို ဖယ်ရှားပြီးပါပြီ။");
+            currentUserCart = []; await syncWishlistToSupabase(); updateWishlistCount(); renderWishlistItems();
+            closeRemoveAllConfirm(); showToast(currentLang === 'en' ? "All saved items removed successfully." : "သိမ်းဆည်းထားသော အရာအားလုံးကို ဖယ်ရှားပြီးပါပြီ။");
         }
 
         document.addEventListener('keydown', (e) => {
             const removeModal = document.getElementById('removeAllConfirmModal');
-            if (e.key === 'Escape' && removeModal && !removeModal.classList.contains('hidden')) {
-                closeRemoveAllConfirm();
-            }
+            if (e.key === 'Escape' && removeModal && !removeModal.classList.contains('hidden')) { closeRemoveAllConfirm(); }
         });
 
         function toggleMobileMenu() {
@@ -1590,29 +1356,12 @@
             updateHeaderTheme('dark', isScrolled); 
         });
 
-        let searchDataCache = null;
-        let searchDataPromise = null;
-        let searchVocabulary = [];
-        let activeSearchResultIndex = -1;
-        let searchOverlayPrimePromise = null;
-        let searchOverlayOpening = false;
+        let searchDataCache = null; let searchDataPromise = null; let searchVocabulary = []; let activeSearchResultIndex = -1; let searchOverlayPrimePromise = null; let searchOverlayOpening = false;
 
-        function escapeSearchHTML(value) {
-            return String(value || '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
-        }
-
-        function normalizeSearchText(value) {
-            return String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9\u1000-\u109f]+/g, ' ').trim();
-        }
-
-        function tokenizeSearchText(value) {
-            return normalizeSearchText(value).split(/\s+/).filter(token => token.length > 1);
-        }
-
-        function safeSearchUrl(url) {
-            const value = String(url || '').trim();
-            return /^(https?:\/\/|\/|\.\.\/|\.\/|#)/.test(value) ? value : '#';
-        }
+        function escapeSearchHTML(value) { return String(value || '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]); }
+        function normalizeSearchText(value) { return String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9\u1000-\u109f]+/g, ' ').trim(); }
+        function tokenizeSearchText(value) { return normalizeSearchText(value).split(/\s+/).filter(token => token.length > 1); }
+        function safeSearchUrl(url) { const value = String(url || '').trim(); return /^(https?:\/\/|\/|\.\.\/|\.\/|#)/.test(value) ? value : '#'; }
 
         function createSearchItem(item) {
             const titleSearch = normalizeSearchText(`${item.name || ''} ${item.mm || ''}`);
@@ -1663,9 +1412,7 @@
                         const services = servicesResult.status === 'fulfilled' ? servicesResult.value.data || [] : [];
                         dbItems.push(...templates.map(item => ({ type: 'Templates', name: item.template_name, mm: item.template_name_mm || item.template_name, desc_en: item.short_description || 'Premium website template.', desc_mm: item.short_description_mm || item.short_description || 'အဆင့်မြင့် ဝက်ဘ်ဆိုက်ဒီဇိုင်းပုံစံ။', keywords: `${item.category || ''} ${item.slug || ''} template website`, url: `../template-detail/?slug=${item.slug || item.id}`, icon: 'layout-template', image: item.thumbnail_url || item.cover_url || '' })));
                         dbItems.push(...services.map(item => ({ type: 'Services', name: item.service_name, mm: item.service_name_mm || item.service_name, desc_en: item.short_description || item.description || 'Professional digital service offering.', desc_mm: item.short_description_mm || item.short_description || 'ကျွမ်းကျင်သော ဒီဂျစ်တယ် ဝန်ဆောင်မှု။', keywords: `${item.category || ''} ${item.slug || ''} service`, url: `../service-detail/?slug=${item.slug || item.id}`, icon: 'briefcase-business', image: item.thumbnail_url || item.cover_url || '' })));
-                    } catch (error) {
-                        console.error('Search data preparation failed:', error);
-                    }
+                    } catch (error) { console.error('Search data preparation failed:', error); }
                 }
                 searchDataCache = uniqueSearchItems([...getStaticSearchPages(), ...dbItems]);
                 searchVocabulary = [...new Set(searchDataCache.flatMap(item => item.tokens).filter(token => token.length >= 3))];
