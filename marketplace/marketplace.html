@@ -325,28 +325,11 @@
         #mobileActionBar { top: 64px; }
         @media (min-width: 640px) { #mobileActionBar { top: 80px; } }
 
-        body.light-mode-active { background-color: #f8fafc !important; color: #0f172a; }
-        body.light-mode-active main::before { display: none; }
-        
-        body.light-mode-active #mainNav.glass-nav-dark { background: rgba(255, 255, 255, 0.9) !important; border-bottom: 1px solid #e2e8f0 !important; }
-        body.light-mode-active #mainNav .text-white, body.light-mode-active #mainNav .text-white\/90, body.light-mode-active #mainNav .nav-icon { color: #0f172a !important; }
-        body.light-mode-active #mainNav img[alt="MyanCode"] { filter: brightness(0); }
-        
-        body.light-mode-active footer { background-color: #ffffff !important; border-top: 1px solid #e2e8f0; }
-        body.light-mode-active footer .bg-black\/30, body.light-mode-active footer .bg-gradient-to-t { display: none; }
-        body.light-mode-active footer img.w-full.h-full.object-cover { opacity: 0.03; }
-        body.light-mode-active footer .text-white { color: #0f172a !important; }
-        body.light-mode-active footer .text-gray-400 { color: #475569 !important; }
-        body.light-mode-active footer .border-white\/10, body.light-mode-active footer .border-white\/20 { border-color: #e2e8f0 !important; }
-        body.light-mode-active footer img[alt="MyanCode"] { filter: brightness(0); }
-        
-        body.light-mode-active #mobileDrawer { background-color: #ffffff !important; color: #0f172a !important; border-right-color: #e2e8f0 !important; }
-        body.light-mode-active #mobileDrawer .text-white { color: #0f172a !important; }
-        body.light-mode-active #mobileDrawer .text-gray-300, body.light-mode-active #mobileDrawer .text-gray-500 { color: #475569 !important; }
-        body.light-mode-active #mobileDrawer .border-white\/10 { border-color: #e2e8f0 !important; }
-        body.light-mode-active #mobileDrawer .bg-white\/5 { background-color: #f1f5f9 !important; }
-        body.light-mode-active #mobileDrawer img[alt="MyanCode"] { filter: brightness(0); }
-
+        body.light-mode-active main::before {
+            content: ''; position: absolute; top: 80px; left: 0; right: 0; bottom: 0;
+            background-color: #f8fafc; z-index: 0; border-top: 1px solid #e2e8f0;
+        }
+        @media (max-width: 639px) { body.light-mode-active main::before { top: 64px; } }
         body.light-mode-active .ambient-glow { display: none; }
         body.light-mode-active main > div { z-index: 10; position: relative; }
         
@@ -3693,25 +3676,35 @@
         async function loadCommentsForModalSilently(postId) {
             if (!supabaseInstance) return;
             try {
-                const { data, error } = await supabaseInstance.from('marketplace_comments').select('*, marketplace_comment_likes(user_id)').eq('post_id', postId).order('created_at', { ascending: true }); 
+                const { data, error } = await supabaseInstance.from('marketplace_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true }); 
                 if (error) return;
                 
+                const commentIds = data.map(c => c.id);
+                if (commentIds.length > 0) {
+                    const { data: likes } = await supabaseInstance.from('marketplace_comment_likes').select('comment_id, user_id').in('comment_id', commentIds);
+                    if (likes) data.forEach(c => { c.marketplace_comment_likes = likes.filter(l => l.comment_id === c.id); });
+                }
+
                 window.currentPostComments = data; const treeContainer = document.getElementById(`modal-comments-tree-${postId}`);
                 if (treeContainer) { if (data.length === 0) treeContainer.innerHTML = `<p class="text-sm text-gray-500 text-center py-10">No comments yet.</p>`; else { treeContainer.innerHTML = renderCommentTree(window.currentPostComments, postId); if (typeof lucide !== 'undefined') lucide.createIcons(); } }
             } catch (e) { console.error(e); }
         }
         
-        async function loadCommentsForFeed(postId, silent = false) {
-            const treeEl = document.getElementById(`inline-comments-tree-${postId}`);
-            if (!silent) treeEl.innerHTML = `<div class="py-4 text-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin text-gray-500 mx-auto"></i></div>`;
+        async function loadCommentsForFeedSilently(postId) {
+            if (!supabaseInstance) return;
             try {
-                const { data, error } = await supabaseInstance.from('marketplace_comments').select('*, marketplace_comment_likes(user_id)').eq('post_id', postId).order('created_at', { ascending: true }); 
-                if (error) throw error;
-                
-                window.inlineCommentsCache[postId] = data;
-                if (data.length === 0) { treeEl.innerHTML = `<p class="text-xs text-gray-500 text-center py-2 uppercase font-bold tracking-widest">No comments yet.</p>`; return; }
-                treeEl.innerHTML = renderCommentTree(window.inlineCommentsCache[postId], postId, true); if (typeof lucide !== 'undefined') lucide.createIcons();
-            } catch (e) { console.error(e); treeEl.innerHTML = `<p class="text-xs text-red-400 text-center">Failed to load comments.</p>`; }
+                const { data, error } = await supabaseInstance.from('marketplace_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true }); 
+                if (error) return;
+
+                const commentIds = data.map(c => c.id);
+                if (commentIds.length > 0) {
+                    const { data: likes } = await supabaseInstance.from('marketplace_comment_likes').select('comment_id, user_id').in('comment_id', commentIds);
+                    if (likes) data.forEach(c => { c.marketplace_comment_likes = likes.filter(l => l.comment_id === c.id); });
+                }
+
+                window.inlineCommentsCache[postId] = data; const treeContainer = document.getElementById(`inline-comments-tree-${postId}`);
+                if (treeContainer) { if (data.length === 0) treeContainer.innerHTML = `<p class="text-xs text-gray-500 text-center py-2">No comments yet.</p>`; else { treeContainer.innerHTML = renderCommentTree(window.inlineCommentsCache[postId], postId, true); if (typeof lucide !== 'undefined') lucide.createIcons(); } }
+            } catch (e) { console.error(e); }
         }
 
         function renderInitialSkeletons() {
@@ -4608,9 +4601,15 @@
         async function loadCommentsForModal(postId) {
             const tree = document.getElementById(`modal-comments-tree-${postId}`); tree.innerHTML = `<div class="py-10 text-center"><i data-lucide="loader-2" class="w-6 h-6 animate-spin text-gray-500 mx-auto"></i></div>`;
             try {
-                const { data, error } = await supabaseInstance.from('marketplace_comments').select('*, marketplace_comment_likes(user_id)').eq('post_id', postId).order('created_at', { ascending: true }); 
+                const { data, error } = await supabaseInstance.from('marketplace_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true }); 
                 if (error) throw error; 
                 
+                const commentIds = data.map(c => c.id);
+                if (commentIds.length > 0) {
+                    const { data: likes } = await supabaseInstance.from('marketplace_comment_likes').select('comment_id, user_id').in('comment_id', commentIds);
+                    if (likes) data.forEach(c => { c.marketplace_comment_likes = likes.filter(l => l.comment_id === c.id); });
+                }
+
                 window.currentPostComments = data;
                 if (data.length === 0) { tree.innerHTML = `<p class="text-xs text-gray-500 text-center py-10 uppercase font-bold tracking-widest">No comments yet.</p>`; return; }
                 tree.innerHTML = renderCommentTree(window.currentPostComments, postId, false); if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -4695,8 +4694,8 @@
             input.value = ''; clearReplyTarget(postId, isInline); 
             
             try { 
-                const { data, error } = await supabaseInstance.from('marketplace_comments').insert([{ post_id: postId, user_id: currentUser.id, author_name: currentUser.name, author_avatar: currentUser.avatar_url, author_role: currentUser.role, content: content, parent_id: savedParentId }]).select('*, marketplace_comment_likes(user_id)').single(); if (error) throw error; 
-                if (isModal && window.currentPostComments) { const idx = window.currentPostComments.findIndex(c => c.id === tempId); if (idx > -1) window.currentPostComments[idx] = data; document.getElementById(`modal-comments-tree-${postId}`).innerHTML = renderCommentTree(window.currentPostComments, postId, false); if (typeof lucide !== 'undefined') lucide.createIcons(); }
+                const { data, error } = await supabaseInstance.from('marketplace_comments').insert([{ post_id: postId, user_id: currentUser.id, author_name: currentUser.name, author_avatar: currentUser.avatar_url, author_role: currentUser.role, content: content, parent_id: savedParentId }]).select('*').single(); if (error) throw error; 
+                if (isModal && window.currentPostComments) { const idx = window.currentPostComments.findIndex(c => c.id === tempId); if (idx > -1) window.currentPostComments[idx] = data; document.getElementById(`modal-comments-tree-${postId}`).innerHTML = renderCommentTree(window.currentPostComments, postId, false); if (typeof lucide !== 'undefined') lucide.createIcons(); } 
                 else if (isInline && window.inlineCommentsCache[postId]) { const idx = window.inlineCommentsCache[postId].findIndex(c => c.id === tempId); if (idx > -1) window.inlineCommentsCache[postId][idx] = data; const treeContainer = document.getElementById(`inline-comments-tree-${postId}`); if(treeContainer) { treeContainer.innerHTML = renderCommentTree(window.inlineCommentsCache[postId], postId, true); if (typeof lucide !== 'undefined') lucide.createIcons(); } }
             }
             catch (e) { 
