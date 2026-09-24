@@ -403,6 +403,24 @@
         body.light-mode-active .dark-icon { display: block !important; }
         body.light-mode-active .light-icon { display: none !important; }
         body.light-mode-active .theme-switcher-btn { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05) !important; }
+
+        body.light-mode-active #mobileActionBar { background-color: rgba(255, 255, 255, 0.95) !important; border-bottom-color: #e2e8f0 !important; }
+        body.light-mode-active #mobileActionBar input { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
+        body.light-mode-active #mobileActionBar input::placeholder { color: #94a3b8 !important; }
+        body.light-mode-active #mobileActionBar button:not(.bg-myancode-accent) { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #475569 !important; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); }
+        body.light-mode-active #mobileActionBar button:not(.bg-myancode-accent):hover { color: #0f172a !important; background-color: #e2e8f0 !important; }
+        body.light-mode-active #mobileSearchSuggestions { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+        
+        body.light-mode-active #hubMobileDrawer,
+        body.light-mode-active #trendMobileDrawer { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+        body.light-mode-active #hubMobileDrawer .bg-white\/20,
+        body.light-mode-active #trendMobileDrawer .bg-white\/20 { background-color: #cbd5e1 !important; }
+        body.light-mode-active #hubMobileDrawer .text-gray-500,
+        body.light-mode-active #trendMobileDrawer .text-gray-500 { color: #64748b !important; }
+        body.light-mode-active #hubMobileDrawer .text-gray-400,
+        body.light-mode-active #trendMobileDrawer .text-gray-400 { color: #475569 !important; }
+        body.light-mode-active #hubMobileDrawer .text-gray-200,
+        body.light-mode-active #trendMobileDrawer .text-gray-200 { color: #1e293b !important; }
         
         body.light-mode-active .modal-base { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
         body.light-mode-active .modal-base .text-white { color: #0f172a !important; }
@@ -989,61 +1007,69 @@
         </div>
     </div>
 
-    <div id="bottomDrawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity" onclick="toggleBottomDrawer()"></div>
-    <div id="bottomDrawer" class="fixed bottom-0 left-0 right-0 sidebar-panel z-[90] rounded-b-none transform translate-y-full transition-transform duration-300 flex flex-col max-h-[85vh]">
-        <div class="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing" id="drawerDragHandle">
+    <div id="bottomDrawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity lg:hidden" onclick="closeAllBottomDrawers()"></div>
+
+    <div id="hubMobileDrawer" class="mobile-bottom-drawer fixed bottom-0 left-0 right-0 sidebar-panel z-[90] rounded-b-none transform translate-y-full transition-transform duration-300 flex flex-col max-h-[85vh] lg:hidden">
+        <div class="drawerDragHandle w-full flex justify-center py-4 cursor-grab active:cursor-grabbing">
             <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
         </div>
+        
         <div class="overflow-y-auto p-6 pt-2 space-y-8 no-scrollbar flex-1">
-            
             <div>
-                <div>
-                    <nav class="space-y-1 flex flex-col">
-                        <button onclick="filterFeed('all'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium nav-item-modern mob-mp-nav-btn active" id="mob-nav-all">
-                            <i data-lucide="layout-grid" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpFeed">Live Feed</span>
-                        </button>
-                        <button onclick="filterFeed('saved'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern mob-mp-nav-btn" id="mob-nav-saved">
-                            <i data-lucide="bookmark" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpSaved">Saved Posts</span>
-                        </button>
-                        <button onclick="filterFeed('mine'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern mob-mp-nav-btn" id="mob-nav-mine">
-                            <i data-lucide="user" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpMyPosts">My Posts</span>
-                        </button>
-                        <button onclick="filterFeed('snippets'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern mob-mp-nav-btn" id="mob-nav-snippets">
-                            <i data-lucide="code" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpSnippets">Code Snippets</span>
-                        </button>
-                        <button onclick="filterFeed('qa'); toggleBottomDrawer();" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern mob-mp-nav-btn" id="mob-nav-qa">
-                            <i data-lucide="help-circle" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpQA">Q&A / Help</span>
-                        </button>
-                        <a href="../marketplace/rules/" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern">
-                            <i data-lucide="shield-check" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpRules">Community Rules</span>
-                        </a>
-                    </nav>
-                </div>
-            </div>
-            
-            <div class="pt-6 border-t border-white/10">
-                <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-5 flex items-center gap-2"><i data-lucide="menu" class="w-3.5 h-3.5 text-myancode-accent"></i> Tools & Settings</h3>
-                <nav class="space-y-3 flex flex-col">
-                    <button onclick="toggleBottomDrawer(); openHashtagGen();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-violet-500/10 to-transparent border border-violet-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(139,92,246,0.1)] group">
-                        <div class="flex items-center gap-3"><div class="p-2 bg-violet-500/20 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-4 h-4 text-violet-400"></i></div> <span>Hashtag Generator</span></div>
-                        <span class="text-[9px] font-bold bg-violet-500 text-white px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">Social</span>
+                <h3 class="text-[11px] font-bold font-mono text-gray-400 uppercase tracking-widest mb-4" data-i18n="mpMenu">Community Hub</h3>
+                <nav class="space-y-1 flex flex-col">
+                    <button onclick="filterFeed('all'); closeAllBottomDrawers();" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium nav-item-modern mob-mp-nav-btn active" id="mob-nav-all">
+                        <i data-lucide="layout-grid" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpFeed">Live Feed</span>
                     </button>
-                    <button onclick="toggleBottomDrawer(); openBioCard();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(16,185,129,0.1)] group">
-                        <div class="flex items-center gap-3"><div class="p-2 bg-emerald-500/20 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div> <span>Bio Link & Share Card</span></div>
-                        <span class="text-[9px] font-bold bg-emerald-500 text-white px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">Social</span>
+                    <button onclick="filterFeed('saved'); closeAllBottomDrawers();" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern mob-mp-nav-btn" id="mob-nav-saved">
+                        <i data-lucide="bookmark" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpSaved">Saved Posts</span>
                     </button>
-                    <button onclick="toggleBottomDrawer(); filterFeed('mine')" class="w-full flex items-center gap-3 px-5 py-3.5 modern-btn-secondary text-[13px] font-semibold transition-all rounded-2xl mt-2">
-                        <i data-lucide="edit-3" class="w-4.5 h-4.5"></i> <span>Edit My Posts</span>
+                    <button onclick="filterFeed('mine'); closeAllBottomDrawers();" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern mob-mp-nav-btn" id="mob-nav-mine">
+                        <i data-lucide="user" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpMyPosts">My Posts</span>
                     </button>
-                    <button onclick="toggleTheme()" class="w-full flex items-center gap-3 px-5 py-3.5 modern-btn-secondary text-[13px] font-semibold transition-all rounded-2xl theme-switcher-btn">
-                        <i data-lucide="sun" class="w-4.5 h-4.5 hidden dark-icon text-orange-400"></i>
-                        <i data-lucide="moon" class="w-4.5 h-4.5 light-icon text-blue-400"></i>
-                        <span class="theme-text">Light Mode</span>
+                    <button onclick="filterFeed('snippets'); closeAllBottomDrawers();" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern mob-mp-nav-btn" id="mob-nav-snippets">
+                        <i data-lucide="code" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpSnippets">Code Snippets</span>
                     </button>
+                    <button onclick="filterFeed('qa'); closeAllBottomDrawers();" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern mob-mp-nav-btn" id="mob-nav-qa">
+                        <i data-lucide="help-circle" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpQA">Q&A / Help</span>
+                    </button>
+                    <a href="../marketplace/rules/" class="w-full flex items-center gap-3 px-4 py-3 text-gray-400 text-sm font-medium nav-item-modern">
+                        <i data-lucide="shield-check" class="w-4 h-4 transition-colors"></i> <span data-i18n="mpRules">Community Rules</span>
+                    </a>
                 </nav>
             </div>
 
             <div class="pt-6 border-t border-white/10">
+                <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-5 flex items-center gap-2"><i data-lucide="menu" class="w-3.5 h-3.5 text-myancode-accent"></i> Tools & Settings</h3>
+                <nav class="space-y-3 flex flex-col">
+                    <button onclick="closeAllBottomDrawers(); openHashtagGen();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-[#1c1a29] to-[#12101a] border border-violet-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all group">
+                        <div class="flex items-center gap-3"><div class="p-2 bg-violet-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-4 h-4 text-violet-400"></i></div> <span>Hashtag Generator</span></div>
+                        <span class="text-[9px] font-bold bg-violet-600/20 text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Social</span>
+                    </button>
+                    <button onclick="closeAllBottomDrawers(); openBioCard();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-[#1a291e] to-[#0f1a12] border border-emerald-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all group">
+                        <div class="flex items-center gap-3"><div class="p-2 bg-emerald-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div> <span>Bio Link & Share Card</span></div>
+                        <span class="text-[9px] font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Social</span>
+                    </button>
+                    <button onclick="closeAllBottomDrawers(); filterFeed('mine');" class="w-full flex items-center gap-3 px-5 py-3.5 bg-white/5 border border-white/5 text-[13px] font-semibold transition-all rounded-xl mt-2 text-gray-300">
+                        <i data-lucide="edit-3" class="w-4 h-4 text-gray-400"></i> <span>Edit My Posts</span>
+                    </button>
+                    <button onclick="toggleTheme()" class="w-full flex items-center gap-3 px-5 py-3.5 bg-white/5 border border-white/5 text-[13px] font-semibold transition-all rounded-xl theme-switcher-btn text-gray-300">
+                        <i data-lucide="sun" class="w-4 h-4 hidden dark-icon text-orange-400"></i>
+                        <i data-lucide="moon" class="w-4 h-4 light-icon text-blue-400"></i>
+                        <span class="theme-text">Light Mode</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div id="trendMobileDrawer" class="mobile-bottom-drawer fixed bottom-0 left-0 right-0 sidebar-panel z-[90] rounded-b-none transform translate-y-full transition-transform duration-300 flex flex-col max-h-[85vh] lg:hidden">
+        <div class="drawerDragHandle w-full flex justify-center py-4 cursor-grab active:cursor-grabbing">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+        </div>
+        
+        <div class="overflow-y-auto p-6 pt-2 space-y-8 no-scrollbar flex-1">
+            <div>
                 <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-5">Trending Tags</h3>
                 <div class="flex flex-wrap gap-2" id="mobTrendingTagsContainer"></div>
             </div>
@@ -1059,6 +1085,32 @@
     </div>
 
     <main class="flex-grow pt-24 sm:pt-28 pb-24 w-full relative z-10 text-white min-h-screen">
+        
+        <div id="mobileActionBar" class="fixed top-[64px] sm:top-[80px] left-0 right-0 z-[55] bg-[#050505]/95 backdrop-blur-md border-b border-white/10 p-3 lg:hidden flex items-center gap-3 transition-transform duration-300">
+            
+            <button onclick="scrollToComposer()" class="flex items-center justify-center w-10 h-10 rounded-full bg-myancode-accent text-white hover:bg-blue-600 transition-colors flex-shrink-0 shadow-[0_0_15px_rgba(41,151,255,0.3)]">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+                </div>
+                <input type="text" id="mobileSearchInput" onkeyup="handleLocalSearch(event)" placeholder="Search posts, tags..." class="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-[13px] text-white placeholder-gray-500 focus:outline-none focus:border-myancode-accent transition-colors" autocomplete="off">
+                
+                <div id="mobileSearchSuggestions" class="absolute top-full left-0 right-0 mt-2 bg-[#181a20]/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] hidden max-h-60 overflow-y-auto no-scrollbar z-50"></div>
+            </div>
+
+            <button onclick="toggleBottomDrawer('trendMobileDrawer')" class="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                <i data-lucide="trending-up" class="w-5 h-5"></i>
+            </button>
+
+            <button onclick="toggleBottomDrawer('hubMobileDrawer')" class="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+            
+        </div>
+
         <div class="layout-width relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
             
             <div class="hidden lg:block lg:col-span-3">
@@ -2441,7 +2493,6 @@
                 pres.forEach(p => {
                     p.setAttribute('data-language', 'CODE');
                 });
-                // Ensure a line break exists after the code block to prevent cursor lock
                 if (editor.lastElementChild && editor.lastElementChild.tagName === 'PRE') {
                     const div = document.createElement('div');
                     div.innerHTML = '<br>';
@@ -2464,7 +2515,6 @@
             const editor = document.getElementById('postEditor');
             if(editor) {
                 editor.addEventListener('input', function() {
-                    // Force a new line at the bottom if trapped by a PRE block
                     if (this.lastElementChild && this.lastElementChild.tagName === 'PRE') {
                         const div = document.createElement('div');
                         div.innerHTML = '<br>';
@@ -2522,43 +2572,57 @@
         }
 
         function setupBottomDrawerDrag() {
-            let drawerStartY = 0; let currentDrawerY = 0;
-            const bDrawer = document.getElementById('bottomDrawer');
-            const dHandle = document.getElementById('drawerDragHandle');
-            if(dHandle && bDrawer) {
-                dHandle.addEventListener('touchstart', e => { drawerStartY = e.touches[0].clientY; bDrawer.style.transition = 'none'; }, {passive: true});
-                dHandle.addEventListener('touchmove', e => {
-                    const deltaY = e.touches[0].clientY - drawerStartY;
-                    if (deltaY > 0) { currentDrawerY = deltaY; bDrawer.style.transform = `translateY(${deltaY}px)`; }
-                }, {passive: true});
-                dHandle.addEventListener('touchend', e => {
-                    bDrawer.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                    if (currentDrawerY > 100) { 
-                        toggleBottomDrawer(); 
-                    } else { 
-                        bDrawer.style.transform = 'translateY(0)'; 
-                    }
-                    currentDrawerY = 0;
-                    setTimeout(() => { bDrawer.style.transform = ''; }, 300);
-                });
-            }
+            const drawers = ['hubMobileDrawer', 'trendMobileDrawer'];
+            drawers.forEach(id => {
+                let drawerStartY = 0; let currentDrawerY = 0;
+                const bDrawer = document.getElementById(id);
+                const dHandle = bDrawer?.querySelector('.drawerDragHandle');
+                if(dHandle && bDrawer) {
+                    dHandle.addEventListener('touchstart', e => { drawerStartY = e.touches[0].clientY; bDrawer.style.transition = 'none'; }, {passive: true});
+                    dHandle.addEventListener('touchmove', e => {
+                        const deltaY = e.touches[0].clientY - drawerStartY;
+                        if (deltaY > 0) { currentDrawerY = deltaY; bDrawer.style.transform = `translateY(${deltaY}px)`; }
+                    }, {passive: true});
+                    dHandle.addEventListener('touchend', e => {
+                        bDrawer.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                        if (currentDrawerY > 100) { 
+                            closeAllBottomDrawers(); 
+                        } else { 
+                            bDrawer.style.transform = 'translateY(0)'; 
+                        }
+                        currentDrawerY = 0;
+                        setTimeout(() => { bDrawer.style.transform = ''; }, 300);
+                    });
+                }
+            });
         }
         
-        function toggleBottomDrawer() {
-            const drawer = document.getElementById('bottomDrawer'); const overlay = document.getElementById('bottomDrawerOverlay');
+        function toggleBottomDrawer(drawerId) {
+            const overlay = document.getElementById('bottomDrawerOverlay');
+            const drawer = document.getElementById(drawerId);
+            if (!drawer) return;
             const isOpen = !drawer.classList.contains('translate-y-full') && drawer.style.transform !== '';
             
             if (isOpen || !drawer.classList.contains('translate-y-full')) {
-                drawer.classList.add('translate-y-full');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => { overlay.classList.add('hidden'); document.body.classList.remove('no-scroll'); }, 300);
-                drawer.style.transform = ''; 
+                closeAllBottomDrawers();
             } else {
+                document.querySelectorAll('.mobile-bottom-drawer').forEach(d => d.classList.add('translate-y-full'));
+                
                 overlay.classList.remove('hidden');
                 document.body.classList.add('no-scroll');
                 void overlay.offsetWidth;
                 setTimeout(() => { overlay.classList.remove('opacity-0'); drawer.classList.remove('translate-y-full'); }, 10);
             }
+        }
+
+        function closeAllBottomDrawers() {
+            const overlay = document.getElementById('bottomDrawerOverlay');
+            document.querySelectorAll('.mobile-bottom-drawer').forEach(d => {
+                d.classList.add('translate-y-full');
+                d.style.transform = ''; 
+            });
+            overlay.classList.add('opacity-0');
+            setTimeout(() => { overlay.classList.add('hidden'); document.body.classList.remove('no-scroll'); }, 300);
         }
 
         function renderLanguage() {
@@ -2921,14 +2985,23 @@
             
             const mobileActionBar = document.getElementById('mobileActionBar');
             if (mobileActionBar) {
-                if (currentScrollY > window.lastScrollY && currentScrollY > 150) {
-                    mobileActionBar.classList.add('-translate-y-[150%]');
-                } else {
+                const delta = currentScrollY - (window.lastScrollY || 0);
+                if (currentScrollY < 100) {
                     mobileActionBar.classList.remove('-translate-y-[150%]');
+                    window.scrollUpAmount = 0;
+                } else if (delta > 0 && currentScrollY > 150) {
+                    mobileActionBar.classList.add('-translate-y-[150%]');
+                    window.scrollUpAmount = 0;
+                } else if (delta < 0) {
+                    window.scrollUpAmount = (window.scrollUpAmount || 0) + Math.abs(delta);
+                    if (delta < -15 || window.scrollUpAmount > 50) {
+                        mobileActionBar.classList.remove('-translate-y-[150%]');
+                        window.scrollUpAmount = 0;
+                    }
                 }
             }
             window.lastScrollY = currentScrollY;
-        });
+        }, { passive: true });
 
         let searchDataCache = null;
         let searchDataPromise = null;
