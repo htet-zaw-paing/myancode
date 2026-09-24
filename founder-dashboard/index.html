@@ -176,6 +176,11 @@
                 <i data-lucide="briefcase" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabApplications">Developer Applications</span>
             </button>
+
+            <button onclick="switchTab('email')" id="nav-email" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
+                <i data-lucide="mail" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabEmail">Email</span>
+            </button>
             
             <button onclick="switchTab('audit')" id="nav-audit" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="file-clock" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
@@ -485,6 +490,75 @@
                 </div>
             </div>
 
+            <div id="view-email" class="view-section hidden flex-col gap-8 max-w-[1600px] mx-auto w-full">
+                <div class="flex gap-4 border-b border-white/10 pb-4">
+                    <button onclick="toggleEmailSection('compose')" id="btnEmailCompose" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all bg-myancode-accent text-white shadow-[0_0_15px_rgba(41,151,255,0.2)]">Compose Email</button>
+                    <button onclick="toggleEmailSection('history')" id="btnEmailHistory" class="px-6 py-2.5 rounded-xl text-sm font-bold transition-all text-gray-400 hover:text-white hover:bg-white/5">Email History</button>
+                </div>
+
+                <div id="emailComposeSection" class="glass-panel rounded-[2.5rem] p-8 sm:p-12 reveal active max-w-3xl">
+                    <h3 class="text-2xl font-bold tracking-tight text-white mb-8 flex items-center gap-3 border-b border-white/10 pb-6 font-display"><i data-lucide="pen-tool" class="h-7 w-7 text-myancode-accent"></i> <span>Compose Outgoing Email</span></h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Authorized Sender (From)</label>
+                            <select id="emailFromInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-all shadow-inner cursor-pointer appearance-none">
+                                <option value="htetzawpaing@myancode.com">Htet Zaw Paing &lt;htetzawpaing@myancode.com&gt;</option>
+                                <option value="hello@myancode.com">MyanCode &lt;hello@myancode.com&gt;</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Recipient Address (To)</label>
+                            <input type="email" id="emailToInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-all shadow-inner" placeholder="recipient@example.com">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Subject Line</label>
+                            <input type="text" id="emailSubjectInput" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-myancode-accent transition-all shadow-inner" placeholder="Enter subject...">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-3">Message Body (Supports HTML)</label>
+                            <textarea id="emailMessageInput" rows="10" class="w-full px-5 py-4 bg-[#050505] border border-white/10 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-myancode-accent transition-all shadow-inner custom-scroll resize-y" placeholder="Write your email content here..."></textarea>
+                        </div>
+                        
+                        <div class="pt-4 flex flex-col sm:flex-row gap-4">
+                            <button onclick="previewEmail()" class="flex-1 px-8 py-4 bg-white/5 border border-white/20 rounded-full text-xs font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors btn-hover-effect">
+                                Preview Content
+                            </button>
+                            <button onclick="confirmEmailSend()" class="flex-1 px-8 py-4 bg-myancode-accent rounded-full text-xs font-bold uppercase tracking-widest text-white shadow-[0_0_20px_rgba(41,151,255,0.3)] hover:bg-blue-600 transition-colors btn-hover-effect">
+                                Prepare to Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Section -->
+                <div id="emailHistorySection" class="glass-panel rounded-[2rem] overflow-hidden shadow-2xl hidden flex-1 flex flex-col">
+                    <div class="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                        <h3 class="text-lg font-bold font-display tracking-tight text-white flex items-center gap-3"><i data-lucide="history" class="w-5 h-5 text-myancode-accent"></i> Transmission Log</h3>
+                        <button onclick="fetchEmailHistory()" class="text-xs font-mono font-bold tracking-widest uppercase text-gray-400 hover:text-white flex items-center gap-2"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reload</button>
+                    </div>
+                    <div class="overflow-x-auto custom-scroll w-full flex-1">
+                        <table class="w-full text-left text-sm whitespace-nowrap min-w-[800px]">
+                            <thead>
+                                <tr>
+                                    <th class="px-6 py-4 text-[10px] font-bold font-mono uppercase tracking-widest text-gray-500">Date</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold font-mono uppercase tracking-widest text-gray-500">Recipient</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold font-mono uppercase tracking-widest text-gray-500">Sender</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold font-mono uppercase tracking-widest text-gray-500">Subject</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold font-mono uppercase tracking-widest text-gray-500 text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emailHistoryTableBody">
+                                <tr><td colspan="5" class="px-6 py-16 text-center text-gray-500"><i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div id="view-audit" class="view-section hidden flex-col gap-8 max-w-[1600px] mx-auto w-full">
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 reveal active">
                     <!-- Stats Cards -->
@@ -784,6 +858,43 @@
     <div id="confirmModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeConfirmModal()"><div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300 text-center" id="confirmModalContent" onclick="event.stopPropagation()"><div id="confirmModalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10 border border-red-500/20 mb-6"><i data-lucide="alert-triangle" class="h-8 w-8 text-red-500"></i></div><h3 id="confirmModalTitle" class="text-2xl font-bold font-display tracking-tight text-white mb-3">Title</h3><p id="confirmModalMessage" class="text-[13px] font-medium text-gray-400 mb-8 leading-relaxed">Message</p><div class="flex space-x-4 w-full"><button onclick="closeConfirmModal()" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors" id="confirmModalCancelBtn">Cancel</button><button id="confirmModalBtn" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-red-600 hover:bg-red-700 btn-hover-effect">Confirm</button></div></div></div>
     <div id="cropperModal" class="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300" onclick="cancelCrop()"><div class="glass-panel border border-white/10 p-6 sm:p-8 rounded-[2.5rem] w-[95%] max-w-xl shadow-2xl transform scale-95 transition-transform duration-300" id="cropperModalContent" onclick="event.stopPropagation()"><h3 class="text-2xl font-bold font-display tracking-tight mb-6 text-white flex justify-between items-center"><span data-i18n="cropTitle">Crop Photo</span><button onclick="cancelCrop()" class="text-gray-400 hover:text-white transition-colors bg-[#0a0a0a] p-2 rounded-full hover:bg-white/10 border border-white/10"><i data-lucide="x" class="h-5 w-5"></i></button></h3><div class="w-full h-[50vh] sm:h-[450px] bg-[#050505] border border-white/10 rounded-2xl overflow-hidden relative shadow-inner"><img id="imageToCrop" src="" class="max-w-full block"></div><div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-0"><div class="flex space-x-3"><button onclick="if(cropperInstance) cropperInstance.zoom(0.1)" class="p-3 bg-[#0a0a0a] hover:bg-white/10 rounded-xl text-gray-300 transition-colors shadow-sm border border-white/10"><i data-lucide="zoom-in" class="h-5 w-5"></i></button><button onclick="if(cropperInstance) cropperInstance.zoom(-0.1)" class="p-3 bg-[#0a0a0a] hover:bg-white/10 rounded-xl text-gray-300 transition-colors shadow-sm border border-white/10"><i data-lucide="zoom-out" class="h-5 w-5"></i></button></div><div class="flex space-x-4 w-full sm:w-auto"><button onclick="cancelCrop()" class="flex-1 sm:flex-none px-8 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/10 transition-colors" data-i18n="cropCancel">Cancel</button><button onclick="saveCrop()" class="flex-1 sm:flex-none px-10 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-colors btn-hover-effect" data-i18n="cropSave">Save</button></div></div></div></div>
 
+    <!-- Email Preview Modal -->
+    <div id="emailPreviewModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeEmailPreviewModal()">
+        <div class="glass-panel border border-white/10 p-6 sm:p-8 rounded-[2.5rem] w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4 flex-shrink-0">
+                <h3 class="text-xl font-bold font-display tracking-tight text-white flex items-center gap-3">
+                    <i data-lucide="monitor" class="w-6 h-6 text-myancode-accent"></i> Content Preview
+                </h3>
+                <button onclick="closeEmailPreviewModal()" class="text-gray-500 hover:text-white transition-colors bg-[#0a0a0a] p-2 rounded-full border border-white/10">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="bg-white rounded-xl overflow-hidden flex-1 border border-white/20 shadow-inner relative">
+                <iframe id="emailPreviewFrame" sandbox="" class="w-full h-full min-h-[400px] absolute inset-0 bg-white"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Send Confirmation Modal -->
+    <div id="emailConfirmModal" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-xl hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4" onclick="closeEmailConfirmModal()">
+        <div class="glass-panel border border-white/10 p-8 sm:p-12 rounded-[2.5rem] w-[95%] max-w-lg shadow-2xl transform scale-95 transition-transform duration-300 text-center" onclick="event.stopPropagation()">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+                <i data-lucide="send" class="h-8 w-8 text-blue-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold font-display tracking-tight text-white mb-3">Send Email?</h3>
+            <div class="text-[12px] font-medium text-gray-400 mb-8 leading-relaxed space-y-2 text-left bg-[#050505] p-5 rounded-xl border border-white/5 shadow-inner">
+                <p><strong class="text-white">From:</strong> <span id="confirmEmailFrom">...</span></p>
+                <p><strong class="text-white">To:</strong> <span id="confirmEmailTo">...</span></p>
+                <p><strong class="text-white">Subject:</strong> <span id="confirmEmailSubject">...</span></p>
+            </div>
+            <div class="flex space-x-4 w-full">
+                <button onclick="closeEmailConfirmModal()" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/10 transition-colors">Cancel</button>
+                <button id="confirmEmailSendBtn" onclick="submitEmailSend()" class="flex-1 px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-md transition-colors bg-myancode-accent hover:bg-blue-600 btn-hover-effect">Send Email</button>
+            </div>
+        </div>
+    </div>
+
+
     <div id="toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-white/10 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide"><i data-lucide="check-circle-2" class="h-5 w-5 mr-3 text-green-400"></i><span id="toast-msg">Success!</span></div>
     <div id="error-toast" style="z-index: 99999999;" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-6 bg-[#111] border border-red-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 flex items-center justify-center sm:justify-start w-[90%] sm:w-auto text-sm tracking-wide"><i data-lucide="alert-circle" class="h-5 w-5 mr-3 text-red-500"></i><span id="error-toast-msg">Error!</span></div>
 
@@ -796,7 +907,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabUsers: "User Management", tabSettings: "System Settings", tabApplications: "Developer Applications", tabAudit: "System Logs",
+                menuMain: "Main Menu", tabOverview: "Overview", tabUsers: "User Management", tabSettings: "System Settings", tabApplications: "Developer Applications", tabEmail: "Email", tabAudit: "System Logs",
                 btnLogout: "Sign Out",
                 statTotalUsers: "Total Users", statFounders: "Founders", statAdmins: "Admins", statModerators: "Moderators", statPartners: "Partners", statDevelopers: "Developers", statClients: "Clients",
                 systemStatus: "System Architecture Status", systemStatusDesc: "The platform's core infrastructure is operating optimally. Row Level Security, Edge Functions, and database replicas are active and secured.",
@@ -812,7 +923,7 @@
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabUsers: "အသုံးပြုသူများ စီမံရန်", tabSettings: "စနစ် ဆက်တင်များ", tabApplications: "Developer လျှောက်လွှာများ", tabAudit: "စနစ်မှတ်တမ်းများ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabUsers: "အသုံးပြုသူများ စီမံရန်", tabSettings: "စနစ် ဆက်တင်များ", tabApplications: "Developer လျှောက်လွှာများ", tabEmail: "အီးမေးလ်", tabAudit: "စနစ်မှတ်တမ်းများ",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 statTotalUsers: "အသုံးပြုသူ စုစုပေါင်း", statFounders: "တည်ထောင်သူများ", statAdmins: "အက်ဒမင်များ", statModerators: "ထိန်းချုပ်သူများ", statPartners: "ပါတနာများ", statDevelopers: "Developers", statClients: "အသုံးပြုသူများ",
                 systemStatus: "စနစ် အခြေအနေ", systemStatusDesc: "စနစ်များအားလုံး ပုံမှန်အလုပ်လုပ်နေပါသည်။ RLS လုံခြုံရေးစနစ် အသက်ဝင်နေပါသည်။",
@@ -1192,7 +1303,7 @@
             const activeBtn = document.getElementById(`nav-${tabId}`);
             activeBtn.classList.remove('text-gray-400', 'hover:bg-white/5'); activeBtn.classList.add('bg-white/10', 'text-white');
 
-            const titleMap = { 'overview': 'Overview', 'users': 'User Management', 'applications': 'Developer Applications', 'audit': 'System Logs', 'settings': 'System Settings' };
+            const titleMap = { 'overview': 'Overview', 'users': 'User Management', 'applications': 'Developer Applications', 'audit': 'System Logs', 'settings': 'System Settings', 'email': 'Email Management' };
             document.getElementById('headerTitle').innerText = titleMap[tabId] || 'Dashboard';
             
             if (tabId === 'applications' && allApplications.length === 0) fetchApplications();
@@ -1200,8 +1311,184 @@
                 if (allAuditLogs.length === 0) fetchAuditLogs();
                 fetchAuditStats();
             }
+            if (tabId === 'email') {
+                toggleEmailSection('compose'); // reset default view
+            }
             
             if(window.innerWidth < 1024 && sidebarOpen) toggleMobileMenu();
+        }
+
+        // Email Feature Logic
+        function toggleEmailSection(section) {
+            const composeSec = document.getElementById('emailComposeSection');
+            const historySec = document.getElementById('emailHistorySection');
+            const btnCompose = document.getElementById('btnEmailCompose');
+            const btnHistory = document.getElementById('btnEmailHistory');
+
+            if(section === 'compose') {
+                composeSec.classList.remove('hidden');
+                historySec.classList.add('hidden');
+                
+                btnCompose.className = "px-6 py-2.5 rounded-xl text-sm font-bold transition-all bg-myancode-accent text-white shadow-[0_0_15px_rgba(41,151,255,0.2)]";
+                btnHistory.className = "px-6 py-2.5 rounded-xl text-sm font-bold transition-all text-gray-400 hover:text-white hover:bg-white/5";
+            } else {
+                composeSec.classList.add('hidden');
+                historySec.classList.remove('hidden');
+                
+                btnHistory.className = "px-6 py-2.5 rounded-xl text-sm font-bold transition-all bg-myancode-accent text-white shadow-[0_0_15px_rgba(41,151,255,0.2)]";
+                btnCompose.className = "px-6 py-2.5 rounded-xl text-sm font-bold transition-all text-gray-400 hover:text-white hover:bg-white/5";
+                
+                fetchEmailHistory();
+            }
+        }
+
+        function previewEmail() {
+            const htmlContent = document.getElementById('emailMessageInput').value;
+            if(!htmlContent.trim()) {
+                showErrorToast("Message body is empty.");
+                return;
+            }
+            
+            const frame = document.getElementById('emailPreviewFrame');
+            // Using srcdoc inside a sandboxed iframe safely restricts script execution
+            frame.srcdoc = htmlContent;
+            
+            const modal = document.getElementById('emailPreviewModal');
+            const content = modal.querySelector('.glass-panel');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
+            modal.classList.remove('opacity-0'); content.classList.remove('scale-95');
+        }
+
+        function closeEmailPreviewModal() {
+            const modal = document.getElementById('emailPreviewModal');
+            const content = modal.querySelector('.glass-panel');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            document.getElementById('emailPreviewFrame').srcdoc = '';
+        }
+
+        function confirmEmailSend() {
+            const from = document.getElementById('emailFromInput').value;
+            const to = document.getElementById('emailToInput').value.trim();
+            const subject = document.getElementById('emailSubjectInput').value.trim();
+            const message = document.getElementById('emailMessageInput').value.trim();
+
+            if (!to || !subject || !message) {
+                showErrorToast("To, Subject, and Message are all required.");
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!emailRegex.test(to)) {
+                showErrorToast("Please enter a valid recipient email.");
+                return;
+            }
+
+            document.getElementById('confirmEmailFrom').innerText = from;
+            document.getElementById('confirmEmailTo').innerText = to;
+            document.getElementById('confirmEmailSubject').innerText = subject;
+
+            const modal = document.getElementById('emailConfirmModal');
+            const content = modal.querySelector('.glass-panel');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); void modal.offsetWidth;
+            modal.classList.remove('opacity-0'); content.classList.remove('scale-95');
+        }
+
+        function closeEmailConfirmModal() {
+            const modal = document.getElementById('emailConfirmModal');
+            const content = modal.querySelector('.glass-panel');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        async function submitEmailSend() {
+            const fromStr = document.getElementById('emailFromInput').options[document.getElementById('emailFromInput').selectedIndex].text;
+            const fromVal = document.getElementById('emailFromInput').value;
+            const to = document.getElementById('emailToInput').value.trim();
+            const subject = document.getElementById('emailSubjectInput').value.trim();
+            const message = document.getElementById('emailMessageInput').value.trim();
+
+            const btn = document.getElementById('confirmEmailSendBtn');
+            btn.disabled = true;
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin mx-auto text-white"></i>`;
+            lucide.createIcons();
+
+            try {
+                // Ensure edge function verifies user role as well!
+                const { data, error } = await supabaseInstance.functions.invoke('send-email', {
+                    body: { 
+                        from: fromStr, 
+                        to: [to], 
+                        subject: subject, 
+                        html: message,
+                        reply_to: fromVal 
+                    }
+                });
+
+                if (error) throw new Error(error.message);
+                if (data?.error) throw new Error(data.error);
+
+                showToast("Email sent successfully.");
+                
+                // Clear form
+                document.getElementById('emailToInput').value = '';
+                document.getElementById('emailSubjectInput').value = '';
+                document.getElementById('emailMessageInput').value = '';
+                
+            } catch (err) {
+                console.error("Email send error:", err);
+                showErrorToast(err.message || "Email could not be sent.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHTML;
+                closeEmailConfirmModal();
+            }
+        }
+
+        async function fetchEmailHistory() {
+            const tbody = document.getElementById('emailHistoryTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-16 text-center text-gray-500"><i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto"></i></td></tr>';
+            lucide.createIcons();
+            
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('email_messages')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500">No emails found in history.</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.map(email => {
+                    const date = new Date(email.created_at).toLocaleString();
+                    
+                    let statusBadge = '';
+                    if (email.status === 'sent') {
+                        statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Sent</span>';
+                    } else {
+                        statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20">Failed</span>';
+                    }
+                    
+                    return `
+                        <tr class="hover:bg-white/[0.03] transition-colors border-b border-white/5 last:border-0">
+                            <td class="px-6 py-4 text-xs font-mono text-gray-400">${date}</td>
+                            <td class="px-6 py-4 text-sm font-medium text-white truncate max-w-[200px]" title="${email.recipient}">${email.recipient}</td>
+                            <td class="px-6 py-4 text-[11px] font-mono text-gray-400 truncate max-w-[200px]">${email.sender}</td>
+                            <td class="px-6 py-4 text-sm font-medium text-white truncate max-w-[300px]" title="${email.subject}">${email.subject}</td>
+                            <td class="px-6 py-4 text-right">${statusBadge}</td>
+                        </tr>
+                    `;
+                }).join('');
+                
+            } catch (e) {
+                console.error("Failed to load email history:", e);
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-red-400">Failed to load transmission logs.</td></tr>';
+            }
         }
 
         async function fetchAuditStats() {
@@ -1749,11 +2036,15 @@
             lucide.createIcons(); var reveals = document.querySelectorAll(".reveal"); for (var i = 0; i < reveals.length; i++) reveals[i].classList.add("active");
             document.addEventListener('keydown', (e) => {
                 const editModal = document.getElementById('editModal'); const inviteModal = document.getElementById('inviteModal'); const cropperModal = document.getElementById('cropperModal'); const confirmModal = document.getElementById('confirmModal'); const applicationModal = document.getElementById('applicationModal'); const auditDiffModal = document.getElementById('auditDiffModal');
+                const emailConfirmModal = document.getElementById('emailConfirmModal'); const emailPreviewModal = document.getElementById('emailPreviewModal');
+
                 if (e.key === 'Escape') {
                     if (!editModal.classList.contains('hidden')) closeEditModal(); if (!inviteModal.classList.contains('hidden')) closeInviteModal();
                     if (!cropperModal.classList.contains('hidden')) cancelCrop(); if (!confirmModal.classList.contains('hidden')) closeConfirmModal();
                     if (applicationModal && !applicationModal.classList.contains('hidden')) closeApplicationModal();
                     if (auditDiffModal && !auditDiffModal.classList.contains('hidden')) closeAuditDiffModal();
+                    if (emailConfirmModal && !emailConfirmModal.classList.contains('hidden')) closeEmailConfirmModal();
+                    if (emailPreviewModal && !emailPreviewModal.classList.contains('hidden')) closeEmailPreviewModal();
                 }
                 if (e.key === 'Enter') {
                     if (!editModal.classList.contains('hidden')) { e.preventDefault(); submitEdit(); } else if (!inviteModal.classList.contains('hidden')) { e.preventDefault(); submitInvite(); }
