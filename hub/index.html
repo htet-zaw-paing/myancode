@@ -71,8 +71,6 @@
         .status-expired { background-color: rgba(156, 163, 175, 0.1); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.2); }
         .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
         .status-completed { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .status-failed { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .status-serving { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
         
         .status-reviewing { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
         .status-planning { background-color: rgba(168, 85, 247, 0.1); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
@@ -149,6 +147,7 @@
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOverview">Overview</span>
             </button>
 
+            <!-- NEW: Orders Tab -->
             <button onclick="switchTab('orders')" id="nav-orders" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="shopping-bag" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOrders">My Orders</span>
@@ -256,6 +255,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    <!-- NEW: Checkout Orders Stat -->
                     <div class="glass-panel p-8 rounded-[2rem] border border-white/5 reveal active hover:border-white/10 transition-colors cursor-pointer" onclick="switchTab('orders')">
                         <div class="flex justify-between items-start mb-6">
                             <div class="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
@@ -311,6 +311,7 @@
                 </div>
             </div>
 
+            <!-- NEW: Orders View -->
             <div id="view-orders" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
                 <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
@@ -603,18 +604,23 @@
         </div>
     </div>
 
-    <!-- NEW CHECKOUT ORDER DETAIL MODAL -->
+    <!-- NEW VOUCHER STYLED CHECKOUT ORDER DETAIL MODAL -->
     <div id="orderDetailModal" class="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-6 sm:py-8">
-        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-5xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="orderDetailModalContent">
+        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-4xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="orderDetailModalContent">
             
             <div class="px-6 sm:px-8 py-5 sm:py-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between bg-[#111]/50">
                 <h3 class="text-xl sm:text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                         <i data-lucide="receipt" class="w-5 h-5 text-emerald-400"></i>
                     </div>
-                    <span data-i18n="orderDetTitle">Order Invoice</span>
+                    <span data-i18n="orderDetTitle">Order Receipt</span>
                 </h3>
                 <div class="flex items-center gap-3">
+                    <!-- NEW View Proof Button -->
+                    <button id="btnViewProof" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
+                        <i data-lucide="image" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> <span class="hidden xs:inline" data-i18n="btnViewProof">View Proof</span>
+                    </button>
+
                     <button onclick="downloadStandardOrderPDF()" id="btnDownloadStdPdf" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                         <i data-lucide="download" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> <span class="hidden xs:inline" data-i18n="btnDownloadPdf">Download PDF</span>
                     </button>
@@ -624,62 +630,43 @@
                 </div>
             </div>
             
-            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-8 bg-[#050505]">
-                <div id="orderPrintableArea" class="bg-[#050505] rounded-3xl p-6 sm:p-10 border border-white/10 relative overflow-visible shadow-inner">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                    
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 pb-8 border-b border-white/10 gap-6 relative z-10">
+            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-8 bg-[#050505] flex justify-center">
+                
+                <!-- REDESIGNED VOUCHER STYLE -->
+                <div id="orderPrintableArea" class="bg-[#050505] border border-white/10 p-8 sm:p-12 relative shadow-2xl w-full max-w-[700px] font-mono text-sm text-white">
+                    <div class="flex flex-col sm:flex-row justify-between items-start border-b border-white/10 pb-8 mb-8 gap-6">
                         <div>
-                            <img src="../imgs/web-banners/favicon.png" class="h-10 w-10 mb-4" alt="Logo" onerror="this.style.display='none';">
-                            <h2 class="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">Invoice Receipt</h2>
-                            <div class="text-sm font-mono text-gray-400 mt-2" id="ordModalId">#ID</div>
+                            <h3 class="text-xl sm:text-2xl font-display font-medium text-white tracking-widest uppercase mb-2">Receipt</h3>
+                            <p class="text-xs text-gray-500">MyanCode Inc.</p>
                         </div>
-                        <div class="flex flex-col sm:items-end text-left sm:text-right gap-2">
-                            <div id="ordModalStatus"></div>
-                            <div class="text-xs font-mono text-gray-500" id="ordModalDate">Date</div>
+                        <div class="text-left sm:text-right text-xs text-gray-400 space-y-1.5">
+                            <p>ORD: <span class="text-white font-bold" id="ordModalId">#000000</span></p>
+                            <p>DAT: <span class="text-white" id="ordModalDate">--/--/----</span></p>
+                            <p>STS: <span id="ordModalStatus" class="font-bold">...</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4 mb-8 border-b border-white/10 pb-8 text-gray-400 text-xs sm:text-sm">
+                        <div class="flex justify-between"><span>Billed To</span><span class="text-white text-right" id="ordCustName">...</span></div>
+                        <div class="flex justify-between"><span>Email</span><span class="text-white text-right" id="ordCustEmail">...</span></div>
+                        <div class="flex justify-between"><span>Phone</span><span class="text-white text-right" id="ordCustPhone">...</span></div>
+                        <div class="flex justify-between"><span>Method</span><span class="text-white text-right" id="ordModalMethod">...</span></div>
+                        <div class="flex justify-between"><span>Transaction ID</span><span class="text-white text-right" id="ordModalTransId">...</span></div>
+                    </div>
+
+                    <div class="mb-8 border-b border-white/10 pb-8">
+                        <h4 class="text-xs text-gray-500 uppercase tracking-widest mb-6 border-b border-white/5 pb-2">Items</h4>
+                        <div id="ordModalItemsList" class="space-y-4">
+                            <!-- Items injected here -->
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 relative z-10">
-                        <div class="lg:col-span-8 space-y-8">
-                            <div>
-                                <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <i data-lucide="shopping-cart" class="w-4 h-4 text-emerald-400"></i> <span data-i18n="ordItemsPurchased">Items Purchased</span>
-                                </h4>
-                                <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 space-y-2" id="ordModalItemsList">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <h4 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <i data-lucide="user" class="w-4 h-4 text-emerald-400"></i> <span data-i18n="ordCustDetails">Customer Details</span>
-                                </h4>
-                                <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                                    <div><span class="text-gray-500 block text-[10px] uppercase font-mono tracking-widest mb-1">Name</span><span class="text-white font-medium" id="ordCustName">...</span></div>
-                                    <div><span class="text-gray-500 block text-[10px] uppercase font-mono tracking-widest mb-1">Email</span><span class="text-white font-medium" id="ordCustEmail">...</span></div>
-                                    <div><span class="text-gray-500 block text-[10px] uppercase font-mono tracking-widest mb-1">Phone</span><span class="text-white font-medium" id="ordCustPhone">...</span></div>
-                                    <div><span class="text-gray-500 block text-[10px] uppercase font-mono tracking-widest mb-1">Company</span><span class="text-white font-medium" id="ordCustCompany">...</span></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="lg:col-span-4 space-y-8">
-                            <div class="bg-[#111] border border-emerald-500/20 rounded-2xl p-6 shadow-[0_0_20px_rgba(16,185,129,0.05)] text-left sm:text-right lg:sticky lg:top-0">
-                                <span class="block text-[10px] font-bold font-mono text-emerald-400 uppercase tracking-widest mb-2" data-i18n="ordTotalPaid">Total Paid</span>
-                                <span class="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight block leading-none mb-4"><span id="ordModalTotal">0</span> <span class="text-base font-medium text-gray-500 ml-1">MMK</span></span>
-                                
-                                <div class="border-t border-white/10 pt-4 flex justify-between sm:justify-end items-center gap-4">
-                                    <span class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest">Method</span>
-                                    <span class="text-xs font-bold text-white bg-white/10 px-2 py-1 rounded" id="ordModalMethod">...</span>
-                                </div>
-                                <div class="mt-2 flex justify-between sm:justify-end items-center gap-4">
-                                    <span class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest">Transaction ID</span>
-                                    <span class="text-xs font-mono text-white" id="ordModalTransId">...</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="flex justify-between items-end">
+                        <span class="text-gray-500 uppercase tracking-widest text-xs">Total Amount</span>
+                        <span class="font-display text-3xl font-medium text-white tracking-tight"><span id="ordModalTotal">0</span> <span class="text-lg text-gray-500 ml-1">MMK</span></span>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -778,7 +765,7 @@
                 loadingPkgs: "Loading your packages...", noPkgs: "No package orders found.",
                 
                 ordersOrderHist: "Checkout Orders", thOrderItems: "Items", loadingCheckoutOrders: "Loading your checkout orders...", noCheckoutOrders: "No checkout orders found.",
-                orderDetTitle: "Order Invoice", ordItemsPurchased: "Items Purchased", ordCustDetails: "Customer Details", ordTotalPaid: "Total Paid", btnDownloadPdf: "Download PDF",
+                orderDetTitle: "Order Receipt", btnViewProof: "View Proof", btnDownloadPdf: "Download PDF",
                 
                 btnHelp: "Help", btnCall: "Call", btnDetails: "Details",
                 detTitle: "Order Details", detBaseInfo: "Base Package Information", detAddons: "Selected Add-ons", detNotes: "Admin Remarks & Notes", detTotal: "Total Estimated Price", noAdminNotes: "No remarks from admin yet.",
@@ -806,7 +793,7 @@
                 loadingPkgs: "ပက်ကေ့ချ်များ ရှာဖွေနေပါသည်...", noPkgs: "ပက်ကေ့ချ်များ မရှိသေးပါ။",
                 
                 ordersOrderHist: "ဝယ်ယူမှု မှတ်တမ်း", thOrderItems: "ပစ္စည်းများ", loadingCheckoutOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noCheckoutOrders: "အော်ဒါများ မရှိသေးပါ။",
-                orderDetTitle: "အော်ဒါ ပြေစာ", ordItemsPurchased: "ဝယ်ယူထားသော ပစ္စည်းများ", ordCustDetails: "ဝယ်ယူသူ အချက်အလက်", ordTotalPaid: "စုစုပေါင်း ပေးချေငွေ", btnDownloadPdf: "PDF ဒေါင်းလုပ်",
+                orderDetTitle: "အော်ဒါ ပြေစာ", btnViewProof: "ပြေစာကြည့်ရန်", btnDownloadPdf: "PDF ဒေါင်းလုပ်",
                 
                 btnHelp: "အကူအညီ", btnCall: "ဆက်သွယ်ရန်", btnDetails: "အသေးစိတ်",
                 detTitle: "အော်ဒါ အသေးစိတ်", detBaseInfo: "အခြေခံ ပက်ကေ့ချ် အချက်အလက်", detAddons: "ရွေးချယ်ထားသော အပိုလုပ်ဆောင်ချက်များ", detNotes: "စီမံသူ၏ မှတ်ချက်များ", detTotal: "စုစုပေါင်း ခန့်မှန်းကုန်ကျစရိတ်", noAdminNotes: "စီမံသူထံမှ မှတ်ချက် မရှိသေးပါ။",
@@ -1529,32 +1516,28 @@
             document.getElementById('ordModalDate').innerText = dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
             let status = (order.status || 'pending').toLowerCase();
-            let statusClass = 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
-            if(status === 'confirmed') statusClass = 'text-green-400 bg-green-500/10 border-green-500/20';
-            else if(status === 'completed') statusClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
-            else if(status === 'cancelled') statusClass = 'text-red-400 bg-red-500/10 border-red-500/20';
-            else if(status === 'failed') statusClass = 'text-red-500 bg-red-500/15 border-red-500/30';
-            else if(status === 'serving') statusClass = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+            let statusClass = 'text-yellow-500';
+            if(status === 'confirmed') statusClass = 'text-green-400';
+            else if(status === 'completed') statusClass = 'text-emerald-400';
+            else if(status === 'cancelled') statusClass = 'text-red-400';
+            else if(status === 'failed') statusClass = 'text-red-500';
+            else if(status === 'serving') statusClass = 'text-blue-400';
             
             let formattedStatus = status.charAt(0).toUpperCase() + status.slice(1);
             let statusTrans = dict[currentLang]['stat' + formattedStatus] || formattedStatus;
-            document.getElementById('ordModalStatus').innerHTML = `<span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border inline-block ${statusClass}">${statusTrans}</span>`;
+            
+            const statusEl = document.getElementById('ordModalStatus');
+            statusEl.className = `font-bold ${statusClass}`;
+            statusEl.innerText = statusTrans;
             
             const itemsList = document.getElementById('ordModalItemsList');
             if(order.items && order.items.length > 0) {
                 itemsList.innerHTML = order.items.map(i => {
                     const priceText = i.price > 0 ? `${(i.price).toLocaleString()} MMK` : 'Custom';
-                    const iconName = i.type === 'service' ? 'briefcase' : 'layout-template';
                     return `
-                    <div class="flex justify-between items-center py-3 border-b border-white/5 last:border-0 gap-4">
-                        <span class="text-sm text-gray-300 flex items-center gap-3 min-w-0">
-                            <i data-lucide="${iconName}" class="w-4 h-4 text-myancode-accent shrink-0"></i> 
-                            <div class="flex flex-col truncate">
-                                <span class="font-bold text-white truncate">${i.name}</span>
-                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">${i.type}</span>
-                            </div>
-                        </span>
-                        <span class="text-sm font-mono shrink-0 text-white font-bold">${priceText}</span>
+                    <div class="flex justify-between text-white text-sm">
+                        <span>${i.name} <span class="text-gray-500 text-[10px] ml-2 uppercase">${i.type}</span></span>
+                        <span>${priceText}</span>
                     </div>
                 `;}).join('');
             } else {
@@ -1565,12 +1548,19 @@
                 document.getElementById('ordCustName').innerText = order.customer_info.name || '-';
                 document.getElementById('ordCustEmail').innerText = order.customer_info.email || '-';
                 document.getElementById('ordCustPhone').innerText = order.customer_info.phone || '-';
-                document.getElementById('ordCustCompany').innerText = order.customer_info.company || '-';
             }
 
             document.getElementById('ordModalTotal').innerText = (order.total_amount || 0).toLocaleString();
             document.getElementById('ordModalMethod').innerText = order.payment_method || '-';
             document.getElementById('ordModalTransId').innerText = order.transaction_id || '-';
+
+            const proofBtn = document.getElementById('btnViewProof');
+            if (order.payment_proof_url) {
+                proofBtn.classList.remove('hidden');
+                proofBtn.onclick = () => openImagePreview(order.payment_proof_url);
+            } else {
+                proofBtn.classList.add('hidden');
+            }
 
             const modal = document.getElementById('orderDetailModal');
             const content = document.getElementById('orderDetailModalContent');
@@ -1599,7 +1589,7 @@
             const orderIdText = document.getElementById('ordModalId').innerText.replace('#', '');
             const opt = {
                 margin:       [0.5, 0.5, 0.5, 0.5],
-                filename:     `MyanCode_OrderInvoice_${orderIdText}.pdf`,
+                filename:     `MyanCode_OrderReceipt_${orderIdText}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#050505' },
                 jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
