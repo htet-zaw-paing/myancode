@@ -328,7 +328,8 @@
         body.light-mode-active { background-color: #f8fafc !important; color: #0f172a; }
         body.light-mode-active main::before { display: none; }
         body.light-mode-active .ambient-glow { display: none; }
-        body.light-mode-active main > div { z-index: 10; position: relative; }
+        body.light-mode-active main > div:not(#mobileActionBar) { z-index: 10; position: relative; }
+        body.light-mode-active #mobileActionBar { position: fixed !important; z-index: 55 !important; }
         
         body.light-mode-active #mainNav.glass-nav-dark { background: rgba(255, 255, 255, 0.9) !important; border-bottom: 1px solid #e2e8f0 !important; }
         body.light-mode-active #mainNav .text-white, body.light-mode-active #mainNav .text-white\/90, body.light-mode-active #mainNav .nav-icon { color: #0f172a !important; }
@@ -393,12 +394,9 @@
         body.light-mode-active main .tag-pill { background: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
         body.light-mode-active main .tag-pill:hover { background: #e2e8f0 !important; }
         
-        body.light-mode-active button[onclick="openHashtagGen()"],
-        body.light-mode-active button[onclick="openBioCard()"] { background: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05) !important; }
-        body.light-mode-active button[onclick="openHashtagGen()"] > div > span,
-        body.light-mode-active button[onclick="openBioCard()"] > div > span { color: #0f172a !important; }
-        body.light-mode-active button[onclick="openHashtagGen()"] > span,
-        body.light-mode-active button[onclick="openBioCard()"] > span { background: #f1f5f9 !important; color: #475569 !important; border-color: #cbd5e1 !important; }
+        body.light-mode-active .tool-card-btn { background: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05) !important; }
+        body.light-mode-active .tool-card-btn .tool-title { color: #0f172a !important; }
+        body.light-mode-active .tool-card-btn .tool-badge { background: #f1f5f9 !important; color: #475569 !important; border-color: #cbd5e1 !important; }
         
         body.light-mode-active .dark-icon { display: block !important; }
         body.light-mode-active .light-icon { display: none !important; }
@@ -629,6 +627,32 @@
         body.light-mode-active .action-icon-btn { color: #64748b; }
         body.light-mode-active .action-icon-btn:hover, body.light-mode-active .action-icon-btn:focus-visible { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; box-shadow: 0 4px 14px rgba(15,23,42,.12), inset 0 0 0 1px rgba(255,255,255,.75); }
 
+        body.light-mode-active button[onclick*="filterFeed('mine')"].bg-white\/5,
+        body.light-mode-active .theme-switcher-btn { 
+            background-color: #ffffff !important; 
+            border-color: #cbd5e1 !important; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05) !important; 
+        }
+        
+        body.light-mode-active button[onclick*="filterFeed('mine')"].bg-white\/5:hover,
+        body.light-mode-active .theme-switcher-btn:hover {
+            background-color: #f8fafc !important;
+        }
+        
+        body.light-mode-active button[onclick*="filterFeed('mine')"].bg-white\/5 span,
+        body.light-mode-active .theme-switcher-btn span { 
+            color: #0f172a !important; 
+        }
+        
+        body.light-mode-active button[onclick*="filterFeed('mine')"].bg-white\/5 i,
+        body.light-mode-active .theme-switcher-btn i.light-icon { 
+            color: #475569 !important; 
+        }
+        
+        body.light-mode-active button[onclick*="filterFeed('mine')"].bg-white\/5 > div:first-child,
+        body.light-mode-active .theme-switcher-btn > div:first-child { 
+            background-color: #f1f5f9 !important; 
+        }
     </style>
 </head>
 
@@ -1042,21 +1066,34 @@
             <div class="pt-6 border-t border-white/10">
                 <h3 class="text-[11px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-5 flex items-center gap-2"><i data-lucide="menu" class="w-3.5 h-3.5 text-myancode-accent"></i> Tools & Settings</h3>
                 <nav class="space-y-3 flex flex-col">
-                    <button onclick="closeAllBottomDrawers(); openHashtagGen();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-[#1c1a29] to-[#12101a] border border-violet-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all group">
-                        <div class="flex items-center gap-3"><div class="p-2 bg-violet-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-4 h-4 text-violet-400"></i></div> <span>Hashtag Generator</span></div>
-                        <span class="text-[9px] font-bold bg-violet-600/20 text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Social</span>
+                    <button onclick="closeAllBottomDrawers(); openHashtagGen();" class="tool-card-btn w-full flex items-center gap-4 px-5 py-4 bg-gradient-to-br from-[#1c1a29] to-[#12101a] border border-violet-500/20 rounded-2xl transition-all group text-left">
+                        <div class="p-3 bg-violet-500/10 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-5 h-5 text-violet-400"></i></div>
+                        <div class="flex-1 min-w-0 flex flex-col justify-center gap-1.5">
+                            <span class="tool-title text-[14px] font-bold text-white leading-tight truncate">Hashtag Generator</span>
+                            <span class="tool-badge text-[9px] font-bold bg-violet-600/20 text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded uppercase tracking-wider w-max">Social Tool</span>
+                        </div>
                     </button>
-                    <button onclick="closeAllBottomDrawers(); openBioCard();" class="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-br from-[#1a291e] to-[#0f1a12] border border-emerald-500/20 rounded-2xl text-white text-[13px] font-semibold transition-all group">
-                        <div class="flex items-center gap-3"><div class="p-2 bg-emerald-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div> <span>Bio Link & Share Card</span></div>
-                        <span class="text-[9px] font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Social</span>
+                    <button onclick="closeAllBottomDrawers(); openBioCard();" class="tool-card-btn w-full flex items-center gap-4 px-5 py-4 bg-gradient-to-br from-[#1a291e] to-[#0f1a12] border border-emerald-500/20 rounded-2xl transition-all group text-left">
+                        <div class="p-3 bg-emerald-500/10 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-5 h-5 text-emerald-400"></i></div>
+                        <div class="flex-1 min-w-0 flex flex-col justify-center gap-1.5">
+                            <span class="tool-title text-[14px] font-bold text-white leading-tight truncate">Bio Link & Share</span>
+                            <span class="tool-badge text-[9px] font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded uppercase tracking-wider w-max">Social Tool</span>
+                        </div>
                     </button>
-                    <button onclick="closeAllBottomDrawers(); filterFeed('mine');" class="w-full flex items-center gap-3 px-5 py-3.5 bg-white/5 border border-white/5 text-[13px] font-semibold transition-all rounded-xl mt-2 text-gray-300">
-                        <i data-lucide="edit-3" class="w-4 h-4 text-gray-400"></i> <span>Edit My Posts</span>
+                    <button onclick="closeAllBottomDrawers(); filterFeed('mine');" class="w-full flex items-center gap-4 px-5 py-4 bg-white/5 border border-white/5 transition-all rounded-2xl mt-2 text-left group">
+                        <div class="p-3 bg-white/5 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="edit-3" class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors"></i></div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-[14px] font-semibold text-gray-300 group-hover:text-white leading-tight transition-colors">Edit My Posts</span>
+                        </div>
                     </button>
-                    <button onclick="toggleTheme()" class="w-full flex items-center gap-3 px-5 py-3.5 bg-white/5 border border-white/5 text-[13px] font-semibold transition-all rounded-xl theme-switcher-btn text-gray-300">
-                        <i data-lucide="sun" class="w-4 h-4 hidden dark-icon text-orange-400"></i>
-                        <i data-lucide="moon" class="w-4 h-4 light-icon text-blue-400"></i>
-                        <span class="theme-text">Light Mode</span>
+                    <button onclick="toggleTheme()" class="w-full flex items-center gap-4 px-5 py-4 bg-white/5 border border-white/5 transition-all rounded-2xl theme-switcher-btn text-left group">
+                        <div class="p-3 bg-white/5 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+                            <i data-lucide="sun" class="w-5 h-5 hidden dark-icon text-orange-400"></i>
+                            <i data-lucide="moon" class="w-5 h-5 light-icon text-blue-400"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="theme-text text-[14px] font-semibold text-gray-300 group-hover:text-white leading-tight transition-colors">Light Mode</span>
+                        </div>
                     </button>
                 </nav>
             </div>
@@ -1142,21 +1179,34 @@
                     <div class="border-t border-white/10 pt-6">
                         <h3 class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-4 ml-1 flex items-center gap-2"><i data-lucide="menu" class="w-3.5 h-3.5 text-myancode-accent"></i> Tools & Settings</h3>
                         <nav class="space-y-3 flex flex-col">
-                            <button onclick="openHashtagGen()" class="w-full flex items-center justify-between px-5 py-3.5 bg-gradient-to-br from-[#1c1a29] to-[#12101a] border border-violet-500/20 rounded-xl text-white text-[13px] font-semibold transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(139,92,246,0.15)] group">
-                                <div class="flex items-center gap-3"><div class="p-1.5 bg-violet-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-4 h-4 text-violet-400"></i></div> <span>Hashtag Generator</span></div>
-                                <span class="text-[9px] font-bold bg-violet-600/20 text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Social</span>
+                            <button onclick="openHashtagGen()" class="tool-card-btn w-full flex items-center gap-3.5 px-4 py-3 bg-gradient-to-br from-[#1c1a29] to-[#12101a] border border-violet-500/20 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(139,92,246,0.15)] group text-left">
+                                <div class="p-2.5 bg-violet-500/10 rounded-lg flex-shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="hash" class="w-4.5 h-4.5 text-violet-400"></i></div>
+                                <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                                    <span class="tool-title text-[13px] font-bold text-white leading-tight truncate">Hashtag Generator</span>
+                                    <span class="tool-badge text-[9px] font-bold bg-violet-600/20 text-violet-400 border border-violet-500/30 px-1.5 py-0.5 rounded uppercase tracking-wider w-max">Social Tool</span>
+                                </div>
                             </button>
-                            <button onclick="openBioCard()" class="w-full flex items-center justify-between px-5 py-3.5 bg-gradient-to-br from-[#1a291e] to-[#0f1a12] border border-emerald-500/20 rounded-xl text-white text-[13px] font-semibold transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(16,185,129,0.15)] group">
-                                <div class="flex items-center gap-3"><div class="p-1.5 bg-emerald-500/10 rounded-lg group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div> <span>Bio Link & Share Card</span></div>
-                                <span class="text-[9px] font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded uppercase tracking-wider">Social</span>
+                            <button onclick="openBioCard()" class="tool-card-btn w-full flex items-center gap-3.5 px-4 py-3 bg-gradient-to-br from-[#1a291e] to-[#0f1a12] border border-emerald-500/20 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(16,185,129,0.15)] group text-left">
+                                <div class="p-2.5 bg-emerald-500/10 rounded-lg flex-shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-4.5 h-4.5 text-emerald-400"></i></div>
+                                <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                                    <span class="tool-title text-[13px] font-bold text-white leading-tight truncate">Bio Link & Share</span>
+                                    <span class="tool-badge text-[9px] font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded uppercase tracking-wider w-max">Social Tool</span>
+                                </div>
                             </button>
-                            <button onclick="filterFeed('mine')" class="w-full flex items-center gap-3 px-5 py-3.5 bg-white/5 border border-white/5 text-[13px] font-semibold transition-all hover:bg-white/10 hover:border-white/10 rounded-xl mt-1 text-gray-300 hover:text-white">
-                                <i data-lucide="edit-3" class="w-4 h-4 text-gray-400"></i> <span>Edit My Posts</span>
+                            <button onclick="filterFeed('mine')" class="w-full flex items-center gap-3.5 px-4 py-3.5 bg-white/5 border border-white/5 transition-all hover:bg-white/10 hover:border-white/10 rounded-xl mt-1 text-left group">
+                                <div class="p-2 bg-white/5 rounded-lg flex-shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="edit-3" class="w-4.5 h-4.5 text-gray-400 group-hover:text-white transition-colors"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <span class="text-[13px] font-semibold text-gray-300 group-hover:text-white leading-tight transition-colors">Edit My Posts</span>
+                                </div>
                             </button>
-                            <button onclick="toggleTheme()" class="w-full flex items-center gap-3 px-5 py-3.5 bg-white/5 border border-white/5 text-[13px] font-semibold transition-all hover:bg-white/10 hover:border-white/10 rounded-xl theme-switcher-btn text-gray-300 hover:text-white">
-                                <i data-lucide="sun" class="w-4 h-4 hidden dark-icon text-orange-400"></i>
-                                <i data-lucide="moon" class="w-4 h-4 light-icon text-blue-400"></i>
-                                <span class="theme-text">Light Mode</span>
+                            <button onclick="toggleTheme()" class="w-full flex items-center gap-3.5 px-4 py-3.5 bg-white/5 border border-white/5 transition-all hover:bg-white/10 hover:border-white/10 rounded-xl theme-switcher-btn text-left group">
+                                <div class="p-2 bg-white/5 rounded-lg flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="sun" class="w-4.5 h-4.5 hidden dark-icon text-orange-400"></i>
+                                    <i data-lucide="moon" class="w-4.5 h-4.5 light-icon text-blue-400"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <span class="theme-text text-[13px] font-semibold text-gray-300 group-hover:text-white leading-tight transition-colors">Light Mode</span>
+                                </div>
                             </button>
                         </nav>
                     </div>
