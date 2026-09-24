@@ -159,11 +159,6 @@
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabOrders">Plan Orders</span>
             </button>
 
-            <button onclick="switchTab('checkout-orders')" id="nav-checkout-orders" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
-                <i data-lucide="shopping-bag" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
-                <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabCheckoutOrders">Checkout Orders</span>
-            </button>
-
             <button onclick="switchTab('packages')" id="nav-packages" class="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5 group menu-item-btn">
                 <i data-lucide="package" class="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-sm sidebar-text whitespace-nowrap" data-i18n="tabPackages">Packages</span>
@@ -386,53 +381,6 @@
                             <tbody id="adminOrdersTableBody" class="text-sm font-medium text-gray-300">
                                 <tr>
                                     <td colspan="7" class="py-12 text-center text-gray-500 italic" data-i18n="loadingOrders">Loading orders...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-checkout-orders" class="view-section hidden flex-col gap-8 max-w-[1400px] mx-auto w-full">
-                <div class="glass-panel rounded-[2.5rem] p-8 sm:p-10 reveal active">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-white/10 pb-6">
-                        <h3 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3 font-display">
-                            <i data-lucide="shopping-bag" class="h-7 w-7 text-myancode-accent"></i> 
-                            <span data-i18n="checkoutMgtTitle">Checkout Orders</span>
-                        </h3>
-                        <div class="flex items-center gap-4 w-full sm:w-auto">
-                            <div class="relative flex-1 sm:w-64">
-                                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
-                                <input type="text" id="adminCheckoutOrderSearch" onkeyup="filterAdminCheckoutOrders()" class="w-full pl-10 pr-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Search checkouts...">
-                            </div>
-                            <select id="adminCheckoutStatusFilter" onchange="filterAdminCheckoutOrders()" class="bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-gray-300 focus:outline-none focus:border-myancode-accent transition-colors appearance-none cursor-pointer">
-                                <option value="All">All Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="serving">Serving</option>
-                                <option value="completed">Completed</option>
-                                <option value="failed">Failed</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto custom-scroll pb-4">
-                        <table class="w-full text-left border-collapse min-w-[1200px]">
-                            <thead>
-                                <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
-                                    <th class="pb-4 pl-4">Order ID</th>
-                                    <th class="pb-4">Customer</th>
-                                    <th class="pb-4">Items Summary</th>
-                                    <th class="pb-4">Amount</th>
-                                    <th class="pb-4">Payment</th>
-                                    <th class="pb-4">Status</th>
-                                    <th class="pb-4 pr-4 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminCheckoutOrdersTableBody" class="text-sm font-medium text-gray-300">
-                                <tr>
-                                    <td colspan="7" class="py-12 text-center text-gray-500 italic">Loading checkout orders...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -875,69 +823,6 @@
         </div>
     </div>
 
-    <!-- UPDATE CHECKOUT ORDER MODAL -->
-    <div id="updateCheckoutOrderModal" class="fixed inset-0 z-[100000] bg-black/60 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4 py-6 sm:py-8">
-        <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] w-full max-w-2xl shadow-[0_30px_100px_-15px_rgba(0,0,0,0.9)] transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-full" id="updateCheckoutOrderModalContent">
-            
-            <div class="px-8 py-6 border-b border-white/10 flex-shrink-0 flex items-center justify-between bg-[#111]/50">
-                <h3 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                        <i data-lucide="shopping-bag" class="w-5 h-5 text-emerald-400"></i>
-                    </div>
-                    Manage Checkout Order
-                </h3>
-                <button onclick="closeUpdateCheckoutOrderModal()" class="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors focus:outline-none">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-
-            <input type="hidden" id="updCheckoutOrderId">
-            
-            <div class="flex-1 overflow-y-auto custom-scroll p-8">
-                <div class="space-y-6">
-                    <div class="bg-[#111] p-6 rounded-3xl border border-white/5 shadow-inner space-y-5">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="user" class="w-3.5 h-3.5"></i> Customer Details</label>
-                                <input type="text" id="updCheckoutOrderCustomer" disabled class="w-full px-4 py-3 bg-[#050505]/50 border border-white/5 rounded-xl text-sm font-medium text-gray-400 cursor-not-allowed">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="building" class="w-3.5 h-3.5"></i> Company Name</label>
-                                <input type="text" id="updCheckoutOrderCompany" disabled class="w-full px-4 py-3 bg-[#050505]/50 border border-white/5 rounded-xl text-sm font-medium text-gray-400 cursor-not-allowed">
-                            </div>
-                        </div>
-
-                        <div class="pt-5 border-t border-white/5">
-                            <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="banknote" class="w-3.5 h-3.5"></i> Total Amount</label>
-                            <input type="text" id="updCheckoutOrderCurrentPrice" disabled class="w-full px-4 py-3 bg-[#050505]/50 border border-white/5 rounded-xl text-sm font-bold text-emerald-400 cursor-not-allowed">
-                        </div>
-                    </div>
-
-                    <div class="bg-[#111] p-6 rounded-3xl border border-white/5 shadow-inner">
-                        <label class="block text-[11px] font-bold font-mono text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4"></i> Order Status</label>
-                        <div>
-                            <select id="updCheckoutOrderStatus" class="w-full px-4 py-3 bg-[#050505] border border-white/10 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-emerald-500 transition-colors cursor-pointer appearance-none shadow-inner">
-                                <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="serving">Serving</option>
-                                <option value="completed">Completed</option>
-                                <option value="failed">Failed</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="px-8 py-5 border-t border-white/10 flex-shrink-0 bg-[#0a0a0a] flex items-center justify-end gap-3 rounded-b-[2.5rem]">
-                <button onclick="closeUpdateCheckoutOrderModal()" class="px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 border border-transparent transition-colors">Cancel</button>
-                <button onclick="submitCheckoutOrderUpdate()" id="btnSubmitCheckoutOrderUpdate" class="px-8 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-black bg-white hover:bg-gray-200 shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all flex items-center gap-2">
-                    <i data-lucide="save" class="w-4 h-4"></i> Save Changes
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Edit Subscriber Modal -->
     <div id="editSubscriberModal" class="fixed inset-0 z-[100000] bg-black/40 backdrop-blur-sm hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2rem] w-[95%] max-w-md shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="editSubscriberModalContent">
@@ -1312,7 +1197,7 @@
         const dict = {
             en: {
                 authCheck: "Verifying authorization...",
-                menuMain: "Main Menu", tabOverview: "Overview", tabArchOrders: "Package Orders", tabOrders: "Plan Orders", tabCheckoutOrders: "Checkout Orders", tabCoupons: "Coupons", tabSubscribers: "Newsletter", tabSettings: "System Settings", tabPackages: "Packages",
+                menuMain: "Main Menu", tabOverview: "Overview", tabArchOrders: "Package Orders", tabOrders: "Plan Orders", tabCoupons: "Coupons", tabSubscribers: "Newsletter", tabSettings: "System Settings", tabPackages: "Packages",
                 btnLogout: "Sign Out",
                 forcePassTitle: "Security Requirement", forcePassDesc: "As part of your first login, you must set a secure personal password for your account.", forcePassNew: "New Password", forcePassConfirmBtn: "Set Password & Continue",
                 profSettings: "System Settings", profSub: "Manage your personal details and security preferences.",
@@ -1321,7 +1206,7 @@
                 cropTitle: "Crop Photo", cropCancel: "Cancel", cropSave: "Save",
                 msgLoggedOut: "Signed out securely.",
                 archMgtTitle: "Package Orders Management",
-                orderMgtTitle: "Order Management", checkoutMgtTitle: "Checkout Orders", searchOrderAdmin: "Search orders...",
+                orderMgtTitle: "Order Management", searchOrderAdmin: "Search orders...",
                 filterAll: "All Status", filterPending: "Pending", filterConfirmed: "Confirmed", filterExpired: "Expired", filterCancelled: "Cancelled",
                 thOrder: "Order ID", thCustomer: "Customer", thCompany: "Company", thPlanInfo: "Plan Info", thPayment: "Payment", thStatus: "Status", thActions: "Actions",
                 btnUpdate: "Update", loadingOrders: "Loading orders...", noOrders: "No orders found.",
@@ -1331,7 +1216,7 @@
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
-                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabArchOrders: "ပက်ကေ့ချ် အော်ဒါများ", tabOrders: "အော်ဒါများ", tabCheckoutOrders: "ဝယ်ယူမှုမှတ်တမ်း", tabCoupons: "ကူပွန်များ", tabSubscribers: "သတင်းလွှာစာရင်း", tabSettings: "စနစ် ဆက်တင်များ", tabPackages: "ပက်ကေ့ချ်များ",
+                menuMain: "အဓိက မီနူး", tabOverview: "အကျဉ်းချုပ်", tabArchOrders: "ပက်ကေ့ချ် အော်ဒါများ", tabOrders: "အော်ဒါများ", tabCoupons: "ကူပွန်များ", tabSubscribers: "သတင်းလွှာစာရင်း", tabSettings: "စနစ် ဆက်တင်များ", tabPackages: "ပက်ကေ့ချ်များ",
                 btnLogout: "အကောင့်ထွက်ရန်",
                 forcePassTitle: "လုံခြုံရေး လိုအပ်ချက်", forcePassDesc: "ပထမဆုံးအကြိမ် ဝင်ရောက်ခြင်းဖြစ်၍ သင့်အကောင့်အတွက် လုံခြုံသော စကားဝှက်တစ်ခု သတ်မှတ်ပေးရန် လိုအပ်ပါသည်။", forcePassNew: "စကားဝှက်အသစ်", forcePassConfirmBtn: "စကားဝှက်သတ်မှတ်ပြီး ဆက်သွားမည်",
                 profSettings: "အကောင့်ဆက်တင်များ", profSub: "သင့်ကိုယ်ရေးအချက်အလက်များနှင့် လုံခြုံရေးများကို ပြင်ဆင်ပါ။",
@@ -1340,7 +1225,7 @@
                 cropTitle: "ဓာတ်ပုံဖြတ်မည်", cropCancel: "ပယ်ဖျက်မည်", cropSave: "သိမ်းဆည်းမည်",
                 msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။",
                 archMgtTitle: "ပက်ကေ့ချ် အော်ဒါ စီမံခန့်ခွဲမှု",
-                orderMgtTitle: "အော်ဒါ စီမံခန့်ခွဲမှု", checkoutMgtTitle: "ဝယ်ယူမှုမှတ်တမ်း", searchOrderAdmin: "အော်ဒါများ ရှာရန်...",
+                orderMgtTitle: "အော်ဒါ စီမံခန့်ခွဲမှု", searchOrderAdmin: "အော်ဒါများ ရှာရန်...",
                 filterAll: "အခြေအနေအားလုံး", filterPending: "စစ်ဆေးဆဲ", filterConfirmed: "အတည်ပြုပြီး", filterExpired: "သက်တမ်းကုန်", filterCancelled: "ပယ်ဖျက်ထားသည်",
                 thOrder: "အော်ဒါ ID", thCustomer: "ဖောက်သည်", thCompany: "ကုမ္ပဏီ", thPlanInfo: "အစီအစဉ်", thPayment: "ငွေပေးချေမှု", thStatus: "အခြေအနေ", thActions: "လုပ်ဆောင်ရန်",
                 btnUpdate: "ပြင်ဆင်မည်", loadingOrders: "အော်ဒါများ ရှာဖွေနေပါသည်...", noOrders: "အော်ဒါများ မရှိသေးပါ။",
@@ -1382,7 +1267,6 @@
         let currentProfileTemp = null;
         let adminOrders = [];
         let adminArchOrders = [];
-        let adminCheckoutOrders = [];
         let adminCoupons = [];
         let adminSubscribers = [];
         let adminPackages = [];
@@ -1470,7 +1354,6 @@
 
             fetchAdminOrders();
             fetchAdminArchOrders();
-            fetchAdminCheckoutOrders();
             fetchAdminCoupons();
             fetchAdminSubscribers();
             fetchAdminPackages();
@@ -1490,12 +1373,6 @@
             adminArchOrders.forEach(o => {
                 if (o.status !== 'Cancelled') {
                     totalRev += parseFloat(o.total_price || 0);
-                }
-            });
-            adminCheckoutOrders.forEach(o => {
-                const status = (o.status || '').toLowerCase();
-                if (status === 'confirmed' || status === 'completed' || status === 'serving') {
-                    totalRev += parseFloat(o.total_amount || 0);
                 }
             });
             
@@ -1554,19 +1431,6 @@
                         adminArchOrders = adminArchOrders.filter(o => o.id !== payload.old.id);
                     }
                     filterAdminArchOrders();
-                    updateOverviewMetrics();
-                })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
-                    if (payload.eventType === 'INSERT') {
-                        if (!adminCheckoutOrders.find(o => o.id === payload.new.id)) adminCheckoutOrders.unshift(payload.new);
-                    } else if (payload.eventType === 'UPDATE') {
-                        const idx = adminCheckoutOrders.findIndex(o => o.id === payload.new.id);
-                        if (idx > -1) adminCheckoutOrders[idx] = Object.assign({}, adminCheckoutOrders[idx], payload.new);
-                        else adminCheckoutOrders.unshift(payload.new);
-                    } else if (payload.eventType === 'DELETE') {
-                        adminCheckoutOrders = adminCheckoutOrders.filter(o => o.id !== payload.old.id);
-                    }
-                    filterAdminCheckoutOrders();
                     updateOverviewMetrics();
                 })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'subscribers' }, payload => {
@@ -2234,186 +2098,6 @@
                         showToast(currentLang === 'en' ? 'Order deleted successfully' : 'အော်ဒါဖျက်သိမ်းပြီးပါပြီ');
                         adminOrders = adminOrders.filter(order => order.id !== id);
                         filterAdminOrders();
-                        updateOverviewMetrics();
-                    } catch (err) {
-                        showErrorToast(err.message || 'Failed to delete order');
-                    } finally {
-                        hideLoader();
-                    }
-                }
-            );
-        }
-
-        async function fetchAdminCheckoutOrders() {
-            if(!supabaseInstance || !currentUser) return;
-            try {
-                const { data, error } = await supabaseInstance
-                    .from('orders')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if(error) throw error;
-                adminCheckoutOrders = data || [];
-                filterAdminCheckoutOrders();
-                updateOverviewMetrics();
-            } catch(e) { console.error("Error fetching checkout orders:", e); }
-        }
-
-        function filterAdminCheckoutOrders() {
-            const search = document.getElementById('adminCheckoutOrderSearch').value.toLowerCase();
-            const statusFilter = document.getElementById('adminCheckoutStatusFilter').value.toLowerCase();
-            
-            const filtered = adminCheckoutOrders.filter(o => {
-                const custName = o.customer_info?.name || '';
-                const custEmail = o.customer_info?.email || '';
-                const custPhone = o.customer_info?.phone || '';
-                const searchStr = `${o.id} ${custName} ${custEmail} ${custPhone} ${o.transaction_id}`.toLowerCase();
-                const matchSearch = searchStr.includes(search);
-                const matchStatus = statusFilter === 'all' || (o.status || 'pending').toLowerCase() === statusFilter;
-                return matchSearch && matchStatus;
-            });
-            
-            renderAdminCheckoutOrdersTable(filtered);
-        }
-
-        function renderAdminCheckoutOrdersTable(orders) {
-            const tbody = document.getElementById('adminCheckoutOrdersTableBody');
-            
-            if(orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-gray-500 italic">No checkout orders found.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = orders.map(order => {
-                const orderIdShort = order.id.toString().split('-')[0].substring(0,8).toUpperCase();
-                
-                let status = (order.status || 'pending').toLowerCase();
-                let statusClass = 'status-pending';
-                if(status === 'confirmed') statusClass = 'status-confirmed';
-                else if(status === 'completed') statusClass = 'status-completed';
-                else if(status === 'cancelled') statusClass = 'status-cancelled';
-                else if(status === 'failed') statusClass = 'bg-red-500/10 text-red-500 border border-red-500/20';
-                else if(status === 'serving') statusClass = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
-
-                const custName = order.customer_info?.name || '-';
-                const custEmail = order.customer_info?.email || '-';
-                const custPhone = order.customer_info?.phone || '-';
-                const itemCount = (order.items || []).length;
-                const types = [...new Set((order.items || []).map(i => i.type))].join(', ');
-                
-                return `
-                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                    <td class="py-4 pl-4 font-mono font-bold text-white text-xs">#${orderIdShort}</td>
-                    <td class="py-4">
-                        <div class="font-bold text-white">${custName}</div>
-                        <div class="text-[11px] text-gray-500 font-mono">${custEmail}</div>
-                        <div class="text-[10px] text-gray-600 font-mono">${custPhone}</div>
-                    </td>
-                    <td class="py-4">
-                        <div class="font-bold text-white">${itemCount} Items</div>
-                        <div class="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">${types}</div>
-                    </td>
-                    <td class="py-4 font-bold text-emerald-400 text-sm">
-                        ${parseInt(order.total_amount).toLocaleString()} <span class="text-[10px] font-normal text-gray-500">MMK</span>
-                    </td>
-                    <td class="py-4">
-                        <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#111] border border-white/10 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-                            ${order.payment_method}
-                        </div>
-                        <button onclick="openImagePreview('${order.payment_proof_url}')" class="p-1.5 rounded-lg bg-[#111] border border-white/10 hover:text-myancode-accent transition-colors ml-1" title="View Proof">
-                            <i data-lucide="image" class="w-4 h-4"></i>
-                        </button>
-                    </td>
-                    <td class="py-4"><span class="status-badge ${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
-                    <td class="py-4 pr-4 text-right">
-                        <div class="flex items-center justify-end gap-2">
-                            <button onclick="openUpdateCheckoutOrderModal('${order.id}')" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all text-xs font-bold text-gray-300 hover:text-black">
-                                Edit
-                            </button>
-                            <button onclick="deleteCheckoutOrder('${order.id}')" class="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-red-500" title="Delete">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>`;
-            }).join('');
-            
-            lucide.createIcons();
-        }
-
-        function openUpdateCheckoutOrderModal(id) {
-            const order = adminCheckoutOrders.find(o => o.id === id);
-            if(!order) return;
-
-            document.getElementById('updCheckoutOrderId').value = order.id;
-            document.getElementById('updCheckoutOrderStatus').value = (order.status || 'pending').toLowerCase();
-            document.getElementById('updCheckoutOrderCustomer').value = `${order.customer_info?.name || '-'} (${order.customer_info?.email || '-'})`;
-            document.getElementById('updCheckoutOrderCompany').value = order.customer_info?.company || 'N/A';
-            document.getElementById('updCheckoutOrderCurrentPrice').value = `${parseInt(order.total_amount).toLocaleString()} MMK`;
-
-            const modal = document.getElementById('updateCheckoutOrderModal');
-            const content = document.getElementById('updateCheckoutOrderModalContent');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-        }
-
-        function closeUpdateCheckoutOrderModal() {
-            const modal = document.getElementById('updateCheckoutOrderModal');
-            const content = document.getElementById('updateCheckoutOrderModalContent');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
-
-        async function submitCheckoutOrderUpdate() {
-            const id = document.getElementById('updCheckoutOrderId').value;
-            const status = document.getElementById('updCheckoutOrderStatus').value;
-
-            const btn = document.getElementById('btnSubmitCheckoutOrderUpdate');
-            btn.disabled = true;
-            showLoader();
-
-            try {
-                const { data, error } = await supabaseInstance.from('orders').update({ status: status, updated_at: new Date().toISOString() }).eq('id', id).select().single();
-                if (error) throw error;
-                
-                showToast("Checkout order status updated.");
-                closeUpdateCheckoutOrderModal();
-                
-                if (data) {
-                    const idx = adminCheckoutOrders.findIndex(o => o.id === data.id);
-                    if(idx > -1) adminCheckoutOrders[idx] = data;
-                    filterAdminCheckoutOrders();
-                    updateOverviewMetrics();
-                }
-            } catch (err) {
-                showErrorToast(err.message || "Failed to update checkout order.");
-            } finally {
-                btn.disabled = false;
-                hideLoader();
-            }
-        }
-
-        function deleteCheckoutOrder(id) {
-            showConfirmModal(
-                currentLang === 'en' ? 'Delete Checkout Order' : 'အော်ဒါဖျက်ရန်',
-                currentLang === 'en' ? 'Are you sure you want to permanently delete this checkout order?' : 'ဤအော်ဒါကို အပြီးအပိုင်ဖျက်ရန် သေချာပါသလား?',
-                'danger',
-                async () => {
-                    showLoader();
-                    try {
-                        const { data, error } = await supabaseInstance.from('orders').delete().eq('id', id).select();
-                        if (error) throw error;
-                        
-                        showToast(currentLang === 'en' ? 'Checkout order deleted' : 'အော်ဒါဖျက်သိမ်းပြီးပါပြီ');
-                        adminCheckoutOrders = adminCheckoutOrders.filter(order => order.id !== id);
-                        filterAdminCheckoutOrders();
                         updateOverviewMetrics();
                     } catch (err) {
                         showErrorToast(err.message || 'Failed to delete order');
@@ -3263,8 +2947,8 @@
                 if (dict[currentLang][key]) el.placeholder = dict[currentLang][key];
             });
             
-            const titleMap = { 'overview': 'Overview', 'arch-orders': 'Package Orders Management', 'orders': 'Order Management', 'checkout-orders': 'Checkout Orders', 'packages': 'Architecture Packages', 'coupons': 'Coupon Management', 'subscribers': 'Newsletter Subscribers', 'settings': 'System Settings' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'arch-orders': 'ပက်ကေ့ချ် အော်ဒါ စီမံခန့်ခွဲမှု', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'checkout-orders': 'ဝယ်ယူမှုမှတ်တမ်း', 'packages': 'ပက်ကေ့ချ် စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'subscribers': 'သတင်းလွှာစာရင်းသွင်းသူများ', 'settings': 'စနစ် ဆက်တင်များ' };
+            const titleMap = { 'overview': 'Overview', 'arch-orders': 'Package Orders Management', 'orders': 'Order Management', 'packages': 'Architecture Packages', 'coupons': 'Coupon Management', 'subscribers': 'Newsletter Subscribers', 'settings': 'System Settings' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'arch-orders': 'ပက်ကေ့ချ် အော်ဒါ စီမံခန့်ခွဲမှု', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'packages': 'ပက်ကေ့ချ် စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'subscribers': 'သတင်းလွှာစာရင်းသွင်းသူများ', 'settings': 'စနစ် ဆက်တင်များ' };
             
             let activeTab = window.location.hash.replace('#', '') || 'overview';
             const titleStr = currentLang === 'en' ? (titleMap[activeTab] || 'Dashboard') : (titleMapMM[activeTab] || 'Dashboard');
@@ -3277,7 +2961,6 @@
             renderLanguage();
             if(adminOrders.length > 0) filterAdminOrders();
             if(adminArchOrders.length > 0) filterAdminArchOrders();
-            if(adminCheckoutOrders.length > 0) filterAdminCheckoutOrders();
         }
 
         function populateSidebar() {
@@ -3381,8 +3064,8 @@
                 activeBtn.classList.add('bg-white/10', 'text-white');
             }
 
-            const titleMap = { 'overview': 'Overview', 'arch-orders': 'Package Orders Management', 'orders': 'Order Management', 'checkout-orders': 'Checkout Orders', 'packages': 'Architecture Packages', 'coupons': 'Coupon Management', 'subscribers': 'Newsletter Subscribers', 'settings': 'System Settings' };
-            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'arch-orders': 'ပက်ကေ့ချ် အော်ဒါ စီမံခန့်ခွဲမှု', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'checkout-orders': 'ဝယ်ယူမှုမှတ်တမ်း', 'packages': 'ပက်ကေ့ချ် စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'subscribers': 'သတင်းလွှာစာရင်းသွင်းသူများ', 'settings': 'စနစ် ဆက်တင်များ' };
+            const titleMap = { 'overview': 'Overview', 'arch-orders': 'Package Orders Management', 'orders': 'Order Management', 'packages': 'Architecture Packages', 'coupons': 'Coupon Management', 'subscribers': 'Newsletter Subscribers', 'settings': 'System Settings' };
+            const titleMapMM = { 'overview': 'အကျဉ်းချုပ်', 'arch-orders': 'ပက်ကေ့ချ် အော်ဒါ စီမံခန့်ခွဲမှု', 'orders': 'အော်ဒါ စီမံခန့်ခွဲမှု', 'packages': 'ပက်ကေ့ချ် စီမံခန့်ခွဲမှု', 'coupons': 'ကူပွန် စီမံခန့်ခွဲမှု', 'subscribers': 'သတင်းလွှာစာရင်းသွင်းသူများ', 'settings': 'စနစ် ဆက်တင်များ' };
             const titleStr = currentLang === 'en' ? (titleMap[tabId] || 'Dashboard') : (titleMapMM[tabId] || 'Dashboard');
             document.getElementById('headerTitle').innerText = titleStr;
             
@@ -3575,7 +3258,6 @@
                 const confirmModal = document.getElementById('confirmModal');
                 const updateOrderModal = document.getElementById('updateOrderModal');
                 const archOrderModal = document.getElementById('archOrderModal');
-                const updateCheckoutOrderModal = document.getElementById('updateCheckoutOrderModal');
                 const archUrlModal = document.getElementById('archUrlModal');
                 const createCouponModal = document.getElementById('createCouponModal');
                 const pkgModal = document.getElementById('packageModal');
@@ -3590,7 +3272,6 @@
                     if (confirmModal && !confirmModal.classList.contains('hidden')) closeConfirmModal();
                     if (updateOrderModal && !updateOrderModal.classList.contains('hidden')) closeUpdateOrderModal();
                     if (archOrderModal && !archOrderModal.classList.contains('hidden')) closeArchOrderModal();
-                    if (updateCheckoutOrderModal && !updateCheckoutOrderModal.classList.contains('hidden')) closeUpdateCheckoutOrderModal();
                     if (archUrlModal && !archUrlModal.classList.contains('hidden')) closeArchUrlModal();
                     if (createCouponModal && !createCouponModal.classList.contains('hidden')) closeCreateCouponModal();
                     if (pkgModal && !pkgModal.classList.contains('hidden')) closePackageModal();
