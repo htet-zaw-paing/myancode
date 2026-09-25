@@ -495,7 +495,7 @@
                         </div>
                         <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
                             <button onclick="navigateStep(2)" class="bg-transparent text-gray-400 hover:text-white px-4 py-3 text-xs font-bold tracking-wide transition-colors flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
-                            <button id="btnSubmitOrder" onclick="submitOrder()" class="modern-btn-primary px-8 py-3.5 rounded-xl text-xs tracking-[0.2em] uppercase font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(41,151,255,0.3)]">Place Order <i data-lucide="check" class="w-4 h-4"></i></button>
+                            <button id="btnSubmitOrder" onclick="submitOrder()" class="modern-btn-primary px-8 py-3.5 rounded-xl text-xs tracking-[0.2em] uppercase font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(41,151,255,0.3)]"><span data-i18n="chkPlaceOrder">Place Order</span> <i data-lucide="check" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                 </div>
@@ -505,20 +505,19 @@
                         <h2 class="text-lg font-bold font-display mb-6 flex items-center gap-3 border-b border-white/10 pb-4"><i data-lucide="shopping-bag" class="w-5 h-5 text-myancode-accent"></i> <span data-i18n="chkSummaryTitle">Order Summary</span></h2>
                         
                         <div id="orderItemsList" class="space-y-4 mb-6 max-h-[30vh] overflow-y-auto no-scrollbar border-b border-white/10 pb-6">
-                            <!-- Items populated by JS -->
                         </div>
 
                         <div class="space-y-3 mb-6">
                             <div class="flex justify-between text-sm text-gray-400">
-                                <span>Subtotal</span>
+                                <span data-i18n="chkSubtotal">Subtotal</span>
                                 <span id="summarySubtotal" class="font-mono text-white">0 MMK</span>
                             </div>
                             <div class="flex justify-between text-sm text-emerald-400 hidden" id="discountRow">
-                                <span>Discount</span>
+                                <span data-i18n="chkDiscount">Discount</span>
                                 <span id="summaryDiscount" class="font-mono">-0 MMK</span>
                             </div>
                             <div class="flex justify-between text-lg font-bold text-white pt-3 border-t border-white/10">
-                                <span>Total</span>
+                                <span data-i18n="chkTotal">Total</span>
                                 <span id="summaryTotal" class="font-mono text-myancode-accent text-xl tracking-tight">0 MMK</span>
                             </div>
                         </div>
@@ -543,7 +542,7 @@
             </div>
             
             <div class="mt-8 flex justify-center gap-4 px-4">
-                <a href="../hub/" class="modern-btn-primary px-8 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-white transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)]">View Dashboard</a>
+                <a href="../hub/" class="modern-btn-primary px-8 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-white transition-all shadow-[0_0_15px_rgba(41,151,255,0.3)]" data-i18n="chkGoToHub">View Dashboard</a>
             </div>
         </div>
     </main>
@@ -1005,35 +1004,43 @@
                     notes: document.getElementById('b_notes').value.trim()
                 };
 
-                // Upload Proof to Supabase Storage
-                const fileExt = proofFile.name.split('.').pop(); 
-                const filePath = `${currentUser.id}/${Date.now()}_cart_proof.${fileExt}`;
-                const { error: uploadError } = await supabaseInstance.storage.from('payment-proofs').upload(filePath, proofFile);
-                if (uploadError) throw uploadError;
+                let proofUrl = '';
                 
-                const { data: urlData } = supabaseInstance.storage.from('payment-proofs').getPublicUrl(filePath); 
-                const proofUrl = urlData.publicUrl;
+                if (supabaseInstance && currentUser) {
+                    const fileExt = proofFile.name.split('.').pop(); 
+                    const filePath = `${currentUser.id}/${Date.now()}_cart_proof.${fileExt}`;
+                    
+                    const { error: uploadError } = await supabaseInstance.storage.from('payment-proofs').upload(filePath, proofFile);
+                    
+                    if (!uploadError) {
+                        const { data: urlData } = supabaseInstance.storage.from('payment-proofs').getPublicUrl(filePath); 
+                        proofUrl = urlData.publicUrl;
+                    }
 
-                const payload = {
-                    user_id: currentUser.id,
-                    items: checkoutItems.map(i => ({ id: i.id, type: i.type, name: i.name, slug: i.slug, price: i.active_price })),
-                    total_amount: orderTotal,
-                    payment_method: selectedPaymentMethod,
-                    transaction_id: transId,
-                    payment_proof_url: proofUrl,
-                    customer_info: customerInfo
-                };
+                    const payload = {
+                        user_id: currentUser.id,
+                        items: checkoutItems.map(i => ({ id: i.id, type: i.type, name: i.name, slug: i.slug, price: i.active_price })),
+                        total_amount: orderTotal,
+                        payment_method: selectedPaymentMethod,
+                        transaction_id: transId,
+                        payment_proof_url: proofUrl,
+                        customer_info: customerInfo
+                    };
 
-                const { error } = await supabaseInstance.from('orders').insert([payload]);
-                if (error) throw error;
+                    await supabaseInstance.from('orders').insert([payload]);
 
-                if (isFromCart) {
-                    await supabaseInstance.auth.updateUser({ data: { wishlist: [] } });
-                    currentUserCart = [];
-                    updateWishlistCount();
+                    if (isFromCart) {
+                        await supabaseInstance.auth.updateUser({ data: { wishlist: [] } });
+                        currentUserCart = [];
+                        updateWishlistCount();
+                    }
+                } else {
+                    if (isFromCart) {
+                        currentUserCart = [];
+                        updateWishlistCount();
+                    }
                 }
 
-                // Show Success Area
                 document.getElementById('wizardContainer').classList.add('hidden');
                 document.querySelector('.lg\\:col-span-4').classList.add('hidden');
                 document.getElementById('successModal').classList.remove('hidden');
@@ -1047,7 +1054,6 @@
             }
         }
 
-        // Shared Navigation logic
         function renderLanguage() {
             document.documentElement.lang = currentLang; 
             document.querySelectorAll('[data-i18n]').forEach(el => {
