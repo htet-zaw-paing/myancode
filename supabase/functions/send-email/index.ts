@@ -5,10 +5,13 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? ""; 
 
-// Strictly authorized sender IDs
 const ALLOWED_SENDERS = [
   "htetzawpaing@myancode.com",
-  "hello@myancode.com"
+  "hello@myancode.com",
+  "maintenance@myancode.com",
+  "update@myancode.com",
+  "noreply@myancode.com",
+  "promotion@myancode.com"
 ];
 
 const corsHeaders = {
@@ -17,7 +20,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight request
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -27,12 +29,10 @@ serve(async (req) => {
       throw new Error("Missing RESEND_API_KEY environment variable.");
     }
 
-    // 1. Authorize the user making the request
     const authHeader = req.headers.get("Authorization") || "";
     const token = authHeader.replace("Bearer ", "");
     if (!token) throw new Error("Unauthorized: Missing JWT.");
 
-    // Create a Supabase client with the user's JWT to respect RLS
     const supabase = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
         global: { headers: { Authorization: req.headers.get('Authorization')! } }
     });
@@ -40,7 +40,6 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) throw new Error("Unauthorized: Invalid session.");
 
-    // Verify user is a 'founder' by checking the profiles table
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
@@ -51,29 +50,33 @@ serve(async (req) => {
       throw new Error("Forbidden: Only Founders can send emails.");
     }
 
-    // 2. Parse request payload
     const { from, to, subject, html, reply_to } = await req.json();
 
     if (!from || !to || !subject || !html || !reply_to) {
       throw new Error("Missing required email fields.");
     }
 
-    // 3. Validate sender strictly against allowlist
     if (!ALLOWED_SENDERS.includes(reply_to)) {
       throw new Error("Forbidden: Sender address is not authorized.");
     }
 
-    // Ensure 'from' strictly matches the allowed formats
     let finalFrom = "";
     if (reply_to === "htetzawpaing@myancode.com" && from.includes("Htet Zaw Paing")) {
         finalFrom = "Htet Zaw Paing <htetzawpaing@myancode.com>";
     } else if (reply_to === "hello@myancode.com" && from.includes("MyanCode")) {
         finalFrom = "MyanCode <hello@myancode.com>";
+    } else if (reply_to === "maintenance@myancode.com" && from.includes("Maintenance")) {
+        finalFrom = "MyanCode Maintenance <maintenance@myancode.com>";
+    } else if (reply_to === "update@myancode.com" && from.includes("Update")) {
+        finalFrom = "MyanCode Updates <update@myancode.com>";
+    } else if (reply_to === "noreply@myancode.com" && from.includes("MyanCode")) {
+        finalFrom = "MyanCode <noreply@myancode.com>";
+    } else if (reply_to === "promotion@myancode.com" && from.includes("Promotion")) {
+        finalFrom = "MyanCode Promotions <promotion@myancode.com>";
     } else {
         throw new Error("Forbidden: Invalid 'From' alias.");
     }
 
-    // 4. Send email via Resend
     const resendRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -92,9 +95,6 @@ serve(async (req) => {
     const resendData = await resendRes.json();
     const isSuccess = resendRes.ok;
 
-    // 5. Log the email attempt in the database
-    // We use a service role client here to bypass the fact that we didn't create an INSERT policy for the user.
-    // This guarantees emails can ONLY be logged by this function.
     const supabaseAdmin = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
     
     const { error: logError } = await supabaseAdmin
