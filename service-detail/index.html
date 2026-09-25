@@ -1253,11 +1253,8 @@
                 
                 currentServiceData = data;
                 updateServiceSEO(data);
-                
                 updateViewHistory(data.id);
-                
                 renderServiceDetails(data);
-                
                 fetchRelatedServices(data);
 
             } catch (err) {
@@ -1506,7 +1503,7 @@
             if (!currentServiceData) return;
             const price = currentServiceData.discount_price ? parseFloat(currentServiceData.discount_price) : parseFloat(currentServiceData.price);
             const safeName = currentServiceData.service_name.replace(/'/g, "\\'");
-            toggleWishlist(currentServiceData.id, safeName, price);
+            toggleWishlist(currentServiceData.id, safeName, price, 'service');
         }
 
         function buyNowFromDetail() {
@@ -1520,15 +1517,7 @@
                 showErrorToast(currentLang === 'en' ? "Access Denied: Staff cannot checkout." : "ဝန်ထမ်းများ ဝယ်ယူခွင့်မရှိပါ။"); 
                 return; 
             }
-            
-            const price = currentServiceData.discount_price ? parseFloat(currentServiceData.discount_price) : parseFloat(currentServiceData.price);
-            const index = currentUserCart.findIndex(i => i.id === currentServiceData.id);
-            if (index === -1) {
-                currentUserCart.push({ id: currentServiceData.id, name: currentServiceData.service_name, price: price });
-                syncWishlistToSupabase();
-            }
-            
-            window.location.href = `../checkout/?source=cart`;
+            window.location.href = `../checkout/?service=${currentServiceData.slug || currentServiceData.id}`;
         }
 
         function renderLanguage() {
@@ -1671,7 +1660,7 @@
             else { document.body.classList.remove('no-scroll'); }
         }
 
-        function toggleWishlist(id, name, price) {
+        function toggleWishlist(id, name, price, type = 'template') {
             if (!currentUser) {
                 const currentRedirect = encodeURIComponent(window.location.pathname + window.location.search);
                 window.location.href = `../login/?redirect=${currentRedirect}`;
@@ -1680,9 +1669,15 @@
             const isStaff = ['founder', 'admin', 'moderator', 'partner', 'developer'].includes(currentUser.role);
             if (isStaff) { showErrorToast(currentLang === 'en' ? "Access Denied: Staff members cannot add to saved items." : "ဝန်ထမ်းများ စာရင်းသို့ ထည့်ခွင့်မရှိပါ။"); return; }
             const index = currentUserCart.findIndex(i => i.id === id);
-            if (index > -1) { currentUserCart.splice(index, 1); showToast(dict[currentLang].removeFromWishlist + " Successful"); } 
-            else { currentUserCart.push({ id, name, price }); showToast(currentLang === 'en' ? "Added to Bag" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); }
-            syncWishlistToSupabase(); updateWishlistCount();
+            if (index > -1) { 
+                currentUserCart.splice(index, 1); 
+                showToast(dict[currentLang].removeFromWishlist + " Successful"); 
+            } else { 
+                currentUserCart.push({ id, name, price, type }); 
+                showToast(currentLang === 'en' ? "Added to Bag" : "စာရင်းသို့ ထည့်သွင်းလိုက်ပါပြီ"); 
+            }
+            syncWishlistToSupabase(); 
+            updateWishlistCount();
             const wDrawer = document.getElementById('wishlistDrawer');
             if(wDrawer && wDrawer.classList.contains('open')) renderWishlistItems();
             if (typeof updateDetailSaveButton === 'function') updateDetailSaveButton();
@@ -1961,6 +1956,8 @@
             })();
             return searchDataPromise;
         }
+
+        function getCategoryIcon(cat) { return 'boxes'; }
 
         function levenshteinDistance(a, b) {
             const rows = Array.from({ length: b.length + 1 }, (_, index) => [index]);
