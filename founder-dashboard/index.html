@@ -600,6 +600,7 @@
                                 <option value="package_orders">Package Orders</option>
                                 <option value="plan_orders">Plan Orders</option>
                                 <option value="delivered_projects">Delivered Projects</option>
+                                <option value="email_messages">Email Messages</option>
                             </select>
                             
                             <select id="auditActionFilter" onchange="handleAuditFilter()" class="w-full sm:w-40 bg-[#0a0a0a] border border-white/5 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-myancode-accent cursor-pointer appearance-none transition-colors shadow-inner">
@@ -1553,13 +1554,14 @@
                 renderAuditLogs();
                 updateAuditPagination();
             } catch(e) {
+                console.error("Audit log error:", e);
                 tbody.innerHTML = `
                 <tr>
                     <td colspan="6" class="px-6 py-16 text-center text-red-400">
                         <div class="flex flex-col items-center justify-center bg-red-500/10 p-8 rounded-2xl w-max mx-auto border border-red-500/20 shadow-inner">
                             <i data-lucide="alert-triangle" class="w-10 h-10 text-red-500 mb-4"></i>
                             <p class="font-mono text-sm tracking-widest uppercase font-bold text-red-400">Telemetry Fetch Failed</p>
-                            <p class="text-[11px] text-red-400/80 mt-2 max-w-xs">An error occurred while connecting to the audit trail.</p>
+                            <p class="text-[11px] text-red-400/80 mt-2 max-w-sm">${e.message || 'An error occurred while connecting to the audit trail.'}</p>
                         </div>
                     </td>
                 </tr>`;
