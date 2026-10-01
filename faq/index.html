@@ -157,10 +157,10 @@
         }
         .faq-item.open .faq-icon {
             transform: rotate(180deg);
-            color: #2997ff;
+            color: #ffffff;
         }
         .faq-item.open .faq-question-text {
-            color: #2997ff;
+            color: #ffffff;
         }
         .prose-custom ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
         .prose-custom li { margin-bottom: 0.25rem; }
@@ -420,29 +420,51 @@
     <main class="flex-grow pt-24 pb-20 w-full relative z-10 bg-[#050505]">
         
         <div class="max-w-[1024px] mx-auto px-4 sm:px-6 mb-10 sm:mb-16 pt-8 sm:pt-16 text-center reveal">
-            <div class="inline-flex items-center justify-center p-4 sm:p-5 bg-white/5 rounded-3xl shadow-sm border border-white/10 mb-6 sm:mb-8 icon-float">
-                <i data-lucide="message-circle-question" class="h-8 w-8 sm:h-10 sm:w-10 text-myancode-accent"></i>
-            </div>
             <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold font-display tracking-tight text-white mb-4 sm:mb-6 leading-tight" data-i18n="faqHeroTitle">Frequently Asked Questions</h1>
             <p class="text-base sm:text-lg text-gray-400 leading-relaxed max-w-2xl mx-auto font-medium" data-i18n="faqHeroDesc">Everything you need to know about MyanCode's enterprise services, templates, and custom solutions.</p>
         </div>
 
         <div class="max-w-[1024px] mx-auto px-4 sm:px-6">
             
-            <div class="max-w-xl mx-auto mb-8 relative reveal" style="animation-delay: 50ms;">
-                <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500"></i>
-                <input type="text" id="faqLocalSearch" onkeyup="handleLocalFaqSearch(event)" 
-                       class="w-full pl-14 pr-5 py-4 bg-[#111] border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-myancode-accent transition-all shadow-sm focus:shadow-[0_0_15px_rgba(41,151,255,0.15)] text-sm font-medium" 
-                       placeholder="Search questions or keywords..." data-i18n-placeholder="faqSearchPlaceholder">
+            <div class="max-w-xl mx-auto mb-10 relative reveal z-50 flex justify-center" style="animation-delay: 50ms;">
+                <div id="faqSearchWrapper" class="relative w-[240px] max-w-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] h-14 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-sm focus-within:shadow-[0_0_20px_rgba(255,255,255,0.05)] focus-within:border-white/30 flex items-center">
+                    
+                    <div id="faqIconGroup" class="absolute inset-0 flex items-center justify-between px-2 transition-opacity duration-300 z-20">
+                        <button onclick="expandFaqSearch()" type="button" class="flex-1 flex justify-center items-center h-10 text-gray-400 hover:text-white transition-colors hover:bg-white/5 rounded-xl cursor-pointer" title="Search FAQs">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                        <div class="w-px h-5 bg-white/10 mx-1"></div>
+                        <a href="../help/" class="flex-1 flex justify-center items-center h-10 text-gray-400 hover:text-white transition-colors hover:bg-white/5 rounded-xl cursor-pointer" title="Help Center">
+                            <i data-lucide="help-circle" class="w-5 h-5"></i>
+                        </a>
+                        <div class="w-px h-5 bg-white/10 mx-1"></div>
+                        <a href="../contact-us/" class="flex-1 flex justify-center items-center h-10 text-gray-400 hover:text-white transition-colors hover:bg-white/5 rounded-xl cursor-pointer" title="Contact Support">
+                            <i data-lucide="phone" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+
+                    <div id="faqInputGroup" class="absolute inset-0 flex items-center opacity-0 pointer-events-none transition-opacity duration-300 z-10 w-full">
+                        <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-white z-20 pointer-events-none"></i>
+                        <input type="text" id="faqLocalSearch" oninput="handleLocalFaqSearch(event)" 
+                               class="w-full h-full pl-14 pr-12 bg-transparent border-none text-white placeholder-gray-500 focus:outline-none focus:ring-0 text-[15px] font-medium tracking-wide rounded-2xl" 
+                               placeholder="Search questions or keywords..." data-i18n-placeholder="faqSearchPlaceholder" autocomplete="off">
+                        <button id="faqSearchClearBtn" type="button" onclick="clearFaqSearch()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors z-20 p-1.5 bg-[#111] border border-white/5 rounded-md hover:bg-white/10">
+                            <i data-lucide="x" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="faqSearchDropdown" class="absolute left-0 right-0 top-[calc(100%+0.75rem)] bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl z-[100] hidden flex-col max-h-[300px] overflow-y-auto overflow-x-hidden">
+                    </div>
+                </div>
             </div>
 
             <div class="flex flex-wrap justify-center gap-3 mb-12 sm:mb-16 reveal" style="animation-delay: 100ms;">
-                <button class="filter-btn active px-5 py-2.5 text-xs sm:text-sm font-bold font-display border border-white bg-white text-black transition-colors btn-hover-effect" data-filter="all" onclick="filterFaq('all', this)" data-i18n="faqFilterAll">All Questions</button>
-                <button class="filter-btn px-5 py-2.5  text-xs sm:text-sm font-bold font-display border border-white/10 bg-transparent text-gray-400 hover:bg-white/10 hover:text-white transition-colors btn-hover-effect" data-filter="general" onclick="filterFaq('general', this)" data-i18n="faqFilterGen">General</button>
-                <button class="filter-btn px-5 py-2.5 text-xs sm:text-sm font-bold font-display border border-white/10 bg-transparent text-gray-400 hover:bg-white/10 hover:text-white transition-colors btn-hover-effect" data-filter="templates" onclick="filterFaq('templates', this)" data-i18n="faqFilterTpl">Templates</button>
-                <button class="filter-btn px-5 py-2.5 text-xs sm:text-sm font-bold font-display border border-white/10 bg-transparent text-gray-400 hover:bg-white/10 hover:text-white transition-colors btn-hover-effect" data-filter="studio" onclick="filterFaq('studio', this)" data-i18n="faqFilterStu">Custom Packages</button>
-                <button class="filter-btn px-5 py-2.5 text-xs sm:text-sm font-bold font-display border border-white/10 bg-transparent text-gray-400 hover:bg-white/10 hover:text-white transition-colors btn-hover-effect" data-filter="services" onclick="filterFaq('services', this)" data-i18n="faqFilterSrv">Services & Maint.</button>
-                <button class="filter-btn px-5 py-2.5 text-xs sm:text-sm font-bold font-display border border-white/10 bg-transparent text-gray-400 hover:bg-white/10 hover:text-white transition-colors btn-hover-effect" data-filter="billing" onclick="filterFaq('billing', this)" data-i18n="faqFilterBill">Billing</button>
+                <button type="button" class="filter-btn active px-6 py-2.5 text-[13px] font-semibold tracking-wide rounded-full border border-white/20 bg-white text-black transition-all duration-300" data-filter="all" onclick="filterFaq('all', this)" data-i18n="faqFilterAll">All Questions</button>
+                <button type="button" class="filter-btn px-6 py-2.5 text-[13px] font-semibold tracking-wide rounded-full border border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-300" data-filter="general" onclick="filterFaq('general', this)" data-i18n="faqFilterGen">General</button>
+                <button type="button" class="filter-btn px-6 py-2.5 text-[13px] font-semibold tracking-wide rounded-full border border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-300" data-filter="templates" onclick="filterFaq('templates', this)" data-i18n="faqFilterTpl">Templates</button>
+                <button type="button" class="filter-btn px-6 py-2.5 text-[13px] font-semibold tracking-wide rounded-full border border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-300" data-filter="studio" onclick="filterFaq('studio', this)" data-i18n="faqFilterStu">Custom Packages</button>
+                <button type="button" class="filter-btn px-6 py-2.5 text-[13px] font-semibold tracking-wide rounded-full border border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-300" data-filter="services" onclick="filterFaq('services', this)" data-i18n="faqFilterSrv">Services & Maint.</button>
+                <button type="button" class="filter-btn px-6 py-2.5 text-[13px] font-semibold tracking-wide rounded-full border border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-300" data-filter="billing" onclick="filterFaq('billing', this)" data-i18n="faqFilterBill">Billing</button>
             </div>
 
             <div id="faqContainer" class="flex flex-col gap-4 reveal" style="animation-delay: 200ms;">
@@ -1009,7 +1031,7 @@
               q_en: "Does MyanCode support multiple languages?", 
               q_mm: "MyanCode တွင် ဘာသာစကား ဘယ်နှစ်မျိုး အသုံးပြုနိုင်သလဲ?", 
               a_en: "<p>Yes. The MyanCode platform is fully localized in both <strong>English</strong> and <strong>Myanmar (Burmese)</strong>. You can switch your preferred language at any time using the globe icon in the navigation bar. For custom Packages projects, we can implement multi-language architectures (i18n) supporting any global language required by your target audience.</p>", 
-              a_mm: "<p>ဟုတ်ကဲ့။ MyanCode ဝက်ဘ်ဆိုက်ကို <strong>အင်္ဂလိပ်</strong> နှင့် <strong>မြန်မာ</strong> ဘာသာစကား နှစ်မျိုးဖြင့် အပြည့်အဝ အသုံးပြုနိုင်ပါသည်။ အပေါ်ဘက်ရှိ ကမ္ဘာလုံးပုံ icon ကိုနှိပ်၍ ဘာသာစကား ပြောင်းလဲနိုင်ပါသည်။ စိတ်ကြိုက်ရေးဆွဲသော ပရောဂျက်များအတွက်လည်း လူကြီးမင်းလိုအပ်သော မည်သည့်ဘာသာစကားကိုမဆို ထည့်သွင်းရေးဆွဲပေးနိုင်ပါသည်။</p>" 
+              a_mm: "<p>ဟုတ်ကဲ့။ MyanCode ဝက်ဘ်ဆိုက်ကို <strong>အင်္ဂလိပ်</strong> နှင့် <strong>မြန်မာ</strong> ဘာသာစကား နှစ်မျိုးဖြင့် အပြည့်အဝ အသုံးပြုနိုင်ပါသည်။ အပေါ်ဘက်ရှိ ကမ္ဘာလုံးပုံ icon ကိုနှိပ်၍ ဘာသာစကား ပြောင်းလဲနိုင်နိုင်ပါသည်။ စိတ်ကြိုက်ရေးဆွဲသော ပရောဂျက်များအတွက်လည်း လူကြီးမင်းလိုအပ်သော မည်သည့်ဘာသာစကားကိုမဆို ထည့်သွင်းရေးဆွဲပေးနိုင်ပါသည်။</p>" 
             },
             { id: "q8", category: "general", 
               q_en: "What are your business hours?", 
@@ -1297,11 +1319,42 @@
               q_mm: "အသုံးပြုနည်း လမ်းညွှန်များ ရှိပါသလား?", 
               a_en: "<p>Yes! We have a dedicated <strong>Guides</strong> section accessible from the Support mega-menu in our navigation bar. It contains step-by-step tutorials on how to browse the catalog, place secure orders, customize Tailwind CSS templates, and maximize the performance of your new digital assets.</p>", 
               a_mm: "<p>ရှိပါသည်။ အပေါ်ဘက် မီနူးရှိ Support အောက်မှတစ်ဆင့် <strong>Guides</strong> စာမျက်နှာသို့ ဝင်ရောက်နိုင်ပါသည်။ ထိုနေရာတွင် ဝယ်ယူနည်း၊ Template များ စိတ်ကြိုက်ပြင်ဆင်နည်းနှင့် အခြားသော အသုံးဝင်သည့် အချက်အလက်များကို အဆင့်ဆင့် ရှင်းလင်းပြသထားပါသည်။</p>" 
+            },
+            { id: "q55", category: "general", 
+              q_en: "I forgot my password. How can I reset it?", 
+              q_mm: "စကားဝှက် မေ့သွားပါက ဘယ်လိုလုပ်ရမလဲ?", 
+              a_en: "<p>If you have lost or forgotten your password, navigate to the <a href='../login/' class='text-myancode-accent hover:underline'>Login</a> page and click on <strong>Forgot Password?</strong>. Enter your registered email address, and we will send you a secure link to reset your credentials instantly.</p>", 
+              a_mm: "<p>စကားဝှက်ကို မေ့သွားပါက <a href='../login/' class='text-myancode-accent hover:underline'>Login</a> စာမျက်နှာရှိ <strong>Forgot Password?</strong> ကို နှိပ်ပါ။ မိမိစာရင်းသွင်းထားသော အီးမေးလ်ကို ထည့်သွင်းပေးပါက စကားဝှက်အသစ်ပြောင်းရန် လင့်ခ်ကို ချက်ချင်းပေးပို့ပေးမည် ဖြစ်ပါသည်။</p>" 
+            },
+            { id: "q56", category: "general", 
+              q_en: "Why can't I login or register my account?", 
+              q_mm: "အကောင့်ဝင်ရန် သို့မဟုတ် စာရင်းသွင်းရန် အခက်အခဲရှိနေပါက ဘယ်လိုလုပ်ရမလဲ?", 
+              a_en: "<p>If you are experiencing issues during login or registration, ensure that:</p><ul><li>Your email is entered correctly and has been verified.</li><li>Your password meets the minimum security requirements.</li><li>You have completed the Cloudflare security challenge.</li></ul><p>If problems persist, please contact our support team directly for assistance.</p>", 
+              a_mm: "<p>အကောင့်ဝင်ရန်နှင့် ဖွင့်ရန် အခက်အခဲရှိပါက အောက်ပါတို့ကို စစ်ဆေးပါ-</p><ul><li>အီးမေးလ် မှန်ကန်မှုရှိမရှိနှင့် အတည်ပြု (Verify) လုပ်ပြီးမလုပ်ပြီး။</li><li>စကားဝှက် လုံခြုံရေးအဆင့်မီမှု ရှိမရှိ။</li><li>လုံခြုံရေးစစ်ဆေးမှု (Cloudflare) ကို အောင်မြင်စွာ ဖြေဆိုပြီးမပြီး။</li></ul><p>ဆက်လက် အဆင်မပြေဖြစ်နေပါက ကျွန်ုပ်တို့၏ အကူအညီပေးရေးအဖွဲ့ထံ တိုက်ရိုက် ဆက်သွယ်နိုင်ပါသည်။</p>" 
+            },
+            { id: "q57", category: "studio", 
+              q_en: "Can I add team members to my project dashboard?", 
+              q_mm: "ကျွန်ုပ်၏ ပရောဂျက် Dashboard သို့ အဖွဲ့ဝင်များ ထပ်မံထည့်သွင်းနိုင်ပါသလား?", 
+              a_en: "<p><strong>Yes.</strong> Enterprise clients using our Custom Packages can request multi-user access. We can configure your User Hub to allow invited team members, co-founders, or staff to view project milestones, manage invoices, and communicate with our developers under your primary organization account.</p>", 
+              a_mm: "<p><strong>ရပါသည်။</strong> စိတ်ကြိုက်ရေးဆွဲသော (Custom Packages) ဖောက်သည်များအနေဖြင့် အဖွဲ့ဝင်များ ထပ်မံထည့်သွင်းခွင့် တောင်းခံနိုင်ပါသည်။ သင့်လုပ်ငန်းအကောင့်အောက်တွင် အခြားသော အဖွဲ့ဝင်များ၊ ဝန်ထမ်းများကို ဖိတ်ခေါ်၍ ပရောဂျက်အခြေအနေများကို အတူတကွ စီမံခန့်ခွဲနိုင်ရန် စီစဉ်ပေးပါသည်။</p>" 
+            },
+            { id: "q58", category: "studio", 
+              q_en: "What exactly is included in a custom package?", 
+              q_mm: "Custom Package တွင် အတိအကျ ဘာတွေပါဝင်သလဲ?", 
+              a_en: "<p>A custom package typically includes a dedicated Project Manager, custom UI/UX design (Figma), full front-end and back-end coding, database architecture, API integrations, QA testing, and initial deployment. Optional add-ons include advanced SEO, dedicated maintenance, and native mobile app development.</p>", 
+              a_mm: "<p>Custom Package တွင် သီးသန့် Project Manager၊ စိတ်ကြိုက် UI/UX ဒီဇိုင်းရေးဆွဲခြင်း၊ ရှေ့ပိုင်းနှင့် နောက်ကွယ်မှ ကုဒ်အားလုံး ရေးသားခြင်း၊ Database တည်ဆောက်ခြင်း၊ API ချိတ်ဆက်ခြင်း၊ စမ်းသပ်ခြင်းနှင့် အွန်လိုင်းလွှင့်တင်ခြင်းများ ပါဝင်ပါသည်။ Advanced SEO နှင့် အခြားဝန်ဆောင်မှုများကိုလည်း ထပ်မံရယူနိုင်ပါသည်။</p>" 
+            },
+            { id: "q59", category: "studio", 
+              q_en: "Can I upgrade my custom package later?", 
+              q_mm: "နောက်ပိုင်းမှ Package ကို အဆင့်မြှင့်တင်နိုင်ပါသလား?", 
+              a_en: "<p>Yes, our modular architecture is built to scale. You can start with a foundational custom platform and later upgrade your package to include advanced features like E-commerce, multi-language support, or automated AI integrations without having to rebuild the entire site from scratch.</p>", 
+              a_mm: "<p>ရပါသည်။ ကျွန်ုပ်တို့၏ စနစ်များကို အလွယ်တကူ တိုးချဲ့နိုင်ရန် တည်ဆောက်ထားပါသည်။ အခြေခံစနစ်ဖြင့် စတင်ပြီး နောက်ပိုင်းတွင် E-commerce, ဘာသာစကားမျိုးစုံ ထည့်သွင်းခြင်းနှင့် AI ချိတ်ဆက်ခြင်းများကို အစမှပြန်လည်တည်ဆောက်စရာမလိုဘဲ အဆင့်မြှင့်တင် ထည့်သွင်းနိုင်ပါသည်။</p>" 
             }
         ];
 
         let currentFilter = 'all';
         let currentFaqSearch = '';
+        let specificFaqIdToShow = null;
 
         const globalLoader = document.getElementById('globalLoader');
         const loaderText = document.getElementById('loaderText');
@@ -1579,6 +1632,21 @@
             if (langDrop && !langDrop.classList.contains('dropdown-hidden') && (!langBtn || !langBtn.contains(e.target))) langDrop.classList.add('dropdown-hidden');
             const profBtn = document.getElementById('profileContainer'); const profDrop = document.getElementById('profileDropdown');
             if (profDrop && !profDrop.classList.contains('dropdown-hidden') && (!profBtn || !profBtn.contains(e.target))) profDrop.classList.add('dropdown-hidden');
+            
+            const faqDropdown = document.getElementById('faqSearchDropdown');
+            const faqInput = document.getElementById('faqLocalSearch');
+            const faqWrapper = document.getElementById('faqSearchWrapper');
+
+            if (faqDropdown && !faqDropdown.classList.contains('hidden') && e.target !== faqInput && !faqDropdown.contains(e.target)) {
+                faqDropdown.classList.add('hidden');
+                faqDropdown.classList.remove('flex');
+            }
+
+            if (faqWrapper && !faqWrapper.contains(e.target) && faqInput && faqInput.value.trim() === '') {
+                if (faqWrapper.classList.contains('w-full')) {
+                    collapseFaqSearch();
+                }
+            }
         });
 
         function updateHeaderTheme(theme, isScrolled) {
@@ -1825,26 +1893,203 @@
             }
         }
 
-        function handleLocalFaqSearch(e) {
-            currentFaqSearch = e.target.value.toLowerCase().trim();
+        function calculateFuzzyScore(query, text) {
+            if (!query) return 100;
+            const qLower = query.toLowerCase().trim();
+            const tLower = text.toLowerCase();
+
+            if (tLower.includes(qLower)) return 1000;
+
+            const qWords = qLower.split(/\s+/);
+            const tWords = tLower.split(/\s+/);
+
+            let totalScore = 0;
+
+            for (let qWord of qWords) {
+                if (qWord.length < 2) continue;
+                let bestWordScore = 0;
+
+                for (let tWord of tWords) {
+                    if (tWord.length < 2) continue;
+
+                    if (tWord === qWord) { bestWordScore = Math.max(bestWordScore, 800); continue; }
+                    if (tWord.startsWith(qWord)) { bestWordScore = Math.max(bestWordScore, 600); continue; }
+                    if (tWord.includes(qWord)) { bestWordScore = Math.max(bestWordScore, 400); continue; }
+
+                    let tChars = tWord.split('');
+                    let matchCount = 0;
+                    for (let char of qWord) {
+                        let idx = tChars.indexOf(char);
+                        if (idx > -1) {
+                            matchCount++;
+                            tChars.splice(idx, 1);
+                        }
+                    }
+
+                    const qCoverage = matchCount / qWord.length;
+                    const tCoverage = matchCount / tWord.length;
+                    const charScore = ((qCoverage * 2 + tCoverage) / 3) * 100;
+
+                    if (charScore > 50) {
+                        let finalScore = charScore;
+                        if (qWord[0] === tWord[0]) finalScore += 25;
+                        
+                        let seqIdx = 0;
+                        for (let char of tWord) {
+                            if (seqIdx < qWord.length && char === qWord[seqIdx]) seqIdx++;
+                        }
+                        if (seqIdx >= Math.min(qWord.length, tWord.length) * 0.7) finalScore += 30;
+
+                        bestWordScore = Math.max(bestWordScore, finalScore);
+                    }
+                }
+                totalScore += bestWordScore;
+            }
+
+            return qWords.length > 0 ? (totalScore / qWords.length) : 0;
+        }
+
+        function expandFaqSearch() {
+            const wrapper = document.getElementById('faqSearchWrapper');
+            const iconGroup = document.getElementById('faqIconGroup');
+            const inputGroup = document.getElementById('faqInputGroup');
+            const clearBtn = document.getElementById('faqSearchClearBtn');
+            
+            wrapper.classList.remove('w-[240px]');
+            wrapper.classList.add('w-full');
+            
+            iconGroup.classList.add('opacity-0', 'pointer-events-none');
+            iconGroup.classList.remove('z-20');
+            
+            inputGroup.classList.remove('opacity-0', 'pointer-events-none');
+            clearBtn.classList.remove('hidden');
+            
+            setTimeout(() => document.getElementById('faqLocalSearch').focus(), 300);
+        }
+
+        function collapseFaqSearch() {
+            const wrapper = document.getElementById('faqSearchWrapper');
+            const iconGroup = document.getElementById('faqIconGroup');
+            const inputGroup = document.getElementById('faqInputGroup');
+            const input = document.getElementById('faqLocalSearch');
+            
+            input.value = '';
+            currentFaqSearch = '';
+            specificFaqIdToShow = null;
             renderFaq(currentFilter);
+
+            wrapper.classList.add('w-[240px]');
+            wrapper.classList.remove('w-full');
+            
+            iconGroup.classList.remove('opacity-0', 'pointer-events-none');
+            iconGroup.classList.add('z-20');
+            inputGroup.classList.add('opacity-0', 'pointer-events-none');
+            
+            document.getElementById('faqSearchDropdown').classList.add('hidden');
+            document.getElementById('faqSearchDropdown').classList.remove('flex');
+        }
+
+        function clearFaqSearch() {
+            const input = document.getElementById('faqLocalSearch');
+            if (input.value.trim() === '') {
+                collapseFaqSearch();
+            } else {
+                input.value = '';
+                document.getElementById('faqSearchDropdown').classList.add('hidden');
+                document.getElementById('faqSearchDropdown').classList.remove('flex');
+                currentFaqSearch = '';
+                specificFaqIdToShow = null;
+                renderFaq(currentFilter);
+                input.focus();
+            }
+        }
+
+        function handleLocalFaqSearch(e) {
+            currentFaqSearch = e.target.value;
+            specificFaqIdToShow = null;
+            const dropdown = document.getElementById('faqSearchDropdown');
+            const clearBtn = document.getElementById('faqSearchClearBtn');
+            
+            clearBtn.classList.remove('hidden');
+
+            if(!currentFaqSearch.trim()) {
+                dropdown.classList.add('hidden');
+                dropdown.classList.remove('flex');
+                renderFaq(currentFilter);
+                return;
+            }
+
+            let scoredData = faqData.map(item => {
+                const cleanEn = (item.q_en + ' ' + item.a_en + ' ' + item.category).replace(/<[^>]*>?/gm, ' ');
+                const cleanMm = (item.q_mm + ' ' + item.a_mm + ' ' + item.category).replace(/<[^>]*>?/gm, ' ');
+                const scoreEn = calculateFuzzyScore(currentFaqSearch, cleanEn);
+                const scoreMm = calculateFuzzyScore(currentFaqSearch, cleanMm);
+                return { ...item, matchScore: Math.max(scoreEn, scoreMm) };
+            }).filter(item => item.matchScore > 45).sort((a, b) => b.matchScore - a.matchScore);
+
+            if(scoredData.length > 0) {
+                dropdown.innerHTML = scoredData.slice(0, 6).map(item => {
+                    const text = currentLang === 'en' ? item.q_en : item.q_mm;
+                    return `<button type="button" onclick="selectFaqDropdown('${item.id}')" class="w-full text-left px-5 py-3 border-b border-white/5 hover:bg-white/10 transition-colors text-sm text-gray-300 hover:text-white flex items-center justify-between group"><span class="truncate pr-4">${text}</span><i data-lucide="arrow-right" class="h-4 w-4 text-gray-600 group-hover:text-white shrink-0"></i></button>`;
+                }).join('');
+                dropdown.classList.remove('hidden');
+                dropdown.classList.add('flex');
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            } else {
+                dropdown.innerHTML = `<div class="px-5 py-4 text-sm text-gray-500 text-center">${dict[currentLang].faqNoResults || 'No results found'}</div>`;
+                dropdown.classList.remove('hidden');
+                dropdown.classList.add('flex');
+            }
+
+            renderFaq(currentFilter);
+        }
+
+        function selectFaqDropdown(id) {
+            specificFaqIdToShow = id;
+            const dropdown = document.getElementById('faqSearchDropdown');
+            dropdown.classList.add('hidden');
+            dropdown.classList.remove('flex');
+            
+            const targetFaq = faqData.find(f => f.id === id);
+            const searchInput = document.getElementById('faqLocalSearch');
+            searchInput.value = currentLang === 'en' ? targetFaq.q_en : targetFaq.q_mm;
+            currentFaqSearch = searchInput.value;
+            
+            document.getElementById('faqSearchClearBtn').classList.remove('hidden');
+            
+            renderFaq(currentFilter);
+            
+            setTimeout(() => {
+                const targetItem = document.querySelector('.faq-item');
+                if (targetItem && !targetItem.classList.contains('open')) {
+                    targetItem.querySelector('button').click();
+                }
+            }, 50);
         }
 
         function renderFaq(filterCategory = 'all') {
             const container = document.getElementById('faqContainer');
             let html = '';
+            let filteredData = [];
             
-            let filteredData = filterCategory === 'all' ? faqData : faqData.filter(q => q.category === filterCategory);
-            
-            if (currentFaqSearch) {
-                filteredData = filteredData.filter(item => {
-                    const searchStr = `${item.q_en} ${item.a_en} ${item.q_mm} ${item.a_mm}`.toLowerCase();
-                    return searchStr.includes(currentFaqSearch);
-                });
+            if (specificFaqIdToShow) {
+                filteredData = faqData.filter(q => q.id === specificFaqIdToShow);
+            } else {
+                filteredData = filterCategory === 'all' ? faqData : faqData.filter(q => q.category === filterCategory);
+                
+                if (currentFaqSearch.trim()) {
+                    filteredData = filteredData.map(item => {
+                        const cleanEn = (item.q_en + ' ' + item.a_en + ' ' + item.category).replace(/<[^>]*>?/gm, ' ');
+                        const cleanMm = (item.q_mm + ' ' + item.a_mm + ' ' + item.category).replace(/<[^>]*>?/gm, ' ');
+                        const scoreEn = calculateFuzzyScore(currentFaqSearch, cleanEn);
+                        const scoreMm = calculateFuzzyScore(currentFaqSearch, cleanMm);
+                        return { ...item, matchScore: Math.max(scoreEn, scoreMm) };
+                    }).filter(item => item.matchScore > 45).sort((a, b) => b.matchScore - a.matchScore);
+                }
             }
             
             if (filteredData.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 bg-[#111] border border-white/10 rounded-3xl"><i data-lucide="search-x" class="h-10 w-10 text-gray-600 mx-auto mb-4"></i><div class="text-gray-400 font-medium tracking-wide text-sm" data-i18n="faqNoResults">${dict[currentLang].faqNoResults || 'No FAQs found matching your search.'}</div></div>`;
+                container.innerHTML = `<div class="text-center py-12 bg-[#0a0a0a] border border-white/5 rounded-3xl"><i data-lucide="search-x" class="h-10 w-10 text-gray-600 mx-auto mb-4"></i><div class="text-gray-400 font-medium tracking-wide text-sm" data-i18n="faqNoResults">${dict[currentLang].faqNoResults || 'No FAQs found matching your search.'}</div></div>`;
                 if(typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
@@ -1853,17 +2098,18 @@
                 const delay = index * 50;
                 const question = currentLang === 'en' ? item.q_en : item.q_mm;
                 const answer = currentLang === 'en' ? item.a_en : item.a_mm;
+                const isOpen = specificFaqIdToShow ? 'open' : '';
                 
                 html += `
-                <div class="faq-item bg-[#111] border border-white/10 overflow-hidden shadow-sm hover:border-white/20 transition-all duration-300 card-enter" style="animation-delay: ${delay}ms;">
-                    <button class="w-full px-5 py-4 sm:px-8 sm:py-6 flex justify-between items-center text-left focus:outline-none group" onclick="toggleFaq(this)">
-                        <span class="faq-question-text font-bold font-display text-white text-sm sm:text-base pr-4 transition-colors group-hover:text-myancode-accent">${question}</span>
-                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 shrink-0 group-hover:bg-white/10 transition-colors">
+                <div class="faq-item ${isOpen} bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden hover:border-white/15 transition-all duration-400 card-enter" style="animation-delay: ${delay}ms;">
+                    <button type="button" class="w-full px-6 py-5 sm:px-8 sm:py-6 flex justify-between items-center text-left focus:outline-none group" onclick="toggleFaq(this)">
+                        <span class="faq-question-text font-semibold font-sans text-gray-200 text-[15px] sm:text-[17px] tracking-wide pr-4 transition-colors group-hover:text-white leading-relaxed">${question}</span>
+                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5 shrink-0 group-hover:bg-white/10 group-hover:border-white/10 transition-all duration-300">
                             <i data-lucide="chevron-down" class="faq-icon w-4 h-4 text-gray-400 transition-transform duration-500"></i>
                         </div>
                     </button>
-                    <div class="faq-answer px-5 sm:px-8">
-                        <div class="prose-custom text-gray-400 text-xs sm:text-sm font-medium pb-2 border-t border-white/10 pt-4 mt-2">
+                    <div class="faq-answer px-6 sm:px-8">
+                        <div class="prose-custom text-gray-400 text-[14px] leading-loose font-medium pb-6 pt-2 border-t border-white/5 mt-1">
                             ${answer}
                         </div>
                     </div>
@@ -1891,12 +2137,12 @@
             currentFilter = category;
             
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-white', 'text-black', 'border-white');
-                btn.classList.add('bg-transparent', 'text-gray-400', 'border-white/10');
+                btn.classList.remove('active', 'bg-white', 'text-black', 'border-white/20');
+                btn.classList.add('bg-transparent', 'text-gray-400', 'border-transparent');
             });
             
-            btnElement.classList.add('active', 'bg-white', 'text-black', 'border-white');
-            btnElement.classList.remove('bg-transparent', 'text-gray-400', 'border-white/10');
+            btnElement.classList.add('active', 'bg-white', 'text-black', 'border-white/20');
+            btnElement.classList.remove('bg-transparent', 'text-gray-400', 'border-transparent');
             
             renderFaq(category);
         }
