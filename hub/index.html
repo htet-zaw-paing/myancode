@@ -363,6 +363,7 @@
                                 <tr class="text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest border-b border-white/5">
                                     <th class="pb-4 pl-4" data-i18n="thOrder">ID</th>
                                     <th class="pb-4" data-i18n="thApptDate">Requested Time</th>
+                                    <th class="pb-4" data-i18n="thApptType">Request Type</th>
                                     <th class="pb-4" data-i18n="thApptSubmitted">Submitted On</th>
                                     <th class="pb-4" data-i18n="thApptStatus">Status</th>
                                     <th class="pb-4 pr-4 text-right">Actions</th>
@@ -370,7 +371,7 @@
                             </thead>
                             <tbody id="appointmentsTableBody" class="text-sm font-medium text-gray-300">
                                 <tr>
-                                    <td colspan="5" class="py-12 text-center text-gray-500 italic" data-i18n="loadingAppts">Loading appointments...</td>
+                                    <td colspan="6" class="py-12 text-center text-gray-500 italic" data-i18n="loadingAppts">Loading appointments...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -774,7 +775,7 @@
                 btnHelp: "Help", btnCall: "Call", btnDetails: "Details",
                 detTitle: "Order Details", detBaseInfo: "Base Package Information", detAddons: "Selected Add-ons", detNotes: "Admin Remarks & Notes", detTotal: "Total Estimated Price", noAdminNotes: "No remarks from admin yet.",
                 statReviewing: "Reviewing", statPlanning: "Planning", statDeveloping: "Developing", statTesting: "Testing", statDeployed: "Deployed",
-                apptHist: "My Consultations", thApptDate: "Requested Time", thApptSubmitted: "Submitted On", thApptStatus: "Status", loadingAppts: "Loading appointments...", noAppts: "No appointments found.", btnCancelAppt: "Cancel Booking"
+                apptHist: "My Consultations", thApptDate: "Requested Time", thApptType: "Request Type", thApptSubmitted: "Submitted On", thApptStatus: "Status", loadingAppts: "Loading appointments...", noAppts: "No appointments found.", btnCancelAppt: "Cancel Booking"
             },
             mm: {
                 authCheck: "အကောင့်စစ်ဆေးနေပါသည်...",
@@ -802,7 +803,7 @@
                 btnHelp: "အကူအညီ", btnCall: "ဆက်သွယ်ရန်", btnDetails: "အသေးစိတ်",
                 detTitle: "အော်ဒါ အသေးစိတ်", detBaseInfo: "အခြေခံ ပက်ကေ့ချ် အချက်အလက်", detAddons: "ရွေးချယ်ထားသော အပိုလုပ်ဆောင်ချက်များ", detNotes: "စီမံသူ၏ မှတ်ချက်များ", detTotal: "စုစုပေါင်း ခန့်မှန်းကုန်ကျစရိတ်", noAdminNotes: "စီမံသူထံမှ မှတ်ချက် မရှိသေးပါ။",
                 statReviewing: "သုံးသပ်ဆဲ", statPlanning: "စီစဉ်နေဆဲ", statDeveloping: "ရေးဆွဲနေဆဲ", statTesting: "စမ်းသပ်ဆဲ", statDeployed: "လွှင့်တင်ပြီး",
-                apptHist: "မှာယူထားသော ရက်ချိန်းများ", thApptDate: "တွေ့ဆုံမည့် အချိန်", thApptSubmitted: "တင်သွင်းခဲ့သည့်ရက်", thApptStatus: "အခြေအနေ", loadingAppts: "ရက်ချိန်းများ ရှာဖွေနေပါသည်...", noAppts: "ရက်ချိန်းများ မရှိသေးပါ။", btnCancelAppt: "ပယ်ဖျက်မည်"
+                apptHist: "မှာယူထားသော ရက်ချိန်းများ", thApptDate: "တွေ့ဆုံမည့် အချိန်", thApptType: "တောင်းဆိုမှု အမျိုးအစား", thApptSubmitted: "တင်သွင်းခဲ့သည့်ရက်", thApptStatus: "အခြေအနေ", loadingAppts: "ရက်ချိန်းများ ရှာဖွေနေပါသည်...", noAppts: "ရက်ချိန်းများ မရှိသေးပါ။", btnCancelAppt: "ပယ်ဖျက်မည်"
             }
         };
 
@@ -1347,7 +1348,7 @@
             const tbody = document.getElementById('appointmentsTableBody');
             
             if(appts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-gray-500 italic">${dict[currentLang].noAppts}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-gray-500 italic">${dict[currentLang].noAppts}</td></tr>`;
             } else {
                 tbody.innerHTML = appts.map(appt => {
                     const reqDate = new Date(appt.appointment_time).toLocaleString();
@@ -1373,6 +1374,7 @@
                     <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
                         <td class="py-4 pl-4 font-mono text-[11px] text-gray-400 group-hover:text-white transition-colors">#${appt.id.split('-')[0].toUpperCase()}</td>
                         <td class="py-4 font-bold text-white">${reqDate}</td>
+                        <td class="py-4 text-xs font-medium text-gray-400">${appt.request_type || 'Appointment'}</td>
                         <td class="py-4 text-xs font-medium text-gray-400">${subDate}</td>
                         <td class="py-4"><span class="status-badge ${statusClass}">${statusTrans}</span></td>
                         <td class="py-4 pr-4 text-right flex justify-end">${actionHtml}</td>
