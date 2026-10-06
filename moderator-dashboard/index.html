@@ -473,6 +473,7 @@
                                 <tr class="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-mono bg-white/5">
                                     <th class="py-4 px-6 font-bold w-1/4">Client Details</th>
                                     <th class="py-4 px-6 font-bold w-1/4">Requested Time</th>
+                                    <th class="py-4 px-6 font-bold w-1/6">Request Type</th>
                                     <th class="py-4 px-6 font-bold w-1/6">Status</th>
                                     <th class="py-4 px-6 font-bold w-1/6 text-center">Submitted</th>
                                     <th class="py-4 px-6 font-bold w-1/6 text-right">Actions</th>
@@ -480,7 +481,7 @@
                             </thead>
                             <tbody id="appointmentsTableBody" class="divide-y divide-white/5 text-sm">
                                 <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                         <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3 text-gray-400"></i>
                                         Loading appointments...
                                     </td>
@@ -1048,6 +1049,10 @@
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Requested Time</label>
                         <div id="modalApptTime" class="text-white font-bold text-sm bg-[#0a0a0a] border border-white/5 p-3 rounded-xl text-myancode-accent"></div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Request Type</label>
+                        <div id="modalApptRequestType" class="text-white font-medium text-sm bg-[#0a0a0a] border border-white/5 p-3 rounded-xl"></div>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold font-mono text-gray-500 uppercase tracking-widest mb-1">Submitted On</label>
@@ -3127,7 +3132,7 @@
             const tbody = document.getElementById('appointmentsTableBody');
             
             if (!isSilent) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading appointments...</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-3"></i> Loading appointments...</td></tr>';
                 if(typeof lucide !== 'undefined') lucide.createIcons();
             }
             
@@ -3141,7 +3146,7 @@
                 allAppointments = data || [];
                 renderAppointmentsTable();
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-400"><p class="font-bold mb-2 flex items-center justify-center gap-2"><i data-lucide="alert-circle" class="w-5 h-5"></i> Database Error:</p><p class="text-xs font-mono bg-red-500/10 p-3 rounded-lg border border-red-500/20 inline-block">${err.message || 'Unknown Error'}</p></td></tr>`;
                 if(typeof lucide !== 'undefined') lucide.createIcons();
             }
         }
@@ -3167,7 +3172,7 @@
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="calendar-x" class="w-6 h-6 text-gray-400"></i></div><p class="font-medium">No appointments found matching your criteria.</p></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="calendar-x" class="w-6 h-6 text-gray-400"></i></div><p class="font-medium">No appointments found matching your criteria.</p></td></tr>';
                 if(typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
@@ -3194,6 +3199,9 @@
                         </td>
                         <td class="px-6 py-4 align-top w-1/4 text-sm font-medium text-white">
                             ${fReqDate}
+                        </td>
+                        <td class="px-6 py-4 align-top w-1/6 text-sm font-medium text-gray-300">
+                            ${appt.request_type || 'Appointment'}
                         </td>
                         <td class="px-6 py-4 align-top w-1/6">
                             ${statusBadge}
@@ -3238,6 +3246,7 @@
 
             const reqD = new Date(appt.appointment_time);
             document.getElementById('modalApptTime').innerHTML = `${reqD.toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})} at ${reqD.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            document.getElementById('modalApptRequestType').innerText = appt.request_type || 'Appointment';
             
             const subD = new Date(appt.created_at);
             document.getElementById('modalApptCreated').innerText = `${subD.toLocaleDateString()} ${subD.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
