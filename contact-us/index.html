@@ -2730,19 +2730,34 @@
         }
 
         async function requestPushPermission() {
-            if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                console.log("⚠️ Push notifications not supported on this browser.");
+                return;
+            }
             try {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     const register = await navigator.serviceWorker.register('/sw.js');
                     
+                    await navigator.serviceWorker.ready;
+                    
+                    const existingSub = await register.pushManager.getSubscription();
+                    if (existingSub) {
+                        console.log("🧹 Clearing old push subscription...");
+                        await existingSub.unsubscribe();
+                    }
+
                     userPushSubscription = await register.pushManager.subscribe({
                         userVisibleOnly: true,
                         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
                     });
+                    
+                    console.log("✅ SUCCESS: Browser generated Push Token!", userPushSubscription);
+                } else {
+                    console.log("❌ User denied notification permission.");
                 }
             } catch (err) {
-                console.log('Push setup failed:', err);
+                console.error('❌ Push setup failed. Exact Reason:', err);
             }
         }
 
