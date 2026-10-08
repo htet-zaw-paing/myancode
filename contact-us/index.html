@@ -203,7 +203,16 @@
         .otp-input:focus { outline: none; border-color: #2997ff; box-shadow: 0 0 0 2px rgba(41,151,255,0.2); }
         .otp-input::-webkit-outer-spin-button, .otp-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
-        .voucher-card { background: linear-gradient(135deg, #11151c 0%, #0a0a0a 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; position: relative; overflow: hidden; }
+        .voucher-card { 
+            background: linear-gradient(135deg, #11151c 0%, #0a0a0a 100%); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 16px; 
+            position: relative;
+            -webkit-mask-image: radial-gradient(circle at 0px 88px, transparent 12px, black 12.5px), radial-gradient(circle at 100% 88px, transparent 12px, black 12.5px);
+            -webkit-mask-size: 51% 100%;
+            -webkit-mask-position: left, right;
+            -webkit-mask-repeat: no-repeat;
+        }
         .voucher-header { background: rgba(41,151,255,0.05); border-bottom: 1px dashed rgba(255,255,255,0.15); padding: 24px; position: relative; }
         .voucher-cutout-left, .voucher-cutout-right { position: absolute; bottom: -12px; width: 24px; height: 24px; background-color: #050505; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); z-index: 10; }
         .voucher-cutout-left { left: -13px; border-right-color: transparent; border-bottom-color: transparent; transform: rotate(-45deg); }
@@ -1338,6 +1347,8 @@
                 lblVoucherName: "ATTENDEE",
                 btnDownloadPdf: "Download PDF",
                 btnDownloadImg: "Save Image",
+                btnDownloadPdfAgain: "Download PDF Again",
+                btnDownloadImgAgain: "Save Image Again",
                 
                 succTitle: "Ticket Opened Successfully",
                 succDesc: "We’ve received your ticket. Our team will take a look and get back to you soon. You can also check your ticket status anytime in your User Hub.",
@@ -1429,6 +1440,8 @@
                 lblVoucherName: "တက်ရောက်သူအမည်",
                 btnDownloadPdf: "PDF အဖြစ် ဒေါင်းလုပ်လုပ်မည်",
                 btnDownloadImg: "ပုံအဖြစ် သိမ်းမည်",
+                btnDownloadPdfAgain: "PDF ထပ်မံဒေါင်းလုဒ်လုပ်ရန်",
+                btnDownloadImgAgain: "ပုံ ထပ်မံသိမ်းဆည်းရန်",
                 
                 succTitle: "ရက်ချိန်းတောင်းဆိုမှု အောင်မြင်ပါသည်",
                 succDesc: "သင့်ရဲ့ Ticket ကို လက်ခံရရှိပါပြီ။ ကျွန်တော်တို့အဖွဲ့က စစ်ဆေးပြီး မကြာခင် ပြန်လည်ဆက်သွယ်ပေးပါမယ်။ Ticket အခြေအနေကိုလည်း User Hub မှာ အချိန်မရွေး ဝင်ရောက်ကြည့်ရှုနိုင်ပါတယ်။",
@@ -1628,7 +1641,8 @@
 
         let pendingAppointmentData = null;
         let appointmentTicketId = '';
-        let lastOtpSentTime = 0;
+        let lastOtpSentTime = 0; 
+        let currentOtpResends = 0;
 
         async function handleAppointmentSubmit(e) {
             e.preventDefault();
@@ -1669,6 +1683,7 @@
                 if (error) throw error;
 
                 lastOtpSentTime = Date.now();
+                currentOtpResends = 0;
                 setupOtpInputs();
 
                 document.getElementById('otpTargetEmail').textContent = email;
@@ -1704,7 +1719,7 @@
             const timePassed = now - lastOtpSentTime;
             const cooldown = 5 * 60 * 1000;
             
-            if (timePassed < cooldown) {
+            if (currentOtpResends >= 1 && timePassed < cooldown) {
                 const minutesLeft = Math.ceil((cooldown - timePassed) / 60000);
                 showErrorToast(dict[currentLang].errOtpWait || `Please wait ${minutesLeft} minute(s) before requesting a new code.`);
                 return;
@@ -1714,7 +1729,9 @@
                 const { error } = await supabaseInstance.rpc('generate_appointment_otp', { p_email: pendingAppointmentData.email });
                 if (error) throw error;
                 
+                currentOtpResends++;
                 lastOtpSentTime = Date.now();
+                
                 showToast(dict[currentLang].msgOtpSent || "OTP Resent!");
                 
                 for(let i=1; i<=6; i++) document.getElementById(`otp${i}`).value = '';
@@ -1765,7 +1782,17 @@
                 closeOtpModal();
                 updateVoucherDisplay();
                 document.getElementById('appointmentForm').reset();
+                
                 toggleContactView('successView');
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+
+                setTimeout(() => {
+                    downloadVoucherPDF();
+                }, 800);
 
             } catch (err) {
                 showErrorToast(err.message || "Verification failed.");
@@ -1832,22 +1859,67 @@
         function downloadVoucherPDF() {
             const element = document.getElementById('voucher-content');
             const opt = {
-                margin:       [0, 0, 0, 0],
+                margin:       [1, 1],
                 filename:     `MyanCode_Ticket_${appointmentTicketId}.pdf`,
                 image:        { type: 'jpeg', quality: 1 },
-                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#050505' },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    backgroundColor: '#ffffff',
+                    onclone: (clonedDoc) => {
+                        const voucher = clonedDoc.getElementById('voucher-content');
+                        voucher.style.webkitMaskImage = 'none'; 
+                        
+                        const leftDot = clonedDoc.createElement('div');
+                        leftDot.style.cssText = 'position: absolute; left: -12px; top: 76px; width: 24px; height: 24px; background-color: #ffffff; border-radius: 50%; z-index: 50;';
+                        voucher.appendChild(leftDot);
+                        
+                        const rightDot = clonedDoc.createElement('div');
+                        rightDot.style.cssText = 'position: absolute; right: -12px; top: 76px; width: 24px; height: 24px; background-color: #ffffff; border-radius: 50%; z-index: 50;';
+                        voucher.appendChild(rightDot);
+                    }
+                },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
-            html2pdf().set(opt).from(element).save();
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                const btnSpan = document.querySelector('#btnDownloadPdfVoucher span');
+                if (btnSpan) {
+                    btnSpan.setAttribute('data-i18n', 'btnDownloadPdfAgain');
+                    btnSpan.textContent = dict[currentLang].btnDownloadPdfAgain;
+                }
+            });
         }
 
         function downloadVoucherImage() {
             const element = document.getElementById('voucher-content');
-            html2canvas(element, { scale: 2, backgroundColor: '#050505', useCORS: true }).then(canvas => {
+            html2canvas(element, { 
+                scale: 2, 
+                backgroundColor: '#050505',
+                useCORS: true,
+                onclone: (clonedDoc) => {
+                    const voucher = clonedDoc.getElementById('voucher-content');
+                    voucher.style.webkitMaskImage = 'none'; 
+                    
+                    const leftDot = clonedDoc.createElement('div');
+                    leftDot.style.cssText = 'position: absolute; left: -12px; top: 76px; width: 24px; height: 24px; background-color: #050505; border-radius: 50%; z-index: 50;';
+                    voucher.appendChild(leftDot);
+                    
+                    const rightDot = clonedDoc.createElement('div');
+                    rightDot.style.cssText = 'position: absolute; right: -12px; top: 76px; width: 24px; height: 24px; background-color: #050505; border-radius: 50%; z-index: 50;';
+                    voucher.appendChild(rightDot);
+                }
+            }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `MyanCode_Ticket_${appointmentTicketId}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
+
+                const btnSpan = document.querySelector('#btnDownloadImgVoucher span');
+                if (btnSpan) {
+                    btnSpan.setAttribute('data-i18n', 'btnDownloadImgAgain');
+                    btnSpan.textContent = dict[currentLang].btnDownloadImgAgain;
+                }
             });
         }
 
