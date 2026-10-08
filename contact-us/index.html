@@ -1766,7 +1766,7 @@
                 if (otpError) throw otpError;
                 if (!isValid) throw new Error(dict[currentLang].errOtpInvalid || "Invalid OTP");
 
-                const { error: insertError } = await supabaseInstance.from('contact_appointments').insert([{
+                const ticketData = {
                     full_name: pendingAppointmentData.fullName,
                     email: pendingAppointmentData.email,
                     phone: pendingAppointmentData.phone,
@@ -1775,10 +1775,20 @@
                     social_links: pendingAppointmentData.socials,
                     address: pendingAppointmentData.address,
                     remarks: pendingAppointmentData.remarks,
+                    status: 'pending',
                     push_subscription: userPushSubscription ? JSON.parse(JSON.stringify(userPushSubscription)) : null
-                }]);
+                };
 
+                const { error: insertError } = await supabaseInstance.from('contact_appointments').insert([ticketData]);
                 if (insertError) throw insertError;
+
+                console.log("🚀 Sending request to Edge Function...");
+                supabaseInstance.functions.invoke('appointment-alerts', {
+                    body: { type: 'INSERT', record: ticketData }
+                }).then(({ data, error }) => {
+                    if (error) console.error("❌ Edge Function Error:", error);
+                    else console.log("✅ Edge Function Success:", data);
+                });
 
                 appointmentTicketId = Math.random().toString(36).substring(2, 8).toUpperCase(); 
                 
