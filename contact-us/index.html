@@ -25,6 +25,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -194,6 +198,17 @@
         .contact-success-enter { animation: contactSuccessRise 650ms cubic-bezier(0.16, 1, 0.3, 1) both; }
         .contact-success-icon { animation: contactSuccessPop 700ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both; }
         @media (prefers-reduced-motion: reduce) { .contact-success-enter, .contact-success-icon { animation: none; } }
+        
+        .otp-input { width: 3rem; height: 3.5rem; text-align: center; font-size: 1.5rem; font-weight: 700; background: #111; border: 1px solid rgba(255,255,255,0.2); border-radius: 0.5rem; color: #fff; transition: all 0.3s; }
+        .otp-input:focus { outline: none; border-color: #2997ff; box-shadow: 0 0 0 2px rgba(41,151,255,0.2); }
+        .otp-input::-webkit-outer-spin-button, .otp-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        .voucher-card { background: linear-gradient(135deg, #11151c 0%, #0a0a0a 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; position: relative; overflow: hidden; }
+        .voucher-header { background: rgba(41,151,255,0.05); border-bottom: 1px dashed rgba(255,255,255,0.15); padding: 24px; position: relative; }
+        .voucher-cutout-left, .voucher-cutout-right { position: absolute; bottom: -12px; width: 24px; height: 24px; background-color: #050505; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); z-index: 10; }
+        .voucher-cutout-left { left: -13px; border-right-color: transparent; border-bottom-color: transparent; transform: rotate(-45deg); }
+        .voucher-cutout-right { right: -13px; border-left-color: transparent; border-bottom-color: transparent; transform: rotate(45deg); }
+        .barcode-font { font-family: 'Libre Barcode 39 Text', cursive; font-size: 2.5rem; line-height: 1; color: #fff; }
     </style>
 </head>
 
@@ -451,6 +466,32 @@
         </div>
     </div>
 
+    <div id="otpModal" class="fixed inset-0 z-[120] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-[#0a0a0a] border border-white/10 p-8 rounded-[1.5rem] w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform scale-95 transition-transform duration-300 relative text-center">
+            <button onclick="closeOtpModal()" class="absolute top-5 right-5 p-2 text-gray-400 hover:text-white bg-white/5 rounded-full hover:bg-white/10 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <div class="w-14 h-14 bg-myancode-accent/10 border border-myancode-accent/20 rounded-full flex items-center justify-center mx-auto mb-5 text-myancode-accent">
+                <i data-lucide="mail-check" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-xl font-display font-bold text-white mb-2" data-i18n="lblOtpTitle">Verify Your Email</h3>
+            <p class="text-sm font-medium text-gray-400 mb-6 leading-relaxed"><span data-i18n="lblOtpDesc">We've sent a 6-digit verification code to </span><span id="otpTargetEmail" class="text-white font-semibold block mt-1"></span></p>
+            
+            <div class="flex justify-center gap-2 mb-8" id="otpInputContainer">
+                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 1)" id="otp1">
+                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 2)" id="otp2">
+                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 3)" id="otp3">
+                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 4)" id="otp4">
+                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 5)" id="otp5">
+                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 6)" id="otp6">
+            </div>
+
+            <button id="btnVerifyOtpSubmit" onclick="verifyOtpAndSubmit()" class="w-full bg-myancode-accent text-white py-3.5 rounded-xl text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-[0_0_15px_rgba(41,151,255,0.3)] flex justify-center items-center gap-2 mb-4">
+                <span data-i18n="btnVerifyOtp">Verify & Submit</span>
+            </button>
+            
+            <button onclick="resendOtp()" class="text-xs font-bold font-mono tracking-widest uppercase text-gray-500 hover:text-white transition-colors" data-i18n="btnResendOtp">Resend Code</button>
+        </div>
+    </div>
+
     <main class="flex-grow flex flex-col w-full relative z-10 overflow-hidden pt-32 pb-24">
         
         <div class="absolute inset-0 w-full h-full bg-fixed bg-center bg-cover z-0" style="background-image: url('https://images.unsplash.com/photo-1706700392642-dee59f678a09?q=80&w=3874&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');"></div>
@@ -478,10 +519,10 @@
                     <div class="inline-flex items-center justify-center w-14 h-14 bg-[#111] border border-white/10 rounded-none mb-8 relative z-10 text-white group-hover:bg-myancode-accent group-hover:border-myancode-accent transition-colors duration-300">
                         <i data-lucide="calendar-plus" class="w-6 h-6"></i>
                     </div>
-                    <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-4 relative z-10" data-i18n="optConsultTitle">Request a Meeting</h3>
+                    <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-4 relative z-10" data-i18n="optConsultTitle">Open a Meeting Ticket</h3>
                     <p class="text-sm font-medium text-gray-400 mb-8 relative z-10 leading-relaxed" data-i18n="optConsultDesc">Choose your preferred date and time. Our team will confirm the meeting after reviewing your request.</p>
                     <div class="mt-auto flex items-center text-xs font-bold tracking-widest font-mono uppercase text-myancode-accent group-hover:text-white transition-colors">
-                        <span data-i18n="btnBookAppt">Schedule Appointment</span> <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        <span data-i18n="btnBookAppt">Open a Meeting Ticket</span> <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
                     </div>
                 </button>
 
@@ -509,7 +550,7 @@
 
                 <div class="bg-[#0a0a0a] border border-white/10   p-8 sm:p-12 relative overflow-hidden shadow-2xl">
                     <div class="mb-10 border-b border-white/10 pb-8">
-                        <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-3" data-i18n="formApptTitle">Meeting Request Form</h3>
+                        <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-3" data-i18n="formApptTitle">Ticket Form</h3>
                         <p class="text-sm font-medium text-gray-400 leading-relaxed" data-i18n="formApptDesc">Please provide your comprehensive details. Appointments must be scheduled at least 12 hours in advance.</p>
                     </div>
 
@@ -574,35 +615,66 @@
         </div>
 
         <div id="successView" class="hidden relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 transition-all duration-500">
-            <div class="max-w-2xl mx-auto">
-                <div class="contact-success-enter bg-gradient-to-b from-[#10151b] to-[#090a0c] border border-white/10 rounded-2xl p-8 sm:p-12 relative overflow-hidden shadow-[0_25px_80px_-35px_rgba(41,151,255,0.35)] text-center flex flex-col items-center">
-                    <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-myancode-accent/10 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="contact-success-icon inline-flex items-center justify-center w-16 h-16 bg-myancode-accent/10 border border-myancode-accent/30 rounded-full mb-6 relative z-10 text-myancode-accent shadow-[0_0_35px_rgba(41,151,255,0.16)]">
-                        <i data-lucide="circle-check" class="w-8 h-8"></i>
-                    </div>
-                    <div class="relative z-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/5 text-[10px] font-bold font-mono tracking-[0.18em] uppercase text-emerald-300 mb-4">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i><span data-i18n="successReceived">Request received</span>
-                    </div>
-                    <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-3 relative z-10" data-i18n="succTitle">Thank you. Your request is in.</h3>
-                    <p id="successDescription" class="text-sm font-medium text-gray-400 mb-6 relative z-10 leading-relaxed max-w-lg mx-auto"></p>
-                    <div id="successApptTime" class="w-full max-w-lg mb-8 rounded-xl border border-white/10 bg-black/30 px-5 py-4 text-left relative z-10"></div>
-                    <div id="successMemberActions" class="hidden w-full max-w-md relative z-10">
-                        <a href="../hub/" class="w-full px-6 py-4 bg-myancode-accent hover:bg-blue-600 text-white rounded-xl text-xs font-bold font-mono tracking-widest uppercase transition-all flex items-center justify-center gap-2 group shadow-[0_0_22px_rgba(41,151,255,0.22)]">
-                            <span data-i18n="btnToHub">Go to User Hub</span><i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
-                        </a>
-                    </div>
-                    <div id="successGuestActions" class="hidden w-full max-w-md relative z-10">
-                        <a href="../register/" class="w-full px-6 py-4 bg-myancode-accent hover:bg-blue-600 text-white rounded-xl text-xs font-bold font-mono tracking-widest uppercase transition-all flex items-center justify-center gap-2 shadow-[0_0_22px_rgba(41,151,255,0.22)]">
-                            <i data-lucide="user-plus" class="w-4 h-4"></i><span data-i18n="successRegisterCta">Create an account to track your request</span>
-                        </a>
-                        <div class="flex items-center gap-4 my-5 text-[10px] font-mono uppercase tracking-widest text-gray-600">
-                            <span class="h-px flex-1 bg-white/10"></span><span data-i18n="successOr">or</span><span class="h-px flex-1 bg-white/10"></span>
+            <div class="max-w-2xl mx-auto flex flex-col items-center">
+                
+                <div id="voucher-content" class="w-full voucher-card shadow-[0_25px_80px_-25px_rgba(41,151,255,0.3)] mb-8 contact-success-enter">
+                    
+                    <div class="voucher-header">
+                        <div class="voucher-cutout-left"></div>
+                        <div class="voucher-cutout-right"></div>
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-myancode-accent/20 flex items-center justify-center rounded-lg border border-myancode-accent/30 contact-success-icon">
+                                    <i data-lucide="check" class="w-5 h-5 text-myancode-accent"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold font-mono text-gray-400 tracking-widest uppercase mb-1">MyanCode</h4>
+                                    <h3 class="text-xl font-display font-bold text-white tracking-wide" data-i18n="lblVoucherTitle">OFFICIAL MEETING TICKET</h3>
+                                </div>
+                            </div>
+                            <div class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-md">
+                                <span class="text-[10px] font-bold font-mono text-emerald-400 tracking-widest uppercase" data-i18n="lblVoucherStatus">CONFIRMED</span>
+                            </div>
                         </div>
-                        <div class="text-sm text-gray-400"><span data-i18n="successAlreadyRegistered">Already registered?</span> <a href="../login/" class="font-semibold text-myancode-accent hover:text-white underline underline-offset-4 transition-colors" data-i18n="successSignIn">Sign in</a></div>
                     </div>
-                    <div class="mt-7 relative z-10">
-                        <button onclick="toggleContactView('choiceView')" class="px-5 py-3 text-[10px] font-bold font-mono tracking-widest uppercase text-gray-500 hover:text-white border border-white/10 hover:border-white/25 rounded-lg transition-colors"><span data-i18n="btnReturnOpt">Return to Options</span></button>
+                    
+                    <div class="p-8 pb-10">
+                        <div class="grid grid-cols-2 gap-8 mb-8 border-b border-white/5 pb-8">
+                            <div>
+                                <span class="block text-[10px] font-bold font-mono text-gray-500 tracking-widest uppercase mb-2" data-i18n="lblVoucherName">ATTENDEE</span>
+                                <span id="voucherName" class="text-base font-semibold text-white"></span>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] font-bold font-mono text-gray-500 tracking-widest uppercase mb-2" data-i18n="lblVoucherType">REQUEST TYPE</span>
+                                <span id="voucherType" class="text-base font-semibold text-white"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-10">
+                            <span class="block text-[10px] font-bold font-mono text-gray-500 tracking-widest uppercase mb-2" data-i18n="lblVoucherDate">DATE & TIME (MMT)</span>
+                            <span id="voucherDate" class="text-xl font-display font-bold text-myancode-accent"></span>
+                        </div>
+                        
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <span class="block text-[10px] font-bold font-mono text-gray-500 tracking-widest uppercase mb-2" data-i18n="lblVoucherId">TICKET ID</span>
+                                <span id="voucherId" class="text-sm font-mono text-gray-300"></span>
+                            </div>
+                            <div id="voucherBarcode" class="barcode-font opacity-80 mt-2 tracking-widest">*123456*</div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto relative z-10 contact-success-enter" style="animation-delay: 300ms;">
+                    <button onclick="downloadVoucherPDF()" class="px-6 py-3.5 bg-white text-black text-xs font-bold font-mono tracking-widest uppercase hover:bg-gray-200 transition-colors rounded-xl flex items-center justify-center gap-2 shadow-md btn-hover-effect">
+                        <i data-lucide="file-down" class="w-4 h-4"></i> <span data-i18n="btnDownloadPdf">Download PDF</span>
+                    </button>
+                    <button onclick="downloadVoucherImage()" class="px-6 py-3.5 bg-[#111] border border-white/20 text-white text-xs font-bold font-mono tracking-widest uppercase hover:bg-white/10 transition-colors rounded-xl flex items-center justify-center gap-2 shadow-md btn-hover-effect">
+                        <i data-lucide="image-down" class="w-4 h-4"></i> <span data-i18n="btnDownloadImg">Save Image</span>
+                    </button>
+                    <button onclick="toggleContactView('choiceView')" class="px-6 py-3.5 border border-white/10 text-gray-400 text-xs font-bold font-mono tracking-widest uppercase hover:text-white hover:border-white/30 transition-colors rounded-xl flex items-center justify-center btn-hover-effect">
+                        <span data-i18n="btnReturnOpt">Return</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1215,15 +1287,15 @@
                 contactTitle: "Get Started with MyanCode",
                 contactDesc: "Whether you have a technical question, a business inquiry, or just want to explore our enterprise solutions, our team is ready to assist you round the clock.",
                 
-                optConsultTitle: "Request a Meeting",
+                optConsultTitle: "Open a Meeting Ticket",
                 optConsultDesc: "Choose your preferred date and time. Our team will confirm the meeting after reviewing your request.",
-                btnBookAppt: "Schedule Appointment",
+                btnBookAppt: "Open a Meeting Ticket",
                 optDirectTitle: "Contact Our Team",
                 optDirectDesc: "Reach out to our specific departments, direct lines, or executive board immediately. Select this option to view our comprehensive contact catalog.",
                 btnViewDirs: "View Contact Details",
                 btnBackOptions: "Return to Options",
 
-                formApptTitle: "Meeting Request Form",
+                formApptTitle: "Ticket Form",
                 formApptDesc: "Please provide your comprehensive details. Appointments must be scheduled at least 12 hours in advance.",
                 lblFullName: "Full Name",
                 lblEmail: "Email Address",
@@ -1253,10 +1325,24 @@
                 btnSubmitAppt: "Submit Request",
                 msgApptSuccess: "Your consultation request has been officially recorded. We will contact you at the designated time.",
                 errTime12hr: "The preferred time must be at least 12 hours from the current time.",
+                lblOtpTitle: "Verify Your Email",
+                lblOtpDesc: "We've sent a 6-digit verification code to ",
+                btnVerifyOtp: "Verify & Submit",
+                btnResendOtp: "Resend Code",
+                errOtpInvalid: "Invalid or expired OTP code. Please try again.",
+                msgOtpSent: "A new OTP has been sent to your email.",
+                lblVoucherTitle: "OFFICIAL MEETING TICKET",
+                lblVoucherStatus: "CONFIRMED",
+                lblVoucherId: "TICKET ID",
+                lblVoucherDate: "DATE & TIME (MMT)",
+                lblVoucherType: "REQUEST TYPE",
+                lblVoucherName: "ATTENDEE",
+                btnDownloadPdf: "Download PDF",
+                btnDownloadImg: "Save Image",
                 
-                succTitle: "Consultation Request Confirmed",
-                succDesc: "Your executive consultation request has been officially recorded in our secure system. Our team will review your requirements and align with your preferred schedule. You can monitor the real-time status of your appointment via your User Hub dashboard.",
-                btnToHub: "Navigate to User Hub",
+                succTitle: "Ticket Opened Successfully",
+                succDesc: "We’ve received your ticket. Our team will take a look and get back to you soon. You can also check your ticket status anytime in your User Hub.",
+                btnToHub: "Go to User Hub",
                 btnReturnOpt: "Return to Options",
 
                 cardPhoneTitle: "Direct Lines", cardPhoneDesc: "Available Monday to Friday, 9:00 AM - 6:00 PM (MMT). Reach out to our operators directly.",
@@ -1294,7 +1380,7 @@
 
                 optConsultTitle: "ကိုယ်စားလှယ်နှင့် တိုင်ပင်ဆွေးနွေးရန်",
                 optConsultDesc: "ကျွန်ုပ်တို့၏ ကျွမ်းကျင်ကိုယ်စားလှယ်များမှ သင့်ထံသို့ သတ်မှတ်ထားသော အချိန်တွင် တိုက်ရိုက်ဆက်သွယ်ပေးပါမည်။",
-                btnBookAppt: "ရက်ချိန်းယူမည်",
+                btnBookAppt: "တွေ့ဆုံရန် တောင်းဆိုမည်",
                 optDirectTitle: "တိုက်ရိုက် ဆက်သွယ်ရန်",
                 optDirectDesc: "သက်ဆိုင်ရာ ဌာနများ၊ ဖုန်းလိုင်းများနှင့် တာဝန်ရှိသူများထံသို့ ယခုချက်ချင်း တိုက်ရိုက် ဆက်သွယ်နိုင်ပါသည်။",
                 btnViewDirs: "ဖုန်းနှင့် အီးမေးလ်များ ကြည့်ရန်",
@@ -1330,9 +1416,23 @@
                 btnSubmitAppt: "ပေးပို့မည်",
                 msgApptSuccess: "သင့်၏ တောင်းဆိုမှုကို လက်ခံရရှိပါပြီ။ သတ်မှတ်ထားသော အချိန်တွင် ဆက်သွယ်ပေးပါမည်။",
                 errTime12hr: "အချိန်ကို အနည်းဆုံး ယခုအချိန်မှ ၁၂ နာရီ နောက်ဆုတ်၍ ရွေးချယ်ပေးပါ။",
+                lblOtpTitle: "အီးမေးလ်ကို အတည်ပြုရန်",
+                lblOtpDesc: "၆ လုံးပါသော အတည်ပြုကုဒ်ကို အီးမေးလ်သို့ ပေးပို့ပြီးပါပြီ။",
+                btnVerifyOtp: "အတည်ပြုပြီး ပေးပို့မည်",
+                btnResendOtp: "ကုဒ်ကို ထပ်ပေးပို့မည်",
+                errOtpInvalid: "ကုဒ်မမှန်ကန်ပါ၊ သို့မဟုတ် သက်တမ်းကုန်သွားပါသည်။ ထပ်ကြိုးစားပါ။",
+                msgOtpSent: "အတည်ပြုကုဒ်အသစ်ကို အီးမေးလ်သို့ ပေးပို့ပြီးပါပြီ။",
+                lblVoucherTitle: "တရားဝင် ရက်ချိန်းတောင်းဆိုမှု Ticket",
+                lblVoucherStatus: "အခြေအနေ",
+                lblVoucherId: "Ticket ID",
+                lblVoucherDate: "ရက်စွဲနှင့် အချိန် (MMT)",
+                lblVoucherType: "တောင်းဆိုမှု အမျိုးအစား",
+                lblVoucherName: "တက်ရောက်သူအမည်",
+                btnDownloadPdf: "PDF အဖြစ် ဒေါင်းလုပ်လုပ်မည်",
+                btnDownloadImg: "ပုံအဖြစ် သိမ်းမည်",
                 
                 succTitle: "ရက်ချိန်းတောင်းဆိုမှု အောင်မြင်ပါသည်",
-                succDesc: "သင့်၏ ဆွေးနွေးတိုင်ပင်ရန် ရက်ချိန်းတောင်းဆိုမှုကို ကျွန်ုပ်တို့၏စနစ်တွင် မှတ်တမ်းတင်ထားပြီးဖြစ်ပါသည်။ သင့်အချက်အလက်များကို စစ်ဆေးပြီးနောက် ဆက်သွယ်ပေးပါမည်။ သင့်ရက်ချိန်း၏ အခြေအနေကို User Hub (ဗဟိုဌာန) တွင် အချိန်မရွေး ဝင်ရောက်စစ်ဆေးနိုင်ပါသည်။",
+                succDesc: "သင့်ရဲ့ Ticket ကို လက်ခံရရှိပါပြီ။ ကျွန်တော်တို့အဖွဲ့က စစ်ဆေးပြီး မကြာခင် ပြန်လည်ဆက်သွယ်ပေးပါမယ်။ Ticket အခြေအနေကိုလည်း User Hub မှာ အချိန်မရွေး ဝင်ရောက်ကြည့်ရှုနိုင်ပါတယ်။",
                 btnToHub: "ဗဟိုဌာနသို့ သွားရန်",
                 btnReturnOpt: "ရွေးချယ်စရာများသို့ ပြန်သွားရန်",
 
@@ -1527,35 +1627,15 @@
             preview.innerHTML = `<div class="flex flex-col gap-1.5"><div><span class="text-gray-500">${dict[currentLang].successMyanmarTime}:</span> <span class="font-semibold text-white">${times.myanmar}</span></div><div><span class="text-gray-500">${dict[currentLang].successGmtTime}:</span> <span class="font-semibold text-white">${times.gmt}</span></div></div>`;
         }
 
-        function updateAppointmentConfirmation() {
-            const memberActions = document.getElementById('successMemberActions');
-            const guestActions = document.getElementById('successGuestActions');
-            const description = document.getElementById('successDescription');
-            const timeCard = document.getElementById('successApptTime');
-            const isMember = !!currentUser;
-            if (memberActions) memberActions.classList.toggle('hidden', !isMember);
-            if (guestActions) guestActions.classList.toggle('hidden', isMember);
-            if (description) description.textContent = dict[currentLang][isMember ? 'successMemberDesc' : 'successGuestDesc'];
-            if (timeCard && lastSubmittedAppointmentTime) {
-                const times = formatAppointmentTimePair(lastSubmittedAppointmentTime);
-                timeCard.innerHTML = `<div class="text-[10px] font-bold font-mono uppercase tracking-[0.16em] text-gray-500 mb-3">${dict[currentLang].successAppointmentTime}</div><div class="space-y-2 text-sm"><div><span class="text-gray-500">${dict[currentLang].successMyanmarTime}:</span> <span class="font-semibold text-white">${times.myanmar}</span></div><div><span class="text-gray-500">${dict[currentLang].successGmtTime}:</span> <span class="font-semibold text-white">${times.gmt}</span></div></div>`;
-            }
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
+        let pendingAppointmentData = null;
+        let appointmentTicketId = '';
 
         async function handleAppointmentSubmit(e) {
             e.preventDefault();
-            if (!appointmentAuthResolved) {
-                showErrorToast(dict[currentLang].msgCheckingAppointmentAccess);
-                return;
-            }
-            if (isAppointmentRoleRestricted()) {
-                showErrorToast(dict[currentLang].errStaffAppointment);
-                updateAppointmentAccess();
-                return;
-            }
-            const btn = document.getElementById('btnSubmitAppt');
+            if (!appointmentAuthResolved) { showErrorToast(dict[currentLang].msgCheckingAppointmentAccess); return; }
+            if (isAppointmentRoleRestricted()) { showErrorToast(dict[currentLang].errStaffAppointment); updateAppointmentAccess(); return; }
             
+            const btn = document.getElementById('btnSubmitAppt');
             const fullName = document.getElementById('apptName').value.trim();
             const email = document.getElementById('apptEmail').value.trim();
             const phone = document.getElementById('apptPhone').value.trim();
@@ -1569,48 +1649,156 @@
 
             const inputTime = parseMyanmarDateTime(timeVal);
             if (Number.isNaN(inputTime.getTime())) return;
+            
             const now = new Date();
-            const diffHours = (inputTime - now) / (1000 * 60 * 60);
-
-            if (diffHours < 12) {
+            if (((inputTime - now) / (1000 * 60 * 60)) < 12) {
                 showErrorToast(dict[currentLang].errTime12hr || "Appointment must be at least 12 hours in advance.");
                 return;
             }
 
+            pendingAppointmentData = { fullName, email, phone, requestType, timeVal, inputTime, socials, address, remarks };
+
             btn.disabled = true;
             const originalHtml = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-black"></i>`;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
                 if (!supabaseInstance) throw new Error("Database offline.");
                 
-                const { error } = await supabaseInstance.from('contact_appointments').insert([{
-                    full_name: fullName,
-                    email: email,
-                    phone: phone,
-                    request_type: requestType,
-                    appointment_time: inputTime.toISOString(),
-                    social_links: socials,
-                    address: address,
-                    remarks: remarks
-                }]);
-
+                const { error } = await supabaseInstance.rpc('generate_appointment_otp', { p_email: email });
                 if (error) throw error;
 
-                lastSubmittedAppointmentTime = inputTime;
-                updateAppointmentConfirmation();
-                document.getElementById('appointmentForm').reset();
-                updateSelectedAppointmentTime();
-                toggleContactView('successView');
+                document.getElementById('otpTargetEmail').textContent = email;
+                const modal = document.getElementById('otpModal');
+                modal.classList.remove('hidden'); modal.classList.add('flex');
+                void modal.offsetWidth;
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+                
+                setTimeout(() => document.getElementById('otp1').focus(), 100);
 
             } catch (err) {
-                showErrorToast(err.message || "Failed to submit request.");
+                showErrorToast(err.message || "Failed to generate OTP.");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
-                if(typeof lucide !== 'undefined') lucide.createIcons();
             }
+        }
+
+        function moveToNextOtp(input, index) {
+            if (input.value.length === 1 && index < 6) {
+                document.getElementById(`otp${index + 1}`).focus();
+            } else if (input.value.length === 0 && index > 1) {
+                document.getElementById(`otp${index - 1}`).focus();
+            }
+        }
+
+        function closeOtpModal() {
+            const modal = document.getElementById('otpModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            
+            for(let i=1; i<=6; i++) document.getElementById(`otp${i}`).value = '';
+        }
+
+        async function resendOtp() {
+            if(!pendingAppointmentData) return;
+            try {
+                const { error } = await supabaseInstance.rpc('generate_appointment_otp', { p_email: pendingAppointmentData.email });
+                if (error) throw error;
+                showToast(dict[currentLang].msgOtpSent || "OTP Resent!");
+                for(let i=1; i<=6; i++) document.getElementById(`otp${i}`).value = '';
+                document.getElementById('otp1').focus();
+            } catch (err) {
+                showErrorToast(err.message || "Failed to resend OTP.");
+            }
+        }
+
+        async function verifyOtpAndSubmit() {
+            let otpCode = '';
+            for(let i=1; i<=6; i++) otpCode += document.getElementById(`otp${i}`).value;
+            
+            if (otpCode.length !== 6) {
+                showErrorToast(dict[currentLang].errOtpInvalid || "Please enter complete 6-digit code.");
+                return;
+            }
+
+            const btn = document.getElementById('btnVerifyOtpSubmit');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-white"></i>`;
+
+            try {
+                const { data: isValid, error: otpError } = await supabaseInstance.rpc('verify_appointment_otp', { 
+                    p_email: pendingAppointmentData.email, 
+                    p_otp: otpCode 
+                });
+                
+                if (otpError) throw otpError;
+                if (!isValid) throw new Error(dict[currentLang].errOtpInvalid || "Invalid OTP");
+
+                const { data: insertData, error: insertError } = await supabaseInstance.from('contact_appointments').insert([{
+                    full_name: pendingAppointmentData.fullName,
+                    email: pendingAppointmentData.email,
+                    phone: pendingAppointmentData.phone,
+                    request_type: pendingAppointmentData.requestType,
+                    appointment_time: pendingAppointmentData.inputTime.toISOString(),
+                    social_links: pendingAppointmentData.socials,
+                    address: pendingAppointmentData.address,
+                    remarks: pendingAppointmentData.remarks
+                }]).select('id').single();
+
+                if (insertError) throw insertError;
+
+                appointmentTicketId = insertData.id.split('-')[0].toUpperCase(); 
+                closeOtpModal();
+                updateVoucherDisplay();
+                document.getElementById('appointmentForm').reset();
+                toggleContactView('successView');
+
+            } catch (err) {
+                showErrorToast(err.message || "Verification failed.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        function updateVoucherDisplay() {
+            if(!pendingAppointmentData) return;
+            
+            const times = formatAppointmentTimePair(pendingAppointmentData.inputTime);
+            document.getElementById('voucherName').textContent = pendingAppointmentData.fullName;
+            document.getElementById('voucherType').textContent = pendingAppointmentData.requestType;
+            document.getElementById('voucherDate').textContent = times.myanmar;
+            
+            document.getElementById('voucherId').textContent = "MC-" + appointmentTicketId;
+            document.getElementById('voucherBarcode').textContent = "*" + appointmentTicketId + "*";
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function downloadVoucherPDF() {
+            const element = document.getElementById('voucher-content');
+            const opt = {
+                margin:       [0, 0, 0, 0],
+                filename:     `MyanCode_Ticket_${appointmentTicketId}.pdf`,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#050505' },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function downloadVoucherImage() {
+            const element = document.getElementById('voucher-content');
+            html2canvas(element, { scale: 2, backgroundColor: '#050505', useCORS: true }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `MyanCode_Ticket_${appointmentTicketId}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
         }
 
         function renderLanguage() {
