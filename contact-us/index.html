@@ -189,6 +189,11 @@
         input[type="datetime-local"]:hover::-webkit-calendar-picker-indicator {
             opacity: 1;
         }
+        @keyframes contactSuccessRise { from { opacity: 0; transform: translateY(18px) scale(0.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes contactSuccessPop { 0% { opacity: 0; transform: scale(0.65) rotate(-12deg); } 70% { opacity: 1; transform: scale(1.08) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
+        .contact-success-enter { animation: contactSuccessRise 650ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .contact-success-icon { animation: contactSuccessPop 700ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both; }
+        @media (prefers-reduced-motion: reduce) { .contact-success-enter, .contact-success-icon { animation: none; } }
     </style>
 </head>
 
@@ -466,7 +471,7 @@
 
         <div id="choiceView" class="relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 block transition-all duration-500">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 max-w-5xl mx-auto">
-                <button onclick="toggleContactView('appointmentView')" class="text-left bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-12 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:-translate-y-1 hover:border-myancode-accent/50 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
+                <button id="appointmentChoiceCard" onclick="toggleContactView('appointmentView')" class="text-left bg-[#0a0a0a] border border-white/10 rounded-none p-8 sm:p-12 flex flex-col h-full group relative overflow-hidden transition-all duration-400 hover:-translate-y-1 hover:border-myancode-accent/50 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)]">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500 pointer-events-none">
                         <i data-lucide="calendar-clock" class="w-40 h-40 text-myancode-accent"></i>
                     </div>
@@ -518,27 +523,35 @@
                                 <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblEmail">Email Address</label>
                                 <input type="email" id="apptEmail" required autocomplete="email" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner">
                             </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-7">
+                            <div>
+                                <label for="apptRequestType" class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblRequestType">Request Type</label>
+                                <div class="relative">
+                                    <select id="apptRequestType" name="request_type" required class="peer w-full appearance-none color-scheme-dark px-5 pr-12 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white shadow-inner">
+                                        <option value="Appointment" selected data-i18n="requestTypeAppointment">Appointment</option>
+                                        <option value="Maintenance" data-i18n="requestTypeMaintenance">Maintenance</option>
+                                        <option value="Support" data-i18n="requestTypeSupport">Support</option>
+                                        <option value="Other" data-i18n="requestTypeOther">Other</option>
+                                    </select>
+                                    <i data-lucide="chevron-down" aria-hidden="true" class="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 transition-colors peer-focus:text-myancode-accent"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="apptTime" class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblApptTime">Date & Time — Myanmar Time (MMT, GMT+6:30)</label>
+                                <input type="datetime-local" id="apptTime" required onchange="updateSelectedAppointmentTime()" oninput="updateSelectedAppointmentTime()" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner appearance-none color-scheme-dark">
+                                <div id="apptTimePreview" aria-live="polite" class="mt-3 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-xs leading-relaxed text-gray-400" data-i18n="timePreviewPrompt">Select a date and time to see its Myanmar Time and GMT equivalent.</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-7">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblPhone">Phone Number</label>
                                 <input type="tel" id="apptPhone" required autocomplete="tel" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner">
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblApptTime">Date & Time</label>
-                                <input type="datetime-local" id="apptTime" required class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner appearance-none color-scheme-dark">
+                                <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblSocials">Social Links (Optional)</label>
+                                <input type="text" id="apptSocials" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner" placeholder="e.g. t.me/username">
                             </div>
-                        </div>
-                        <div>
-                            <label for="apptRequestType" class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblRequestType">Request Type</label>
-                            <select id="apptRequestType" name="request_type" required class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white shadow-inner color-scheme-dark">
-                                <option value="Appointment" selected data-i18n="requestTypeAppointment">Appointment</option>
-                                <option value="Maintenance" data-i18n="requestTypeMaintenance">Maintenance</option>
-                                <option value="Support" data-i18n="requestTypeSupport">Support</option>
-                                <option value="Other" data-i18n="requestTypeOther">Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblSocials">Social Links (Optional)</label>
-                            <input type="text" id="apptSocials" class="w-full px-5 py-3.5 bg-[#111111] border border-white/20 rounded-lg focus:outline-none focus:border-myancode-accent focus:bg-[#1a1a1a] focus:ring-1 focus:ring-myancode-accent transition-all text-base font-medium text-white placeholder-gray-500 shadow-inner" placeholder="e.g. t.me/username">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-300 mb-2" data-i18n="lblAddress">Meeting Location (Optional)</label>
@@ -561,24 +574,34 @@
         </div>
 
         <div id="successView" class="hidden relative z-20 layout-width mx-auto px-4 sm:px-6 w-full pb-20 transition-all duration-500">
-            <div class="max-w-3xl mx-auto">
-                <div class="bg-[#0a0a0a] border border-white/10 border-t-2 border-t-myancode-accent rounded-none p-10 sm:p-16 relative overflow-hidden shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9)] text-center flex flex-col items-center">
-                    
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-[#111] border border-myancode-accent/30 rounded-none mb-8 relative z-10 text-myancode-accent">
-                        <i data-lucide="check" class="w-8 h-8"></i>
+            <div class="max-w-2xl mx-auto">
+                <div class="contact-success-enter bg-gradient-to-b from-[#10151b] to-[#090a0c] border border-white/10 rounded-2xl p-8 sm:p-12 relative overflow-hidden shadow-[0_25px_80px_-35px_rgba(41,151,255,0.35)] text-center flex flex-col items-center">
+                    <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-myancode-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="contact-success-icon inline-flex items-center justify-center w-16 h-16 bg-myancode-accent/10 border border-myancode-accent/30 rounded-full mb-6 relative z-10 text-myancode-accent shadow-[0_0_35px_rgba(41,151,255,0.16)]">
+                        <i data-lucide="circle-check" class="w-8 h-8"></i>
                     </div>
-                    
-                    <h3 class="text-3xl sm:text-4xl font-display font-bold tracking-tight text-white mb-4 relative z-10 uppercase" data-i18n="succTitle">Consultation Request Confirmed</h3>
-                    
-                    <p class="text-sm font-medium text-gray-400 mb-10 relative z-10 leading-relaxed max-w-xl mx-auto" data-i18n="succDesc">Your executive consultation request has been officially recorded in our secure system. Our team will review your requirements and align with your preferred schedule. You can monitor the real-time status of your appointment via your User Hub dashboard.</p>
-                    
-                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto relative z-10">
-                        <a href="../hub/" class="w-full sm:w-auto px-8 py-4 bg-myancode-accent hover:bg-blue-600 text-white border border-myancode-accent text-[11px] font-bold font-mono tracking-widest uppercase transition-colors flex items-center justify-center gap-2 group shadow-[0_0_15px_rgba(41,151,255,0.3)]">
-                            <span data-i18n="btnToHub">Navigate to User Hub</span> <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                    <div class="relative z-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/5 text-[10px] font-bold font-mono tracking-[0.18em] uppercase text-emerald-300 mb-4">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i><span data-i18n="successReceived">Request received</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white mb-3 relative z-10" data-i18n="succTitle">Thank you. Your request is in.</h3>
+                    <p id="successDescription" class="text-sm font-medium text-gray-400 mb-6 relative z-10 leading-relaxed max-w-lg mx-auto"></p>
+                    <div id="successApptTime" class="w-full max-w-lg mb-8 rounded-xl border border-white/10 bg-black/30 px-5 py-4 text-left relative z-10"></div>
+                    <div id="successMemberActions" class="hidden w-full max-w-md relative z-10">
+                        <a href="../hub/" class="w-full px-6 py-4 bg-myancode-accent hover:bg-blue-600 text-white rounded-xl text-xs font-bold font-mono tracking-widest uppercase transition-all flex items-center justify-center gap-2 group shadow-[0_0_22px_rgba(41,151,255,0.22)]">
+                            <span data-i18n="btnToHub">Go to User Hub</span><i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
                         </a>
-                        <button onclick="toggleContactView('choiceView')" class="w-full sm:w-auto px-8 py-4 bg-[#111] hover:bg-white/10 text-white border border-white/20 text-[11px] font-bold font-mono tracking-widest uppercase transition-colors flex items-center justify-center gap-2">
-                            <span data-i18n="btnReturnOpt">Return to Options</span>
-                        </button>
+                    </div>
+                    <div id="successGuestActions" class="hidden w-full max-w-md relative z-10">
+                        <a href="../register/" class="w-full px-6 py-4 bg-myancode-accent hover:bg-blue-600 text-white rounded-xl text-xs font-bold font-mono tracking-widest uppercase transition-all flex items-center justify-center gap-2 shadow-[0_0_22px_rgba(41,151,255,0.22)]">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i><span data-i18n="successRegisterCta">Create an account to track your request</span>
+                        </a>
+                        <div class="flex items-center gap-4 my-5 text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                            <span class="h-px flex-1 bg-white/10"></span><span data-i18n="successOr">or</span><span class="h-px flex-1 bg-white/10"></span>
+                        </div>
+                        <div class="text-sm text-gray-400"><span data-i18n="successAlreadyRegistered">Already registered?</span> <a href="../login/" class="font-semibold text-myancode-accent hover:text-white underline underline-offset-4 transition-colors" data-i18n="successSignIn">Sign in</a></div>
+                    </div>
+                    <div class="mt-7 relative z-10">
+                        <button onclick="toggleContactView('choiceView')" class="px-5 py-3 text-[10px] font-bold font-mono tracking-widest uppercase text-gray-500 hover:text-white border border-white/10 hover:border-white/25 rounded-lg transition-colors"><span data-i18n="btnReturnOpt">Return to Options</span></button>
                     </div>
                 </div>
             </div>
@@ -1207,7 +1230,20 @@
                 lblPhone: "Phone Number",
                 lblAddress: "Meeting Location (Optional)",
                 lblSocials: "Social Links (Optional)",
-                lblApptTime: "Date & Time",
+                lblApptTime: "Date & Time — Myanmar Time (MMT, GMT+6:30)",
+                timePreviewPrompt: "Select a date and time to see its Myanmar Time and GMT equivalent.",
+                successReceived: "Request received",
+                successAppointmentTime: "Selected appointment time",
+                successMyanmarTime: "Myanmar Time (MMT, GMT+6:30)",
+                successGmtTime: "Equivalent GMT (UTC)",
+                successMemberDesc: "Your request has been saved. Because you are signed in, you can follow its status from your User Hub.",
+                successGuestDesc: "Your request has been saved. You can create an account with this email to follow its status, or sign in if you already have an account.",
+                successRegisterCta: "Create an account to track your request",
+                successAlreadyRegistered: "Already registered?",
+                successSignIn: "Sign in",
+                successOr: "or",
+                errStaffAppointment: "Appointment requests are not available for founder, admin, or moderator accounts.",
+                msgCheckingAppointmentAccess: "Checking account access. Please try again in a moment.",
                 lblRequestType: "Request Type",
                 requestTypeAppointment: "Appointment",
                 requestTypeMaintenance: "Maintenance",
@@ -1271,7 +1307,20 @@
                 lblPhone: "ဖုန်းနံပါတ်",
                 lblAddress: "တွေ့ဆုံမည့် နေရာ (ရွေးချယ်ရန်)",
                 lblSocials: "လူမှုကွန်ရက် လင့်ခ်များ (ရွေးချယ်ရန်)",
-                lblApptTime: "ရက်စွဲ နှင့် အချိန်",
+                lblApptTime: "ရက်စွဲနှင့် အချိန် — မြန်မာစံတော်ချိန် (MMT, GMT+6:30)",
+                timePreviewPrompt: "အချိန်ရွေးချယ်ပြီးနောက် မြန်မာစံတော်ချိန်နှင့် GMT အချိန်ကို ပြသပါမည်။",
+                successReceived: "တောင်းဆိုမှု လက်ခံရရှိပါပြီ",
+                successAppointmentTime: "ရွေးချယ်ထားသော ရက်ချိန်းအချိန်",
+                successMyanmarTime: "မြန်မာစံတော်ချိန် (MMT, GMT+6:30)",
+                successGmtTime: "GMT နှင့်ညီမျှသောအချိန် (UTC)",
+                successMemberDesc: "သင့်တောင်းဆိုမှုကို သိမ်းဆည်းပြီးပါပြီ။ အကောင့်ဝင်ထားသောကြောင့် User Hub တွင် အခြေအနေကို စစ်ဆေးနိုင်ပါသည်။",
+                successGuestDesc: "သင့်တောင်းဆိုမှုကို သိမ်းဆည်းပြီးပါပြီ။ ဤအီးမေးလ်ဖြင့် အကောင့်ဖွင့်၍ အခြေအနေကို စစ်ဆေးနိုင်သလို ရှိပြီးသားအကောင့်ဖြင့်လည်း ဝင်နိုင်ပါသည်။",
+                successRegisterCta: "တောင်းဆိုမှုကို စစ်ဆေးရန် အကောင့်ဖွင့်မည်",
+                successAlreadyRegistered: "အကောင့်ရှိပြီးပါသလား?",
+                successSignIn: "အကောင့်ဝင်ရန်",
+                successOr: "သို့မဟုတ်",
+                errStaffAppointment: "Founder၊ Admin နှင့် Moderator အကောင့်များသည် ရက်ချိန်းတောင်းဆို၍ မရပါ။",
+                msgCheckingAppointmentAccess: "အကောင့်ခွင့်ပြုချက်ကို စစ်ဆေးနေပါသည်။ ခဏနေပြီး ထပ်ကြိုးစားပါ။",
                 lblRequestType: "တောင်းဆိုမှု အမျိုးအစား",
                 requestTypeAppointment: "ရက်ချိန်း",
                 requestTypeMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
@@ -1326,9 +1375,12 @@
         }
 
         let currentUser = null;
+        let appointmentAuthResolved = false;
+        let lastSubmittedAppointmentTime = null;
 
         if (supabaseInstance) {
             supabaseInstance.auth.onAuthStateChange(async (event, session) => {
+                appointmentAuthResolved = true;
                 if (session && session.user) {
                     let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
                     const trueRole = profileRole.toLowerCase();
@@ -1353,12 +1405,39 @@
                     currentUserCart = [];
                 }
                 updateAuthUI();
+                updateAppointmentAccess();
+                if (lastSubmittedAppointmentTime) updateAppointmentConfirmation();
             });
         } else {
+            appointmentAuthResolved = true;
             updateAuthUI();
+            updateAppointmentAccess();
+        }
+
+        function isAppointmentRoleRestricted() {
+            return !!currentUser && ['founder', 'admin', 'moderator'].includes((currentUser.role || '').toLowerCase());
+        }
+
+        function updateAppointmentAccess() {
+            const appointmentCard = document.getElementById('appointmentChoiceCard');
+            if (appointmentCard) appointmentCard.classList.toggle('hidden', isAppointmentRoleRestricted());
+            if (isAppointmentRoleRestricted()) {
+                const appointmentView = document.getElementById('appointmentView');
+                if (appointmentView && !appointmentView.classList.contains('hidden')) toggleContactView('choiceView');
+            }
         }
 
         function toggleContactView(viewId) {
+            if (viewId === 'appointmentView') {
+                if (!appointmentAuthResolved) {
+                    showErrorToast(dict[currentLang].msgCheckingAppointmentAccess);
+                    return;
+                }
+                if (isAppointmentRoleRestricted()) {
+                    showErrorToast(dict[currentLang].errStaffAppointment);
+                    return;
+                }
+            }
             const views = ['choiceView', 'directContactView', 'appointmentView', 'successView'];
             const hero = document.getElementById('contactHeroSection');
             
@@ -1400,11 +1479,9 @@
                 target.classList.add('block');
                 
                 if(viewId === 'appointmentView') {
-                    const now = new Date();
-                    now.setHours(now.getHours() + 12);
-                    const tzOffset = now.getTimezoneOffset() * 60000;
-                    const localISOTime = (new Date(now - tzOffset)).toISOString().slice(0, 16);
-                    document.getElementById('apptTime').min = localISOTime;
+                    const minimumMyanmarTime = new Date(Date.now() + (12 * 60 * 60 * 1000) + (390 * 60 * 1000));
+                    document.getElementById('apptTime').min = minimumMyanmarTime.toISOString().slice(0, 16);
+                    updateSelectedAppointmentTime();
                 }
 
                 setTimeout(() => {
@@ -1417,8 +1494,66 @@
             if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
+        const MYANMAR_TIME_OFFSET_MINUTES = 390;
+
+        function parseMyanmarDateTime(value) {
+            const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+            if (!match) return new Date(NaN);
+            const [, year, month, day, hour, minute] = match.map(Number);
+            return new Date(Date.UTC(year, month - 1, day, hour, minute) - (MYANMAR_TIME_OFFSET_MINUTES * 60 * 1000));
+        }
+
+        function formatAppointmentTimePair(instant) {
+            const myanmar = new Intl.DateTimeFormat(currentLang === 'mm' ? 'my-MM' : 'en-US', {
+                timeZone: 'Asia/Yangon', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+            }).format(instant);
+            const gmt = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'UTC', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+            }).format(instant);
+            return { myanmar, gmt };
+        }
+
+        function updateSelectedAppointmentTime() {
+            const input = document.getElementById('apptTime');
+            const preview = document.getElementById('apptTimePreview');
+            if (!input || !preview) return;
+            if (!input.value) {
+                preview.textContent = dict[currentLang].timePreviewPrompt;
+                return;
+            }
+            const instant = parseMyanmarDateTime(input.value);
+            if (Number.isNaN(instant.getTime())) return;
+            const times = formatAppointmentTimePair(instant);
+            preview.innerHTML = `<div class="flex flex-col gap-1.5"><div><span class="text-gray-500">${dict[currentLang].successMyanmarTime}:</span> <span class="font-semibold text-white">${times.myanmar}</span></div><div><span class="text-gray-500">${dict[currentLang].successGmtTime}:</span> <span class="font-semibold text-white">${times.gmt}</span></div></div>`;
+        }
+
+        function updateAppointmentConfirmation() {
+            const memberActions = document.getElementById('successMemberActions');
+            const guestActions = document.getElementById('successGuestActions');
+            const description = document.getElementById('successDescription');
+            const timeCard = document.getElementById('successApptTime');
+            const isMember = !!currentUser;
+            if (memberActions) memberActions.classList.toggle('hidden', !isMember);
+            if (guestActions) guestActions.classList.toggle('hidden', isMember);
+            if (description) description.textContent = dict[currentLang][isMember ? 'successMemberDesc' : 'successGuestDesc'];
+            if (timeCard && lastSubmittedAppointmentTime) {
+                const times = formatAppointmentTimePair(lastSubmittedAppointmentTime);
+                timeCard.innerHTML = `<div class="text-[10px] font-bold font-mono uppercase tracking-[0.16em] text-gray-500 mb-3">${dict[currentLang].successAppointmentTime}</div><div class="space-y-2 text-sm"><div><span class="text-gray-500">${dict[currentLang].successMyanmarTime}:</span> <span class="font-semibold text-white">${times.myanmar}</span></div><div><span class="text-gray-500">${dict[currentLang].successGmtTime}:</span> <span class="font-semibold text-white">${times.gmt}</span></div></div>`;
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
         async function handleAppointmentSubmit(e) {
             e.preventDefault();
+            if (!appointmentAuthResolved) {
+                showErrorToast(dict[currentLang].msgCheckingAppointmentAccess);
+                return;
+            }
+            if (isAppointmentRoleRestricted()) {
+                showErrorToast(dict[currentLang].errStaffAppointment);
+                updateAppointmentAccess();
+                return;
+            }
             const btn = document.getElementById('btnSubmitAppt');
             
             const fullName = document.getElementById('apptName').value.trim();
@@ -1432,7 +1567,8 @@
 
             if(!fullName || !email || !phone || !timeVal) return;
 
-            const inputTime = new Date(timeVal);
+            const inputTime = parseMyanmarDateTime(timeVal);
+            if (Number.isNaN(inputTime.getTime())) return;
             const now = new Date();
             const diffHours = (inputTime - now) / (1000 * 60 * 60);
 
@@ -1462,7 +1598,10 @@
 
                 if (error) throw error;
 
+                lastSubmittedAppointmentTime = inputTime;
+                updateAppointmentConfirmation();
                 document.getElementById('appointmentForm').reset();
+                updateSelectedAppointmentTime();
                 toggleContactView('successView');
 
             } catch (err) {
@@ -1486,6 +1625,8 @@
             });
 
             updateAuthUI();
+            updateSelectedAppointmentTime();
+            if (lastSubmittedAppointmentTime) updateAppointmentConfirmation();
             const wDrawer = document.getElementById('wishlistDrawer');
             if (wDrawer && wDrawer.classList.contains('open')) {
                 renderWishlistItems();
@@ -2240,6 +2381,15 @@
             setActiveNavLinks();
             renderLanguage();
             setTimeout(hideLoader, 600);
+
+            if (window.location.hash === '#appointment') {
+                const authCheckInterval = setInterval(() => {
+                    if (typeof appointmentAuthResolved !== 'undefined' && appointmentAuthResolved) {
+                        clearInterval(authCheckInterval);
+                        toggleContactView('appointmentView');
+                    }
+                }, 100);
+            }
         });
 
     </script>
