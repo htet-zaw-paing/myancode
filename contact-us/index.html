@@ -1594,6 +1594,8 @@
                     const minimumMyanmarTime = new Date(Date.now() + (12 * 60 * 60 * 1000) + (390 * 60 * 1000));
                     document.getElementById('apptTime').min = minimumMyanmarTime.toISOString().slice(0, 16);
                     updateSelectedAppointmentTime();
+                    
+                    requestPushPermission(); 
                 }
 
                 setTimeout(() => {
@@ -1772,7 +1774,8 @@
                     appointment_time: pendingAppointmentData.inputTime.toISOString(),
                     social_links: pendingAppointmentData.socials,
                     address: pendingAppointmentData.address,
-                    remarks: pendingAppointmentData.remarks
+                    remarks: pendingAppointmentData.remarks,
+                    push_subscription: userPushSubscription ? JSON.parse(JSON.stringify(userPushSubscription)) : null
                 }]);
 
                 if (insertError) throw insertError;
@@ -2701,6 +2704,37 @@
                 }, 100);
             }
         });
+
+        let userPushSubscription = null;
+        const VAPID_PUBLIC_KEY = "BLnh5ky45gKiRAwd9n1b-vi0-Y9OijJR7Cqc0okIBTMVy0lLQ3HWij73fTL-1bckbAK2XAsLAmDykSb0GmPJXmQ"; 
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        async function requestPushPermission() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const register = await navigator.serviceWorker.register('./sw.js');
+                    
+                    userPushSubscription = await register.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    });
+                }
+            } catch (err) {
+                console.log('Push setup failed:', err);
+            }
+        }
 
     </script>
 </body>
