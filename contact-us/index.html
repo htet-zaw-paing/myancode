@@ -476,12 +476,12 @@
             <p class="text-sm font-medium text-gray-400 mb-6 leading-relaxed"><span data-i18n="lblOtpDesc">We've sent a 6-digit verification code to </span><span id="otpTargetEmail" class="text-white font-semibold block mt-1"></span></p>
             
             <div class="flex justify-center gap-2 mb-8" id="otpInputContainer">
-                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 1)" id="otp1">
-                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 2)" id="otp2">
-                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 3)" id="otp3">
-                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 4)" id="otp4">
-                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 5)" id="otp5">
-                <input type="number" class="otp-input" maxlength="1" oninput="moveToNextOtp(this, 6)" id="otp6">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-input" maxlength="1" id="otp1">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-input" maxlength="1" id="otp2">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-input" maxlength="1" id="otp3">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-input" maxlength="1" id="otp4">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-input" maxlength="1" id="otp5">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" class="otp-input" maxlength="1" id="otp6">
             </div>
 
             <button id="btnVerifyOtpSubmit" onclick="verifyOtpAndSubmit()" class="w-full bg-myancode-accent text-white py-3.5 rounded-xl text-sm font-bold tracking-wide hover:bg-blue-600 transition shadow-[0_0_15px_rgba(41,151,255,0.3)] flex justify-center items-center gap-2 mb-4">
@@ -620,20 +620,18 @@
                 <div id="voucher-content" class="w-full voucher-card shadow-[0_25px_80px_-25px_rgba(41,151,255,0.3)] mb-8 contact-success-enter">
                     
                     <div class="voucher-header">
-                        <div class="voucher-cutout-left"></div>
-                        <div class="voucher-cutout-right"></div>
                         <div class="flex justify-between items-start">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 bg-myancode-accent/20 flex items-center justify-center rounded-lg border border-myancode-accent/30 contact-success-icon">
-                                    <i data-lucide="check" class="w-5 h-5 text-myancode-accent"></i>
+                                    <i data-lucide="clock" class="w-5 h-5 text-myancode-accent"></i>
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-bold font-mono text-gray-400 tracking-widest uppercase mb-1">MyanCode</h4>
                                     <h3 class="text-xl font-display font-bold text-white tracking-wide" data-i18n="lblVoucherTitle">OFFICIAL MEETING TICKET</h3>
                                 </div>
                             </div>
-                            <div class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-md">
-                                <span class="text-[10px] font-bold font-mono text-emerald-400 tracking-widest uppercase" data-i18n="lblVoucherStatus">CONFIRMED</span>
+                            <div class="px-3 py-1 bg-amber-500/10 border border-amber-500/30 rounded-md">
+                                <span class="text-[10px] font-bold font-mono text-amber-400 tracking-widest uppercase" data-i18n="lblVoucherStatus">PENDING</span>
                             </div>
                         </div>
                     </div>
@@ -1332,7 +1330,8 @@
                 errOtpInvalid: "Invalid or expired OTP code. Please try again.",
                 msgOtpSent: "A new OTP has been sent to your email.",
                 lblVoucherTitle: "OFFICIAL MEETING TICKET",
-                lblVoucherStatus: "CONFIRMED",
+                lblVoucherStatus: "PENDING",
+                errOtpWait: "Please wait 5 minutes before requesting a new code.",
                 lblVoucherId: "TICKET ID",
                 lblVoucherDate: "DATE & TIME (MMT)",
                 lblVoucherType: "REQUEST TYPE",
@@ -1629,6 +1628,7 @@
 
         let pendingAppointmentData = null;
         let appointmentTicketId = '';
+        let lastOtpSentTime = 0;
 
         async function handleAppointmentSubmit(e) {
             e.preventDefault();
@@ -1668,6 +1668,9 @@
                 const { error } = await supabaseInstance.rpc('generate_appointment_otp', { p_email: email });
                 if (error) throw error;
 
+                lastOtpSentTime = Date.now();
+                setupOtpInputs();
+
                 document.getElementById('otpTargetEmail').textContent = email;
                 const modal = document.getElementById('otpModal');
                 modal.classList.remove('hidden'); modal.classList.add('flex');
@@ -1685,14 +1688,6 @@
             }
         }
 
-        function moveToNextOtp(input, index) {
-            if (input.value.length === 1 && index < 6) {
-                document.getElementById(`otp${index + 1}`).focus();
-            } else if (input.value.length === 0 && index > 1) {
-                document.getElementById(`otp${index - 1}`).focus();
-            }
-        }
-
         function closeOtpModal() {
             const modal = document.getElementById('otpModal');
             modal.classList.add('opacity-0');
@@ -1704,10 +1699,24 @@
 
         async function resendOtp() {
             if(!pendingAppointmentData) return;
+            
+            const now = Date.now();
+            const timePassed = now - lastOtpSentTime;
+            const cooldown = 5 * 60 * 1000;
+            
+            if (timePassed < cooldown) {
+                const minutesLeft = Math.ceil((cooldown - timePassed) / 60000);
+                showErrorToast(dict[currentLang].errOtpWait || `Please wait ${minutesLeft} minute(s) before requesting a new code.`);
+                return;
+            }
+
             try {
                 const { error } = await supabaseInstance.rpc('generate_appointment_otp', { p_email: pendingAppointmentData.email });
                 if (error) throw error;
+                
+                lastOtpSentTime = Date.now();
                 showToast(dict[currentLang].msgOtpSent || "OTP Resent!");
+                
                 for(let i=1; i<=6; i++) document.getElementById(`otp${i}`).value = '';
                 document.getElementById('otp1').focus();
             } catch (err) {
@@ -1764,6 +1773,46 @@
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
             }
+        }
+
+        function setupOtpInputs() {
+            const inputs = document.querySelectorAll('.otp-input');
+            
+            inputs.forEach(input => {
+                const newEl = input.cloneNode(true);
+                input.parentNode.replaceChild(newEl, input);
+            });
+            
+            const newInputs = document.querySelectorAll('.otp-input');
+            newInputs.forEach((input, index) => {
+                
+                input.addEventListener('input', (e) => {
+                    input.value = input.value.replace(/[^0-9]/g, '');
+                    if (input.value !== '' && index < 5) {
+                        newInputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && input.value === '' && index > 0) {
+                        newInputs[index - 1].focus();
+                        newInputs[index - 1].value = '';
+                    }
+                });
+
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const pasteData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                    if (pasteData) {
+                        for (let i = 0; i < pasteData.length; i++) {
+                            if (newInputs[i]) {
+                                newInputs[i].value = pasteData[i];
+                                if (i < 5) newInputs[i + 1].focus();
+                            }
+                        }
+                    }
+                });
+            });
         }
 
         function updateVoucherDisplay() {
