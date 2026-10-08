@@ -1738,7 +1738,7 @@
                 if (otpError) throw otpError;
                 if (!isValid) throw new Error(dict[currentLang].errOtpInvalid || "Invalid OTP");
 
-                const { data: insertData, error: insertError } = await supabaseInstance.from('contact_appointments').insert([{
+                const { error: insertError } = await supabaseInstance.from('contact_appointments').insert([{
                     full_name: pendingAppointmentData.fullName,
                     email: pendingAppointmentData.email,
                     phone: pendingAppointmentData.phone,
@@ -1747,11 +1747,12 @@
                     social_links: pendingAppointmentData.socials,
                     address: pendingAppointmentData.address,
                     remarks: pendingAppointmentData.remarks
-                }]).select('id').single();
+                }]);
 
                 if (insertError) throw insertError;
 
-                appointmentTicketId = insertData.id.split('-')[0].toUpperCase(); 
+                appointmentTicketId = Math.random().toString(36).substring(2, 8).toUpperCase(); 
+                
                 closeOtpModal();
                 updateVoucherDisplay();
                 document.getElementById('appointmentForm').reset();
