@@ -65,14 +65,22 @@ serve(async (req) => {
 
     if (record.push_subscription) {
       console.log("5. PUSH SUBSCRIPTION FOUND. Sending Web Push...")
+      
+      let subData = record.push_subscription;
+      if (typeof subData === 'string') {
+        subData = JSON.parse(subData);
+      }
+
       try {
         await webpush.sendNotification(
-          record.push_subscription,
+          subData,
           JSON.stringify({ title: pushTitle, body: message })
         )
         console.log("6. WEB PUSH SUCCESSFUL!")
       } catch (pushError) {
-        console.error('7. WEB PUSH FAILED TO DELIVER:', pushError)
+        console.error('7. WEB PUSH FAILED TO DELIVER:', pushError.message)
+        console.error('8. PUSH SERVER REJECTION REASON:', pushError.body || "No body provided")
+        console.error('9. PUSH SERVER STATUS CODE:', pushError.statusCode || "No status code")
       }
     } else {
       console.log("5. NO PUSH SUBSCRIPTION FOUND IN DATABASE FOR THIS ROW.")
