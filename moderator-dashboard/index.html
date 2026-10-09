@@ -471,11 +471,11 @@
                         <table class="w-full text-left border-collapse min-w-[1000px]">
                             <thead>
                                 <tr class="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-mono bg-white/5">
+                                    <th class="py-4 px-6 font-bold w-1/6">Ticket ID</th>
                                     <th class="py-4 px-6 font-bold w-1/4">Client Details</th>
                                     <th class="py-4 px-6 font-bold w-1/4">Requested Time</th>
                                     <th class="py-4 px-6 font-bold w-1/6">Request Type</th>
                                     <th class="py-4 px-6 font-bold w-1/6">Status</th>
-                                    <th class="py-4 px-6 font-bold w-1/6 text-center">Submitted</th>
                                     <th class="py-4 px-6 font-bold w-1/6 text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -3166,7 +3166,7 @@
             
             let filtered = allAppointments.filter(appt => {
                 const matchesFilter = currentApptFilter === 'all' || appt.status === currentApptFilter;
-                const searchStr = `${appt.full_name} ${appt.email} ${appt.phone} ${appt.address || ''}`.toLowerCase();
+                const searchStr = `${appt.ticket_id || ''} ${appt.full_name} ${appt.email} ${appt.phone} ${appt.address || ''}`.toLowerCase();
                 const matchesSearch = !currentApptSearch || searchStr.includes(currentApptSearch);
                 return matchesFilter && matchesSearch;
             });
@@ -3179,10 +3179,7 @@
 
             tbody.innerHTML = filtered.map(appt => {
                 const reqDate = new Date(appt.appointment_time);
-                const subDate = new Date(appt.created_at);
-                
                 const fReqDate = reqDate.toLocaleDateString() + '<br><span class="text-xs text-gray-400">' + reqDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span>';
-                const fSubDate = subDate.toLocaleDateString() + '<br><span class="text-xs text-gray-400">' + subDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span>';
 
                 let statusBadge = '';
                 if(appt.status === 'pending') statusBadge = '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest status-pending">Pending</span>';
@@ -3192,6 +3189,9 @@
 
                 return `
                     <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5 last:border-0">
+                        <td class="px-6 py-4 align-top w-1/6">
+                            <div class="font-mono text-sm font-bold text-myancode-accent tracking-wider">${appt.ticket_id || 'N/A'}</div>
+                        </td>
                         <td class="px-6 py-4 align-top w-1/4">
                             <div class="font-bold text-white mb-1 truncate">${appt.full_name}</div>
                             <div class="text-[11px] text-gray-400 font-mono truncate">${appt.email}</div>
@@ -3205,9 +3205,6 @@
                         </td>
                         <td class="px-6 py-4 align-top w-1/6">
                             ${statusBadge}
-                        </td>
-                        <td class="px-6 py-4 align-top w-1/6 text-sm font-mono text-gray-400 text-center">
-                            ${fSubDate}
                         </td>
                         <td class="px-6 py-4 align-top text-right">
                             <div class="flex justify-end gap-2 opacity-100 sm:opacity-50 sm:group-hover:opacity-100 transition-opacity">
