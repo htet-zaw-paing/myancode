@@ -32,11 +32,14 @@ serve(async (req) => {
     let htmlMessage = ""
 
     if (type === 'INSERT') {
-      subject = "Meeting Ticket Received - MyanCode"
+      subject = `Meeting Ticket Received: ${record.ticket_id}`
       pushTitle = "Ticket Opened"
-      pushBody = `Hi ${record.full_name}, we have received your request for an appointment. Your ticket is currently PENDING.`
-      htmlMessage = `<p>Hi ${record.full_name}, we have received your request for an appointment. Your ticket is currently <strong>PENDING</strong>.</p>`
-    
+      pushBody = `Hi ${record.full_name}, your Ticket ID is ${record.ticket_id}. It is currently PENDING.`
+      htmlMessage = `
+        <p>Hi ${record.full_name},</p>
+        <p>We have received your request. Your Ticket ID is <strong>${record.ticket_id}</strong> and your status is currently <strong>PENDING</strong>.</p>
+        <p style="color: #666; font-size: 14px;">Please keep this email for your records. We will notify you here once your status is updated.</p>
+      `
     } else if (type === 'UPDATE') {
       subject = `Ticket Update: ${record.status.toUpperCase()}`
       pushTitle = `Ticket ${record.status.toUpperCase()}`
