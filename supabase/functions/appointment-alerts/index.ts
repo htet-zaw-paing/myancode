@@ -50,7 +50,7 @@ serve(async (req) => {
       if (record.remarks) {
         htmlMessage += `
           <div style="margin-top: 20px; padding: 15px; background-color: #f4f4f5; border-left: 4px solid #0066CC; border-radius: 4px; color: #3f3f46;">
-            <strong>Moderator Note:</strong><br/>
+            <strong>Note:</strong><br/>
             ${record.remarks}
           </div>`
       }
