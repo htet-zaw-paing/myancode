@@ -1766,6 +1766,11 @@
                 if (otpError) throw otpError;
                 if (!isValid) throw new Error(dict[currentLang].errOtpInvalid || "Invalid OTP");
 
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                const randomArray = new Uint32Array(6);
+                window.crypto.getRandomValues(randomArray);
+                appointmentTicketId = Array.from(randomArray).map(n => chars[n % chars.length]).join('');
+
                 const ticketData = {
                     ticket_id: appointmentTicketId,
                     full_name: pendingAppointmentData.fullName,
@@ -1787,11 +1792,9 @@
                 supabaseInstance.functions.invoke('appointment-alerts', {
                     body: { type: 'INSERT', record: ticketData }
                 }).then(({ data, error }) => {
-                    if (error) console.error("❌ Edge Function Error:", error);
-                    else console.log("✅ Edge Function Success:", data);
+                    if (error) console.error("Edge Function Error:", error);
+                    else console.log("Edge Function Success:", data);
                 });
-
-                appointmentTicketId = Math.random().toString(36).substring(2, 8).toUpperCase(); 
                 
                 closeOtpModal();
                 updateVoucherDisplay();
