@@ -38,7 +38,14 @@ serve(async (req) => {
       htmlMessage = `
         <p>Hi ${record.full_name},</p>
         <p>We have received your request. Your Ticket ID is <strong>${record.ticket_id}</strong> and your status is currently <strong>PENDING</strong>.</p>
-        <p style="color: #666; font-size: 14px;">Please keep this email for your records. We will notify you here once your status is updated.</p>
+        
+        <div style="margin: 25px 0;">
+            <a href="https://www.myancode.com/track-ticket/" style="background-color: #0066CC; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; display: inline-block;">
+                Track Ticket Status
+            </a>
+        </div>
+        
+        <p style="color: #666; font-size: 14px;">Please keep this email for your records. We will also notify you here once your status is updated by our team.</p>
       `
     } else if (type === 'UPDATE') {
       subject = `Ticket Update: ${record.status.toUpperCase()}`

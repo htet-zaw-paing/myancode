@@ -153,10 +153,10 @@
 
             try {
                 const { data, error } = await supabaseInstance
-                    .from('contact_appointments')
-                    .select('ticket_id, full_name, request_type, appointment_time, status, remarks')
-                    .eq('email', email)
-                    .eq('ticket_id', ticketId)
+                    .rpc('get_ticket_status', { 
+                        search_email: email, 
+                        search_ticket_id: ticketId 
+                    })
                     .single();
 
                 if (error) {
