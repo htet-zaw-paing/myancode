@@ -3150,6 +3150,34 @@
                 if(typeof lucide !== 'undefined') lucide.createIcons();
             }
         }
+        function setupModeratorRealtime() {
+            supabaseInstance
+                .channel('moderator-appointments')
+                .on('postgres_changes', { 
+                    event: '*', 
+                    schema: 'public', 
+                    table: 'contact_appointments' 
+                }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        if (!allAppointments.find(a => a.id === payload.new.id)) {
+                            allAppointments.unshift(payload.new);
+                        }
+                    } 
+                    else if (payload.eventType === 'UPDATE') {
+                        const idx = allAppointments.findIndex(a => a.id === payload.new.id);
+                        if (idx > -1) {
+                            allAppointments[idx] = Object.assign({}, allAppointments[idx], payload.new);
+                        } else {
+                            allAppointments.unshift(payload.new);
+                        }
+                    } 
+                    else if (payload.eventType === 'DELETE') {
+                        allAppointments = allAppointments.filter(a => a.id !== payload.old.id);
+                    }
+                    renderAppointmentsTable();
+                })
+                .subscribe();
+        }
 
         function handleApptSearch() {
             currentApptSearch = document.getElementById('searchAppointmentsInput').value.toLowerCase().trim();
