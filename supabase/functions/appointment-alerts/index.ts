@@ -1,9 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import webpush from "npm:web-push"
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY')
 const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')
+const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 console.log("=== FUNCTION BOOTED ===")
 console.log("Keys loaded:", {
@@ -26,6 +31,24 @@ serve(async (req) => {
     const record = payload.record 
     const type = payload.type 
 
+    let targetUrl = "https://www.myancode.com/track-ticket/"
+    let btnText = "Track Ticket Status"
+
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('email', record.email)
+        .maybeSingle()
+
+      if (profile && profile.role === 'client') {
+        targetUrl = "https://www.myancode.com/hub#appointments"
+        btnText = "View in Client Hub"
+      }
+    } catch (e) {
+      console.error(e)
+    }
+
     let subject = ""
     let pushTitle = ""
     let pushBody = ""
@@ -38,14 +61,6 @@ serve(async (req) => {
       htmlMessage = `
         <p>Hi ${record.full_name},</p>
         <p>We have received your request. Your Ticket ID is <strong>${record.ticket_id}</strong> and your status is currently <strong>PENDING</strong>.</p>
-        
-        <div style="margin: 25px 0;">
-            <a href="https://www.myancode.com/track-ticket/" style="background-color: #0066CC; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; display: inline-block;">
-                Track Ticket Status
-            </a>
-        </div>
-        
-        <p style="color: #666; font-size: 14px;">Please keep this email for your records. We will also notify you here once your status is updated by our team.</p>
       `
     } else if (type === 'UPDATE') {
       subject = `Ticket Update: ${record.status.toUpperCase()}`
@@ -68,6 +83,15 @@ serve(async (req) => {
       console.log("No relevant changes. Exiting early.")
       return new Response("No relevant changes", { status: 200 })
     }
+
+    htmlMessage += `
+        <div style="margin: 25px 0;">
+            <a href="${targetUrl}" style="background-color: #0066CC; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; display: inline-block;">
+                ${btnText}
+            </a>
+        </div>
+        <p style="color: #666; font-size: 14px;">Please keep this email for your records. We will also notify you here once your status is updated by our team.</p>
+    `
 
     console.log("2. PREPARING ALERTS FOR:", record.email)
 
@@ -102,7 +126,11 @@ serve(async (req) => {
       try {
         await webpush.sendNotification(
           subData,
-          JSON.stringify({ title: pushTitle, body: pushBody })
+          JSON.stringify({ title: pushTitle, body: pushBody, url: targetUrl }),
+          {
+            urgency: 'high',
+            TTL: 86400
+          }
         )
         console.log("6. WEB PUSH SUCCESSFUL!")
       } catch (pushError) {
