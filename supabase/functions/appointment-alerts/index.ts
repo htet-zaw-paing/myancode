@@ -8,13 +8,19 @@ const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
+// --- NEW TELEGRAM SECRETS ---
+const TELEGRAM_BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN')
+const TELEGRAM_CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID')
+
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 console.log("=== FUNCTION BOOTED ===")
 console.log("Keys loaded:", {
   hasResend: !!RESEND_API_KEY,
   hasVapidPub: !!VAPID_PUBLIC_KEY,
-  hasVapidPriv: !!VAPID_PRIVATE_KEY
+  hasVapidPriv: !!VAPID_PRIVATE_KEY,
+  hasTelegramToken: !!TELEGRAM_BOT_TOKEN,
+  hasTelegramChatId: !!TELEGRAM_CHAT_ID
 })
 
 webpush.setVapidDetails(
@@ -53,6 +59,7 @@ serve(async (req) => {
     let pushTitle = ""
     let pushBody = ""
     let htmlMessage = ""
+    let tgText = "" // NEW TELEGRAM TEXT VARIABLE
 
     if (type === 'INSERT') {
       subject = `Meeting Ticket Received: ${record.ticket_id}`
@@ -62,6 +69,10 @@ serve(async (req) => {
         <p>Hi ${record.full_name},</p>
         <p>We have received your request. Your Ticket ID is <strong>${record.ticket_id}</strong> and your status is currently <strong>PENDING</strong>.</p>
       `
+      
+      // NEW TELEGRAM FORMATTING FOR INSERT
+      tgText = `🔔 *NEW TICKET OPENED*\n\n*ID:* \`${record.ticket_id}\`\n*Client:* ${record.full_name}\n*Email:* ${record.email}\n*Type:* ${record.request_type || 'Appointment'}\n*Status:* PENDING`
+
     } else if (type === 'UPDATE') {
       subject = `Ticket Update: ${record.status.toUpperCase()}`
       pushTitle = `Ticket ${record.status.toUpperCase()}`
@@ -79,6 +90,13 @@ serve(async (req) => {
             ${record.remarks}
           </div>`
       }
+
+      // NEW TELEGRAM FORMATTING FOR UPDATE
+      tgText = `📝 *TICKET UPDATED*\n\n*ID:* \`${record.ticket_id}\`\n*Client:* ${record.full_name}\n*New Status:* ${record.status.toUpperCase()}`
+      if (record.remarks) {
+        tgText += `\n*Note:* ${record.remarks}`
+      }
+
     } else {
       console.log("No relevant changes. Exiting early.")
       return new Response("No relevant changes", { status: 200 })
@@ -140,6 +158,26 @@ serve(async (req) => {
       }
     } else {
       console.log("5. NO PUSH SUBSCRIPTION FOUND IN DATABASE FOR THIS ROW.")
+    }
+
+    // --- NEW TELEGRAM LOGIC ---
+    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+      console.log("10. SENDING TELEGRAM ADMIN ALERT...")
+      const tgUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`
+      try {
+        const tgResponse = await fetch(tgUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: tgText,
+            parse_mode: 'Markdown'
+          })
+        })
+        console.log("11. TELEGRAM API RESPONSE:", tgResponse.status)
+      } catch (tgError) {
+        console.error("12. TELEGRAM ALERT FAILED:", tgError)
+      }
     }
 
     return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } })
