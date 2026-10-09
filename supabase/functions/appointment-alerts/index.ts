@@ -24,23 +24,38 @@ serve(async (req) => {
     console.log("1. DATABASE PAYLOAD RECEIVED:", JSON.stringify(payload, null, 2))
     
     const record = payload.record 
-    const old_record = payload.old_record || {}
     const type = payload.type 
 
     let subject = ""
-    let message = ""
     let pushTitle = ""
+    let pushBody = ""
+    let htmlMessage = ""
 
     if (type === 'INSERT') {
       subject = "Meeting Ticket Received - MyanCode"
       pushTitle = "Ticket Opened"
-      message = `Hi ${record.full_name}, we have received your request for an appointment. Your ticket is currently PENDING.`
-    } else if (type === 'UPDATE' && record.status !== old_record.status) {
+      pushBody = `Hi ${record.full_name}, we have received your request for an appointment. Your ticket is currently PENDING.`
+      htmlMessage = `<p>Hi ${record.full_name}, we have received your request for an appointment. Your ticket is currently <strong>PENDING</strong>.</p>`
+    
+    } else if (type === 'UPDATE') {
       subject = `Ticket Update: ${record.status.toUpperCase()}`
       pushTitle = `Ticket ${record.status.toUpperCase()}`
-      message = `Hi ${record.full_name}, your meeting request status has been updated to: ${record.status.toUpperCase()}.`
+      
+      pushBody = `Your meeting request status is now ${record.status.toUpperCase()}.`
+      if (record.remarks) {
+        pushBody += `\nNote: ${record.remarks}`
+      }
+
+      htmlMessage = `<p>Hi ${record.full_name}, your meeting request status has been updated to: <strong>${record.status.toUpperCase()}</strong>.</p>`
+      if (record.remarks) {
+        htmlMessage += `
+          <div style="margin-top: 20px; padding: 15px; background-color: #f4f4f5; border-left: 4px solid #0066CC; border-radius: 4px; color: #3f3f46;">
+            <strong>Moderator Note:</strong><br/>
+            ${record.remarks}
+          </div>`
+      }
     } else {
-      console.log("No status change. Exiting early.")
+      console.log("No relevant changes. Exiting early.")
       return new Response("No relevant changes", { status: 200 })
     }
 
@@ -57,7 +72,10 @@ serve(async (req) => {
         from: "MyanCode <noreply@myancode.com>", 
         to: record.email,
         subject: subject,
-        html: `<div style="font-family: sans-serif; padding: 20px;"><h2>MyanCode Updates</h2><p>${message}</p></div>`,
+        html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #171717;">
+                 <h2 style="color: #0066CC;">MyanCode Updates</h2>
+                 ${htmlMessage}
+               </div>`,
       }),
     })
     const resendResult = await resendResponse.text()
@@ -74,7 +92,7 @@ serve(async (req) => {
       try {
         await webpush.sendNotification(
           subData,
-          JSON.stringify({ title: pushTitle, body: message })
+          JSON.stringify({ title: pushTitle, body: pushBody })
         )
         console.log("6. WEB PUSH SUCCESSFUL!")
       } catch (pushError) {

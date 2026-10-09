@@ -3288,6 +3288,9 @@
 
             if(!id) return;
 
+            const oldRecord = allAppointments.find(a => a.id === id);
+            if(!oldRecord) return;
+
             btn.disabled = true;
             const orig = btn.innerHTML;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-white"></i>`;
@@ -3300,6 +3303,18 @@
                     .eq('id', id);
 
                 if(error) throw error;
+                
+                const newRecord = { ...oldRecord, status: newStatus, remarks: newRemarks };
+
+                if (oldRecord.status !== newStatus || oldRecord.remarks !== newRemarks) {
+                    console.log(`🚀 Sending ${newStatus} alert with remarks...`);
+                    supabaseInstance.functions.invoke('appointment-alerts', {
+                        body: { type: 'UPDATE', record: newRecord, old_record: oldRecord }
+                    }).then(({ data, error }) => {
+                        if (error) console.error("Alert Error:", error);
+                        else console.log("Alert Sent:", data);
+                    });
+                }
                 
                 const idx = allAppointments.findIndex(a => a.id === id);
                 if (idx > -1) {
