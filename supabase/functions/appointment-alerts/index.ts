@@ -65,9 +65,10 @@ serve(async (req) => {
       subject = `Meeting Ticket Received: ${record.ticket_id}`
       pushTitle = "Ticket Opened"
       pushBody = `Hi ${record.full_name}, your Ticket ID is ${record.ticket_id}. It is currently PENDING.`
+      
       htmlMessage = `
-        <p>Hi ${record.full_name},</p>
-        <p>We have received your request. Your Ticket ID is <strong>${record.ticket_id}</strong> and your status is currently <strong>PENDING</strong>.</p>
+        <p style="margin: 0 0 16px 0;">Dear ${record.full_name},</p>
+        <p style="margin: 0 0 24px 0;">This is an official confirmation that your request has been received. Your ticket identifier is <strong style="font-family: monospace; font-size: 16px;">${record.ticket_id}</strong>, and its current status is <strong>PENDING</strong>.</p>
       `
       
       // NEW TELEGRAM FORMATTING FOR INSERT
@@ -82,12 +83,16 @@ serve(async (req) => {
         pushBody += `\nNote: ${record.remarks}`
       }
 
-      htmlMessage = `<p>Hi ${record.full_name}, your meeting request status has been updated to: <strong>${record.status.toUpperCase()}</strong>.</p>`
+      htmlMessage = `
+        <p style="margin: 0 0 16px 0;">Dear ${record.full_name},</p>
+        <p style="margin: 0 0 24px 0;">Please be advised that the status of your request (ID: <strong style="font-family: monospace; font-size: 16px;">${record.ticket_id}</strong>) has been formally updated to: <strong>${record.status.toUpperCase()}</strong>.</p>
+      `
+      
       if (record.remarks) {
         htmlMessage += `
-          <div style="margin-top: 20px; padding: 15px; background-color: #f4f4f5; border-left: 4px solid #0066CC; border-radius: 4px; color: #3f3f46;">
-            <strong>Note:</strong><br/>
-            ${record.remarks}
+          <div class="email-note" style="margin-bottom: 24px; padding: 16px 20px; background-color: #F9F9F9; border-left: 3px solid #000000;">
+            <strong style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Moderator Note</strong>
+            <span style="font-size: 14px; line-height: 1.6;">${record.remarks}</span>
           </div>`
       }
 
@@ -103,12 +108,14 @@ serve(async (req) => {
     }
 
     htmlMessage += `
-        <div style="margin: 25px 0;">
-            <a href="${targetUrl}" style="background-color: #0066CC; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; display: inline-block;">
+        <div style="margin: 32px 0;">
+            <a href="${targetUrl}" class="email-btn" style="background-color: #000000; color: #ffffff; padding: 14px 28px; text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; display: inline-block;">
                 ${btnText}
             </a>
         </div>
-        <p style="color: #666; font-size: 14px;">Please keep this email for your records. We will also notify you here once your status is updated by our team.</p>
+        <div class="email-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E5E5E5; color: #666666; font-size: 11px; line-height: 1.6; text-transform: uppercase; letter-spacing: 0.5px;">
+            <p style="margin: 0;">This is an automated administrative message. Please retain this correspondence for your records. Further updates will be issued as your request progresses.</p>
+        </div>
     `
 
     console.log("2. PREPARING ALERTS FOR:", record.email)
@@ -124,10 +131,35 @@ serve(async (req) => {
         from: "MyanCode <noreply@myancode.com>", 
         to: record.email,
         subject: subject,
-        html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #171717;">
-                 <h2 style="color: #0066CC;">MyanCode Updates</h2>
-                 ${htmlMessage}
-               </div>`,
+        html: `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="color-scheme" content="light dark">
+          <style>
+            body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+            @media (prefers-color-scheme: dark) {
+              .email-bg { background-color: #000000 !important; }
+              .email-card { background-color: #111111 !important; border-color: #333333 !important; }
+              .email-text { color: #ffffff !important; }
+              .email-border { border-color: #ffffff !important; }
+              .email-btn { background-color: #ffffff !important; color: #000000 !important; }
+              .email-note { background-color: #222222 !important; border-left-color: #ffffff !important; }
+              .email-footer { color: #888888 !important; border-top-color: #333333 !important; }
+            }
+          </style>
+        </head>
+        <body class="email-bg" style="margin: 0; padding: 20px; background-color: #F4F4F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+          <div class="email-card" style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E5E5E5; padding: 40px; box-sizing: border-box;">
+            <div class="email-border" style="border-bottom: 2px solid #000000; padding-bottom: 16px; margin-bottom: 32px;">
+              <h2 class="email-text" style="margin: 0; font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #000000;">MYANCODE</h2>
+            </div>
+            <div class="email-text" style="color: #000000; font-size: 15px; line-height: 1.6;">
+              ${htmlMessage}
+            </div>
+          </div>
+        </body>
+        </html>`,
       }),
     })
     const resendResult = await resendResponse.text()
