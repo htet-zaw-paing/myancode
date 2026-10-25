@@ -1721,9 +1721,9 @@
             populateProfileData();
             switchTab('overview');
             fetchUsersData();
-            initRealtime();
-            admin_init();
-            moderator_init();
+            try { initRealtime(); } catch (err) { console.warn('Founder realtime setup failed:', err); }
+            try { admin_init(); } catch (err) { console.warn('Admin dashboard setup failed:', err); }
+            try { moderator_init(); } catch (err) { console.warn('Moderator dashboard setup failed:', err); }
             document.getElementById('edgeWorkerUrl').value = localStorage.getItem('edgeWorkerUrl') || '';
             document.getElementById('edgeAdminSecret').value = localStorage.getItem('edgeAdminSecret') || '';
             fetchMaintenanceState();
@@ -4669,6 +4669,95 @@ async function moderator_updateOverviewStats() {
             }
         }
 
+function moderator_initRealtime() {
+            if (!supabaseInstance) return;
+            
+            supabaseInstance.channel('moderator_reports')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'marketplace_reports' }, async payload => {
+                    if (payload.eventType === 'INSERT') {
+                        const { data } = await supabaseInstance.from('marketplace_reports').select(`
+                            id, reason, status, created_at, post_id, reporter_id,
+                            marketplace_posts!fk_marketplace_reports_post_id ( content, author_name )
+                        `).eq('id', payload.new.id).single();
+                        if (data) allReportedPosts.unshift(data);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = allReportedPosts.findIndex(r => r.id === payload.new.id);
+                        if (idx > -1) Object.assign(allReportedPosts[idx], payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        allReportedPosts = allReportedPosts.filter(r => r.id !== payload.old.id);
+                    }
+                    
+                    const activeView = document.getElementById('view-community');
+                    if (activeView && !activeView.classList.contains('hidden')) moderator_renderReportedPostsTable();
+                    moderator_updateOverviewStats();
+                })
+                .subscribe();
+
+            supabaseInstance.channel('moderator_lockouts')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'auth_lockouts' }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        allLockedAccounts.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = allLockedAccounts.findIndex(a => a.email === payload.new.email);
+                        if (idx > -1) Object.assign(allLockedAccounts[idx], payload.new);
+                        else allLockedAccounts.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        allLockedAccounts = allLockedAccounts.filter(a => a.email !== payload.old.email);
+                    }
+                    
+                    const activeView = document.getElementById('view-access');
+                    if (activeView && !activeView.classList.contains('hidden')) moderator_renderLockedAccountsTable();
+                    moderator_updateOverviewStats();
+                })
+                .subscribe();
+                
+            supabaseInstance.channel('moderator_appointments')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'contact_appointments' }, payload => {
+                    if (payload.eventType === 'INSERT') {
+                        allAppointments.unshift(payload.new);
+                    } else if (payload.eventType === 'UPDATE') {
+                        const idx = allAppointments.findIndex(a => a.id === payload.new.id);
+                        if (idx > -1) Object.assign(allAppointments[idx], payload.new);
+                        else allAppointments.unshift(payload.new);
+                    } else if (payload.eventType === 'DELETE') {
+                        allAppointments = allAppointments.filter(a => a.id !== payload.old.id);
+                    }
+                    
+                    const activeView = document.getElementById('view-appointments');
+                    if (activeView && !activeView.classList.contains('hidden')) moderator_renderAppointmentsTable();
+
+                    const modalIdInput = document.getElementById('modalApptId');
+                    const modal = document.getElementById('appointmentModal');
+                    if (modalIdInput && modalIdInput.value === payload.new?.id && !modal.classList.contains('hidden')) {
+                        document.getElementById('modalApptStatus').value = payload.new.status;
+                        document.getElementById('modalApptRemarks').value = payload.new.remarks || '';
+                    }
+                    moderator_updateOverviewStats();
+                })
+                .subscribe();
+
+            supabaseInstance.channel('moderator_templates')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'website_templates' }, payload => {
+                    moderator_fetchTemplates(true);
+                    moderator_updateOverviewStats();
+                })
+                .subscribe();
+
+            supabaseInstance.channel('moderator_services')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'website_services' }, payload => {
+                    moderator_fetchServices(true);
+                    moderator_updateOverviewStats();
+                })
+                .subscribe();
+
+            supabaseInstance.channel('moderator_projects')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'delivered_projects' }, payload => {
+                    moderator_fetchProjects(true);
+                    moderator_updateOverviewStats();
+                })
+                .subscribe();
+        }
+
 function moderator_formatServiceDoc(cmd, value = null) {
             document.execCommand(cmd, false, value);
             document.getElementById('srvDesc').focus();
@@ -6798,6 +6887,7 @@ function moderator_closePostPreviewModal() {
             }, 300);
         }
 window.moderator_updateOverviewStats = moderator_updateOverviewStats;
+window.moderator_initRealtime = moderator_initRealtime;
 window.moderator_formatServiceDoc = moderator_formatServiceDoc;
 window.moderator_addServiceLink = moderator_addServiceLink;
 window.moderator_fetchServices = moderator_fetchServices;
