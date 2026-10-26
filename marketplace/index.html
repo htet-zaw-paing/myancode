@@ -290,16 +290,12 @@
         
         .post-container { content-visibility: auto; contain-intrinsic-size: 400px; }
         
-        .img-grid-1 { display: grid; grid-template-columns: 1fr; border-radius: 16px; overflow: hidden; gap: 4px; }
-        .img-grid-2 { display: grid; grid-template-columns: 1fr 1fr; border-radius: 16px; overflow: hidden; gap: 4px; }
-        .img-grid-3 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 16px; overflow: hidden; gap: 4px; }
-        .img-grid-3 img:first-child { grid-column: 1 / -1; }
-        .img-grid-4 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 16px; overflow: hidden; gap: 4px; }
-        .img-grid-5 { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 16px; overflow: hidden; gap: 4px; }
-        .img-grid-5 img:nth-child(1), .img-grid-5 img:nth-child(2) { grid-column: span 1.5; }
-        .grid-img-cell { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; transition: filter 0.3s; cursor: zoom-in; }
+        .img-grid-1 { display: block; border-radius: 16px; overflow: hidden; }
+        .img-grid-2, .img-grid-3, .img-grid-4, .img-grid-5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); border-radius: 16px; overflow: hidden; gap: 4px; }
+        .grid-img-cell { display: block; width: 100%; height: auto; object-fit: cover; aspect-ratio: 1 / 1; transition: filter 0.3s; cursor: zoom-in; }
+        .img-grid-1 .grid-img-cell { aspect-ratio: auto; object-fit: contain; }
+        .img-grid-1 .grid-img-cell.extreme { aspect-ratio: 1 / 1; object-fit: cover; }
         .grid-img-cell:hover { filter: brightness(1.1); }
-        .grid-img-cell.tall { aspect-ratio: 16/10; }
         
         .tag-pill { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 100px; background: rgba(255, 255, 255, 0.05); color: #fff; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px; margin-bottom: 6px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
         .tag-pill:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); }
@@ -1968,6 +1964,7 @@
         }
         
         let selectedImages = []; let existingImagesForEdit = []; let allCommunityPosts = []; let currentFilter = 'all';
+        let currentUserPlan = ''; const reportedPostIds = new Set(); const reportingPostIds = new Set();
         let currentFilteredPosts = []; let displayedPostsCount = 5; const POSTS_PER_PAGE = 5; let feedObserver = null;
         let activeBioCardId = null; let bioCardsCache = [];
         let activeReplyAuthor = {}; let activeReplyParentId = {};
@@ -2409,9 +2406,16 @@
                     const { data: { session } } = await supabaseInstance.auth.getSession();
                     if (session && session.user) {
                         let profileRole = session.user.app_metadata?.role || session.user.user_metadata?.role || 'client';
+                        const metadataPlan = session.user.user_metadata?.subscription_plan || session.user.user_metadata?.plan || session.user.user_metadata?.tier || session.user.app_metadata?.subscription_plan || session.user.app_metadata?.plan || session.user.app_metadata?.tier || '';
+                        const resolvedMetadataPlan = typeof metadataPlan === 'object' ? metadataPlan.name || metadataPlan.plan || metadataPlan.tier || '' : metadataPlan;
+                        currentUserPlan = String(resolvedMetadataPlan || '').toLowerCase();
                         try {
-                            const { data: profile } = await supabaseInstance.from('profiles').select('role').eq('id', session.user.id).single();
+                            const { data: profile } = await supabaseInstance.from('profiles').select('*').eq('id', session.user.id).single();
                             if (profile && profile.role) profileRole = profile.role;
+                            const profilePlan = profile && (profile.subscription_plan || profile.subscription_tier || profile.plan || profile.plan_type || profile.membership_plan || profile.subscription || profile.tier || profile.package || profile.plan_name || profile.user_plan);
+                            const planValue = profilePlan || currentUserPlan;
+                            const resolvedPlan = typeof planValue === 'object' ? planValue.name || planValue.plan || planValue.tier || '' : planValue;
+                            currentUserPlan = String(resolvedPlan || '').toLowerCase();
                         } catch (err) {}
                         const trueRole = profileRole.toLowerCase();
                         currentUser = {
@@ -2420,7 +2424,8 @@
                             id: session.user.id,
                             avatar_url: session.user.user_metadata?.avatar_url || null,
                             avatar: session.user.user_metadata?.avatar_url || null, 
-                            role: trueRole
+                            role: trueRole,
+                            plan: currentUserPlan
                         };
                         currentUserCart = session.user.user_metadata?.wishlist || []; 
                         const overlay = document.getElementById('composerOverlay');
@@ -2445,7 +2450,7 @@
                     
                     supabaseInstance.auth.onAuthStateChange((event, session) => {
                         if (event === 'SIGNED_OUT') {
-                            currentUser = null; currentUserCart = []; updateAuthUI();
+                            currentUser = null; currentUserPlan = ''; reportedPostIds.clear(); reportingPostIds.clear(); currentUserCart = []; updateAuthUI();
                             const overlay = document.getElementById('composerOverlay');
                             if (overlay) overlay.classList.remove('hidden');
                             const pBtn = document.getElementById('btnPublishPost');
@@ -4047,9 +4052,17 @@
         
         function handleImageSelection(e) {
             const files = Array.from(e.target.files);
-            if (selectedImages.length + files.length > 5) { showErrorToast("Maximum 5 images allowed."); return; }
-            files.forEach(file => { if (file.type.startsWith('image/')) selectedImages.push(file); });
-            updateImagePreview(); e.target.value = '';
+            const validFiles = files.filter(file => file.type.startsWith('image/'));
+            if (validFiles.some(file => file.size > 4 * 1024 * 1024)) showErrorToast("Each image must be 4 MB or smaller.");
+            const allowedFiles = validFiles.filter(file => file.size <= 4 * 1024 * 1024);
+            if (selectedImages.length + existingImagesForEdit.length + allowedFiles.length > 5) {
+                showErrorToast("Maximum 5 images allowed.");
+                e.target.value = '';
+                return;
+            }
+            selectedImages.push(...allowedFiles);
+            updateImagePreview();
+            e.target.value = '';
         }
         function removeImage(index) { 
             selectedImages.splice(index, 1); 
@@ -4110,14 +4123,33 @@
             });
         }
 
+        function isPremiumUploadPlan() {
+            return /(^|[^a-z])(plus|pro|ultra)([^a-z]|$)/i.test(currentUserPlan || '');
+        }
+
+        function readOriginalImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => resolve(String(event.target.result).split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function prepareImageUpload(file) {
+            return isPremiumUploadPlan() ? readOriginalImage(file) : compressImage(file);
+        }
+
         async function uploadImagesToImageKit() {
             if (selectedImages.length === 0) return []; 
             const uploadedUrls = [];
             for (let i = 0; i < selectedImages.length; i++) {
                 try {
-                    const base64Content = await compressImage(selectedImages[i]);
+                    const imageFile = selectedImages[i];
+                    const base64Content = await prepareImageUpload(imageFile);
+                    const extension = isPremiumUploadPlan() ? (imageFile.type.split('/')[1] || 'jpeg').split('+')[0].replace('jpeg', 'jpg').toLowerCase() : 'jpg';
                     const { data, error } = await supabaseInstance.functions.invoke('upload-image', { 
-                        body: { imageBase64: base64Content, extension: 'jpg', provider: 'imagekit' } 
+                        body: { imageBase64: base64Content, extension, provider: 'imagekit' } 
                     });
                     
                     if (error) {
@@ -4206,11 +4238,11 @@
                 const postData = { 
                     content: safeContent, 
                     images: imageUrls, 
-                    hashtags: extractHashtags(safeContent),
-                    updated_at: new Date().toISOString()
+                    hashtags: extractHashtags(safeContent)
                 };
 
                 if (isEditingPost) {
+                    postData.updated_at = new Date().toISOString();
                     const { error } = await supabaseInstance.from('marketplace_posts').update(postData).eq('id', editingPostId);
                     if (error) throw error;
                     showToast("Updated successfully!");
@@ -4528,24 +4560,29 @@
             applyFiltersAndRenderVisible();
         }
 
+        function handlePostImageLoad(image, isSingleImage) {
+            if (!isSingleImage || !image.naturalWidth || !image.naturalHeight) return;
+            const aspectRatio = image.naturalWidth / image.naturalHeight;
+            image.classList.toggle('extreme', aspectRatio >= 2.5 || aspectRatio <= 0.4);
+        }
+
         function buildPostHTML(post, isDetailModal = false) {
             const dateStr = timeAgo(post.created_at); const avatar = post.author_avatar ? `<img src="${post.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-400"></i>`;
             const isOwner = currentUser && currentUser.id === post.user_id; const isSaved = currentUser && post.marketplace_saves && post.marketplace_saves.some(s => s.user_id === currentUser.id); const isLiked = currentUser && post.marketplace_likes && post.marketplace_likes.some(l => l.user_id === currentUser.id);
             const commentCount = post.marketplace_comments?.[0]?.count || 0; const likeCount = post.marketplace_likes?.length || 0;
             const isCodePost = isCodeContainingPost(post);
-            const editedBadge = post.updated_at ? `<span class="text-[9px] bg-white/10 text-gray-400 px-1.5 py-0.5 rounded ml-2 font-mono uppercase tracking-tighter">Edited (${timeAgo(post.updated_at)})</span>` : '';
+            const createdAt = Date.parse(post.created_at || '');
+            const updatedAt = Date.parse(post.updated_at || '');
+            const wasEdited = Number.isFinite(createdAt) && Number.isFinite(updatedAt) && updatedAt > createdAt + 1000;
+            const editedBadge = wasEdited ? `<span class="text-[9px] bg-white/10 text-gray-400 px-1.5 py-0.5 rounded ml-2 font-mono uppercase tracking-tighter">Edited (${timeAgo(post.updated_at)})</span>` : '';
             let safeContent = window.DOMPurify ? DOMPurify.sanitize(post.content, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span', 'pre', 'code'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-language'] }) : post.content;
             safeContent = renderPostContentWithCode(safeContent);
             
             let imageGridHTML = '';
             if (post.images && post.images.length > 0) {
                 const count = Math.min(post.images.length, 5); const gridClass = `img-grid-${count}`; imageGridHTML = `<div class="${gridClass} mt-5 mb-3">`;
-                post.images.slice(0, 5).forEach((imgUrl, idx) => { 
-                    let displayUrl = imgUrl;
-                    if (imgUrl.includes('ik.imagekit.io')) {
-                        displayUrl += (displayUrl.includes('?') ? '&' : '?') + 'tr=w-800,q-80,f-auto';
-                    }
-                    imageGridHTML += `<img src="${displayUrl}" loading="lazy" decoding="async" class="grid-img-cell ${count === 3 && idx === 0 ? 'tall' : ''}" onclick="openImageViewer('${imgUrl}')">`; 
+                post.images.slice(0, 5).forEach(imgUrl => { 
+                    imageGridHTML += `<img src="${imgUrl}" loading="lazy" decoding="async" class="grid-img-cell" onload="handlePostImageLoad(this, ${count === 1})" onclick="openImageViewer('${imgUrl}')">`; 
                 }); 
                 imageGridHTML += `</div>`;
             }
@@ -4707,8 +4744,36 @@
         }
 
         async function reportPost(postId) {
-            if (!currentUser) { showErrorToast("Please login."); return; } const r = await customPrompt("Reason for reporting:", "Spam, inappropriate...", "Report"); if (!r) return;
-            try { await supabaseInstance.from('marketplace_reports').insert([{ post_id: postId, reporter_id: currentUser.id, reason: r }]); showToast("Report submitted."); } catch (e) {}
+            if (!currentUser) { showErrorToast("Please login."); return; }
+            const alreadyReportedMessage = "You have already reported this post. Please wait while our team reviews it.";
+            if (reportedPostIds.has(postId) || reportingPostIds.has(postId)) { showToast(alreadyReportedMessage); return; }
+            reportingPostIds.add(postId);
+            try {
+                const { data: existingReports, error: lookupError } = await supabaseInstance.from('marketplace_reports').select('post_id').eq('post_id', postId).eq('reporter_id', currentUser.id).limit(1);
+                if (lookupError) throw lookupError;
+                if (existingReports && existingReports.length > 0) {
+                    reportedPostIds.add(postId);
+                    showToast(alreadyReportedMessage);
+                    return;
+                }
+                const reason = await customPrompt("Reason for reporting:", "Spam, inappropriate...", "Report");
+                if (!reason) return;
+                const { error } = await supabaseInstance.from('marketplace_reports').insert([{ post_id: postId, reporter_id: currentUser.id, reason }]);
+                if (error) {
+                    if (error.code === '23505' || /duplicate|unique/i.test(error.message || '')) {
+                        reportedPostIds.add(postId);
+                        showToast(alreadyReportedMessage);
+                        return;
+                    }
+                    throw error;
+                }
+                reportedPostIds.add(postId);
+                showToast("Report submitted.");
+            } catch (error) {
+                showErrorToast("Could not submit your report. Please try again.");
+            } finally {
+                reportingPostIds.delete(postId);
+            }
         }
 
         function openPostDetail(postId) {
