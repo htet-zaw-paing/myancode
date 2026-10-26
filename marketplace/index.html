@@ -296,6 +296,12 @@
         .img-grid-1 .grid-img-cell { aspect-ratio: auto; object-fit: contain; }
         .img-grid-1 .grid-img-cell.extreme { aspect-ratio: 1 / 1; object-fit: cover; }
         .grid-img-cell:hover { filter: brightness(1.1); }
+        .reaction-button { position: relative; overflow: visible; }
+        .reaction-particle { position: absolute; left: 50%; top: 50%; z-index: 5; color: #ff3b5c; font-size: 12px; line-height: 1; pointer-events: none; animation: reaction-float 650ms cubic-bezier(.16,1,.3,1) forwards; }
+        @keyframes reaction-float { 0% { opacity: 0; transform: translate(-50%,-30%) scale(.4); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--reaction-x)), calc(-50% + var(--reaction-y))) scale(1.2); } }
+        .comment-arrive { animation: comment-arrive 360ms cubic-bezier(.16,1,.3,1) both; }
+        @keyframes comment-arrive { from { opacity: 0; transform: translateY(8px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @media (prefers-reduced-motion: reduce) { .reaction-particle, .comment-arrive { animation: none !important; } }
         
         .tag-pill { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 100px; background: rgba(255, 255, 255, 0.05); color: #fff; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px; margin-bottom: 6px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
         .tag-pill:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); }
@@ -1243,7 +1249,7 @@
                         </div>
                     </div>
                     <div class="px-5 py-3 bg-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-b-20">
-                        <div class="flex items-center gap-1 text-gray-400 overflow-x-auto no-scrollbar w-full sm:w-auto">
+                        <div class="flex items-center gap-1 text-gray-400 overflow-x-auto no-scrollbar w-full sm:w-auto" id="postToolbarScrollArea" aria-label="Post formatting and media tools">
                             <button onclick="formatDoc('bold')" class="action-icon-btn p-2 tooltip flex-shrink-0" title="Bold"><i data-lucide="bold" class="w-4.5 h-4.5"></i></button>
                             <button onclick="formatDoc('italic')" class="action-icon-btn p-2 tooltip flex-shrink-0" title="Italic"><i data-lucide="italic" class="w-4.5 h-4.5"></i></button>
                             <button onclick="formatDoc('insertUnorderedList')" class="action-icon-btn p-2 tooltip flex-shrink-0" title="Bullet List"><i data-lucide="list" class="w-4.5 h-4.5"></i></button>
@@ -1256,6 +1262,7 @@
                                 <input type="file" id="imageUploadInput" multiple accept="image/*" class="hidden" onchange="handleImageSelection(event)">
                             </label>
                         </div>
+                        <div id="postToolbarScrollHint" class="hidden md:hidden text-[10px] font-semibold tracking-wide text-myancode-accent/90" role="status" aria-live="polite">Swipe or scroll sideways to see more post tools.</div>
                         <div class="flex items-center justify-between w-full sm:w-auto gap-3 sm:gap-5 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/5 sm:border-transparent flex-wrap sm:flex-nowrap">
                             <div class="text-[10px] font-mono tracking-widest uppercase text-gray-500 whitespace-nowrap w-full sm:w-auto mb-2 sm:mb-0 text-right sm:text-left" id="textStatsMobile">0/3000 w • 0/18000 c</div>
                             <div class="flex items-center justify-end gap-2 w-full sm:w-auto">
@@ -1267,6 +1274,7 @@
                     </div>
                 </div>
 
+                <button id="newPostsBanner" type="button" onclick="showLatestPosts()" class="hidden w-full mb-5 px-5 py-3 text-center text-[12px] font-bold text-white bg-myancode-blue hover:bg-myancode-accent border border-myancode-accent/30 transition-colors" aria-live="polite"></button>
                 <div id="feedContainer" class="space-y-6">
                 </div>
             </div>
@@ -3789,11 +3797,48 @@
         }
 
         let pollingInterval = null;
+        let livePostsChannel = null;
+        let pendingNewPostCount = 0;
+
+        function sortPostsNewestFirst(posts) {
+            return [...posts].sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+        }
+
+        function isFeedNearTop() {
+            const feed = document.getElementById('feedContainer');
+            return !feed || feed.getBoundingClientRect().top > -120;
+        }
+
+        function updateNewPostsBanner() {
+            const banner = document.getElementById('newPostsBanner');
+            if (!banner) return;
+            if (pendingNewPostCount < 1) {
+                banner.classList.add('hidden');
+                banner.textContent = '';
+                return;
+            }
+            banner.textContent = `${pendingNewPostCount} new ${pendingNewPostCount === 1 ? 'post' : 'posts'} available — show latest`;
+            banner.classList.remove('hidden');
+        }
+
+        function showLatestPosts() {
+            pendingNewPostCount = 0;
+            updateNewPostsBanner();
+            displayedPostsCount = Math.max(displayedPostsCount, POSTS_PER_PAGE);
+            applyFiltersAndRenderVisible();
+            const feed = document.getElementById('feedContainer');
+            if (feed) feed.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         
         function initRealtime() {
             if (!supabaseInstance) return;
             
             if (pollingInterval) clearInterval(pollingInterval);
+            if (livePostsChannel) supabaseInstance.removeChannel(livePostsChannel);
+
+            livePostsChannel = supabaseInstance.channel('marketplace-live-posts')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'marketplace_posts' }, () => fetchPostsSilently())
+                .subscribe();
             
             pollingInterval = setInterval(() => {
                 fetchPostsSilently();
@@ -3820,20 +3865,23 @@
                 let query = supabaseInstance.from('marketplace_posts').select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`);
                 const { data, error } = await query; if (error) return;
                 let fetchedData = data || [];
-                allCommunityPosts = fetchedData.sort((a, b) => {
-                    const idxA = postOrderMap.has(a.id) ? postOrderMap.get(a.id) : -1;
-                    const idxB = postOrderMap.has(b.id) ? postOrderMap.get(b.id) : -1;
-                    if (idxA === -1 && idxB === -1) return new Date(b.created_at) - new Date(a.created_at);
-                    if (idxA === -1) return -1;
-                    if (idxB === -1) return 1;
-                    return idxA - idxB;
-                });
-                allCommunityPosts.forEach((p, i) => postOrderMap.set(p.id, i));
+                const existingPostIds = new Set(allCommunityPosts.map(post => post.id));
+                const newPosts = fetchedData.filter(post => !existingPostIds.has(post.id));
+                allCommunityPosts = sortPostsNewestFirst(fetchedData);
+                if (newPosts.length > 0) {
+                    if (isFeedNearTop()) {
+                        pendingNewPostCount = 0;
+                        updateNewPostsBanner();
+                    } else {
+                        pendingNewPostCount += newPosts.length;
+                        updateNewPostsBanner();
+                    }
+                }
                 
                 requestAnimationFrame(() => {
                     extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
                     const activeElement = document.activeElement; const isTypingComment = activeElement && activeElement.tagName === 'INPUT' && activeElement.id.startsWith('comment-input');
-                    if (!isTypingComment) applyFiltersAndRenderVisible();
+                    if (!isTypingComment && (pendingNewPostCount === 0 || isFeedNearTop())) applyFiltersAndRenderVisible();
                 });
             } catch (err) { }
         }
@@ -4279,22 +4327,9 @@
                 let query = supabaseInstance.from('marketplace_posts').select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`);
                 const { data, error } = await query; if (error) throw error;
                 let fetchedData = data || [];
-                
-                if (!hasInitialShuffled) {
-                    allCommunityPosts = shuffleArray(fetchedData);
-                    allCommunityPosts.forEach((p, i) => postOrderMap.set(p.id, i));
-                    hasInitialShuffled = true;
-                } else {
-                    allCommunityPosts = fetchedData.sort((a, b) => {
-                        const idxA = postOrderMap.has(a.id) ? postOrderMap.get(a.id) : -1;
-                        const idxB = postOrderMap.has(b.id) ? postOrderMap.get(b.id) : -1;
-                        if (idxA === -1 && idxB === -1) return new Date(b.created_at) - new Date(a.created_at);
-                        if (idxA === -1) return -1;
-                        if (idxB === -1) return 1;
-                        return idxA - idxB;
-                    });
-                    allCommunityPosts.forEach((p, i) => postOrderMap.set(p.id, i));
-                }
+                allCommunityPosts = sortPostsNewestFirst(fetchedData);
+                pendingNewPostCount = 0;
+                updateNewPostsBanner();
 
                 requestAnimationFrame(() => {
                     extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
@@ -4563,7 +4598,10 @@
         function handlePostImageLoad(image, isSingleImage) {
             if (!isSingleImage || !image.naturalWidth || !image.naturalHeight) return;
             const aspectRatio = image.naturalWidth / image.naturalHeight;
-            image.classList.toggle('extreme', aspectRatio >= 2.5 || aspectRatio <= 0.4);
+            const isExtreme = aspectRatio >= 2.5 || aspectRatio <= 0.4;
+            image.classList.toggle('extreme', isExtreme);
+            image.style.aspectRatio = isExtreme ? '1 / 1' : `${image.naturalWidth} / ${image.naturalHeight}`;
+            image.style.objectFit = isExtreme ? 'cover' : 'contain';
         }
 
         function buildPostHTML(post, isDetailModal = false) {
@@ -4581,8 +4619,9 @@
             let imageGridHTML = '';
             if (post.images && post.images.length > 0) {
                 const count = Math.min(post.images.length, 5); const gridClass = `img-grid-${count}`; imageGridHTML = `<div class="${gridClass} mt-5 mb-3">`;
-                post.images.slice(0, 5).forEach(imgUrl => { 
-                    imageGridHTML += `<img src="${imgUrl}" loading="lazy" decoding="async" class="grid-img-cell" onload="handlePostImageLoad(this, ${count === 1})" onclick="openImageViewer('${imgUrl}')">`; 
+                post.images.slice(0, 5).forEach((imgUrl, idx) => { 
+                    const prioritizeImage = idx === 0 && (isDetailModal || post.id === currentFilteredPosts[0]?.id);
+                    imageGridHTML += `<img src="${imgUrl}" loading="${prioritizeImage ? 'eager' : 'lazy'}" fetchpriority="${prioritizeImage ? 'high' : 'low'}" decoding="async" class="grid-img-cell" style="${count === 1 ? 'aspect-ratio:1 / 1;' : ''}" onload="handlePostImageLoad(this, ${count === 1})" onclick="openImageViewer('${imgUrl}')">`; 
                 }); 
                 imageGridHTML += `</div>`;
             }
@@ -4620,7 +4659,7 @@
                         <div id="${isDetailModal ? 'opts-modal-' + post.id : 'opts-' + post.id}" class="hidden absolute right-0 mt-2 w-44 bg-[#181a20]/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-30 py-2 px-1 overflow-hidden origin-top-right">
                             ${isOwner ? `<button onclick="editPost('${post.id}')" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-gray-300 hover:text-white hover:bg-white/5 flex items-center gap-2.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Modify</button>` : ''}
                             ${isOwner ? `<button onclick="deletePost('${post.id}')" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="trash" class="w-3.5 h-3.5"></i> Remove</button>` : ''}
-                            <button onclick="reportPost('${post.id}')" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 hover:bg-orange-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Flag Post</button>
+                            <button onclick="reportPost('${post.id}')" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 hover:bg-orange-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Report Post</button>
                         </div>
                     </div>
                 </div>
@@ -4628,10 +4667,10 @@
                 ${imageGridHTML}
                 <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between text-gray-400 px-1">
                     <div class="flex items-center gap-8 sm:gap-10">
-                        <button class="flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide ${isLiked ? 'text-[#ff3b30]' : 'text-gray-400 hover:text-gray-200'}" onclick="toggleLikePost('${post.id}', this)">
+                        <button class="reaction-button flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide ${isLiked ? 'text-[#ff3b30]' : 'text-gray-400 hover:text-gray-200'}" onclick="toggleLikePost('${post.id}', this)">
                             <i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-current' : ''}"></i> <span class="like-label">${likeCount}</span>
                         </button>
-                        <button class="flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide text-gray-400 hover:text-gray-200" onclick="${isDetailModal ? `document.getElementById('comment-input-modal-${post.id}').focus()` : `toggleCommentsInline('${post.id}')`}">
+                        <button class="reaction-button flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide text-gray-400 hover:text-gray-200" onclick="${isDetailModal ? `animateReaction(this, 'comment'); document.getElementById('comment-input-modal-${post.id}').focus()` : `animateReaction(this, 'comment'); toggleCommentsInline('${post.id}')`}">
                             <i data-lucide="message-square" class="w-5 h-5"></i> <span><span id="${isDetailModal ? 'modal-' : ''}comment-count-label-${post.id}">${commentCount}</span> <span class="hidden sm:inline">Responses</span></span>
                         </button>
                         <button class="flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide text-gray-400 hover:text-gray-200" onclick="openShareModal('${post.id}')">
@@ -4649,12 +4688,33 @@
         function togglePostOptions(targetId, event) { if (event) { event.preventDefault(); event.stopPropagation(); } document.querySelectorAll('[id^="opts-"]').forEach(m => { if (m.id !== targetId) m.classList.add('hidden'); }); const el = document.getElementById(targetId); if(el) el.classList.toggle('hidden'); }
         document.addEventListener('click', (e) => { if (!e.target.closest('button[onclick^="togglePostOptions"]')) document.querySelectorAll('[id^="opts-"]').forEach(m => m.classList.add('hidden')); });
 
+        function animateReaction(button, type = 'like') {
+            if (!button) return;
+            const icon = button.querySelector('svg, i');
+            if (icon && typeof icon.animate === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                icon.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.38) rotate(-10deg)' }, { transform: 'scale(1)' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.2,1)' });
+            }
+            if (type !== 'like' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('span');
+                const angle = (Math.PI * 2 * i / 6) - Math.PI / 2;
+                const distance = 22 + Math.random() * 12;
+                particle.className = 'reaction-particle';
+                particle.setAttribute('aria-hidden', 'true');
+                particle.textContent = '♥';
+                particle.style.setProperty('--reaction-x', `${Math.cos(angle) * distance}px`);
+                particle.style.setProperty('--reaction-y', `${Math.sin(angle) * distance}px`);
+                button.appendChild(particle);
+                setTimeout(() => particle.remove(), 700);
+            }
+        }
+
         async function toggleLikePost(postId, btnEl) {
             if (!currentUser) { showErrorToast("Please login."); return; } const post = allCommunityPosts.find(p => p.id === postId); if (!post) return;
             if (!post.marketplace_likes) post.marketplace_likes = []; const idx = post.marketplace_likes.findIndex(l => l.user_id === currentUser.id); const isLiked = idx > -1;
             const iconEl = btnEl.querySelector('svg') || btnEl.querySelector('i'); const labelEl = btnEl.querySelector('.like-label');
             if (isLiked) { btnEl.classList.remove('text-[#ff3b30]'); btnEl.classList.add('text-gray-400', 'hover:text-white'); if (iconEl) iconEl.classList.remove('fill-current'); post.marketplace_likes.splice(idx, 1); }
-            else { btnEl.classList.add('text-[#ff3b30]'); btnEl.classList.remove('text-gray-400', 'hover:text-white'); if (iconEl) iconEl.classList.add('fill-current'); post.marketplace_likes.push({ user_id: currentUser.id }); }
+            else { animateReaction(btnEl, 'like'); btnEl.classList.add('text-[#ff3b30]'); btnEl.classList.remove('text-gray-400', 'hover:text-white'); if (iconEl) iconEl.classList.add('fill-current'); post.marketplace_likes.push({ user_id: currentUser.id }); }
             labelEl.innerText = post.marketplace_likes.length;
             try { if (isLiked) await supabaseInstance.from('marketplace_likes').delete().match({ post_id: postId, user_id: currentUser.id }); else await supabaseInstance.from('marketplace_likes').insert([{ post_id: postId, user_id: currentUser.id }]); } catch (e) { }
         }
@@ -4677,6 +4737,10 @@
             
             isEditingPost = true;
             editingPostId = postId;
+            const toolbarScrollArea = document.getElementById('postToolbarScrollArea');
+            const toolbarScrollHint = document.getElementById('postToolbarScrollHint');
+            if (toolbarScrollArea) toolbarScrollArea.scrollLeft = 0;
+            if (toolbarScrollHint) toolbarScrollHint.classList.remove('hidden');
             
             const editor = document.getElementById('postEditor');
             editor.innerHTML = post.content;
@@ -4710,6 +4774,8 @@
         function cancelEdit() {
             isEditingPost = false;
             editingPostId = null;
+            const toolbarScrollHint = document.getElementById('postToolbarScrollHint');
+            if (toolbarScrollHint) toolbarScrollHint.classList.add('hidden');
             const editor = document.getElementById('postEditor');
             editor.innerHTML = '';
             selectedImages = [];
@@ -4843,10 +4909,11 @@
             const avatar = c.author_avatar ? `<img src="${c.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1.5 text-gray-500"></i>`;
             const isLiked = currentUser && c.marketplace_comment_likes && c.marketplace_comment_likes.some(l => l.user_id === currentUser.id); const likeCount = c.marketplace_comment_likes ? c.marketplace_comment_likes.length : 0;
             let safeContent = window.DOMPurify ? DOMPurify.sanitize(c.content) : c.content;
+            const entryAnimation = String(c.id).startsWith('temp-') ? 'comment-arrive' : '';
             const avatarSize = isReply ? "w-7 h-7 sm:w-8 sm:h-8" : "w-9 h-9 sm:w-10 sm:h-10"; const bgClass = isReply ? "bg-[#181a20] border border-white/5" : "bg-[#181a20] border border-white/5";
             const delBtn = currentUser && currentUser.id === c.user_id ? `<button onclick="deleteComment('${c.id}', '${postId}', ${isInline})" class="hover:text-[#ff3b30] transition-colors"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>` : '';
             return `
-            <div class="flex gap-3 sm:gap-4 text-sm ${isReply ? 'mt-4' : ''}">
+            <div class="flex gap-3 sm:gap-4 text-sm ${isReply ? 'mt-4' : ''} ${entryAnimation}">
                 <div class="${avatarSize} rounded-full bg-[#0f1115] border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center mt-1 shadow-inner">${avatar}</div>
                 <div class="flex-1 min-w-0">
                     <div class="${bgClass}   rounded-tl-none px-4 py-3 inline-block max-w-[95%] sm:max-w-[90%] relative shadow-sm">
@@ -4854,7 +4921,7 @@
                         <span class="text-white text-[13px] sm:text-[14px] leading-relaxed break-words font-medium">${safeContent}</span>
                     </div>
                     <div class="flex items-center gap-5 mt-2.5 ml-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                        <button onclick="toggleLikeComment('${c.id}', this, '${postId}', ${isInline})" class="${isLiked ? 'text-[#ff3b30]' : 'hover:text-white'} transition-colors flex items-center gap-1.5"><i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? 'fill-current' : ''}"></i><span class="cmt-like-label">${likeCount || ''}</span></button>
+                        <button onclick="toggleLikeComment('${c.id}', this, '${postId}', ${isInline})" class="reaction-button ${isLiked ? 'text-[#ff3b30]' : 'hover:text-white'} transition-colors flex items-center gap-1.5"><i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? 'fill-current' : ''}"></i><span class="cmt-like-label">${likeCount || ''}</span></button>
                         <button onclick="setReplyTarget('${postId}', '${c.id}', '${c.author_name}', '${rootId}', ${isInline})" class="hover:text-white transition-colors flex items-center gap-1.5"><i data-lucide="reply" class="w-3.5 h-3.5"></i> Reply</button>
                         ${delBtn}
                     </div>
@@ -4877,7 +4944,7 @@
             if (!currentUser) { showErrorToast("Please login."); return; }
             const iconEl = btnEl.querySelector('svg') || btnEl.querySelector('i'); const labelEl = btnEl.querySelector('.cmt-like-label'); const isLiked = btnEl.classList.contains('text-[#ff3b30]'); let count = parseInt(labelEl.innerText) || 0;
             if (isLiked) { btnEl.classList.remove('text-[#ff3b30]'); btnEl.classList.add('hover:text-white'); if (iconEl) iconEl.classList.remove('fill-current'); labelEl.innerText = count - 1 > 0 ? count - 1 : ''; }
-            else { btnEl.classList.add('text-[#ff3b30]'); btnEl.classList.remove('hover:text-white'); if (iconEl) iconEl.classList.add('fill-current'); labelEl.innerText = count + 1; }
+            else { animateReaction(btnEl, 'like'); btnEl.classList.add('text-[#ff3b30]'); btnEl.classList.remove('hover:text-white'); if (iconEl) iconEl.classList.add('fill-current'); labelEl.innerText = count + 1; }
             const updateLocalState = (commentsArray) => { if (commentsArray) { const cIdx = commentsArray.findIndex(c => c.id === commentId); if (cIdx > -1) { if (!commentsArray[cIdx].marketplace_comment_likes) commentsArray[cIdx].marketplace_comment_likes = []; if (isLiked) commentsArray[cIdx].marketplace_comment_likes = commentsArray[cIdx].marketplace_comment_likes.filter(l => l.user_id !== currentUser.id); else commentsArray[cIdx].marketplace_comment_likes.push({ user_id: currentUser.id }); } } };
             if (isInline && window.inlineCommentsCache[postId]) updateLocalState(window.inlineCommentsCache[postId]); if (!isInline && window.currentPostComments) updateLocalState(window.currentPostComments);
             try { if (isLiked) await supabaseInstance.from('marketplace_comment_likes').delete().match({ comment_id: commentId, user_id: currentUser.id }); else await supabaseInstance.from('marketplace_comment_likes').insert([{ comment_id: commentId, user_id: currentUser.id }]); } catch (e) { }
