@@ -227,7 +227,8 @@
         .delay-400 { transition-delay: 0.4s; }
 
         @keyframes fadeUp { 0% { opacity: 0; transform: translate3d(0, 40px, 0); } 100% { opacity: 1; transform: translate3d(0, 0, 0); } }
-        .hero-wrapper-enter { animation: fadeUp 1.2s cubic-bezier(0.25, 1, 0.5, 1) both; }
+        .hero-wrapper-enter { animation: heroOpacityEnter 1.2s cubic-bezier(0.25, 1, 0.5, 1) both; }
+        @keyframes heroOpacityEnter { from { opacity: 0; } to { opacity: 1; } }
 
         .text-gradient-apple {
             background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
@@ -257,12 +258,34 @@
             border-color: rgba(255, 255, 255, 0.1);
         }
 
-        .hero-text-dynamic { transition: opacity 0.8s ease, transform 1s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform, opacity; }
-        .hero-text-out { opacity: 0 !important; transform: translate3d(0, -30px, 0) scale(0.98) !important; }
-        .hero-text-in-start { opacity: 0 !important; transform: translate3d(0, 30px, 0) scale(0.98) !important; transition: none !important; }
+        #heroSection::before { content: ''; position: absolute; inset: 0; z-index: 16; pointer-events: none; opacity: 0; background: radial-gradient(290px circle at var(--hero-cursor-x, 50%) var(--hero-cursor-y, 50%), rgba(255, 255, 255, 0.065), transparent 72%); mix-blend-mode: screen; transition: opacity 0.5s ease; }
+        #heroSection.hero-cursor-active::before { opacity: 0.5; }
+        #heroSection::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 220px; z-index: 11; pointer-events: none; background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.14) 52%, transparent 100%); }
+        #heroTextWrapper { position: relative; isolation: isolate; transform: perspective(1400px) rotateX(var(--hero-tilt-x, 0deg)) rotateY(var(--hero-tilt-y, 0deg)); transform-origin: center center; transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; }
+        #heroTextWrapper::before { content: ''; position: absolute; inset: -5% -3%; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 28% 48%, rgba(255, 255, 255, 0.1), transparent 60%); filter: blur(30px); opacity: 0.5; }
+        #heroParticleField { position: absolute; inset: 0; z-index: 15; overflow: hidden; pointer-events: none; }
+        .hero-particle { position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); border-radius: 50%; background: rgba(255, 255, 255, 0.88); opacity: 0.07; box-shadow: 0 0 6px rgba(255, 255, 255, 0.55); transition: transform 0.58s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.58s ease; will-change: transform, opacity; }
 
-        .slider-img { transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.25, 1, 0.5, 1); opacity: 0; transform: scale(1.03); pointer-events: none; will-change: opacity, transform; }
-        .slider-img.active { opacity: 1; transform: scale(1); transition: opacity 1.2s ease, transform 25s linear; pointer-events: auto; }
+        .hero-text-dynamic { transition: opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1), transform 0.66s cubic-bezier(0.22, 1, 0.36, 1), filter 0.55s ease; will-change: transform, opacity, filter; }
+        #heroDynamicTag { transition-delay: 0s; }
+        #heroTitle { transition-delay: 0.06s; text-shadow: 0 0 22px rgba(255, 255, 255, 0.12); }
+        #heroDesc { transition-delay: 0.12s; }
+        #heroBtn1 { transition: opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1), transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), filter 0.55s ease, box-shadow 0.42s ease; transition-delay: 0.18s; transform: translate3d(var(--hero-magnet-x, 0px), calc(var(--hero-magnet-y, 0px) + var(--hero-magnet-lift, 0px)), 0) scale(var(--hero-magnet-scale, 1)); will-change: transform, opacity, filter; }
+        #heroBtn2 { transition: opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1), transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), filter 0.55s ease, box-shadow 0.42s ease; transition-delay: 0.24s; transform: translate3d(var(--hero-magnet-x, 0px), calc(var(--hero-magnet-y, 0px) + var(--hero-magnet-lift, 0px)), 0) scale(var(--hero-magnet-scale, 1)); will-change: transform, opacity, filter; }
+        #heroBtn1:hover, #heroBtn2:hover { --hero-magnet-lift: -3px; --hero-magnet-scale: 1.035; }
+        #heroBtn1:hover { box-shadow: 0 16px 34px rgba(255, 255, 255, 0.18); }
+        #heroBtn2:hover { border-color: rgba(255, 255, 255, 0.48); box-shadow: 0 16px 34px rgba(255, 255, 255, 0.12); }
+        .hero-text-out { opacity: 0 !important; transform: translate3d(0, -4px, 0) scale(0.995) !important; filter: blur(2px) !important; transition-duration: 0.32s !important; transition-delay: 0s !important; }
+        .hero-text-in-start { opacity: 0 !important; transform: translate3d(0, 4px, 0) scale(0.995) !important; filter: blur(2px) !important; transition: none !important; }
+
+        .slider-img { transition: opacity 1.6s cubic-bezier(0.4, 0, 0.2, 1), transform 1.6s cubic-bezier(0.22, 1, 0.36, 1); opacity: 0; transform: scale(1.025); filter: none; pointer-events: none; will-change: opacity, transform; }
+        .slider-img.active { opacity: 1; transform: scale(1); filter: none; transition: opacity 1.6s cubic-bezier(0.4, 0, 0.2, 1), transform 1.6s cubic-bezier(0.22, 1, 0.36, 1); pointer-events: auto; }
+        @media (prefers-reduced-motion: reduce) {
+            #heroSection::before { transition: none; }
+            #heroTextWrapper { transition: none; transform: none; }
+            .hero-particle { transition: none; }
+            .hero-text-dynamic, #heroBtn1, #heroBtn2, .slider-img { transition-duration: 0.01ms !important; }
+        }
 
         .search-overlay-backdrop {
             position: fixed;
@@ -738,13 +761,26 @@
         
         <section id="heroSection" class="relative w-full h-screen min-h-[800px] flex items-end pb-24 overflow-hidden bg-[#050505] group border-b border-white/10">
             <div id="sliderContainer" class="absolute inset-0 w-full h-full z-0 opacity-[0.85] bg-[#050505]">
-                <img fetchpriority="high" src="https://images.unsplash.com/photo-1710438399422-2fca27686bcd?q=80&w=2940&auto=format&fit=crop" class="slider-img active absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" data-theme="dark" alt="Dark Tech">
-                <img loading="lazy" src="./imgs/web-banners/bannerii.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" data-theme="light" alt="Light Abstract">
-                <img loading="lazy" src="./imgs/web-banners/banneri.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" data-theme="dark" alt="Light Architecture">
-                <img loading="lazy" src="https://images.unsplash.com/photo-1690127137880-1ad0871a83bd?q=80&w=2946&auto=format&fit=crop" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" data-theme="dark" alt="Dark Server">
-                <img loading="lazy" src="./imgs/web-banners/banneriv.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" data-theme="dark" alt="Dark Server">
+                <img fetchpriority="high" src="./imgs/web-banners/myancode-hero-bg-one.jpg" class="slider-img active absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="MyanCode">
+                <img loading="lazy" src="./imgs/web-banners/myancode-hero-bg-two.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110"  alt="Packages">
+                <img loading="lazy" src="./imgs/web-banners/myancode-hero-bg-three.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="Templates">
+                <img loading="lazy" src="./imgs/web-banners/myancode-hero-bg-four.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="Services">
+                <img loading="lazy" src="./imgs/web-banners/myancode-hero-bg-five.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="Contact & Support">
             </div>
-            
+            <div id="heroParticleField" aria-hidden="true">
+                <span class="hero-particle" data-x="7" data-y="19" style="--x:7%;--y:19%;--size:2px"></span>
+                <span class="hero-particle" data-x="15" data-y="66" style="--x:15%;--y:66%;--size:1.5px"></span>
+                <span class="hero-particle" data-x="24" data-y="38" style="--x:24%;--y:38%;--size:2px"></span>
+                <span class="hero-particle" data-x="34" data-y="82" style="--x:34%;--y:82%;--size:1.5px"></span>
+                <span class="hero-particle" data-x="42" data-y="22" style="--x:42%;--y:22%;--size:2px"></span>
+                <span class="hero-particle" data-x="51" data-y="56" style="--x:51%;--y:56%;--size:1.5px"></span>
+                <span class="hero-particle" data-x="60" data-y="86" style="--x:60%;--y:86%;--size:2px"></span>
+                <span class="hero-particle" data-x="68" data-y="31" style="--x:68%;--y:31%;--size:1.5px"></span>
+                <span class="hero-particle" data-x="77" data-y="72" style="--x:77%;--y:72%;--size:2px"></span>
+                <span class="hero-particle" data-x="85" data-y="18" style="--x:85%;--y:18%;--size:1.5px"></span>
+                <span class="hero-particle" data-x="91" data-y="48" style="--x:91%;--y:48%;--size:2px"></span>
+                <span class="hero-particle" data-x="96" data-y="82" style="--x:96%;--y:82%;--size:1.5px"></span>
+            </div>
             <div class="absolute inset-0 bg-gradient-to-r from-[#050505]/95 via-[#050505]/50 to-transparent z-10 pointer-events-none"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent z-10 pointer-events-none"></div>
 
@@ -1739,6 +1775,75 @@
         const slides = document.querySelectorAll('.slider-img'); 
         const totalSlides = slides.length; let slideInterval;
         const slideProgress = document.getElementById('slideProgress');
+        const heroSection = document.getElementById('heroSection');
+        const heroTextWrapper = document.getElementById('heroTextWrapper');
+        const heroParticles = document.querySelectorAll('.hero-particle');
+        const heroMotionReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let heroPointerFrame = 0;
+        let latestHeroPointer = null;
+
+        if (heroSection && heroTextWrapper && !heroMotionReduced) {
+            heroSection.addEventListener('pointermove', event => {
+                if (event.pointerType === 'touch') return;
+                latestHeroPointer = event;
+                if (heroPointerFrame) return;
+                heroPointerFrame = window.requestAnimationFrame(() => {
+                    heroPointerFrame = 0;
+                    const pointer = latestHeroPointer;
+                    const bounds = heroSection.getBoundingClientRect();
+                    const normalizedX = ((pointer.clientX - bounds.left) / bounds.width - 0.5) * 2;
+                    const normalizedY = ((pointer.clientY - bounds.top) / bounds.height - 0.5) * 2;
+                    const cursorX = Math.max(0, Math.min(100, (pointer.clientX - bounds.left) / bounds.width * 100));
+                    const cursorY = Math.max(0, Math.min(100, (pointer.clientY - bounds.top) / bounds.height * 100));
+                    heroSection.style.setProperty('--hero-cursor-x', `${cursorX}%`);
+                    heroSection.style.setProperty('--hero-cursor-y', `${cursorY}%`);
+                    heroSection.classList.add('hero-cursor-active');
+                    heroTextWrapper.style.setProperty('--hero-tilt-x', `${Math.max(-1, Math.min(1, -normalizedY))}deg`);
+                    heroTextWrapper.style.setProperty('--hero-tilt-y', `${Math.max(-1.2, Math.min(1.2, normalizedX * 1.2))}deg`);
+                    heroParticles.forEach(particle => {
+                        const particleX = bounds.left + bounds.width * Number(particle.dataset.x) / 100;
+                        const particleY = bounds.top + bounds.height * Number(particle.dataset.y) / 100;
+                        const dx = particleX - pointer.clientX;
+                        const dy = particleY - pointer.clientY;
+                        const distance = Math.max(1, Math.hypot(dx, dy));
+                        const influence = Math.max(0, 1 - distance / 210);
+                        const shiftX = dx / distance * influence * 8;
+                        const shiftY = dy / distance * influence * 8;
+                        particle.style.transform = `translate3d(${shiftX.toFixed(2)}px, ${shiftY.toFixed(2)}px, 0) scale(${(1 + influence * 0.55).toFixed(2)})`;
+                        particle.style.opacity = (0.07 + influence * 0.28).toFixed(2);
+                    });
+                });
+            });
+            heroSection.addEventListener('pointerleave', () => {
+                if (heroPointerFrame) window.cancelAnimationFrame(heroPointerFrame);
+                heroPointerFrame = 0;
+                latestHeroPointer = null;
+                heroSection.classList.remove('hero-cursor-active');
+                heroSection.style.setProperty('--hero-cursor-x', '50%');
+                heroSection.style.setProperty('--hero-cursor-y', '50%');
+                heroTextWrapper.style.setProperty('--hero-tilt-x', '0deg');
+                heroTextWrapper.style.setProperty('--hero-tilt-y', '0deg');
+                heroParticles.forEach(particle => {
+                    particle.style.transform = 'translate3d(0, 0, 0) scale(1)';
+                    particle.style.opacity = '0.07';
+                });
+            });
+            [document.getElementById('heroBtn1'), document.getElementById('heroBtn2')].forEach(button => {
+                if (!button) return;
+                button.addEventListener('pointermove', event => {
+                    if (event.pointerType === 'touch') return;
+                    const bounds = button.getBoundingClientRect();
+                    const offsetX = (event.clientX - bounds.left - bounds.width / 2) / bounds.width;
+                    const offsetY = (event.clientY - bounds.top - bounds.height / 2) / bounds.height;
+                    button.style.setProperty('--hero-magnet-x', `${(offsetX * 18).toFixed(2)}px`);
+                    button.style.setProperty('--hero-magnet-y', `${(offsetY * 14).toFixed(2)}px`);
+                });
+                button.addEventListener('pointerleave', () => {
+                    button.style.setProperty('--hero-magnet-x', '0px');
+                    button.style.setProperty('--hero-magnet-y', '0px');
+                });
+            });
+        }
 
         const dict = {
             en: {
@@ -2660,16 +2765,18 @@
                 titleEl.innerHTML = dict[currentLang][`heroTitle${index + 1}`]; descEl.innerHTML = dict[currentLang][`heroDesc${index + 1}`]; btn1.innerHTML = dict[currentLang][`heroBtn${index + 1}_1`]; btn2Text.innerHTML = dict[currentLang][`heroBtn${index + 1}_2`]; dynTagText.innerHTML = dict[currentLang][`heroTag${index + 1}`];
                 btn1.href = btnUrls[index][0]; btn2.href = btnUrls[index][1]; isFirstLoad = false;
             } else {
-                titleEl.classList.add('hero-text-out'); descEl.classList.add('hero-text-out'); if(dynTag) dynTag.classList.add('hero-text-out');
-                setTimeout(() => {
-                    titleEl.classList.add('hero-text-in-start'); descEl.classList.add('hero-text-in-start'); if(dynTag) dynTag.classList.add('hero-text-in-start');
-                    titleEl.classList.remove('hero-text-out'); descEl.classList.remove('hero-text-out'); if(dynTag) dynTag.classList.remove('hero-text-out');
+                const dynamicElements = [dynTag, titleEl, descEl, btn1, btn2].filter(Boolean);
+                dynamicElements.forEach(el => el.classList.add('hero-text-out'));
+                clearTimeout(showSlide.contentTimer);
+                showSlide.contentTimer = setTimeout(() => {
+                    dynamicElements.forEach(el => el.classList.add('hero-text-in-start'));
+                    dynamicElements.forEach(el => el.classList.remove('hero-text-out'));
                     titleEl.setAttribute('data-i18n', `heroTitle${index + 1}`); descEl.setAttribute('data-i18n', `heroDesc${index + 1}`); btn1.setAttribute('data-i18n', `heroBtn${index + 1}_1`); btn2Text.setAttribute('data-i18n', `heroBtn${index + 1}_2`); dynTagText.setAttribute('data-i18n', `heroTag${index + 1}`);
                     titleEl.innerHTML = dict[currentLang][`heroTitle${index + 1}`]; descEl.innerHTML = dict[currentLang][`heroDesc${index + 1}`]; btn1.innerHTML = dict[currentLang][`heroBtn${index + 1}_1`]; btn2Text.innerHTML = dict[currentLang][`heroBtn${index + 1}_2`]; dynTagText.innerHTML = dict[currentLang][`heroTag${index + 1}`];
                     btn1.href = btnUrls[index][0]; btn2.href = btnUrls[index][1];
-                    void titleEl.offsetWidth; if(dynTag) void dynTag.offsetWidth;
-                    titleEl.classList.remove('hero-text-in-start'); descEl.classList.remove('hero-text-in-start'); if(dynTag) dynTag.classList.remove('hero-text-in-start');
-                }, 600);
+                    void titleEl.offsetWidth;
+                    dynamicElements.forEach(el => el.classList.remove('hero-text-in-start'));
+                }, 340);
             }
             
             slideProgress.style.transition = 'none';
