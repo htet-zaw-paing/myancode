@@ -3799,6 +3799,10 @@
         let pollingInterval = null;
         let livePostsChannel = null;
         let pendingNewPostCount = 0;
+        let silentPostsRefreshTimer = null;
+        let silentPostsRefreshInFlight = false;
+        let silentPostsRefreshPending = false;
+        let lastRealtimeSidebarSignature = '';
 
         function sortPostsNewestFirst(posts) {
             return [...posts].sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
@@ -3830,6 +3834,15 @@
             if (feed) feed.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         
+        function scheduleSilentPostsRefresh() {
+            if (!supabaseInstance) return;
+            if (silentPostsRefreshTimer) clearTimeout(silentPostsRefreshTimer);
+            silentPostsRefreshTimer = setTimeout(() => {
+                silentPostsRefreshTimer = null;
+                fetchPostsSilently();
+            }, 180);
+        }
+
         function initRealtime() {
             if (!supabaseInstance) return;
             
@@ -3837,11 +3850,11 @@
             if (livePostsChannel) supabaseInstance.removeChannel(livePostsChannel);
 
             livePostsChannel = supabaseInstance.channel('marketplace-live-posts')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'marketplace_posts' }, () => fetchPostsSilently())
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'marketplace_posts' }, scheduleSilentPostsRefresh)
                 .subscribe();
             
             pollingInterval = setInterval(() => {
-                fetchPostsSilently();
+                scheduleSilentPostsRefresh();
                 
                 const modal = document.getElementById('postDetailModal');
                 if (modal && !modal.classList.contains('hidden')) {
@@ -3859,31 +3872,116 @@
             }, 30000);
         }
 
+        function syncVisibleFeedPosts(posts) {
+            const feed = document.getElementById('feedContainer');
+            if (!feed) return;
+
+            const postsById = new Map(posts.map(post => [String(post.id), post]));
+            const cards = feed.querySelectorAll('.post-container[data-post-id]');
+
+            cards.forEach(card => {
+                const post = postsById.get(card.dataset.postId);
+                if (!post) {
+                    card.remove();
+                    return;
+                }
+
+                const likeCount = post.marketplace_likes?.length || 0;
+                const commentCount = post.marketplace_comments?.[0]?.count || 0;
+                const likeLabel = card.querySelector('.like-label');
+                const commentLabel = card.querySelector(`#comment-count-label-${post.id}`);
+                if (likeLabel && likeLabel.textContent !== String(likeCount)) likeLabel.textContent = likeCount;
+                if (commentLabel && commentLabel.textContent !== String(commentCount)) commentLabel.textContent = commentCount;
+
+                const isLiked = !!(currentUser && post.marketplace_likes?.some(like => like.user_id === currentUser.id));
+                const likeButton = card.querySelector(`button[onclick^="toggleLikePost('${post.id}'"]`);
+                const likeIcon = likeButton?.querySelector('[data-lucide="heart"]');
+                if (likeButton && likeIcon) {
+                    likeButton.classList.toggle('text-[#ff3b30]', isLiked);
+                    likeButton.classList.toggle('text-gray-400', !isLiked);
+                    likeButton.classList.toggle('hover:text-gray-200', !isLiked);
+                    likeIcon.classList.toggle('fill-current', isLiked);
+                }
+
+                const isSaved = !!(currentUser && post.marketplace_saves?.some(save => save.user_id === currentUser.id));
+                const saveButton = card.querySelector(`button[onclick^="toggleSavePost('${post.id}'"]`);
+                const saveIcon = saveButton?.querySelector('[data-lucide="bookmark"]');
+                const saveLabel = saveButton?.querySelector('.save-label');
+                if (saveButton && saveIcon) {
+                    saveButton.classList.toggle('text-white', isSaved);
+                    saveButton.classList.toggle('text-gray-400', !isSaved);
+                    saveButton.classList.toggle('hover:text-gray-200', !isSaved);
+                    saveIcon.classList.toggle('fill-current', isSaved);
+                    if (saveLabel) saveLabel.textContent = isSaved ? 'Saved' : 'Save';
+                }
+
+                const updatedAt = post.updated_at || post.created_at || '';
+                if (card.dataset.postUpdatedAt !== updatedAt) {
+                    const commentsSection = card.querySelector(`#comments-inline-${post.id}`);
+                    const activeElement = document.activeElement;
+                    const hasActiveInteraction = card.contains(activeElement) ||
+                        (commentsSection && !commentsSection.classList.contains('hidden')) ||
+                        !!card.querySelector('[id^="opts-"]:not(.hidden)');
+
+                    if (!hasActiveInteraction) {
+                        const oldTop = card.getBoundingClientRect().top;
+                        const oldScrollY = window.scrollY;
+                        const holder = document.createElement('div');
+                        holder.innerHTML = buildPostHTML(post, false);
+                        const replacement = holder.firstElementChild;
+                        if (replacement) {
+                            card.replaceWith(replacement);
+                            if (oldTop < 0) {
+                                const topDelta = replacement.getBoundingClientRect().top - oldTop;
+                                if (topDelta) window.scrollTo(0, oldScrollY + topDelta);
+                            }
+                            if (typeof lucide !== 'undefined') lucide.createIcons({ root: replacement });
+                        }
+                    }
+                }
+            });
+        }
+
         async function fetchPostsSilently() {
             if (!supabaseInstance) return;
+            if (silentPostsRefreshInFlight) {
+                silentPostsRefreshPending = true;
+                return;
+            }
+            silentPostsRefreshInFlight = true;
             try {
                 let query = supabaseInstance.from('marketplace_posts').select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`);
                 const { data, error } = await query; if (error) return;
-                let fetchedData = data || [];
-                const existingPostIds = new Set(allCommunityPosts.map(post => post.id));
-                const newPosts = fetchedData.filter(post => !existingPostIds.has(post.id));
+                const fetchedData = data || [];
+                const existingPostIds = new Set(allCommunityPosts.map(post => String(post.id)));
+                const newPosts = fetchedData.filter(post => !existingPostIds.has(String(post.id)));
                 allCommunityPosts = sortPostsNewestFirst(fetchedData);
                 if (newPosts.length > 0) {
-                    if (isFeedNearTop()) {
-                        pendingNewPostCount = 0;
-                        updateNewPostsBanner();
-                    } else {
-                        pendingNewPostCount += newPosts.length;
-                        updateNewPostsBanner();
-                    }
+                    pendingNewPostCount += newPosts.length;
+                    updateNewPostsBanner();
                 }
                 
                 requestAnimationFrame(() => {
-                    extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
-                    const activeElement = document.activeElement; const isTypingComment = activeElement && activeElement.tagName === 'INPUT' && activeElement.id.startsWith('comment-input');
-                    if (!isTypingComment && (pendingNewPostCount === 0 || isFeedNearTop())) applyFiltersAndRenderVisible();
+                    const sidebarSignature = JSON.stringify(allCommunityPosts.map(post => [
+                        post.id, post.author_name, post.author_avatar, post.content?.slice(0, 100), post.hashtags,
+                        post.marketplace_likes?.length || 0, post.marketplace_comments?.[0]?.count || 0
+                    ]));
+                    if (sidebarSignature !== lastRealtimeSidebarSignature) {
+                        lastRealtimeSidebarSignature = sidebarSignature;
+                        extractTrendingTags(allCommunityPosts);
+                        extractTopEngagement(allCommunityPosts);
+                        extractHotDiscussions(allCommunityPosts);
+                    }
+                    syncVisibleFeedPosts(allCommunityPosts);
                 });
             } catch (err) { }
+            finally {
+                silentPostsRefreshInFlight = false;
+                if (silentPostsRefreshPending) {
+                    silentPostsRefreshPending = false;
+                    scheduleSilentPostsRefresh();
+                }
+            }
         }
 
         async function loadCommentsForModalSilently(postId) {
@@ -4644,7 +4742,7 @@
                 </div>` : '';
 
             return `
-            <div class="${isDetailModal ? '' : 'post-card p-6 sm:p-8 relative group post-container'}">
+            <div class="${isDetailModal ? '' : 'post-card p-6 sm:p-8 relative group post-container'}" data-post-id="${isDetailModal ? '' : post.id}" data-post-updated-at="${isDetailModal ? '' : (post.updated_at || post.created_at || '')}">
                 <div class="flex justify-between items-start mb-6">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#1a1d24]">${avatar}</div>
