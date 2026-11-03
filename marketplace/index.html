@@ -3086,11 +3086,13 @@
         function safeMediaURL(value) {
             const raw = String(value ?? '').trim();
             if (!raw || /[\u0000-\u001f\u007f]/.test(raw)) return '';
+            if (/^data:image\/(?:png|jpeg|gif|webp|avif|bmp);base64,[a-z0-9+/]+={0,2}$/i.test(raw)) return raw;
             try {
                 const url = new URL(raw, window.location.href);
+                if (url.username || url.password) return '';
+                if (url.protocol === 'http:' && url.origin !== window.location.origin) url.protocol = 'https:';
                 const isSameOriginHttp = url.origin === window.location.origin && url.protocol === 'http:';
                 if (url.protocol !== 'https:' && !isSameOriginHttp) return '';
-                if (url.username || url.password) return '';
                 return url.href;
             } catch (error) {
                 return '';
