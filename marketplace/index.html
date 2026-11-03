@@ -2445,7 +2445,8 @@
                             pBtn.disabled = false;
                         }
 
-                        if (currentUser.avatar_url) document.getElementById('composerAvatar').innerHTML = `<img src="${currentUser.avatar_url}" class="w-full h-full object-cover">`;
+                        const safeAvatarURL = safeImageURL(currentUser.avatar_url);
+                        if (safeAvatarURL) document.getElementById('composerAvatar').innerHTML = `<img src="${safeAvatarURL}" class="w-full h-full object-cover" referrerpolicy="no-referrer">`;
                     } else {
                         const overlay = document.getElementById('composerOverlay');
                         if (overlay) overlay.classList.remove('hidden');
@@ -2742,15 +2743,16 @@
                 const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
                 const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" alt="${userRole} verified" title="Verified ${userRole}" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
                 const dashConfig = dashboardConfigs[userRole] || dashboardConfigs['client'];
-                const avatarIconHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 text-white"></i>`;
-                const mobileAvatarHTML = currentUser.avatar_url ? `<img src="${currentUser.avatar_url}" class="h-8 w-8 rounded-full object-cover border border-white/10 shadow-sm">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-accent"></i>`;
+                const safeAvatarURL = safeImageURL(currentUser.avatar_url);
+                const avatarIconHTML = safeAvatarURL ? `<img src="${safeAvatarURL}" referrerpolicy="no-referrer" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 text-white"></i>`;
+                const mobileAvatarHTML = safeAvatarURL ? `<img src="${safeAvatarURL}" referrerpolicy="no-referrer" class="h-8 w-8 rounded-full object-cover border border-white/10 shadow-sm">` : `<i data-lucide="user-check" class="h-5 w-5 text-myancode-accent"></i>`;
 
                 desktopAuth.innerHTML = `
                     <div class="relative" id="profileContainer">
                         <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon flex items-center justify-center text-white">${avatarIconHTML}</button>
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-56 bg-[#111]   shadow-xl border border-white/10 py-2 z-50 text-white">
                             <div class="px-5 py-3 border-b border-white/10 mb-1 text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center">
-                                <span class="truncate">${currentUser.name}</span> ${badgeHTML}
+                                <span class="truncate">${escapeHTML(currentUser.name)}</span> ${badgeHTML}
                             </div>
                             <a href="${dashConfig.url}" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
                                 ${dashConfig.label} <i data-lucide="layout-dashboard" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i>
@@ -2767,7 +2769,7 @@
                 containerMob.innerHTML = `
                     <div class="flex justify-between items-center w-full text-white hover:text-myancode-accent transition-colors text-base font-normal tracking-wide border-b border-white/10 pb-6 mb-6">
                         <div class="flex items-center">
-                            <span class="capitalize truncate max-w-[200px] font-semibold">${currentUser.name}</span>
+                            <span class="capitalize truncate max-w-[200px] font-semibold">${escapeHTML(currentUser.name)}</span>
                             ${badgeHTML}
                         </div>
                         ${mobileAvatarHTML}
@@ -3073,8 +3075,43 @@
         let searchOverlayPrimePromise = null;
         let searchOverlayOpening = false;
 
+        function escapeHTML(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+        }
+
+        function escapeJSArg(value) {
+            return escapeHTML(JSON.stringify(String(value ?? '')));
+        }
+
+        function safeMediaURL(value) {
+            const raw = String(value ?? '').trim();
+            if (!raw || /[\u0000-\u001f\u007f]/.test(raw)) return '';
+            try {
+                const url = new URL(raw, window.location.href);
+                const isSameOriginHttp = url.origin === window.location.origin && url.protocol === 'http:';
+                if (url.protocol !== 'https:' && !isSameOriginHttp) return '';
+                if (url.username || url.password) return '';
+                return url.href;
+            } catch (error) {
+                return '';
+            }
+        }
+
+        function safeImageURL(value) {
+            return escapeHTML(safeMediaURL(value));
+        }
+
+        function sanitizeCommunityHTML(value, options = {}) {
+            const input = String(value ?? '');
+            if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+                return window.DOMPurify.sanitize(input, options);
+            }
+            // Fail closed: show unsanitized content as text if the sanitizer is unavailable.
+            return escapeHTML(input);
+        }
+
         function escapeSearchHTML(value) {
-            return String(value || '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+            return escapeHTML(value || '');
         }
 
         function normalizeSearchText(value) {
@@ -4234,7 +4271,7 @@
             
             let html = '';
             existingImagesForEdit.forEach((url, idx) => {
-                html += `<div class="image-preview-item"><img src="${url}" loading="lazy" decoding="async"><div class="image-preview-remove" onclick="removeExistingImage(${idx})"><i data-lucide="x" class="w-3 h-3"></i></div></div>`;
+                html += `<div class="image-preview-item"><img src="${safeImageURL(url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><div class="image-preview-remove" onclick="removeExistingImage(${idx})"><i data-lucide="x" class="w-3 h-3"></i></div></div>`;
             });
             
             selectedImages.forEach((file, idx) => {
@@ -4367,7 +4404,7 @@
             const confirmTitle = isEditingPost ? "Update Post" : "Publish Post";
             const confirmed = await customConfirm(confirmMsg, confirmTitle); if (!confirmed) return;
             
-            let safeContent = window.DOMPurify ? DOMPurify.sanitize(raw, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span', 'pre', 'code'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-language'] }) : raw;
+            let safeContent = sanitizeCommunityHTML(raw, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span', 'pre', 'code'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-language'] });
             const btn = document.getElementById('btnPublishPost'); btn.disabled = true; btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 spinner"></i>`; if (typeof lucide !== 'undefined') lucide.createIcons();
             
             try {
@@ -4460,7 +4497,7 @@
             
             const html = sortedTags.map(lowerTag => {
                 const displayTag = tagDisplayNames[lowerTag];
-                return `<span class="tag-pill-modern cursor-pointer" onclick="searchByTag('${displayTag}')">${displayTag}</span>`;
+                return `<span class="tag-pill-modern cursor-pointer" onclick="searchByTag(${escapeJSArg(displayTag)})">${escapeHTML(displayTag)}</span>`;
             }).join('');
             
             if (container) {
@@ -4483,15 +4520,16 @@
             
             const html = sorted.map(p => {
                 const engCount = (p.marketplace_likes?.length || 0) + (p.marketplace_comments?.[0]?.count || 0);
-                const avatar = p.author_avatar ? `<img src="${p.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-500"></i>`;
+                const safeAvatar = safeImageURL(p.author_avatar);
+                const avatar = safeAvatar ? `<img src="${safeAvatar}" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-500"></i>`;
                 let safeContent = window.DOMPurify ? DOMPurify.sanitize(p.content, { ALLOWED_TAGS: [] }) : p.content.replace(/<[^>]*>?/gm, '');
-                let title = safeContent.length > 40 ? safeContent.substring(0, 40) + '...' : safeContent;
+                let title = escapeHTML(safeContent.length > 40 ? safeContent.substring(0, 40) + '...' : safeContent);
 
-                return `<div class="flex items-center gap-4 cursor-pointer group hover:bg-white/5 p-2.5 rounded-xl transition-colors -mx-2.5" onclick="openPostDetail('${p.id}'); if(window.innerWidth < 1024) toggleBottomDrawer();">
+                return `<div class="flex items-center gap-4 cursor-pointer group hover:bg-white/5 p-2.5 rounded-xl transition-colors -mx-2.5" onclick="openPostDetail(${escapeJSArg(p.id)}); if(window.innerWidth < 1024) toggleBottomDrawer();">
                     <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">${avatar}</div>
                     <div class="flex-1 min-w-0">
                         <h4 class="text-[13px] font-semibold text-gray-200 group-hover:text-myancode-accent transition-colors truncate">${title}</h4>
-                        <p class="text-[10px] font-mono tracking-widest text-gray-500 mt-1 uppercase">${p.author_name} • ${engCount} act</p>
+                        <p class="text-[10px] font-mono tracking-widest text-gray-500 mt-1 uppercase">${escapeHTML(p.author_name)} • ${engCount} act</p>
                     </div>
                 </div>`;
             }).join('');
@@ -4512,8 +4550,8 @@
             
             const html = sorted.map(p => {
                 let safeContent = window.DOMPurify ? DOMPurify.sanitize(p.content, { ALLOWED_TAGS: [] }) : p.content.replace(/<[^>]*>?/gm, '');
-                let title = safeContent.length > 50 ? safeContent.substring(0, 50) + '...' : safeContent;
-                return `<div class="block cursor-pointer group hover:bg-white/5 p-3.5 rounded-xl transition-colors -mx-3.5" onclick="openPostDetail('${p.id}'); if(window.innerWidth < 1024) toggleBottomDrawer();">
+                let title = escapeHTML(safeContent.length > 50 ? safeContent.substring(0, 50) + '...' : safeContent);
+                return `<div class="block cursor-pointer group hover:bg-white/5 p-3.5 rounded-xl transition-colors -mx-3.5" onclick="openPostDetail(${escapeJSArg(p.id)}); if(window.innerWidth < 1024) toggleBottomDrawer();">
                     <h4 class="text-[13px] font-medium text-gray-300 group-hover:text-white transition-colors line-clamp-2 leading-relaxed mb-2.5">${title}</h4>
                     <p class="text-[10px] font-bold font-mono tracking-widest text-myancode-accent flex items-center gap-1.5 uppercase"><i data-lucide="message-square" class="w-3 h-3"></i> ${p.marketplace_comments?.[0]?.count || 0} responses</p>
                 </div>`;
@@ -4600,7 +4638,7 @@
                 }
 
                 Array.from(matchingTags).slice(0, 3).forEach(tag => {
-                    suggestionsHTML += `<div class="px-4 py-3 hover:bg-white/10 cursor-pointer flex items-center gap-3 text-sm text-gray-300 transition-colors border-b border-white/5 last:border-0" onclick="document.getElementById('${e.target.id}').value = '${tag}'; hideSuggestions('${isMobile ? 'mobileSearchSuggestions' : 'desktopSearchSuggestions'}'); handleLocalSearch({target: document.getElementById('${e.target.id}')})"><i data-lucide="hash" class="w-4 h-4 text-myancode-accent"></i> <span class="font-medium">${tag}</span></div>`;
+                    suggestionsHTML += `<div class="px-4 py-3 hover:bg-white/10 cursor-pointer flex items-center gap-3 text-sm text-gray-300 transition-colors border-b border-white/5 last:border-0" onclick="document.getElementById('${e.target.id}').value = ${escapeJSArg(tag)}; hideSuggestions('${isMobile ? 'mobileSearchSuggestions' : 'desktopSearchSuggestions'}'); handleLocalSearch({target: document.getElementById('${e.target.id}')})"><i data-lucide="hash" class="w-4 h-4 text-myancode-accent"></i> <span class="font-medium">${escapeHTML(tag)}</span></div>`;
                 });
 
                 Array.from(matchingUsers).slice(0, 3).forEach(user => {
@@ -4610,7 +4648,7 @@
                 matchingPosts.slice(0, 4).forEach(post => {
                     let safeContent = post.content.replace(/<[^>]*>?/gm, '');
                     let snippet = safeContent.length > 50 ? safeContent.substring(0, 50) + '...' : safeContent;
-                    suggestionsHTML += `<div class="px-4 py-3 hover:bg-white/10 cursor-pointer flex flex-col gap-1 text-sm text-gray-300 transition-colors border-b border-white/5 last:border-0" onclick="document.getElementById('${e.target.id}').value = '${query}'; hideSuggestions('${isMobile ? 'mobileSearchSuggestions' : 'desktopSearchSuggestions'}'); renderFeed('${query}')"><div class="font-semibold text-white text-[12px]">${post.author_name}</div><div class="text-[11px] text-gray-400 line-clamp-1">${snippet}</div></div>`;
+                    suggestionsHTML += `<div class="px-4 py-3 hover:bg-white/10 cursor-pointer flex flex-col gap-1 text-sm text-gray-300 transition-colors border-b border-white/5 last:border-0" onclick="document.getElementById('${e.target.id}').value = ${escapeJSArg(query)}; hideSuggestions('${isMobile ? 'mobileSearchSuggestions' : 'desktopSearchSuggestions'}'); renderFeed(${escapeJSArg(query)})"><div class="font-semibold text-white text-[12px]">${escapeHTML(post.author_name)}</div><div class="text-[11px] text-gray-400 line-clamp-1">${escapeHTML(snippet)}</div></div>`;
                 });
 
                 if (suggestionsHTML) {
@@ -4703,7 +4741,7 @@
         }
 
         function buildPostHTML(post, isDetailModal = false) {
-            const dateStr = timeAgo(post.created_at); const avatar = post.author_avatar ? `<img src="${post.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-400"></i>`;
+            const dateStr = timeAgo(post.created_at); const safePostAvatar = safeImageURL(post.author_avatar); const avatar = safePostAvatar ? `<img src="${safePostAvatar}" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-2 text-gray-400"></i>`;
             const isOwner = currentUser && currentUser.id === post.user_id; const isSaved = currentUser && post.marketplace_saves && post.marketplace_saves.some(s => s.user_id === currentUser.id); const isLiked = currentUser && post.marketplace_likes && post.marketplace_likes.some(l => l.user_id === currentUser.id);
             const commentCount = post.marketplace_comments?.[0]?.count || 0; const likeCount = post.marketplace_likes?.length || 0;
             const isCodePost = isCodeContainingPost(post);
@@ -4711,7 +4749,7 @@
             const updatedAt = Date.parse(post.updated_at || '');
             const wasEdited = Number.isFinite(createdAt) && Number.isFinite(updatedAt) && updatedAt > createdAt + 1000;
             const editedBadge = wasEdited ? `<span class="text-[9px] bg-white/10 text-gray-400 px-1.5 py-0.5 rounded ml-2 font-mono uppercase tracking-tighter">Edited (${timeAgo(post.updated_at)})</span>` : '';
-            let safeContent = window.DOMPurify ? DOMPurify.sanitize(post.content, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span', 'pre', 'code'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-language'] }) : post.content;
+            let safeContent = sanitizeCommunityHTML(post.content, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span', 'pre', 'code'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-language'] });
             safeContent = renderPostContentWithCode(safeContent);
             
             let imageGridHTML = '';
@@ -4719,7 +4757,9 @@
                 const count = Math.min(post.images.length, 5); const gridClass = `img-grid-${count}`; imageGridHTML = `<div class="${gridClass} mt-5 mb-3">`;
                 post.images.slice(0, 5).forEach((imgUrl, idx) => { 
                     const prioritizeImage = idx === 0 && (isDetailModal || post.id === currentFilteredPosts[0]?.id);
-                    imageGridHTML += `<img src="${imgUrl}" loading="${prioritizeImage ? 'eager' : 'lazy'}" fetchpriority="${prioritizeImage ? 'high' : 'low'}" decoding="async" class="grid-img-cell" style="${count === 1 ? 'aspect-ratio:1 / 1;' : ''}" onload="handlePostImageLoad(this, ${count === 1})" onclick="openImageViewer('${imgUrl}')">`; 
+                    const safeURL = safeMediaURL(imgUrl);
+                    if (!safeURL) return;
+                    imageGridHTML += `<img src="${escapeHTML(safeURL)}" loading="${prioritizeImage ? 'eager' : 'lazy'}" fetchpriority="${prioritizeImage ? 'high' : 'low'}" decoding="async" referrerpolicy="no-referrer" class="grid-img-cell" style="${count === 1 ? 'aspect-ratio:1 / 1;' : ''}" onload="handlePostImageLoad(this, ${count === 1})" onclick="openImageViewer(${escapeJSArg(safeURL)})">`; 
                 }); 
                 imageGridHTML += `</div>`;
             }
@@ -4727,14 +4767,14 @@
             let strippedContent = safeContent.replace(/<[^>]*>?/gm, '');
             const isTooLong = strippedContent.length > 1000;
 
-            const contentHTML = isDetailModal ? `<div class="post-content-render text-[15px] sm:text-[16px] text-gray-200 break-words mb-2 leading-relaxed">${safeContent}</div>` : `<div class="post-content-render text-[15px] sm:text-[16px] text-gray-200 break-words mb-2 leading-relaxed relative"><div id="content-${post.id}" class="transition-all duration-300 ${isTooLong ? 'line-clamp-custom' : ''}">${safeContent}</div>${isTooLong ? `<button onclick="toggleContent('${post.id}', this)" data-expanded="false" class="text-myancode-accent text-[11px] mt-3 hover:text-white font-bold block uppercase tracking-widest transition-colors">Expand Content</button>` : ''}</div>`;
+            const contentHTML = isDetailModal ? `<div class="post-content-render text-[15px] sm:text-[16px] text-gray-200 break-words mb-2 leading-relaxed">${safeContent}</div>` : `<div class="post-content-render text-[15px] sm:text-[16px] text-gray-200 break-words mb-2 leading-relaxed relative"><div id="content-${post.id}" class="transition-all duration-300 ${isTooLong ? 'line-clamp-custom' : ''}">${safeContent}</div>${isTooLong ? `<button onclick="toggleContent(${escapeJSArg(post.id)}, this)" data-expanded="false" class="text-myancode-accent text-[11px] mt-3 hover:text-white font-bold block uppercase tracking-widest transition-colors">Expand Content</button>` : ''}</div>`;
 
             const inlineCommentsHTML = !isDetailModal ? `
                 <div id="comments-inline-${post.id}" class="hidden mt-6 pt-5 border-t border-white/5">
                     <div id="reply-indicator-inline-${post.id}" class="px-0"></div>
                     <div class="flex gap-2 sm:gap-3 mb-5">
-                        <input type="text" id="comment-input-inline-${post.id}" class="flex-1 bg-[#0f1115] border border-white/10 rounded-xl px-5 py-3 text-[13px] text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Contribute to this discussion..." onkeypress="if(event.key==='Enter') postComment('${post.id}', false)">
-                        <button onclick="postComment('${post.id}', false)" class="modern-btn-primary px-6 text-[11px] flex-shrink-0">Submit</button>
+                        <input type="text" id="comment-input-inline-${post.id}" class="flex-1 bg-[#0f1115] border border-white/10 rounded-xl px-5 py-3 text-[13px] text-white focus:outline-none focus:border-myancode-accent transition-colors shadow-inner" placeholder="Contribute to this discussion..." onkeypress="if(event.key==='Enter') postComment(${escapeJSArg(post.id)}, false)">
+                        <button onclick="postComment(${escapeJSArg(post.id)}, false)" class="modern-btn-primary px-6 text-[11px] flex-shrink-0">Submit</button>
                     </div>
                     <div id="inline-comments-tree-${post.id}" class="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar pb-2">
                         <div class="py-4 text-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin text-gray-500 mx-auto"></i></div>
@@ -4747,7 +4787,7 @@
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#1a1d24]">${avatar}</div>
                         <div>
-                            <h4 class="text-[15px] font-bold tracking-wide text-white flex items-center">${post.author_name} ${getRoleBadge(post.author_role)} ${editedBadge}</h4>
+                            <h4 class="text-[15px] font-bold tracking-wide text-white flex items-center">${escapeHTML(post.author_name)} ${getRoleBadge(post.author_role)} ${editedBadge}</h4>
                             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-1 font-mono">${dateStr}</p>
                             ${isCodePost ? `<button type="button" class="post-code-filter-badge" onclick="event.stopPropagation(); filterFeed('snippets')" title="Show all posts containing code"><i data-lucide="code-2" class="w-3 h-3"></i><span>Code post</span></button>` : ''}
                         </div>
@@ -4755,9 +4795,9 @@
                     <div class="relative">
                         <button onclick="togglePostOptions('${isDetailModal ? 'opts-modal-' + post.id : 'opts-' + post.id}', event)" class="p-2 text-gray-500 hover:text-white transition-colors rounded-lg hover:bg-white/10 border border-transparent"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
                         <div id="${isDetailModal ? 'opts-modal-' + post.id : 'opts-' + post.id}" class="hidden absolute right-0 mt-2 w-44 bg-[#181a20]/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-30 py-2 px-1 overflow-hidden origin-top-right">
-                            ${isOwner ? `<button onclick="editPost('${post.id}')" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-gray-300 hover:text-white hover:bg-white/5 flex items-center gap-2.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Modify</button>` : ''}
-                            ${isOwner ? `<button onclick="deletePost('${post.id}')" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="trash" class="w-3.5 h-3.5"></i> Remove</button>` : ''}
-                            <button onclick="reportPost('${post.id}')" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 hover:bg-orange-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Report Post</button>
+                            ${isOwner ? `<button onclick="editPost(${escapeJSArg(post.id)})" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-gray-300 hover:text-white hover:bg-white/5 flex items-center gap-2.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Modify</button>` : ''}
+                            ${isOwner ? `<button onclick="deletePost(${escapeJSArg(post.id)})" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="trash" class="w-3.5 h-3.5"></i> Remove</button>` : ''}
+                            <button onclick="reportPost(${escapeJSArg(post.id)})" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 hover:bg-orange-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Report Post</button>
                         </div>
                     </div>
                 </div>
@@ -4765,17 +4805,17 @@
                 ${imageGridHTML}
                 <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between text-gray-400 px-1">
                     <div class="flex items-center gap-8 sm:gap-10">
-                        <button class="reaction-button flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide ${isLiked ? 'text-[#ff3b30]' : 'text-gray-400 hover:text-gray-200'}" onclick="toggleLikePost('${post.id}', this)">
+                        <button class="reaction-button flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide ${isLiked ? 'text-[#ff3b30]' : 'text-gray-400 hover:text-gray-200'}" onclick="toggleLikePost(${escapeJSArg(post.id)}, this)">
                             <i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-current' : ''}"></i> <span class="like-label">${likeCount}</span>
                         </button>
-                        <button class="reaction-button flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide text-gray-400 hover:text-gray-200" onclick="${isDetailModal ? `animateReaction(this, 'comment'); document.getElementById('comment-input-modal-${post.id}').focus()` : `animateReaction(this, 'comment'); toggleCommentsInline('${post.id}')`}">
+                        <button class="reaction-button flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide text-gray-400 hover:text-gray-200" onclick="${isDetailModal ? `animateReaction(this, 'comment'); document.getElementById('comment-input-modal-${post.id}').focus()` : `animateReaction(this, 'comment'); toggleCommentsInline(${escapeJSArg(post.id)})`}">
                             <i data-lucide="message-square" class="w-5 h-5"></i> <span><span id="${isDetailModal ? 'modal-' : ''}comment-count-label-${post.id}">${commentCount}</span> <span class="hidden sm:inline">Responses</span></span>
                         </button>
-                        <button class="flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide text-gray-400 hover:text-gray-200" onclick="openShareModal('${post.id}')">
+                        <button class="flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide text-gray-400 hover:text-gray-200" onclick="openShareModal(${escapeJSArg(post.id)})">
                             <i data-lucide="share-2" class="w-5 h-5"></i> <span class="hidden sm:inline">Share</span>
                         </button>
                     </div>
-                    <button class="flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide ${isSaved ? 'text-white' : 'text-gray-400 hover:text-gray-200'}" onclick="toggleSavePost('${post.id}', this)">
+                    <button class="flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide ${isSaved ? 'text-white' : 'text-gray-400 hover:text-gray-200'}" onclick="toggleSavePost(${escapeJSArg(post.id)}, this)">
                         <i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-current' : ''}"></i> <span class="save-label hidden sm:inline">${isSaved ? 'Saved' : 'Save'}</span>
                     </button>
                 </div>
@@ -4943,7 +4983,7 @@
         function openPostDetail(postId) {
             const post = allCommunityPosts.find(p => p.id === postId); if (!post) return;
             const modal = document.getElementById('postDetailModal'); const ca = document.getElementById('postDetailContent'); const rb = document.getElementById('postDetailReplyBox');
-            ca.innerHTML = buildPostHTML(post, true); rb.innerHTML = `<div id="reply-indicator-modal-${post.id}" class="px-0"></div><div class="flex gap-2 sm:gap-3"><input type="text" id="comment-input-modal-${post.id}" class="flex-1 bg-white/5 border border-white/10 rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-white/30 shadow-inner" placeholder="Write a reply..." onkeypress="if(event.key==='Enter') postComment('${post.id}', true)"><button onclick="postComment('${post.id}', true)" class="bg-white text-black rounded-full px-8 text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors shadow-md">Post</button></div>`;
+            ca.innerHTML = buildPostHTML(post, true); rb.innerHTML = `<div id="reply-indicator-modal-${post.id}" class="px-0"></div><div class="flex gap-2 sm:gap-3"><input type="text" id="comment-input-modal-${post.id}" class="flex-1 bg-white/5 border border-white/10 rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-white/30 shadow-inner" placeholder="Write a reply..." onkeypress="if(event.key==='Enter') postComment(${escapeJSArg(post.id)}, true)"><button onclick="postComment(${escapeJSArg(post.id)}, true)" class="bg-white text-black rounded-full px-8 text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors shadow-md">Post</button></div>`;
             modal.classList.remove('hidden'); setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('div').classList.remove('scale-95'); }, 10); document.body.classList.add('no-scroll');
             if (typeof lucide !== 'undefined') lucide.createIcons(); loadCommentsForModal(postId);
         }
@@ -4997,30 +5037,31 @@
                 const replies = repliesByParent[c.id] || []; const rootHtml = renderSingleComment(c, postId, c.id, false, isInline); let repliesHtml = '';
                 if (replies.length > 0) {
                     let vc = window.expandedRepliesCount[c.id] || 3; let vHtml = replies.slice(0, vc).map(r => renderSingleComment(r, postId, c.id, true, isInline)).join('');
-                    let rem = replies.length - vc; let tBtn = rem > 0 ? `<button onclick="showMoreReplies('${postId}', '${c.id}', ${isInline})" class="text-[10px] font-bold tracking-widest uppercase text-white opacity-60 hover:opacity-100 mt-2 flex items-center gap-1 ml-4 sm:ml-6"><i data-lucide="corner-down-right" class="w-3 h-3"></i> View ${rem} more replies</button>` : '';
+                    let rem = replies.length - vc; let tBtn = rem > 0 ? `<button onclick="showMoreReplies(${escapeJSArg(postId)}, ${escapeJSArg(c.id)}, ${Boolean(isInline)})" class="text-[10px] font-bold tracking-widest uppercase text-white opacity-60 hover:opacity-100 mt-2 flex items-center gap-1 ml-4 sm:ml-6"><i data-lucide="corner-down-right" class="w-3 h-3"></i> View ${rem} more replies</button>` : '';
                     repliesHtml = `<div class="ml-6 sm:ml-[42px] mt-2 border-l border-white/10 pl-3 sm:pl-4 space-y-3 relative before:absolute before:left-[-1px] before:top-[-10px] before:h-[20px] before:w-[20px] before:border-b before:border-l before:border-white/10 before:rounded-bl-xl">${vHtml}${tBtn}</div>`;
                 } return `<div class="mt-5">${rootHtml}${repliesHtml}</div>`;
             }).join('');
         }
 
         function renderSingleComment(c, postId, rootId, isReply = false, isInline = false) {
-            const avatar = c.author_avatar ? `<img src="${c.author_avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1.5 text-gray-500"></i>`;
+            const safeCommentAvatar = safeImageURL(c.author_avatar);
+            const avatar = safeCommentAvatar ? `<img src="${safeCommentAvatar}" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-full h-full p-1.5 text-gray-500"></i>`;
             const isLiked = currentUser && c.marketplace_comment_likes && c.marketplace_comment_likes.some(l => l.user_id === currentUser.id); const likeCount = c.marketplace_comment_likes ? c.marketplace_comment_likes.length : 0;
-            let safeContent = window.DOMPurify ? DOMPurify.sanitize(c.content) : c.content;
+            let safeContent = sanitizeCommunityHTML(c.content);
             const entryAnimation = String(c.id).startsWith('temp-') ? 'comment-arrive' : '';
             const avatarSize = isReply ? "w-7 h-7 sm:w-8 sm:h-8" : "w-9 h-9 sm:w-10 sm:h-10"; const bgClass = isReply ? "bg-[#181a20] border border-white/5" : "bg-[#181a20] border border-white/5";
-            const delBtn = currentUser && currentUser.id === c.user_id ? `<button onclick="deleteComment('${c.id}', '${postId}', ${isInline})" class="hover:text-[#ff3b30] transition-colors"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>` : '';
+            const delBtn = currentUser && currentUser.id === c.user_id ? `<button onclick="deleteComment(${escapeJSArg(c.id)}, ${escapeJSArg(postId)}, ${Boolean(isInline)})" class="hover:text-[#ff3b30] transition-colors"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>` : '';
             return `
             <div class="flex gap-3 sm:gap-4 text-sm ${isReply ? 'mt-4' : ''} ${entryAnimation}">
                 <div class="${avatarSize} rounded-full bg-[#0f1115] border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center mt-1 shadow-inner">${avatar}</div>
                 <div class="flex-1 min-w-0">
                     <div class="${bgClass}   rounded-tl-none px-4 py-3 inline-block max-w-[95%] sm:max-w-[90%] relative shadow-sm">
-                        <span class="font-bold text-gray-300 text-[11px] sm:text-xs mb-1.5 flex items-center gap-1 uppercase tracking-wider">${c.author_name} ${getRoleBadge(c.author_role)} <span class="text-gray-500 font-mono tracking-widest ml-3 text-[9px]">${timeAgo(c.created_at)}</span></span>
+                        <span class="font-bold text-gray-300 text-[11px] sm:text-xs mb-1.5 flex items-center gap-1 uppercase tracking-wider">${escapeHTML(c.author_name)} ${getRoleBadge(c.author_role)} <span class="text-gray-500 font-mono tracking-widest ml-3 text-[9px]">${timeAgo(c.created_at)}</span></span>
                         <span class="text-white text-[13px] sm:text-[14px] leading-relaxed break-words font-medium">${safeContent}</span>
                     </div>
                     <div class="flex items-center gap-5 mt-2.5 ml-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                        <button onclick="toggleLikeComment('${c.id}', this, '${postId}', ${isInline})" class="reaction-button ${isLiked ? 'text-[#ff3b30]' : 'hover:text-white'} transition-colors flex items-center gap-1.5"><i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? 'fill-current' : ''}"></i><span class="cmt-like-label">${likeCount || ''}</span></button>
-                        <button onclick="setReplyTarget('${postId}', '${c.id}', '${c.author_name}', '${rootId}', ${isInline})" class="hover:text-white transition-colors flex items-center gap-1.5"><i data-lucide="reply" class="w-3.5 h-3.5"></i> Reply</button>
+                        <button onclick="toggleLikeComment(${escapeJSArg(c.id)}, this, ${escapeJSArg(postId)}, ${Boolean(isInline)})" class="reaction-button ${isLiked ? 'text-[#ff3b30]' : 'hover:text-white'} transition-colors flex items-center gap-1.5"><i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? 'fill-current' : ''}"></i><span class="cmt-like-label">${likeCount || ''}</span></button>
+                        <button onclick="setReplyTarget(${escapeJSArg(postId)}, ${escapeJSArg(c.id)}, ${escapeJSArg(c.author_name)}, ${escapeJSArg(rootId)}, ${Boolean(isInline)})" class="hover:text-white transition-colors flex items-center gap-1.5"><i data-lucide="reply" class="w-3.5 h-3.5"></i> Reply</button>
                         ${delBtn}
                     </div>
                 </div>
@@ -5030,7 +5071,7 @@
         function setReplyTarget(postId, commentId, authorName, rootId = null, isInline = false) {
             activeReplyAuthor[postId] = authorName; activeReplyParentId[postId] = rootId || commentId;
             const indId = isInline ? `reply-indicator-inline-${postId}` : `reply-indicator-modal-${postId}`; const ind = document.getElementById(indId);
-            if (ind) { ind.innerHTML = `<div class="text-[11px] font-bold uppercase tracking-widest text-white mb-2 flex items-center justify-between bg-[#111] border border-white/10 py-2 px-4 rounded-none w-fit">Replying to @${authorName} <button onclick="clearReplyTarget('${postId}', ${isInline})" class="hover:text-gray-300 ml-3"><i data-lucide="x" class="w-3 h-3"></i></button></div>`; if (typeof lucide !== 'undefined') lucide.createIcons(); }
+            if (ind) { ind.innerHTML = `<div class="text-[11px] font-bold uppercase tracking-widest text-white mb-2 flex items-center justify-between bg-[#111] border border-white/10 py-2 px-4 rounded-none w-fit">Replying to @${escapeHTML(authorName)} <button onclick="clearReplyTarget(${escapeJSArg(postId)}, ${Boolean(isInline)})" class="hover:text-gray-300 ml-3"><i data-lucide="x" class="w-3 h-3"></i></button></div>`; if (typeof lucide !== 'undefined') lucide.createIcons(); }
             const inputId = isInline ? `comment-input-inline-${postId}` : `comment-input-modal-${postId}`; const input = document.getElementById(inputId); if (input) input.focus();
         }
         function clearReplyTarget(postId, isInline = false) { 
