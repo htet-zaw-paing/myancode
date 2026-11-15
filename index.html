@@ -248,13 +248,12 @@
             border-color: rgba(255, 255, 255, 0.1);
         }
 
-        #heroSection::before { content: ''; position: absolute; inset: 0; z-index: 16; pointer-events: none; opacity: 0; background: radial-gradient(290px circle at var(--hero-cursor-x, 50%) var(--hero-cursor-y, 50%), rgba(255, 255, 255, 0.065), transparent 72%); mix-blend-mode: screen; transition: opacity 0.5s ease; }
-        #heroSection.hero-cursor-active::before { opacity: 0.5; }
+        #heroSection { isolation: isolate; }
+        #heroSection::before { content: ''; position: absolute; inset: -8%; z-index: 1; pointer-events: none; opacity: 0; background: radial-gradient(ellipse 38% 42% at var(--hero-cursor-x, 72%) var(--hero-cursor-y, 50%), rgba(205, 225, 255, .035) 0%, rgba(205, 225, 255, .018) 31%, transparent 64%); filter: blur(70px); mix-blend-mode: screen; transition: opacity .6s ease; }
+        #heroSection.hero-cursor-active::before { opacity: 1; }
         #heroSection::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 220px; z-index: 11; pointer-events: none; background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.14) 52%, transparent 100%); }
-        #heroTextWrapper { position: relative; isolation: isolate; transform: perspective(1400px) rotateX(var(--hero-tilt-x, 0deg)) rotateY(var(--hero-tilt-y, 0deg)); transform-origin: center center; transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; }
-        #heroTextWrapper::before { content: ''; position: absolute; inset: -5% -3%; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 28% 48%, rgba(255, 255, 255, 0.1), transparent 60%); filter: blur(30px); opacity: 0.5; }
-        #heroParticleField { position: absolute; inset: 0; z-index: 15; overflow: hidden; pointer-events: none; }
-        .hero-particle { position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); border-radius: 50%; background: rgba(255, 255, 255, 0.88); opacity: 0.07; box-shadow: 0 0 6px rgba(255, 255, 255, 0.55); transition: transform 0.58s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.58s ease; will-change: transform, opacity; }
+        #sliderContainer .slider-img { filter: saturate(1.85) contrast(1.08) blur(2px); transform: scale(1.025); }
+        #heroTrailCanvas { position: absolute; inset: 0; z-index: 17; width: 100%; height: 100%; pointer-events: none; }
 
         .hero-text-dynamic { transition: opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1), transform 0.66s cubic-bezier(0.22, 1, 0.36, 1), filter 0.55s ease; will-change: transform, opacity, filter; }
         #heroDynamicTag { transition-delay: 0s; }
@@ -272,8 +271,7 @@
         .slider-img.active { opacity: 1; transform: scale(1); filter: none; transition: opacity 1.6s cubic-bezier(0.4, 0, 0.2, 1), transform 1.6s cubic-bezier(0.22, 1, 0.36, 1); pointer-events: auto; }
         @media (prefers-reduced-motion: reduce) {
             #heroSection::before { transition: none; }
-            #heroTextWrapper { transition: none; transform: none; }
-            .hero-particle { transition: none; }
+            #heroTrailCanvas { display: none; }
             .hero-text-dynamic, #heroBtn1, #heroBtn2, .slider-img { transition-duration: 0.01ms !important; }
         }
 
@@ -751,26 +749,14 @@
         
         <section id="heroSection" class="relative w-full h-screen min-h-[800px] flex items-end pb-24 overflow-hidden bg-[#050505] group border-b border-white/10">
             <div id="sliderContainer" class="absolute inset-0 w-full h-full z-0 opacity-[0.85] bg-[#050505]">
-                <img fetchpriority="high" src="./imgs/web-banners/myancode-hero-bg-one.jpg" class="slider-img active absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="MyanCode">
-                <img loading="lazy" src="./imgs/web-banners/myancode-hero-bg-two.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110"  alt="Packages">
-                <img loading="lazy" src="./imgs/web-banners/myancode-hero-bg-three.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="Templates">
-                <img loading="lazy" src="./imgs/web-banners/myancode-hero-bg-four.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="Services">
-                <img loading="lazy" src="./imgs/web-banners/myancode-hero-bg-five.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="Contact & Support">
+                <img fetchpriority="high" src="./imgs/web-banners/hero-banner-1.jpg" class="slider-img active absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="MyanCode">
+                <img loading="lazy" src="./imgs/web-banners/hero-banner-2.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110"  alt="Packages">
+                <img loading="lazy" src="./imgs/web-banners/hero-banner-3.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="Templates">
+                <img loading="lazy" src="./imgs/web-banners/hero-banner-4.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="Services">
+                <img loading="lazy" src="./imgs/web-banners/hero-banner-5.jpg" class="slider-img absolute inset-0 w-full h-full object-cover object-center saturate-[0.8] contrast-110" alt="Contact & Support">
             </div>
-            <div id="heroParticleField" aria-hidden="true">
-                <span class="hero-particle" data-x="7" data-y="19" style="--x:7%;--y:19%;--size:2px"></span>
-                <span class="hero-particle" data-x="15" data-y="66" style="--x:15%;--y:66%;--size:1.5px"></span>
-                <span class="hero-particle" data-x="24" data-y="38" style="--x:24%;--y:38%;--size:2px"></span>
-                <span class="hero-particle" data-x="34" data-y="82" style="--x:34%;--y:82%;--size:1.5px"></span>
-                <span class="hero-particle" data-x="42" data-y="22" style="--x:42%;--y:22%;--size:2px"></span>
-                <span class="hero-particle" data-x="51" data-y="56" style="--x:51%;--y:56%;--size:1.5px"></span>
-                <span class="hero-particle" data-x="60" data-y="86" style="--x:60%;--y:86%;--size:2px"></span>
-                <span class="hero-particle" data-x="68" data-y="31" style="--x:68%;--y:31%;--size:1.5px"></span>
-                <span class="hero-particle" data-x="77" data-y="72" style="--x:77%;--y:72%;--size:2px"></span>
-                <span class="hero-particle" data-x="85" data-y="18" style="--x:85%;--y:18%;--size:1.5px"></span>
-                <span class="hero-particle" data-x="91" data-y="48" style="--x:91%;--y:48%;--size:2px"></span>
-                <span class="hero-particle" data-x="96" data-y="82" style="--x:96%;--y:82%;--size:1.5px"></span>
-            </div>
+            <div id="heroColorBloom" aria-hidden="true"></div>
+            <canvas id="heroTrailCanvas" aria-hidden="true"></canvas>
             <div class="absolute inset-0 bg-gradient-to-r from-[#050505]/95 via-[#050505]/50 to-transparent z-10 pointer-events-none"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent z-10 pointer-events-none"></div>
 
@@ -1328,10 +1314,10 @@
 
     <footer class="bg-[#050505] pt-20 pb-10 relative z-10 mt-auto font-sans">
         <div class="absolute inset-0">
-            <img src="./imgs/web-banners/footer-bg-asset.jpeg" class="w-full h-full object-cover select-none pointer-events-none">
+            <img src="./imgs/web-banners/footer-bg-asset.jpg" class="w-full h-full object-cover select-none pointer-events-none">
         </div>
         <div class="absolute inset-0 bg-black/75"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/75"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-black/90"></div>
         <div class="layout-width relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 mb-16">
                 <div class="lg:col-span-4 pr-4">
@@ -1767,57 +1753,128 @@
         const slideProgress = document.getElementById('slideProgress');
         const heroSection = document.getElementById('heroSection');
         const heroTextWrapper = document.getElementById('heroTextWrapper');
-        const heroParticles = document.querySelectorAll('.hero-particle');
         const heroMotionReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let heroPointerFrame = 0;
-        let latestHeroPointer = null;
+        const heroTrailCanvas = document.getElementById('heroTrailCanvas');
+        const heroTrailCtx = heroTrailCanvas && heroTrailCanvas.getContext('2d', { alpha: true });
 
-        if (heroSection && heroTextWrapper && !heroMotionReduced) {
+        if (heroSection && heroTrailCanvas && heroTrailCtx && !heroMotionReduced) {
+            const trail = [];
+            let pointer = null;
+            let raf = 0;
+            let cw = 0, ch = 0, dpr = 1;
+            const lifetime = 900;
+            const resizeTrail = () => {
+                const r = heroSection.getBoundingClientRect();
+                cw = r.width; ch = r.height; dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+                heroTrailCanvas.width = Math.round(cw * dpr);
+                heroTrailCanvas.height = Math.round(ch * dpr);
+                heroTrailCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            };
+            const renderTrail = () => {
+                raf = 0;
+                const ctx = heroTrailCtx;
+                const now = performance.now();
+                ctx.clearRect(0, 0, cw, ch);
+                if (pointer) {
+                    const last = trail[trail.length - 1];
+                    if (!last) trail.push({ x: pointer.x, y: pointer.y, t: now });
+                    else {
+                        const dx = pointer.x - last.x, dy = pointer.y - last.y;
+                        const distance = Math.hypot(dx, dy);
+                        // Evenly sample fast pointer movement to avoid gaps or disconnected blobs.
+                        const steps = Math.min(12, Math.max(1, Math.ceil(distance / 7)));
+                        for (let i = 1; i <= steps; i++) {
+                            const f = i / steps;
+                            trail.push({ x: last.x + dx * f, y: last.y + dy * f, t: now - (steps - i) * 1.1 });
+                        }
+                    }
+                    pointer = null;
+                }
+                while (trail.length && now - trail[0].t > lifetime) trail.shift();
+                if (trail.length > 2) {
+                    // Build a continuous, soft-edged wake. The cursor tip is narrow;
+                    // the water-like disturbance blooms wider and fades behind it.
+                    const left = [], right = [];
+                    for (let i = 0; i < trail.length; i++) {
+                        const p = trail[i];
+                        const prev = trail[Math.max(0, i - 1)];
+                        const next = trail[Math.min(trail.length - 1, i + 1)];
+                        const dx = next.x - prev.x, dy = next.y - prev.y;
+                        const len = Math.max(0.001, Math.hypot(dx, dy));
+                        const nx = -dy / len, ny = dx / len;
+                        const age = Math.min(1, Math.max(0, (now - p.t) / lifetime));
+                        const wobble = Math.sin(i * 0.22) * 0.7 * age;
+                        const width = 1.1 + 36 * Math.pow(age, 0.92);
+                        left.push({ x: p.x + nx * (width + wobble), y: p.y + ny * (width + wobble) });
+                        right.push({ x: p.x - nx * (width - wobble), y: p.y - ny * (width - wobble) });
+                    }
+                    const head = trail[trail.length - 1];
+                    const tail = trail[0];
+                    const wakeShape = () => {
+                        ctx.beginPath();
+                        ctx.moveTo(left[0].x, left[0].y);
+                        for (let i = 1; i < left.length; i++) {
+                            const midX = (left[i - 1].x + left[i].x) / 2;
+                            const midY = (left[i - 1].y + left[i].y) / 2;
+                            ctx.quadraticCurveTo(left[i - 1].x, left[i - 1].y, midX, midY);
+                        }
+                        ctx.lineTo(left[left.length - 1].x, left[left.length - 1].y);
+                        for (let i = right.length - 1; i > 0; i--) {
+                            const midX = (right[i].x + right[i - 1].x) / 2;
+                            const midY = (right[i].y + right[i - 1].y) / 2;
+                            ctx.quadraticCurveTo(right[i].x, right[i].y, midX, midY);
+                        }
+                        ctx.lineTo(right[0].x, right[0].y);
+                        ctx.closePath();
+                    };
+                    // Large blurred color cloud: deliberately no visible stroke or centerline.
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'screen';
+                    ctx.filter = 'blur(30px)';
+                    wakeShape();
+                    const cloud = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y);
+                    cloud.addColorStop(0, 'rgba(15,65,255,0)');
+                    cloud.addColorStop(0.34, 'rgba(184,211,255,0.010)');
+                    cloud.addColorStop(0.78, 'rgba(196,218,255,0.022)');
+                    cloud.addColorStop(1, 'rgba(226,238,255,0.032)');
+                    ctx.fillStyle = cloud;
+                    ctx.fill();
+                    ctx.restore();
+                    // Diffuse, low-contrast inner sheen evokes a passing water wake without a line.
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'screen';
+                    ctx.filter = 'blur(18px)';
+                    wakeShape();
+                    const sheen = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y);
+                    sheen.addColorStop(0, 'rgba(39,104,255,0)');
+                    sheen.addColorStop(0.52, 'rgba(195,217,255,0.006)');
+                    sheen.addColorStop(0.9, 'rgba(218,233,255,0.014)');
+                    sheen.addColorStop(1, 'rgba(238,246,255,0.022)');
+                    ctx.fillStyle = sheen;
+                    ctx.fill();
+                    ctx.restore();
+                }
+                if (trail.length) raf = requestAnimationFrame(renderTrail);
+            };
+            resizeTrail();
+            window.addEventListener('resize', resizeTrail, { passive: true });
             heroSection.addEventListener('pointermove', event => {
                 if (event.pointerType === 'touch') return;
-                latestHeroPointer = event;
-                if (heroPointerFrame) return;
-                heroPointerFrame = window.requestAnimationFrame(() => {
-                    heroPointerFrame = 0;
-                    const pointer = latestHeroPointer;
-                    const bounds = heroSection.getBoundingClientRect();
-                    const normalizedX = ((pointer.clientX - bounds.left) / bounds.width - 0.5) * 2;
-                    const normalizedY = ((pointer.clientY - bounds.top) / bounds.height - 0.5) * 2;
-                    const cursorX = Math.max(0, Math.min(100, (pointer.clientX - bounds.left) / bounds.width * 100));
-                    const cursorY = Math.max(0, Math.min(100, (pointer.clientY - bounds.top) / bounds.height * 100));
-                    heroSection.style.setProperty('--hero-cursor-x', `${cursorX}%`);
-                    heroSection.style.setProperty('--hero-cursor-y', `${cursorY}%`);
-                    heroSection.classList.add('hero-cursor-active');
-                    heroTextWrapper.style.setProperty('--hero-tilt-x', `${Math.max(-1, Math.min(1, -normalizedY))}deg`);
-                    heroTextWrapper.style.setProperty('--hero-tilt-y', `${Math.max(-1.2, Math.min(1.2, normalizedX * 1.2))}deg`);
-                    heroParticles.forEach(particle => {
-                        const particleX = bounds.left + bounds.width * Number(particle.dataset.x) / 100;
-                        const particleY = bounds.top + bounds.height * Number(particle.dataset.y) / 100;
-                        const dx = particleX - pointer.clientX;
-                        const dy = particleY - pointer.clientY;
-                        const distance = Math.max(1, Math.hypot(dx, dy));
-                        const influence = Math.max(0, 1 - distance / 210);
-                        const shiftX = dx / distance * influence * 8;
-                        const shiftY = dy / distance * influence * 8;
-                        particle.style.transform = `translate3d(${shiftX.toFixed(2)}px, ${shiftY.toFixed(2)}px, 0) scale(${(1 + influence * 0.55).toFixed(2)})`;
-                        particle.style.opacity = (0.07 + influence * 0.28).toFixed(2);
-                    });
-                });
-            });
+                const r = heroSection.getBoundingClientRect();
+                pointer = { x: event.clientX - r.left, y: event.clientY - r.top };
+                heroSection.style.setProperty('--hero-cursor-x', `${pointer.x / Math.max(1, r.width) * 100}%`);
+                heroSection.style.setProperty('--hero-cursor-y', `${pointer.y / Math.max(1, r.height) * 100}%`);
+                heroSection.classList.add('hero-cursor-active');
+                if (!raf) raf = requestAnimationFrame(renderTrail);
+            }, { passive: true });
             heroSection.addEventListener('pointerleave', () => {
-                if (heroPointerFrame) window.cancelAnimationFrame(heroPointerFrame);
-                heroPointerFrame = 0;
-                latestHeroPointer = null;
+                pointer = null;
                 heroSection.classList.remove('hero-cursor-active');
-                heroSection.style.setProperty('--hero-cursor-x', '50%');
-                heroSection.style.setProperty('--hero-cursor-y', '50%');
-                heroTextWrapper.style.setProperty('--hero-tilt-x', '0deg');
-                heroTextWrapper.style.setProperty('--hero-tilt-y', '0deg');
-                heroParticles.forEach(particle => {
-                    particle.style.transform = 'translate3d(0, 0, 0) scale(1)';
-                    particle.style.opacity = '0.07';
-                });
-            });
+            }, { passive: true });
+        }
+
+        // Preserve the original subtle button magnet interaction.
+        if (heroSection && !heroMotionReduced) {
             [document.getElementById('heroBtn1'), document.getElementById('heroBtn2')].forEach(button => {
                 if (!button) return;
                 button.addEventListener('pointermove', event => {
@@ -2772,14 +2829,14 @@
             slideProgress.style.transition = 'none';
             slideProgress.style.width = '0%';
             setTimeout(() => {
-                slideProgress.style.transition = 'width 8s linear';
+                slideProgress.style.transition = 'width 10.5s linear';
                 slideProgress.style.width = '100%';
             }, 50);
         }
 
         function nextSlide() { currentSlide = (currentSlide + 1) % totalSlides; showSlide(currentSlide); resetAutoPlay(); }
         function prevSlide() { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; showSlide(currentSlide); resetAutoPlay(); }
-        function resetAutoPlay() { clearInterval(slideInterval); slideInterval = setInterval(nextSlide, 8000); }
+        function resetAutoPlay() { clearInterval(slideInterval); slideInterval = setInterval(nextSlide, 10500); }
 
         let scrollTicking = false;
         window.addEventListener('scroll', () => {
