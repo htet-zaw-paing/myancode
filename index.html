@@ -28,14 +28,28 @@
     <meta name="twitter:description" content="MyanCode designs and develops high-performance websites, digital platforms, SEO strategies, domains, cloud hosting, templates, and scalable business infrastructure.">
     <meta name="twitter:image" content="https://www.myancode.com/imgs/web-banners/bannerii.jpg">
     <meta name="twitter:image:alt" content="MyanCode high-performance digital infrastructure">
+    <meta name="apple-mobile-web-app-title" content="MyanCode">
     <script type="application/ld+json">
         {
           "@context": "https://schema.org",
           "@graph": [
             {
+              "@type": "WebSite",
+              "@id": "https://www.myancode.com/#website",
+              "url": "https://www.myancode.com/",
+              "name": "MyanCode",
+              "alternateName": "MyanCode Inc.",
+              "publisher": {
+                "@id": "https://www.myancode.com/#organization"
+              },
+              "inLanguage": "en"
+            },
+            {
               "@type": "Organization",
               "@id": "https://www.myancode.com/#organization",
               "name": "MyanCode",
+              "legalName": "MyanCode Inc.",
+              "alternateName": "MyanCode Inc.",
               "url": "https://www.myancode.com/",
               "logo": {
                 "@type": "ImageObject",
@@ -51,17 +65,6 @@
                 "https://github.com/myancode",
                 "https://instagram.com/myancode.mm"
               ]
-            },
-            {
-              "@type": "WebSite",
-              "@id": "https://www.myancode.com/#website",
-              "url": "https://www.myancode.com/",
-              "name": "MyanCode",
-              "alternateName": "myancode.com",
-              "publisher": {
-                "@id": "https://www.myancode.com/#organization"
-              },
-              "inLanguage": "en"
             },
             {
               "@type": "WebPage",
@@ -391,7 +394,7 @@
                         onclick="toggleMobileMenu()">
                         <i data-lucide="menu" class="h-5 w-5"></i>
                     </button>
-                    <a href="./" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
+                    <a href="./" aria-label="MyanCode" title="MyanCode" class="flex-shrink-0 flex items-center cursor-pointer group py-2">
                         <img src="./imgs/web-banners/favicon-border.png" alt="MyanCode"
                             class="h-7 sm:h-8 w-auto transition-transform duration-500 group-hover:scale-105"
                             onerror="this.onerror=null; this.src='https://placehold.co/40x40/050505/ffffff?text=MC';">
@@ -762,12 +765,12 @@
 
             <div class="relative z-20 layout-width grid grid-cols-1 lg:grid-cols-12 gap-8 pointer-events-none w-full">
                 <div class="lg:col-span-8 flex flex-col items-start text-left pointer-events-auto px-5 sm:px-8 lg:px-4" id="heroTextWrapper">
-                    <span id="heroDynamicTag" class="inline-flex items-center gap-3 px-4 py-1.5 text-[10px] font-bold uppercase font-mono tracking-widest border-l-2 border-white text-gray-300 mb-8 hero-text-dynamic cursor-default transform-gpu">
+                    <div id="heroDynamicTag" class="inline-flex items-center gap-3 px-4 py-1.5 text-[10px] font-bold uppercase font-mono tracking-widest border-l-2 border-white text-gray-300 mb-8 hero-text-dynamic cursor-default transform-gpu">
                         <span id="heroDynamicTagText" data-i18n="heroTag1">MyanCode</span>
-                    </span>
+                    </div>
                     
-                    <h1 class="text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] font-display font-bold tracking-tighter mb-8 leading-[1.02] hero-text-dynamic text-white text-gradient-apple transform-gpu" id="heroTitle" data-i18n="heroTitle1">
-                        Built for Your Business.
+                    <h1 class="text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] font-display font-bold tracking-tighter mb-8 leading-[1.02] hero-text-dynamic text-white text-gradient-apple transform-gpu" id="heroTitle">
+                        <span class="sr-only">MyanCode - </span><span id="heroTitleText" data-i18n="heroTitle1">Built for Your Business.</span>
                     </h1>
                     
                     <p class="text-lg sm:text-xl md:text-2xl mb-12 max-w-2xl font-normal leading-relaxed hero-text-dynamic text-gray-300 transform-gpu" id="heroDesc" data-i18n="heroDesc1">
@@ -2801,16 +2804,31 @@
         function showSlide(index) {
             slides.forEach((s, i) => { if (i === index) { s.classList.add('active'); } else { s.classList.remove('active'); } });
             
-            const titleEl = document.getElementById('heroTitle'); const descEl = document.getElementById('heroDesc');
-            const btn1 = document.getElementById('heroBtn1'); const btn2 = document.getElementById('heroBtn2'); const btn2Text = document.getElementById('heroBtn2Text');
-            const dynTag = document.getElementById('heroDynamicTag'); const dynTagText = document.getElementById('heroDynamicTagText');
+            const titleEl = document.getElementById('heroTitle');
+            const titleTextEl = document.getElementById('heroTitleText') || titleEl;
+            const descEl = document.getElementById('heroDesc');
+            const btn1 = document.getElementById('heroBtn1');
+            const btn2 = document.getElementById('heroBtn2');
+            const btn2Text = document.getElementById('heroBtn2Text');
+            const dynTag = document.getElementById('heroDynamicTag');
+            const dynTagText = document.getElementById('heroDynamicTagText');
 
             const btnUrls = [ ['./package/', './services/'], ['./package/', './services/'], ['./templates/', './services/'], ['./services/', './services/'], ['./contact-us/', './services/'] ];
 
             if (isFirstLoad) {
-                titleEl.setAttribute('data-i18n', `heroTitle${index + 1}`); descEl.setAttribute('data-i18n', `heroDesc${index + 1}`); btn1.setAttribute('data-i18n', `heroBtn${index + 1}_1`); btn2Text.setAttribute('data-i18n', `heroBtn${index + 1}_2`); dynTagText.setAttribute('data-i18n', `heroTag${index + 1}`);
-                titleEl.innerHTML = dict[currentLang][`heroTitle${index + 1}`]; descEl.innerHTML = dict[currentLang][`heroDesc${index + 1}`]; btn1.innerHTML = dict[currentLang][`heroBtn${index + 1}_1`]; btn2Text.innerHTML = dict[currentLang][`heroBtn${index + 1}_2`]; dynTagText.innerHTML = dict[currentLang][`heroTag${index + 1}`];
-                btn1.href = btnUrls[index][0]; btn2.href = btnUrls[index][1]; isFirstLoad = false;
+                titleTextEl.setAttribute('data-i18n', `heroTitle${index + 1}`);
+                descEl.setAttribute('data-i18n', `heroDesc${index + 1}`);
+                btn1.setAttribute('data-i18n', `heroBtn${index + 1}_1`);
+                btn2Text.setAttribute('data-i18n', `heroBtn${index + 1}_2`);
+                dynTagText.setAttribute('data-i18n', `heroTag${index + 1}`);
+                titleTextEl.innerHTML = dict[currentLang][`heroTitle${index + 1}`];
+                descEl.innerHTML = dict[currentLang][`heroDesc${index + 1}`];
+                btn1.innerHTML = dict[currentLang][`heroBtn${index + 1}_1`];
+                btn2Text.innerHTML = dict[currentLang][`heroBtn${index + 1}_2`];
+                dynTagText.innerHTML = dict[currentLang][`heroTag${index + 1}`];
+                btn1.href = btnUrls[index][0];
+                btn2.href = btnUrls[index][1];
+                isFirstLoad = false;
             } else {
                 const dynamicElements = [dynTag, titleEl, descEl, btn1, btn2].filter(Boolean);
                 dynamicElements.forEach(el => el.classList.add('hero-text-out'));
@@ -2818,9 +2836,18 @@
                 showSlide.contentTimer = setTimeout(() => {
                     dynamicElements.forEach(el => el.classList.add('hero-text-in-start'));
                     dynamicElements.forEach(el => el.classList.remove('hero-text-out'));
-                    titleEl.setAttribute('data-i18n', `heroTitle${index + 1}`); descEl.setAttribute('data-i18n', `heroDesc${index + 1}`); btn1.setAttribute('data-i18n', `heroBtn${index + 1}_1`); btn2Text.setAttribute('data-i18n', `heroBtn${index + 1}_2`); dynTagText.setAttribute('data-i18n', `heroTag${index + 1}`);
-                    titleEl.innerHTML = dict[currentLang][`heroTitle${index + 1}`]; descEl.innerHTML = dict[currentLang][`heroDesc${index + 1}`]; btn1.innerHTML = dict[currentLang][`heroBtn${index + 1}_1`]; btn2Text.innerHTML = dict[currentLang][`heroBtn${index + 1}_2`]; dynTagText.innerHTML = dict[currentLang][`heroTag${index + 1}`];
-                    btn1.href = btnUrls[index][0]; btn2.href = btnUrls[index][1];
+                    titleTextEl.setAttribute('data-i18n', `heroTitle${index + 1}`);
+                    descEl.setAttribute('data-i18n', `heroDesc${index + 1}`);
+                    btn1.setAttribute('data-i18n', `heroBtn${index + 1}_1`);
+                    btn2Text.setAttribute('data-i18n', `heroBtn${index + 1}_2`);
+                    dynTagText.setAttribute('data-i18n', `heroTag${index + 1}`);
+                    titleTextEl.innerHTML = dict[currentLang][`heroTitle${index + 1}`];
+                    descEl.innerHTML = dict[currentLang][`heroDesc${index + 1}`];
+                    btn1.innerHTML = dict[currentLang][`heroBtn${index + 1}_1`];
+                    btn2Text.innerHTML = dict[currentLang][`heroBtn${index + 1}_2`];
+                    dynTagText.innerHTML = dict[currentLang][`heroTag${index + 1}`];
+                    btn1.href = btnUrls[index][0];
+                    btn2.href = btnUrls[index][1];
                     void titleEl.offsetWidth;
                     dynamicElements.forEach(el => el.classList.remove('hero-text-in-start'));
                 }, 340);
