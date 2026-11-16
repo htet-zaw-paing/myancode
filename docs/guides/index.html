@@ -291,8 +291,8 @@
                         <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
                         <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-[#111]   shadow-xl border border-white/10 py-2 z-50 text-white">
                             <div class="px-4 pb-2 mb-2 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-bold font-mono" data-i18n="langSelect">Language</div>
-                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
-                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <a href="?lang=en" onclick="setLanguage('en'); return false;" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></a>
+                            <a href="?lang=mm" onclick="setLanguage('mm'); return false;" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></a>
                         </div>
                     </div>
 
@@ -1626,7 +1626,7 @@
                 ftStoreTitle: "စတိုး", ftAddOns: "ပက်ကေ့ချ်", ftTemplates: "ဝက်ဘ်ဆိုက်များ", ftServices: "ဝန်ဆောင်မှုများ", ftMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
                 ftSupportTitle: "အကူအညီ", supGuides: "လမ်းညွှန်များ", supHelp: "အကူအညီဌာန", supFaq: "အမေးများသောမေးခွန်းများ", supLegal: "တရားဝင်", supContact: "ဆက်သွယ်ရန်",
                 supHelpTitle: "အကူအညီ ရယူရန်", supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ",
-                supPolicies: "မူဝါဒများ", polClient: "ဖောက်သည် မူဝါဒ", polStudio: "ပက်ကေ့ချ် မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
+                supPolicies: "မူဝါဒများ", polClient: "ဝယ်ယူသူ မူဝါဒ", polStudio: "ပက်ကေ့ချ် မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
                 
                 ftTrust1: "ယုံကြည်ရသော<br>အဖွဲ့အစည်းများ", ftTrust2: "ကျွမ်းကျင်သော<br>Developers", ftTrust3: "၂၄ နာရီ<br>ဝန်ဆောင်မှု",
                 ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။",
@@ -1770,7 +1770,19 @@
             currentUserCart = session.user.user_metadata?.wishlist || []; updateAuthUI();
         }
 
-        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+        const requestedLanguage = new URLSearchParams(window.location.search).get('lang');
+        let currentLang = ['en', 'mm'].includes(requestedLanguage) ? requestedLanguage : 'en';
+        if (!requestedLanguage) {
+            try {
+                const savedLanguage = localStorage.getItem('myancode_lang');
+                if (['en', 'mm'].includes(savedLanguage)) currentLang = savedLanguage;
+            } catch (e) {}
+        }
+        if (!requestedLanguage && currentLang === 'mm') {
+            const languageUrl = new URL(window.location.href);
+            languageUrl.searchParams.set('lang', 'mm');
+            history.replaceState(null, '', languageUrl.pathname + languageUrl.search + languageUrl.hash);
+        }
 
         function renderLanguage() {
             document.documentElement.lang = currentLang;
@@ -1780,7 +1792,20 @@
             if(document.getElementById('wishlistDrawer').classList.contains('open')) renderWishlistItems();
         }
 
-        function setLanguage(lang) { currentLang = lang; localStorage.setItem('myancode_lang', currentLang); renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden'); }
+        function setLanguage(lang) {
+            if (!['en', 'mm'].includes(lang)) return;
+
+            currentLang = lang;
+            try { localStorage.setItem('myancode_lang', currentLang); } catch (e) {}
+
+            const languageUrl = new URL(window.location.href);
+            if (currentLang === 'mm') languageUrl.searchParams.set('lang', 'mm');
+            else languageUrl.searchParams.delete('lang');
+            history.replaceState(null, '', languageUrl.pathname + languageUrl.search + languageUrl.hash);
+
+            renderLanguage();
+            document.getElementById('langDropdown').classList.add('dropdown-hidden');
+        }
         function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
 
         function updateHeaderTheme(theme, isScrolled) {
