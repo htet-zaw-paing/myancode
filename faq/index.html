@@ -267,8 +267,8 @@
                         <button onclick="toggleLangDropdown(event)" class="flex items-center transition-colors duration-300 hover:text-myancode-accent group nav-icon text-white"><i data-lucide="globe" class="h-4 w-4 sm:h-5 sm:w-5 group-hover:rotate-45 transition-transform duration-300"></i></button>
                         <div id="langDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-40 bg-[#111]   shadow-xl border border-white/10 py-2 z-50 text-white">
                             <div class="px-4 pb-2 mb-2 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-bold font-mono" data-i18n="langSelect">Language</div>
-                            <button onclick="setLanguage('en')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
-                            <button onclick="setLanguage('mm')" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <a href="?lang=en" onclick="setLanguage('en'); return false;" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">English <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></a>
+                            <a href="?lang=mm" onclick="setLanguage('mm'); return false;" class="w-full text-left px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex justify-between items-center group">မြန်မာ <i data-lucide="check" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i></a>
                         </div>
                     </div>
                     
@@ -970,7 +970,7 @@
                 ftStoreTitle: "စတိုး", ftAddOns: "အပိုပစ္စည်းများ", ftTemplates: "ဝက်ဘ်ဆိုက်များ", ftServices: "ဝန်ဆောင်မှုများ", ftMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
                 ftSupportTitle: "အကူအညီ", supFaq: "အမေးများသောမေးခွန်းများ", supLegal: "တရားဝင်",
                 supPoliciesTitle: "ဝန်ဆောင်မှု မူဝါဒများ", supLegalTitle: "ဥပဒေရေးရာနှင့် ငွေပေးချေမှုများ",
-                polClient: "ဖောက်သည် မူဝါဒ", polStudio: "ပက်ကေ့ချ် မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
+                polClient: "ဝယ်ယူသူ မူဝါဒ", polStudio: "ပက်ကေ့ချ် မူဝါဒ", polTemplate: "ဝက်ဘ်ဆိုက်ပုံစံ မူဝါဒ", polService: "ဝန်ဆောင်မှု မူဝါဒ", polMaintenance: "ထိန်းသိမ်းစောင့်ရှောက်ရေး မူဝါဒ", polPayment: "ငွေပေးချေမှု မူဝါဒ", polRefund: "ငွေပြန်အမ်းရေး မူဝါဒ", polPrivacy: "ကိုယ်ရေးအချက်အလက် မူဝါဒ", polTerms: "ဝန်ဆောင်မှု စည်းမျဉ်းများ",
                 
                 ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။",
                 hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrLogout: "အကောင့်ထွက်ရန်",
@@ -988,7 +988,19 @@
             }
         };
 
-        let currentLang = localStorage.getItem('myancode_lang') || 'en';
+        const requestedLanguage = new URLSearchParams(window.location.search).get('lang');
+        let currentLang = ['en', 'mm'].includes(requestedLanguage) ? requestedLanguage : 'en';
+        if (!requestedLanguage) {
+            try {
+                const savedLanguage = localStorage.getItem('myancode_lang');
+                if (['en', 'mm'].includes(savedLanguage)) currentLang = savedLanguage;
+            } catch (e) {}
+        }
+        if (!requestedLanguage && currentLang === 'mm') {
+            const languageUrl = new URL(window.location.href);
+            languageUrl.searchParams.set('lang', 'mm');
+            history.replaceState(null, '', languageUrl.pathname + languageUrl.search + languageUrl.hash);
+        }
 
         const faqData = [
             { id: "q1", category: "general", 
@@ -1007,7 +1019,7 @@
               q_en: "Where is MyanCode located?", 
               q_mm: "MyanCode ရုံးခန်း ဘယ်မှာရှိသလဲ?", 
               a_en: "<p>We are proudly engineered and headquartered in <strong>Yangon, Myanmar</strong>. However, our digital infrastructure and team operate globally. We provide world-class web solutions to international clients, ensuring high performance regardless of your geographical location.</p>", 
-              a_mm: "<p>ကျွန်ုပ်တို့၏ ရုံးချုပ်သည် <strong>ရန်ကုန်မြို့၊ မြန်မာနိုင်ငံ</strong> တွင် တည်ရှိပါသည်။ သို့သော် ကျွန်ုပ်တို့၏ ဒစ်ဂျစ်တယ်စနစ်များနှင့် အဖွဲ့သားများသည် ကမ္ဘာတစ်ဝှမ်း ချိတ်ဆက်လုပ်ဆောင်နေပြီး၊ နိုင်ငံတကာမှ ဖောက်သည်များအတွက် အကောင်းဆုံးသော ဝန်ဆောင်မှုများကို ပေးဆောင်လျက်ရှိပါသည်။</p>" 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ ရုံးချုပ်သည် <strong>ရန်ကုန်မြို့၊ မြန်မာနိုင်ငံ</strong> တွင် တည်ရှိပါသည်။ သို့သော် ကျွန်ုပ်တို့၏ ဒစ်ဂျစ်တယ်စနစ်များနှင့် အဖွဲ့သားများသည် ကမ္ဘာတစ်ဝှမ်း ချိတ်ဆက်လုပ်ဆောင်နေပြီး၊ နိုင်ငံတကာမှ ဝယ်ယူသူများအတွက် အကောင်းဆုံးသော ဝန်ဆောင်မှုများကို ပေးဆောင်လျက်ရှိပါသည်။</p>" 
             },
             { id: "q4", category: "general", 
               q_en: "How do I create an account?", 
@@ -1165,7 +1177,7 @@
               q_en: "Do I need to provide all the content (text and images)?", 
               q_mm: "ဝက်ဘ်ဆိုက်ထဲထည့်မယ့် စာတွေ၊ ပုံတွေကို ကျွန်တော်တို့ဘက်က ပေးရမှာလား?", 
               a_en: "<p>Typically, clients provide their own branded copy, logos, and product imagery. However, if you lack assets, our team can provide placeholder text and professional stock photography. We can also partner with professional copywriters to help generate your enterprise messaging at an additional cost.</p>", 
-              a_mm: "<p>ပုံမှန်အားဖြင့် ဖောက်သည်များဘက်မှ မိမိလုပ်ငန်း၏ လိုဂိုများ၊ ဓာတ်ပုံများနှင့် အချက်အလက်များကို ပေးပို့ရမည်ဖြစ်ပါသည်။ အကယ်၍ မရှိသေးပါက ကျွန်ုပ်တို့ဘက်မှ အခမဲ့အသုံးပြုနိုင်သော ပုံများနှင့် ယာယီစာသားများကို ထည့်သွင်းပေးထားမည် ဖြစ်ပါသည်။</p>" 
+              a_mm: "<p>ပုံမှန်အားဖြင့် ဝယ်ယူသူများဘက်မှ မိမိလုပ်ငန်း၏ လိုဂိုများ၊ ဓာတ်ပုံများနှင့် အချက်အလက်များကို ပေးပို့ရမည်ဖြစ်ပါသည်။ အကယ်၍ မရှိသေးပါက ကျွန်ုပ်တို့ဘက်မှ အခမဲ့အသုံးပြုနိုင်သော ပုံများနှင့် ယာယီစာသားများကို ထည့်သွင်းပေးထားမည် ဖြစ်ပါသည်။</p>" 
             },
             { id: "q30", category: "studio", 
               q_en: "What happens if I need a new feature months after launch?", 
@@ -1239,7 +1251,7 @@
               q_en: "What payment methods do you accept?", 
               q_mm: "ငွေပေးချေမှုစနစ် ဘာတွေရသလဲ?", 
               a_en: "<p>We support a variety of payment options to accommodate local and international enterprises:</p><ul><li><strong>Local Transfer:</strong> KBZPay, WavePay, AYA Pay, CB Pay.</li><li><strong>Bank Transfer:</strong> Direct bank transfers to our corporate accounts.</li><li><strong>International:</strong> Currently for international cards, we only receive VISA, but we are doing our best to accept other methods soon.</li></ul>", 
-              a_mm: "<p>ပြည်တွင်းနှင့် နိုင်ငံတကာမှ ဖောက်သည်များအတွက် အောက်ပါ ငွေပေးချေမှုစနစ်များကို လက်ခံပါသည်-</p><ul><li><strong>ပြည်တွင်း (Local Transfer):</strong> KBZPay, WavePay, AYA Pay, CB Pay။</li><li><strong>ဘဏ် (Bank Transfer):</strong> ကုမ္ပဏီ ဘဏ်အကောင့်များသို့ တိုက်ရိုက် လွှဲပြောင်းနိုင်ပါသည်။</li><li><strong>နိုင်ငံတကာ (International):</strong> လက်ရှိတွင် နိုင်ငံတကာကတ်များအတွက် VISA ကိုသာ လက်ခံထားပြီး အခြားသော ငွေပေးချေမှုစနစ်များကိုလည်း လက်ခံနိုင်ရန် အကောင်းဆုံး ကြိုးစားဆောင်ရွက်လျက်ရှိပါသည်။</li></ul>" 
+              a_mm: "<p>ပြည်တွင်းနှင့် နိုင်ငံတကာမှ ဝယ်ယူသူများအတွက် အောက်ပါ ငွေပေးချေမှုစနစ်များကို လက်ခံပါသည်-</p><ul><li><strong>ပြည်တွင်း (Local Transfer):</strong> KBZPay, WavePay, AYA Pay, CB Pay။</li><li><strong>ဘဏ် (Bank Transfer):</strong> ကုမ္ပဏီ ဘဏ်အကောင့်များသို့ တိုက်ရိုက် လွှဲပြောင်းနိုင်ပါသည်။</li><li><strong>နိုင်ငံတကာ (International):</strong> လက်ရှိတွင် နိုင်ငံတကာကတ်များအတွက် VISA ကိုသာ လက်ခံထားပြီး အခြားသော ငွေပေးချေမှုစနစ်များကိုလည်း လက်ခံနိုင်ရန် အကောင်းဆုံး ကြိုးစားဆောင်ရွက်လျက်ရှိပါသည်။</li></ul>" 
             },
             { id: "q42", category: "billing", 
               q_en: "How is billing structured for custom Packages projects?", 
@@ -1288,7 +1300,7 @@
               q_en: "Can I use the templates for multiple client projects?", 
               q_mm: "ဝယ်ထားတဲ့ Template ကို တခြား project တွေအတွက် ထပ်သုံးလို့ရလား?", 
               a_en: "<p>Our standard template license allows for <strong>single-project use</strong>. If you are an agency or freelancer wishing to use the same template architecture for multiple clients, you will need to purchase an Extended Agency License. Please contact our support team for bulk or extended licensing options.</p>", 
-              a_mm: "<p>ကျွန်ုပ်တို့၏ ပုံမှန်လိုင်စင်သည် <strong>ပရောဂျက်တစ်ခုအတွက်သာ</strong> အသုံးပြုခွင့်ပေးထားပါသည်။ အကယ်၍ အခြားဖောက်သည်များအတွက် အများအပြား ထပ်မံအသုံးပြုလိုပါက Extended Agency License ကို ဆက်သွယ်ဝယ်ယူရန် လိုအပ်ပါသည်။</p>" 
+              a_mm: "<p>ကျွန်ုပ်တို့၏ ပုံမှန်လိုင်စင်သည် <strong>ပရောဂျက်တစ်ခုအတွက်သာ</strong> အသုံးပြုခွင့်ပေးထားပါသည်။ အကယ်၍ အခြားဝယ်ယူသူများအတွက် အများအပြား ထပ်မံအသုံးပြုလိုပါက Extended Agency License ကို ဆက်သွယ်ဝယ်ယူရန် လိုအပ်ပါသည်။</p>" 
             },
             { id: "q50", category: "services", 
               q_en: "How do I connect my purchased template to my own domain?", 
@@ -1336,7 +1348,7 @@
               q_en: "Can I add team members to my project dashboard?", 
               q_mm: "ကျွန်ုပ်၏ ပရောဂျက် Dashboard သို့ အဖွဲ့ဝင်များ ထပ်မံထည့်သွင်းနိုင်ပါသလား?", 
               a_en: "<p><strong>Yes.</strong> Enterprise clients using our Custom Packages can request multi-user access. We can configure your User Hub to allow invited team members, co-founders, or staff to view project milestones, manage invoices, and communicate with our developers under your primary organization account.</p>", 
-              a_mm: "<p><strong>ရပါသည်။</strong> စိတ်ကြိုက်ရေးဆွဲသော (Custom Packages) ဖောက်သည်များအနေဖြင့် အဖွဲ့ဝင်များ ထပ်မံထည့်သွင်းခွင့် တောင်းခံနိုင်ပါသည်။ သင့်လုပ်ငန်းအကောင့်အောက်တွင် အခြားသော အဖွဲ့ဝင်များ၊ ဝန်ထမ်းများကို ဖိတ်ခေါ်၍ ပရောဂျက်အခြေအနေများကို အတူတကွ စီမံခန့်ခွဲနိုင်ရန် စီစဉ်ပေးပါသည်။</p>" 
+              a_mm: "<p><strong>ရပါသည်။</strong> စိတ်ကြိုက်ရေးဆွဲသော (Custom Packages) ဝယ်ယူသူများအနေဖြင့် အဖွဲ့ဝင်များ ထပ်မံထည့်သွင်းခွင့် တောင်းခံနိုင်ပါသည်။ သင့်လုပ်ငန်းအကောင့်အောက်တွင် အခြားသော အဖွဲ့ဝင်များ၊ ဝန်ထမ်းများကို ဖိတ်ခေါ်၍ ပရောဂျက်အခြေအနေများကို အတူတကွ စီမံခန့်ခွဲနိုင်ရန် စီစဉ်ပေးပါသည်။</p>" 
             },
             { id: "q58", category: "studio", 
               q_en: "What exactly is included in a custom package?", 
@@ -1417,11 +1429,19 @@
             renderFaq(currentFilter);
         }
 
-        function setLanguage(lang) { 
-            currentLang = lang; 
-            try { localStorage.setItem('myancode_lang', currentLang); } catch(e) {}
-            renderLanguage(); 
-            document.getElementById('langDropdown').classList.add('dropdown-hidden'); 
+        function setLanguage(lang) {
+            if (!['en', 'mm'].includes(lang)) return;
+
+            currentLang = lang;
+            try { localStorage.setItem('myancode_lang', currentLang); } catch (e) {}
+
+            const languageUrl = new URL(window.location.href);
+            if (currentLang === 'mm') languageUrl.searchParams.set('lang', 'mm');
+            else languageUrl.searchParams.delete('lang');
+            history.replaceState(null, '', languageUrl.pathname + languageUrl.search + languageUrl.hash);
+
+            renderLanguage();
+            document.getElementById('langDropdown').classList.add('dropdown-hidden');
         }
 
         function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
@@ -1677,7 +1697,7 @@
             { title_en: 'Contact Us', title_mm: 'ဆက်သွယ်ရန်', url: '../contact-us/', icon: 'phone', type: 'Company', desc_en: 'Get in touch with our team', desc_mm: 'ဆက်သွယ်ရန်' },
             { title_en: 'Updates & News', title_mm: 'သတင်းနှင့် အသစ်များ', url: '../updates-news/', icon: 'newspaper', type: 'Company', desc_en: 'Latest announcements', desc_mm: 'နောက်ဆုံးရသတင်းများ' },
             { title_en: 'Careers', title_mm: 'အလုပ်အကိုင်များ', url: '../careers/', icon: 'users', type: 'Company', desc_en: 'Join the MyanCode team', desc_mm: 'အလုပ်အကိုင် အခွင့်အလမ်းများ' },
-            { title_en: 'Customer Policy', title_mm: 'ဖောက်သည် မူဝါဒ', url: '../legal/#client-policy', icon: 'shield', type: 'Policies & Legal', desc_en: 'Rules for our customers', desc_mm: 'ဖောက်သည်များအတွက် စည်းမျဉ်းများ' },
+            { title_en: 'Customer Policy', title_mm: 'ဝယ်ယူသူ မူဝါဒ', url: '../legal/#client-policy', icon: 'shield', type: 'Policies & Legal', desc_en: 'Rules for our customers', desc_mm: 'ဝယ်ယူသူများအတွက် စည်းမျဉ်းများ' },
             { title_en: 'Privacy Policy', title_mm: 'ကိုယ်ရေးအချက်အလက် မူဝါဒ', url: '../legal/#privacy-policy', icon: 'lock', type: 'Policies & Legal', desc_en: 'How we protect your data', desc_mm: 'အချက်အလက် လုံခြုံရေး' },
             { title_en: 'Terms of Service', title_mm: 'ဝန်ဆောင်မှု စည်းမျဉ်းများ', url: '../legal/#terms-of-service', icon: 'file-text', type: 'Policies & Legal', desc_en: 'Usage terms and conditions', desc_mm: 'အသုံးပြုမှု စည်းမျဉ်းများ' },
             { title_en: 'Refund Policy', title_mm: 'ငွေပြန်အမ်းရေး မူဝါဒ', url: '../legal/#refund-policy', icon: 'refresh-ccw', type: 'Policies & Legal', desc_en: 'Our refund guidelines', desc_mm: 'ငွေပြန်အမ်းရေး စည်းမျဉ်းများ' },
