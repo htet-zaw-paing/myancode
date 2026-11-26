@@ -2796,7 +2796,8 @@
                 const userRole = (currentUser.role || 'client').toLowerCase();
                 const badgeSrc = roleBadgesDict[userRole];
                 const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
-                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="role-badge-icon w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" draggable="false" alt="${userRole} verified" title="Verified ${userRole}" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
+                const roleLabel = userRole.charAt(0).toUpperCase() + userRole.slice(1);
+                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="role-badge-icon w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" draggable="false" alt="${roleLabel} badge" title="${roleLabel} badge" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
                 const dashConfig = dashboardConfigs[userRole] || dashboardConfigs['client'];
                 const safeAvatarURL = safeImageURL(currentUser.avatar_url);
                 const avatarIconHTML = safeAvatarURL ? `<img src="${safeAvatarURL}" referrerpolicy="no-referrer" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 text-white"></i>`;
@@ -3879,12 +3880,13 @@
         }
 
         function getRoleBadge(role) {
-            const cleanRole = (role || 'client').toLowerCase(); 
+            const cleanRole = String(role || '').toLowerCase();
             const roleBadgesDict2 = { 'founder': '../imgs/web-banners/founder-badge.png', 'admin': '../imgs/web-banners/verified-admin.png', 'moderator': '../imgs/web-banners/verified-moderator.png', 'partner': '../imgs/web-banners/verified-partner.png', 'developer': '../imgs/web-banners/verified-developer.png', 'client': '' };
             const badgeSrc = roleBadgesDict2[cleanRole];
             if (!badgeSrc) return '';
             const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
-            return `<img src="${badgeSrc}" class="role-badge-icon w-[16px] h-[16px] inline-block ml-1.5 align-middle select-none opacity-90" draggable="false" alt="${cleanRole}" onerror="this.onerror=null; this.src='${fallbackBadge}';">`;
+            const roleLabel = cleanRole.charAt(0).toUpperCase() + cleanRole.slice(1);
+            return `<img src="${badgeSrc}" class="role-badge-icon w-[16px] h-[16px] inline-block ml-1.5 align-middle select-none opacity-90" draggable="false" alt="${roleLabel} badge" title="${roleLabel} badge" onerror="this.onerror=null; this.src='${fallbackBadge}';">`;
         }
 
         function timeAgo(dateParam) {
@@ -4983,33 +4985,34 @@
         async function reportPost(postId) {
             if (!currentUser) { showErrorToast("Please login."); return; }
             const alreadyReportedMessage = "You have already reported this post. Please wait while our team reviews it.";
-            if (reportedPostIds.has(postId) || reportingPostIds.has(postId)) { showToast(alreadyReportedMessage); return; }
-            reportingPostIds.add(postId);
+            const reportPostId = String(postId);
+            if (reportedPostIds.has(reportPostId) || reportingPostIds.has(reportPostId)) { showToast(alreadyReportedMessage); return; }
+            reportingPostIds.add(reportPostId);
             try {
-                const { data: existingReports, error: lookupError } = await supabaseInstance.from('marketplace_reports').select('post_id').eq('post_id', postId).eq('reporter_id', currentUser.id).limit(1);
+                const { data: existingReports, error: lookupError } = await supabaseInstance.from('marketplace_reports').select('post_id').eq('post_id', reportPostId).eq('reporter_id', currentUser.id).limit(1);
                 if (lookupError) throw lookupError;
                 if (existingReports && existingReports.length > 0) {
-                    reportedPostIds.add(postId);
+                    reportedPostIds.add(reportPostId);
                     showToast(alreadyReportedMessage);
                     return;
                 }
                 const reason = await customPrompt("Reason for reporting:", "Spam, inappropriate...", "Report");
                 if (!reason) return;
-                const { error } = await supabaseInstance.from('marketplace_reports').insert([{ post_id: postId, reporter_id: currentUser.id, reason }]);
+                const { error } = await supabaseInstance.from('marketplace_reports').insert([{ post_id: reportPostId, reporter_id: currentUser.id, reason }]);
                 if (error) {
                     if (error.code === '23505' || /duplicate|unique/i.test(error.message || '')) {
-                        reportedPostIds.add(postId);
+                        reportedPostIds.add(reportPostId);
                         showToast(alreadyReportedMessage);
                         return;
                     }
                     throw error;
                 }
-                reportedPostIds.add(postId);
+                reportedPostIds.add(reportPostId);
                 showToast("Report submitted.");
             } catch (error) {
                 showErrorToast("Could not submit your report. Please try again.");
             } finally {
-                reportingPostIds.delete(postId);
+                reportingPostIds.delete(reportPostId);
             }
         }
 
