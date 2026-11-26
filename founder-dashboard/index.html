@@ -4679,10 +4679,14 @@ function moderator_initRealtime() {
                             id, reason, status, created_at, post_id, reporter_id,
                             marketplace_posts!fk_marketplace_reports_post_id ( content, author_name )
                         `).eq('id', payload.new.id).single();
-                        if (data) allReportedPosts.unshift(data);
+                        if (data) {
+                            data.status = data.status || 'pending';
+                            allReportedPosts = [data, ...allReportedPosts.filter(report => report.id !== data.id)];
+                        }
                     } else if (payload.eventType === 'UPDATE') {
                         const idx = allReportedPosts.findIndex(r => r.id === payload.new.id);
-                        if (idx > -1) Object.assign(allReportedPosts[idx], payload.new);
+                        if (idx > -1) Object.assign(allReportedPosts[idx], payload.new, { status: payload.new.status || allReportedPosts[idx].status || 'pending' });
+                        else allReportedPosts.unshift(Object.assign({}, payload.new, { status: payload.new.status || 'pending' }));
                     } else if (payload.eventType === 'DELETE') {
                         allReportedPosts = allReportedPosts.filter(r => r.id !== payload.old.id);
                     }
@@ -4691,7 +4695,9 @@ function moderator_initRealtime() {
                     if (activeView && !activeView.classList.contains('hidden')) moderator_renderReportedPostsTable();
                     moderator_updateOverviewStats();
                 })
-                .subscribe();
+                .subscribe(status => {
+                    if (status === 'SUBSCRIBED') moderator_fetchReportedPosts(true);
+                });
 
             supabaseInstance.channel('moderator_lockouts')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'auth_lockouts' }, payload => {
@@ -6669,7 +6675,7 @@ async function moderator_fetchReportedPosts(isSilent = false) {
                     throw new Error(error.message || "Failed to load reports");
                 }
                 
-                allReportedPosts = data || [];
+                allReportedPosts = (data || []).map(report => Object.assign({}, report, { status: report.status || 'pending' }));
                 moderator_renderReportedPostsTable();
 
             } catch (err) {
@@ -6680,7 +6686,7 @@ async function moderator_fetchReportedPosts(isSilent = false) {
 
 function moderator_renderReportedPostsTable() {
             const tbody = document.getElementById('reportedPostsTableBody');
-            const pendingReports = allReportedPosts.filter(r => r.status === 'pending');
+            const pendingReports = allReportedPosts.filter(r => !r.status || r.status === 'pending');
 
             if (pendingReports.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="check" class="w-6 h-6 text-green-400"></i></div><p class="font-medium">No pending reports.</p><p class="text-xs mt-1 opacity-70">The community is clean.</p></td></tr>';

@@ -29,7 +29,7 @@
     const dict = {
         en: {
             title: "Data Privacy & Cookie Policy",
-            desc: "At MyanCode, we respectfully utilize strictly necessary cookies to ensure the core functionality and security of our platform. With your explicit permission, we also deploy analytical cookies to continuously refine your digital experience and deliver highly tailored enterprise solutions. We hold your data privacy in the highest regard.",
+            desc: "At MyanCode, we use essential cookies to ensure our platform functions securely and reliably. With your consent, we also use analytics cookies to improve our services and user experience. Your privacy matters to us.",
             ess: "Essential Only",
             acc: "Accept All",
             toastEss: "Strictly essential cookies have been saved.",
@@ -37,7 +37,7 @@
         },
         mm: {
             title: "အချက်အလက်လုံခြုံရေးနှင့် ကွတ်ကီးမူဝါဒ",
-            desc: "MyanCode မှ လူကြီးမင်း၏ အသုံးပြုမှု အတွေ့အကြုံကို အကောင်းဆုံးဖြစ်စေရန်နှင့် စနစ်၏ အခြေခံလုပ်ဆောင်ချက်များ လုံခြုံချောမွေ့စေရန် မရှိမဖြစ်လိုအပ်သော ကွတ်ကီးများကို အသုံးပြုပါသည်။ ထို့အပြင် ဝန်ဆောင်မှုများကို ပိုမိုကောင်းမွန်စေရန် လူကြီးမင်း၏ ခွင့်ပြုချက်ဖြင့် အခြားသော ကွတ်ကီးများကိုလည်း စနစ်တကျ အသုံးပြုပါမည်။",
+            desc: "MyanCode တွင် ပလက်ဖောင်း၏ လုံခြုံမှုနှင့် လုပ်ဆောင်ချက်များအတွက် မရှိမဖြစ်လိုအပ်သော Cookies များကို အသုံးပြုပါသည်။ သဘောတူညီချက်ရရှိပါက ဝန်ဆောင်မှုများ ပိုမိုကောင်းမွန်စေရန် Analytics Cookies များကိုလည်း အသုံးပြုပါသည်။ သင့်ကိုယ်ရေးအချက်အလက်များ၏ လုံခြုံမှုကို ကျွန်ုပ်တို့ အလေးထားပါသည်။",
             ess: "အခြေခံလိုအပ်ချက်များသာ",
             acc: "အားလုံးကို လက်ခံမည်",
             toastEss: "အခြေခံ ကွတ်ကီးများကိုသာ မှတ်သားထားပါသည်။",
