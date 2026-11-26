@@ -297,7 +297,7 @@
         .img-grid-1 .grid-img-cell.extreme { aspect-ratio: 1 / 1; object-fit: cover; }
         .grid-img-cell:hover { filter: brightness(1.1); }
         .reaction-button { position: relative; overflow: visible; }
-        .reaction-particle { position: absolute; left: 50%; top: 50%; z-index: 5; color: #ff3b5c; font-size: 12px; line-height: 1; pointer-events: none; animation: reaction-float 650ms cubic-bezier(.16,1,.3,1) forwards; }
+        .reaction-particle { position: absolute; left: var(--reaction-origin-x, 50%); top: var(--reaction-origin-y, 50%); z-index: 5; color: #ff3b5c; font-size: 12px; line-height: 1; pointer-events: none; animation: reaction-float 650ms cubic-bezier(.16,1,.3,1) forwards; }
         @keyframes reaction-float { 0% { opacity: 0; transform: translate(-50%,-30%) scale(.4); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--reaction-x)), calc(-50% + var(--reaction-y))) scale(1.2); } }
         .comment-arrive { animation: comment-arrive 360ms cubic-bezier(.16,1,.3,1) both; }
         @keyframes comment-arrive { from { opacity: 0; transform: translateY(8px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -1972,7 +1972,7 @@
         }
         
         let selectedImages = []; let existingImagesForEdit = []; let allCommunityPosts = []; let currentFilter = 'all';
-        let currentUserPlan = ''; const reportedPostIds = new Set(); const reportingPostIds = new Set();
+        let currentUserPlan = ''; let communityUserPlanBadges = new Map(); const reportedPostIds = new Set(); const reportingPostIds = new Set();
         let currentFilteredPosts = []; let displayedPostsCount = 5; const POSTS_PER_PAGE = 5; let feedObserver = null;
         let activeBioCardId = null; let bioCardsCache = []; let bioDefaultMode = false;
         let activeReplyAuthor = {}; let activeReplyParentId = {};
@@ -2082,33 +2082,85 @@
             return words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join('');
         }
         function generateSmartHashtags(text) {
-            const originalTokens = text.match(/[A-Za-z0-9\u1000-\u109f]+/g) || [];
-            const tokens = originalTokens.map(normalizeHashtagToken);
+            const source = String(text || '').trim();
+            if (!source) return [];
+            const lowerSource = source.toLowerCase();
+            const rawTokens = source.match(/[A-Za-z0-9က-႟]+/g) || [];
+            const tokens = rawTokens.map(normalizeHashtagToken).filter(Boolean);
             const scores = new Map();
             const add = (tag, score) => {
                 const clean = normalizeHashtagToken(tag);
-                if (!clean || HASHTAG_STOP_WORDS.has(clean) || HASHTAG_GENERIC_TERMS.has(clean) || clean.length < 3) return;
+                if (!clean || clean.length < 4 || HASHTAG_STOP_WORDS.has(clean) || HASHTAG_GENERIC_TERMS.has(clean) || /^\d+$/.test(clean)) return;
                 scores.set(clean, (scores.get(clean) || 0) + score);
             };
-            const meaningful = tokens.filter(token => !HASHTAG_STOP_WORDS.has(token) && !HASHTAG_GENERIC_TERMS.has(token) && token.length > 2);
-            const frequencies = {};
-            meaningful.forEach(token => { frequencies[token] = (frequencies[token] || 0) + 1; });
-            Object.entries(frequencies).forEach(([token, count]) => {
-                add(token, 7 + Math.min(5, count * 2));
-                (HASHTAG_EXPANSIONS[token] || []).forEach((tag, index) => add(tag, 3 - index));
-            });
-            for (let index = 0; index < tokens.length;) {
-                if (HASHTAG_STOP_WORDS.has(tokens[index]) || HASHTAG_GENERIC_TERMS.has(tokens[index]) || tokens[index].length <= 2) { index++; continue; }
-                const phrase = [];
-                let cursor = index;
-                while (cursor < tokens.length && phrase.length < 4 && !HASHTAG_STOP_WORDS.has(tokens[cursor]) && !HASHTAG_GENERIC_TERMS.has(tokens[cursor]) && tokens[cursor].length > 2) { phrase.push(tokens[cursor]); cursor++; }
-                if (phrase.length >= 2) add(toHashtagPhrase(phrase.slice(0, 3)), 22 - phrase.length);
-                index = cursor;
+            const meaningful = tokens.filter(token => !HASHTAG_STOP_WORDS.has(token) && !HASHTAG_GENERIC_TERMS.has(token) && token.length >= 4 && !/^\d+$/.test(token));
+            const frequency = new Map();
+            meaningful.forEach(token => frequency.set(token, (frequency.get(token) || 0) + 1));
+            frequency.forEach((count, token) => add(token, Math.min(12, 4 + count * 2)));
+            const phraseTokens = tokens.filter(token => !HASHTAG_STOP_WORDS.has(token) && !HASHTAG_GENERIC_TERMS.has(token) && token.length >= 3);
+            for (let i = 0; i < phraseTokens.length - 1; i++) {
+                const twoWord = phraseTokens.slice(i, i + 2);
+                if (twoWord.every(token => token.length >= 3)) add(toHashtagPhrase(twoWord), 8);
+                if (i < phraseTokens.length - 2) {
+                    const threeWord = phraseTokens.slice(i, i + 3);
+                    if (threeWord.every(token => token.length >= 3)) add(toHashtagPhrase(threeWord), 5);
+                }
             }
-            if (/\b(website|portfolio|homepage|web\s*design)\b/i.test(text)) add('Portfolio', 5);
-            if (/\b(rate|rating|review|feedback)\b/i.test(text)) add('Rating', 5);
-            const ranked = Array.from(scores.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([tag]) => '#' + tag.charAt(0).toUpperCase() + tag.slice(1));
-            return Array.from(new Set(ranked)).slice(0, 10);
+            const topicMap = {
+                web: ['webdevelopment', 'webdesign', 'frontenddevelopment'],
+                website: ['webdevelopment', 'webdesign', 'portfolio'],
+                portfolio: ['webdesign', 'portfoliowebsite'],
+                frontend: ['frontenddevelopment', 'webdevelopment', 'javascript'],
+                backend: ['backenddevelopment', 'softwaredevelopment', 'api'],
+                javascript: ['javascript', 'webdevelopment', 'frontenddevelopment'],
+                react: ['reactjs', 'frontenddevelopment', 'javascript'],
+                typescript: ['typescript', 'webdevelopment', 'frontenddevelopment'],
+                python: ['pythonprogramming', 'softwaredevelopment', 'automation'],
+                coding: ['programming', 'softwaredevelopment', 'webdevelopment'],
+                developer: ['softwaredeveloper', 'webdevelopment', 'programming'],
+                design: ['uidesign', 'uxdesign', 'webdesign'],
+                ui: ['uidesign', 'uxdesign', 'productdesign'],
+                ux: ['uxdesign', 'productdesign', 'uidesign'],
+                marketing: ['digitalmarketing', 'contentmarketing', 'socialmediamarketing'],
+                business: ['entrepreneurship', 'businessgrowth', 'smallbusiness'],
+                startup: ['startup', 'entrepreneurship', 'businessgrowth'],
+                creator: ['contentcreator', 'contentstrategy', 'socialmedia'],
+                education: ['education', 'learning', 'onlinelearning'],
+                career: ['careerdevelopment', 'professionaldevelopment', 'jobsearch'],
+                myanmar: ['myanmarbusiness', 'myanmartalent', 'myanmartech'],
+                community: ['community', 'networking', 'collaboration'],
+                ai: ['artificialintelligence', 'machinelearning', 'generativeai'],
+                data: ['dataanalytics', 'datascience', 'machinelearning'],
+                cloud: ['cloudcomputing', 'devops', 'cloudinfrastructure'],
+                mobile: ['mobiledevelopment', 'appdevelopment', 'technology']
+            };
+            const matchedTopics = new Set();
+            Object.entries(topicMap).forEach(([signal, related]) => {
+                if (new RegExp(`\\b${signal}\\b`, 'i').test(lowerSource)) {
+                    matchedTopics.add(signal);
+                    related.forEach((tag, index) => add(tag, 11 - index * 2));
+                }
+            });
+            Object.entries(HASHTAG_EXPANSIONS).forEach(([signal, related]) => {
+                if (new RegExp(`\\b${signal}\\b`, 'i').test(lowerSource)) related.forEach((tag, index) => add(tag, 6 - index));
+            });
+            if (/\b(website|homepage|portfolio|web\s*design)\b/i.test(source)) add('portfolio', 10);
+            if (/\b(rate|rating|review|feedback|testimonial)\b/i.test(source)) add('feedback', 9);
+            if (/\b(hire|freelance|client|service|available)\b/i.test(source)) add('freelance', 7);
+            if (/\b(tutorial|guide|how\s*to|learn|learning)\b/i.test(source)) add('tutorial', 7);
+            if (/\b(job|hiring|career|opportunity)\b/i.test(source)) add('career', 7);
+            if (matchedTopics.size === 0 && meaningful.length > 0) meaningful.slice(0, 2).forEach(token => add(token, 3));
+            const ranked = Array.from(scores.entries())
+                .filter(([tag]) => tag.length >= 4)
+                .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length || a[0].localeCompare(b[0]))
+                .map(([tag]) => '#' + tag.charAt(0).toUpperCase() + tag.slice(1));
+            const seen = new Set();
+            return ranked.filter(tag => {
+                const key = tag.toLowerCase();
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            }).slice(0, 8);
         }
         function buildHashtags() {
             const text = document.getElementById('hashtagInput').value;
@@ -2263,8 +2315,9 @@
             const linkBtn = (label, url) => { const safeUrl = getSafeSharedCardUrl(url); return safeUrl ? `<a href="${escapeSharedCardHtml(safeUrl)}" target="_blank" rel="noopener" class="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[12px] font-medium text-gray-200 hover:bg-white/10 transition-colors group"><span class="flex items-center gap-2 truncate"><i data-lucide="link" class="w-3.5 h-3.5" style="color:${accent}"></i> ${escapeSharedCardHtml(label)}</span><i data-lucide="external-link" class="w-3.5 h-3.5 text-gray-500 group-hover:text-white transition-colors"></i></a>` : ''; };
             const linksHtml = [['Facebook', data.fb], ['TikTok', data.tt], ['GitHub', data.gh], ['Website', data.web]].map(([label, url]) => linkBtn(label, url)).join('');
             const initials = data.name ? data.name.split(' ').map(word => word.charAt(0)).slice(0, 2).join('').toUpperCase() : '?';
+            const bioPreviewBadges = getUserBadges(currentUser?.role || '', currentUserPlan || communityUserPlanBadges.get(String(currentUser?.id || '')));
             const avatarHtml = safePhoto ? `<img src="${escapeSharedCardHtml(safePhoto)}" alt="${escapeSharedCardHtml(data.name || 'Profile photo')}" class="w-full h-full object-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"> <span class="hidden text-xl font-bold font-mono" style="color:${accent}">${escapeSharedCardHtml(initials)}</span>` : `<span class="text-xl font-bold font-mono" style="color:${accent}">${escapeSharedCardHtml(initials)}</span>`;
-            outputEl.innerHTML = `<div class="flex flex-col items-center text-center w-full" style="--bio-accent:${accent}"><div class="w-16 h-16 rounded-full border flex items-center justify-center mb-3 overflow-hidden" style="background:${accent}22;border-color:${accent}66">${avatarHtml}</div>${data.name ? `<div class="text-white font-bold text-[15px] mb-1">${escapeSharedCardHtml(data.name)}</div>` : ''}${data.tag ? `<div class="text-[12px] font-semibold uppercase tracking-widest mb-3" style="color:${accent}">${escapeSharedCardHtml(data.tag)}</div>` : ''}${data.desc ? `<div class="text-gray-300 text-[13px] leading-relaxed mb-5 max-w-md">${escapeSharedCardHtml(data.desc)}</div>` : ''}${linksHtml ? `<div class="w-full max-w-md space-y-2.5">${linksHtml}</div>` : ''}<div class="mt-5 w-full max-w-md flex gap-3"><button onclick="copyBioText()" class="flex-1 modern-btn-secondary px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Text</button><button onclick="openBioShare()" class="flex-1 px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 text-white" style="background:${accent};border:1px solid ${accent}"><i data-lucide="send" class="w-3.5 h-3.5"></i> Share Card</button></div></div>`;
+            outputEl.innerHTML = `<div class="flex flex-col items-center text-center w-full" style="--bio-accent:${accent}"><div class="w-16 h-16 rounded-full border flex items-center justify-center mb-3 overflow-hidden" style="background:${accent}22;border-color:${accent}66">${avatarHtml}</div>${data.name ? `<div class="text-white font-bold text-[15px] mb-1 inline-flex items-center justify-center gap-1.5">${escapeSharedCardHtml(data.name)}${bioPreviewBadges}</div>` : ''}${data.tag ? `<div class="text-[12px] font-semibold uppercase tracking-widest mb-3" style="color:${accent}">${escapeSharedCardHtml(data.tag)}</div>` : ''}${data.desc ? `<div class="text-gray-300 text-[13px] leading-relaxed mb-5 max-w-md">${escapeSharedCardHtml(data.desc)}</div>` : ''}${linksHtml ? `<div class="w-full max-w-md space-y-2.5">${linksHtml}</div>` : ''}<div class="mt-5 w-full max-w-md flex gap-3"><button onclick="copyBioText()" class="flex-1 modern-btn-secondary px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Text</button><button onclick="openBioShare()" class="flex-1 px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 text-white" style="background:${accent};border:1px solid ${accent}"><i data-lucide="send" class="w-3.5 h-3.5"></i> Share Card</button></div></div>`;
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         function copyBioCard() { copyBioText(); }
@@ -2352,7 +2405,7 @@
             if (data.profile_photo_url && !getBioSafePhoto(data.profile_photo_url)) { showToast('Profile photo must use an http or https URL.'); return; }
             const lines = [data.name, data.tag, data.desc, data.fb, data.tt, data.gh, data.web].filter(Boolean);
             const caption = lines.join(' | ');
-            const url = await createToolShareUrl('bio', { name: data.name, tag: data.tag, desc: data.desc, profile_photo_url: data.profile_photo_url, fb: data.fb, tt: data.tt, gh: data.gh, web: data.web, color: data.color, custom_color: data.custom_color }, 'Bio Link & Share Card', caption);
+            const url = await createToolShareUrl('bio', { name: data.name, tag: data.tag, desc: data.desc, profile_photo_url: data.profile_photo_url, fb: data.fb, tt: data.tt, gh: data.gh, web: data.web, color: data.color, custom_color: data.custom_color, role: currentUser?.role || '', plan: currentUserPlan || communityUserPlanBadges.get(String(currentUser?.id || '')) || '' }, 'Bio Link & Share Card', caption);
             openToolShareModal(url, caption.length > 200 ? caption.substring(0, 200) + '...' : caption, 'Bio Link & Share Card');
         }
 
@@ -2364,16 +2417,16 @@
         }
         
         document.addEventListener('contextmenu', event => {
-            if (event.target.closest('.role-badge-icon')) event.preventDefault();
+            if (event.target.closest('.role-badge-icon, .plan-badge-icon')) event.preventDefault();
         });
         document.addEventListener('dragstart', event => {
-            if (event.target.closest('.role-badge-icon')) event.preventDefault();
+            if (event.target.closest('.role-badge-icon, .plan-badge-icon')) event.preventDefault();
         });
         document.addEventListener('auxclick', event => {
-            if (event.target.closest('.role-badge-icon')) event.preventDefault();
+            if (event.target.closest('.role-badge-icon, .plan-badge-icon')) event.preventDefault();
         });
         document.addEventListener('DOMContentLoaded', () => { 
-            document.querySelectorAll('.role-badge-icon').forEach(icon => {
+            document.querySelectorAll('.role-badge-icon, .plan-badge-icon').forEach(icon => {
                 icon.setAttribute('draggable', 'false');
                 icon.addEventListener('click', event => event.preventDefault());
             });
@@ -2403,6 +2456,7 @@
         async function openDefaultBioCard(data) {
             let savedCard = null;
             if (supabaseInstance && data?.user_id) {
+                await hydrateCommunityUserPlanBadges([data.user_id]);
                 const result = await supabaseInstance.from('bio_share_cards').select('name,tag,description,profile_photo_url,facebook_url,tiktok_url,github_url,website_url,card_color,custom_color,created_at').eq('user_id', data.user_id).order('created_at', { ascending: true }).limit(1).maybeSingle();
                 if (!result.error && result.data) savedCard = result.data;
             }
@@ -2410,6 +2464,7 @@
                 name: savedCard?.name || data?.name || 'Community member',
                 tag: savedCard?.tag || (data?.tag ? String(data.tag).replace(/[_-]+/g, ' ') : 'MyanCode Community Member'),
                 role: data?.role || '',
+                plan: (data?.user_id ? communityUserPlanBadges.get(String(data.user_id)) : '') || data?.plan || '',
                 desc: savedCard?.description || data?.desc || '',
                 profile_photo_url: savedCard?.profile_photo_url || data?.profile_photo_url || '',
                 fb: savedCard?.facebook_url || data?.fb || '',
@@ -2426,7 +2481,7 @@
             const output = document.getElementById('sharedBioCardOutput');
             const name = escapeSharedCardHtml(data.name);
             const tag = escapeSharedCardHtml(data.tag);
-            const roleBadge = getRoleBadge(data.role);
+            const userBadges = getUserBadges(data.role, data.plan);
             const desc = escapeSharedCardHtml(data.desc);
             const accent = getBioAccent({ color: data.color, custom_color: data.custom_color });
             const safePhoto = getBioSafePhoto(data.profile_photo_url);
@@ -2436,7 +2491,7 @@
             }).join('');
             const initials = escapeSharedCardHtml(data.name ? data.name.split(' ').map(word => word.charAt(0)).slice(0, 2).join('').toUpperCase() : '?');
             const avatar = safePhoto ? `<img src="${escapeSharedCardHtml(safePhoto)}" alt="${name || 'Profile photo'}" class="w-full h-full object-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="hidden text-3xl font-bold font-mono" style="color:${accent}">${initials}</span>` : `<span class="text-3xl font-bold font-mono" style="color:${accent}">${initials}</span>`;
-            output.innerHTML = `<div class="flex flex-col items-center text-center" style="--bio-accent:${accent}"><div class="w-24 h-24 rounded-full border flex items-center justify-center mb-5 overflow-hidden" style="background:${accent}22;border-color:${accent}66">${avatar}</div>${name ? `<div class="text-white font-bold text-2xl mb-2 inline-flex items-center justify-center gap-1.5">${name}${roleBadge}</div>` : ''}${tag ? `<div class="text-[11px] font-bold uppercase tracking-[0.2em] mb-5" style="color:${accent}">${tag}</div>` : ''}${desc ? `<div class="text-gray-300 text-sm leading-7 mb-7 max-w-md">${desc}</div>` : ''}${links ? `<div class="w-full max-w-md space-y-3">${links}</div>` : ''}</div>`;
+            output.innerHTML = `<div class="flex flex-col items-center text-center" style="--bio-accent:${accent}"><div class="w-24 h-24 rounded-full border flex items-center justify-center mb-5 overflow-hidden" style="background:${accent}22;border-color:${accent}66">${avatar}</div>${name ? `<div class="text-white font-bold text-2xl mb-2 inline-flex items-center justify-center gap-1.5">${name}${userBadges}</div>` : ''}${tag ? `<div class="text-[11px] font-bold uppercase tracking-[0.2em] mb-5" style="color:${accent}">${tag}</div>` : ''}${desc ? `<div class="text-gray-300 text-sm leading-7 mb-7 max-w-md">${desc}</div>` : ''}${links ? `<div class="w-full max-w-md space-y-3">${links}</div>` : ''}</div>`;
             modal.classList.remove('hidden');
             document.body.classList.add('no-scroll');
             setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('.modal-base').classList.remove('scale-95'); }, 10);
@@ -2490,7 +2545,9 @@
                             role: trueRole,
                             plan: currentUserPlan
                         };
-                        currentUserCart = session.user.user_metadata?.wishlist || []; 
+                        currentUserCart = session.user.user_metadata?.wishlist || [];
+                        await hydrateCommunityUserPlanBadges([currentUser.id]);
+                        currentUserPlan = communityUserPlanBadges.get(String(currentUser.id)) || currentUserPlan;
                         const overlay = document.getElementById('composerOverlay');
                         if (overlay) overlay.classList.add('hidden');
                         
@@ -2797,7 +2854,9 @@
                 const badgeSrc = roleBadgesDict[userRole];
                 const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
                 const roleLabel = userRole.charAt(0).toUpperCase() + userRole.slice(1);
-                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="role-badge-icon w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" draggable="false" alt="${roleLabel} badge" title="${roleLabel} badge" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
+                const badgeHTML = badgeSrc ? `<img src="${badgeSrc}" class="role-badge-icon w-[18px] h-[18px] inline-block ml-2 align-middle select-none drop-shadow-[0_0_8px_rgba(41,151,255,0.4)]" draggable="false" alt="${roleLabel}" title="${roleLabel} badge" onerror="this.onerror=null; this.src='${fallbackBadge}';">` : '';
+                const planBadgeHTML = getPurchasedPlanBadge(currentUserPlan);
+                const combinedProfileBadgeHTML = `${badgeHTML}${planBadgeHTML}`;
                 const dashConfig = dashboardConfigs[userRole] || dashboardConfigs['client'];
                 const safeAvatarURL = safeImageURL(currentUser.avatar_url);
                 const avatarIconHTML = safeAvatarURL ? `<img src="${safeAvatarURL}" referrerpolicy="no-referrer" class="h-6 w-6 sm:h-7 sm:w-7 rounded-full object-cover user-avatar-global border border-white/10">` : `<i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 text-white"></i>`;
@@ -2808,7 +2867,7 @@
                         <button onclick="toggleProfile(event)" class="relative transition-colors duration-300 hover:text-myancode-accent group nav-icon flex items-center justify-center text-white">${avatarIconHTML}</button>
                         <div id="profileDropdown" class="dropdown-menu dropdown-hidden absolute right-0 mt-4 w-56 bg-[#111]   shadow-xl border border-white/10 py-2 z-50 text-white">
                             <div class="px-5 py-3 border-b border-white/10 mb-1 text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center">
-                                <span class="truncate">${escapeHTML(currentUser.name)}</span> ${badgeHTML}
+                                <span class="truncate">${escapeHTML(currentUser.name)}</span> ${combinedProfileBadgeHTML}
                             </div>
                             <a href="${dashConfig.url}" class="w-full text-left px-5 py-3 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors block flex items-center justify-between group/link">
                                 ${dashConfig.label} <i data-lucide="layout-dashboard" class="h-3.5 w-3.5 text-gray-500 group-hover/link:text-white transition-colors"></i>
@@ -3099,30 +3158,40 @@
         }
 
         let scrollFramePending = false;
+        let scrollIdleTimer = null;
+        let lastHeaderScrollState = null;
+        window.isUserScrolling = false;
+        window.pendingFeedSync = null;
         window.addEventListener('scroll', () => {
+            window.isUserScrolling = true;
+            clearTimeout(scrollIdleTimer);
+            scrollIdleTimer = setTimeout(() => {
+                window.isUserScrolling = false;
+                if (window.pendingFeedSync) {
+                    const pendingPosts = window.pendingFeedSync;
+                    window.pendingFeedSync = null;
+                    syncVisibleFeedPosts(pendingPosts);
+                }
+            }, 180);
             if (scrollFramePending) return;
             scrollFramePending = true;
             requestAnimationFrame(() => {
                 scrollFramePending = false;
-                const scrollThreshold = 50;
                 const currentScrollY = window.scrollY;
-                updateHeaderTheme('dark', currentScrollY > scrollThreshold);
+                const isScrolled = currentScrollY > 50;
+                if (lastHeaderScrollState !== isScrolled) {
+                    lastHeaderScrollState = isScrolled;
+                    updateHeaderTheme('dark', isScrolled);
+                }
                 const mobileActionBar = document.getElementById('mobileActionBar');
                 if (mobileActionBar) {
                     const delta = currentScrollY - (window.lastScrollY || 0);
-                    if (currentScrollY < 100) {
-                        mobileActionBar.classList.remove('-translate-y-[150%]');
-                        window.scrollUpAmount = 0;
-                    } else if (delta > 0 && currentScrollY > 150) {
-                        mobileActionBar.classList.add('-translate-y-[150%]');
-                        window.scrollUpAmount = 0;
-                    } else if (delta < 0) {
-                        window.scrollUpAmount = (window.scrollUpAmount || 0) + Math.abs(delta);
-                        if (delta < -15 || window.scrollUpAmount > 50) {
-                            mobileActionBar.classList.remove('-translate-y-[150%]');
-                            window.scrollUpAmount = 0;
-                        }
-                    }
+                    const shouldHide = currentScrollY > 150 && delta > 0;
+                    const shouldShow = currentScrollY < 100 || delta < -15 || (window.scrollUpAmount || 0) > 50;
+                    if (delta < 0) window.scrollUpAmount = (window.scrollUpAmount || 0) + Math.abs(delta);
+                    else if (delta > 0) window.scrollUpAmount = 0;
+                    if (shouldHide) mobileActionBar.classList.add('-translate-y-[150%]');
+                    if (shouldShow) { mobileActionBar.classList.remove('-translate-y-[150%]'); window.scrollUpAmount = 0; }
                 }
                 window.lastScrollY = currentScrollY;
             });
@@ -3879,6 +3948,68 @@
             }
         }
 
+        function normalizePurchasedPlan(plan) {
+            const value = String(plan || '').toLowerCase().trim();
+            if (!value) return '';
+            if (value.includes('ultra')) return 'ultra';
+            if (value.includes('pro')) return 'pro';
+            if (value.includes('plus')) return 'plus';
+            if (value.includes('starter')) return 'starter';
+            return '';
+        }
+
+        async function hydrateCommunityUserPlanBadges(userIds) {
+            if (!supabaseInstance) return;
+            const ids = [...new Set((userIds || []).filter(Boolean).map(id => String(id)))];
+            if (!ids.length) return;
+            try {
+                const { data, error } = await supabaseInstance
+                    .from('plan_orders')
+                    .select('user_id, plan_id, plan_name, expires_at, created_at')
+                    .in('user_id', ids)
+                    .eq('status', 'Confirmed')
+                    .order('created_at', { ascending: false });
+                if (error) return;
+
+                const now = Date.now();
+                const nextPlans = new Map(communityUserPlanBadges);
+                ids.forEach(id => nextPlans.delete(id));
+                (data || []).forEach(order => {
+                    const userId = String(order.user_id || '');
+                    if (!userId || nextPlans.has(userId)) return;
+                    if (order.expires_at) {
+                        const expiryTime = new Date(order.expires_at).getTime();
+                        if (!Number.isFinite(expiryTime) || expiryTime <= now) return;
+                    }
+                    const plan = normalizePurchasedPlan(order.plan_id || order.plan_name);
+                    if (plan) nextPlans.set(userId, plan);
+                });
+                communityUserPlanBadges = nextPlans;
+            } catch (error) {
+                console.warn('Unable to load community purchased-plan badges.', error);
+            }
+        }
+
+        function getPurchasedPlanBadge(plan) {
+            const cleanPlan = normalizePurchasedPlan(plan);
+            if (!cleanPlan) return '';
+            const planBadges = {
+                starter: '../imgs/web-banners/starter-icon.png',
+                plus: '../imgs/web-banners/plus-icon.png',
+                pro: '../imgs/web-banners/pro-icon.png',
+                ultra: '../imgs/web-banners/ultra-icon.png'
+            };
+            const planLabels = { starter: 'Starter', plus: 'Plus', pro: 'Pro', ultra: 'Ultra' };
+            const badgeSrc = planBadges[cleanPlan];
+            const planLabel = planLabels[cleanPlan];
+            const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
+            return `<img src="${badgeSrc}" class="plan-badge-icon w-[16px] h-[16px] inline-block ml-1.5 align-middle select-none opacity-95" draggable="false" alt="${planLabel} plan" title="${planLabel} plan badge" onerror="this.onerror=null; this.src='${fallbackBadge}';">`;
+        }
+
+        function getUserBadges(role, plan) {
+            return `${getRoleBadge(role)}${getPurchasedPlanBadge(plan)}`;
+        }
+
         function getRoleBadge(role) {
             const cleanRole = String(role || '').toLowerCase();
             const roleBadgesDict2 = { 'founder': '../imgs/web-banners/founder-badge.png', 'admin': '../imgs/web-banners/verified-admin.png', 'moderator': '../imgs/web-banners/verified-moderator.png', 'partner': '../imgs/web-banners/verified-partner.png', 'developer': '../imgs/web-banners/verified-developer.png', 'client': '' };
@@ -3886,7 +4017,7 @@
             if (!badgeSrc) return '';
             const fallbackBadge = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232997ff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.88 15.36L6 13.24l1.41-1.41 2.71 2.71 6.47-6.47 1.41 1.41-7.88 7.88z'/%3E%3C/svg%3E";
             const roleLabel = cleanRole.charAt(0).toUpperCase() + cleanRole.slice(1);
-            return `<img src="${badgeSrc}" class="role-badge-icon w-[16px] h-[16px] inline-block ml-1.5 align-middle select-none opacity-90" draggable="false" alt="${roleLabel} badge" title="${roleLabel} badge" onerror="this.onerror=null; this.src='${fallbackBadge}';">`;
+            return `<img src="${badgeSrc}" class="role-badge-icon w-[16px] h-[16px] inline-block ml-1.5 align-middle select-none opacity-90" draggable="false" alt="${roleLabel}" title="${roleLabel} badge" onerror="this.onerror=null; this.src='${fallbackBadge}';">`;
         }
 
         function timeAgo(dateParam) {
@@ -3974,6 +4105,10 @@
         function syncVisibleFeedPosts(posts) {
             const feed = document.getElementById('feedContainer');
             if (!feed) return;
+            if (window.isUserScrolling) {
+                window.pendingFeedSync = posts;
+                return;
+            }
 
             const postsById = new Map(posts.map(post => [String(post.id), post]));
             const cards = feed.querySelectorAll('.post-container[data-post-id]');
@@ -4024,13 +4159,14 @@
 
                     if (!hasActiveInteraction) {
                         const oldTop = card.getBoundingClientRect().top;
+                        const oldHeight = card.getBoundingClientRect().height;
+                        const oldBottom = oldTop + oldHeight;
                         const oldScrollY = window.scrollY;
                         const holder = document.createElement('div');
                         holder.innerHTML = buildPostHTML(post, false);
                         const replacement = holder.firstElementChild;
                         if (replacement) {
                             card.replaceWith(replacement);
-                            const oldBottom = oldTop + card.getBoundingClientRect().height;
                             if (oldTop < window.innerHeight && oldBottom > 0) {
                                 const topDelta = replacement.getBoundingClientRect().top - oldTop;
                                 if (Math.abs(topDelta) > 0.5) window.scrollTo({ top: oldScrollY + topDelta, behavior: 'auto' });
@@ -4056,6 +4192,7 @@
                 const existingPostIds = new Set(allCommunityPosts.map(post => String(post.id)));
                 const newPosts = fetchedData.filter(post => !existingPostIds.has(String(post.id)));
                 allCommunityPosts = sortPostsNewestFirst(fetchedData);
+                await hydrateCommunityUserPlanBadges(allCommunityPosts.map(post => post.user_id));
                 if (newPosts.length > 0) {
                     pendingNewPostCount += newPosts.length;
                     updateNewPostsBanner();
@@ -4090,6 +4227,7 @@
                 const { data, error } = await supabaseInstance.from('marketplace_comments').select('*, marketplace_comment_likes(user_id)').eq('post_id', postId).order('created_at', { ascending: true }); 
                 if (error) return;
                 
+                await hydrateCommunityUserPlanBadges(data.map(comment => comment.user_id));
                 window.currentPostComments = data; const treeContainer = document.getElementById(`modal-comments-tree-${postId}`);
                 if (treeContainer) { if (data.length === 0) treeContainer.innerHTML = `<p class="text-sm text-gray-500 text-center py-10">No comments yet.</p>`; else { treeContainer.innerHTML = renderCommentTree(window.currentPostComments, postId); if (typeof lucide !== 'undefined') lucide.createIcons(); } }
             } catch (e) { console.error(e); }
@@ -4102,6 +4240,7 @@
                 const { data, error } = await supabaseInstance.from('marketplace_comments').select('*, marketplace_comment_likes(user_id)').eq('post_id', postId).order('created_at', { ascending: true }); 
                 if (error) throw error;
                 
+                await hydrateCommunityUserPlanBadges(data.map(comment => comment.user_id));
                 window.inlineCommentsCache[postId] = data;
                 if (data.length === 0) { treeEl.innerHTML = `<p class="text-xs text-gray-500 text-center py-2 uppercase font-bold tracking-widest">No comments yet.</p>`; return; }
                 treeEl.innerHTML = renderCommentTree(window.inlineCommentsCache[postId], postId, true); if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -4498,6 +4637,7 @@
                 const { data, error } = await query; if (error) throw error;
                 let fetchedData = data || [];
                 allCommunityPosts = sortPostsNewestFirst(fetchedData);
+                await hydrateCommunityUserPlanBadges(allCommunityPosts.map(post => post.user_id));
                 pendingNewPostCount = 0;
                 updateNewPostsBanner();
 
@@ -4820,9 +4960,9 @@
             <div class="${isDetailModal ? '' : 'post-card p-6 sm:p-8 relative group post-container'}" data-post-id="${isDetailModal ? '' : post.id}" data-post-updated-at="${isDetailModal ? '' : (post.updated_at || post.created_at || '')}">
                 <div class="flex justify-between items-start mb-6">
                     <div class="flex items-center gap-4">
-                        <button type="button" aria-label="Open ${escapeHTML(post.author_name)} profile card" onclick="openDefaultBioCard(${escapeJSArg({user_id: post.user_id, name: post.author_name, profile_photo_url: post.author_avatar, tag: post.author_role ? post.author_role : '', role: post.author_role || ''})})" class="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#1a1d24] cursor-pointer hover:border-myancode-accent transition-colors">${avatar}</button>
+                        <button type="button" aria-label="Open ${escapeHTML(post.author_name)} profile card" onclick="openDefaultBioCard(${escapeJSArg({user_id: post.user_id, name: post.author_name, profile_photo_url: post.author_avatar, tag: post.author_role ? post.author_role : '', role: post.author_role || '', plan: communityUserPlanBadges.get(String(post.user_id)) || ''})})" class="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#1a1d24] cursor-pointer hover:border-myancode-accent transition-colors">${avatar}</button>
                         <div>
-                            <h4 class="text-[15px] font-bold tracking-wide text-white flex items-center">${escapeHTML(post.author_name)} ${getRoleBadge(post.author_role)} ${editedBadge}</h4>
+                            <h4 class="text-[15px] font-bold tracking-wide text-white flex items-center">${escapeHTML(post.author_name)} ${getUserBadges(post.author_role, communityUserPlanBadges.get(String(post.user_id)))} ${editedBadge}</h4>
                             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-1 font-mono">${dateStr}</p>
                             ${isCodePost ? `<button type="button" class="post-code-filter-badge" onclick="event.stopPropagation(); filterFeed('snippets')" title="Show all posts containing code"><i data-lucide="code-2" class="w-3 h-3"></i><span>Code post</span></button>` : ''}
                         </div>
@@ -4861,20 +5001,58 @@
         function togglePostOptions(targetId, event) { if (event) { event.preventDefault(); event.stopPropagation(); } document.querySelectorAll('[id^="opts-"]').forEach(m => { if (m.id !== targetId) m.classList.add('hidden'); }); const el = document.getElementById(targetId); if(el) el.classList.toggle('hidden'); }
         document.addEventListener('click', (e) => { if (!e.target.closest('button[onclick^="togglePostOptions"]')) document.querySelectorAll('[id^="opts-"]').forEach(m => m.classList.add('hidden')); });
 
+        let interactionAudioContext = null;
+        function playInteractionSound(type = 'default') {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                if (!interactionAudioContext) interactionAudioContext = new AudioContextClass();
+                if (interactionAudioContext.state === 'suspended') interactionAudioContext.resume();
+                const tones = type === 'reaction' ? [520, 720] : type === 'comment' ? [330, 440, 560] : [660];
+                const start = interactionAudioContext.currentTime;
+                tones.forEach((frequency, index) => {
+                    const oscillator = interactionAudioContext.createOscillator();
+                    const gain = interactionAudioContext.createGain();
+                    oscillator.type = type === 'reaction' ? 'sine' : 'triangle';
+                    oscillator.frequency.setValueAtTime(frequency, start + index * 0.045);
+                    gain.gain.setValueAtTime(0.0001, start + index * 0.045);
+                    gain.gain.exponentialRampToValueAtTime(type === 'default' ? 0.018 : 0.026, start + index * 0.045 + 0.012);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, start + index * 0.045 + 0.085);
+                    oscillator.connect(gain).connect(interactionAudioContext.destination);
+                    oscillator.start(start + index * 0.045);
+                    oscillator.stop(start + index * 0.045 + 0.09);
+                });
+            } catch (error) { }
+        }
+        document.addEventListener('click', event => {
+            const interactive = event.target.closest('button, a');
+            if (!interactive || interactive.closest('[data-sound-muted]')) return;
+            const action = interactive.getAttribute('onclick') || '';
+            if (action.includes('toggleLikePost') || action.includes("animateReaction(this, 'like')")) playInteractionSound('reaction');
+            else if (action.includes('toggleCommentsInline') || action.includes("animateReaction(this, 'comment')") || action.includes('postComment')) playInteractionSound('comment');
+            else playInteractionSound('default');
+        }, { passive: true });
         function animateReaction(button, type = 'like') {
             if (!button) return;
             const icon = button.querySelector('svg, i');
-            if (icon && typeof icon.animate === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                icon.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.38) rotate(-10deg)' }, { transform: 'scale(1)' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.2,1)' });
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (icon && typeof icon.animate === 'function' && !reducedMotion) {
+                icon.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.34) rotate(-8deg)' }, { transform: 'scale(1)' }], { duration: 360, easing: 'cubic-bezier(.16,1,.3,1)' });
             }
-            if (type !== 'like' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            if (type !== 'like' || reducedMotion) return;
+            const buttonRect = button.getBoundingClientRect();
+            const iconRect = icon ? icon.getBoundingClientRect() : buttonRect;
+            const originX = iconRect.left - buttonRect.left + iconRect.width / 2;
+            const originY = iconRect.top - buttonRect.top + iconRect.height / 2;
             for (let i = 0; i < 6; i++) {
                 const particle = document.createElement('span');
                 const angle = (Math.PI * 2 * i / 6) - Math.PI / 2;
-                const distance = 22 + Math.random() * 12;
+                const distance = 14 + Math.random() * 8;
                 particle.className = 'reaction-particle';
                 particle.setAttribute('aria-hidden', 'true');
                 particle.textContent = '♥';
+                particle.style.setProperty('--reaction-origin-x', `${originX}px`);
+                particle.style.setProperty('--reaction-origin-y', `${originY}px`);
                 particle.style.setProperty('--reaction-x', `${Math.cos(angle) * distance}px`);
                 particle.style.setProperty('--reaction-y', `${Math.sin(angle) * distance}px`);
                 button.appendChild(particle);
@@ -5092,7 +5270,7 @@
                 <div class="${avatarSize} rounded-full bg-[#0f1115] border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center mt-1 shadow-inner">${avatar}</div>
                 <div class="flex-1 min-w-0">
                     <div class="${bgClass}   rounded-tl-none px-4 py-3 inline-block max-w-[95%] sm:max-w-[90%] relative shadow-sm">
-                        <span class="font-bold text-gray-300 text-[11px] sm:text-xs mb-1.5 flex items-center gap-1 uppercase tracking-wider">${escapeHTML(c.author_name)} ${getRoleBadge(c.author_role)} <span class="text-gray-500 font-mono tracking-widest ml-3 text-[9px]">${timeAgo(c.created_at)}</span></span>
+                        <span class="font-bold text-gray-300 text-[11px] sm:text-xs mb-1.5 flex items-center gap-1 uppercase tracking-wider">${escapeHTML(c.author_name)} ${getUserBadges(c.author_role, communityUserPlanBadges.get(String(c.user_id)))} <span class="text-gray-500 font-mono tracking-widest ml-3 text-[9px]">${timeAgo(c.created_at)}</span></span>
                         <span class="text-white text-[13px] sm:text-[14px] leading-relaxed break-words font-medium">${safeContent}</span>
                     </div>
                     <div class="flex items-center gap-5 mt-2.5 ml-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
