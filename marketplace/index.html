@@ -2409,6 +2409,7 @@
             const identity = {
                 name: savedCard?.name || data?.name || 'Community member',
                 tag: savedCard?.tag || (data?.tag ? String(data.tag).replace(/[_-]+/g, ' ') : 'MyanCode Community Member'),
+                role: data?.role || '',
                 desc: savedCard?.description || data?.desc || '',
                 profile_photo_url: savedCard?.profile_photo_url || data?.profile_photo_url || '',
                 fb: savedCard?.facebook_url || data?.fb || '',
@@ -2425,6 +2426,7 @@
             const output = document.getElementById('sharedBioCardOutput');
             const name = escapeSharedCardHtml(data.name);
             const tag = escapeSharedCardHtml(data.tag);
+            const roleBadge = getRoleBadge(data.role);
             const desc = escapeSharedCardHtml(data.desc);
             const accent = getBioAccent({ color: data.color, custom_color: data.custom_color });
             const safePhoto = getBioSafePhoto(data.profile_photo_url);
@@ -2434,7 +2436,7 @@
             }).join('');
             const initials = escapeSharedCardHtml(data.name ? data.name.split(' ').map(word => word.charAt(0)).slice(0, 2).join('').toUpperCase() : '?');
             const avatar = safePhoto ? `<img src="${escapeSharedCardHtml(safePhoto)}" alt="${name || 'Profile photo'}" class="w-full h-full object-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="hidden text-3xl font-bold font-mono" style="color:${accent}">${initials}</span>` : `<span class="text-3xl font-bold font-mono" style="color:${accent}">${initials}</span>`;
-            output.innerHTML = `<div class="flex flex-col items-center text-center" style="--bio-accent:${accent}"><div class="w-24 h-24 rounded-full border flex items-center justify-center mb-5 overflow-hidden" style="background:${accent}22;border-color:${accent}66">${avatar}</div>${name ? `<div class="text-white font-bold text-2xl mb-2">${name}</div>` : ''}${tag ? `<div class="text-[11px] font-bold uppercase tracking-[0.2em] mb-5" style="color:${accent}">${tag}</div>` : ''}${desc ? `<div class="text-gray-300 text-sm leading-7 mb-7 max-w-md">${desc}</div>` : ''}${links ? `<div class="w-full max-w-md space-y-3">${links}</div>` : ''}</div>`;
+            output.innerHTML = `<div class="flex flex-col items-center text-center" style="--bio-accent:${accent}"><div class="w-24 h-24 rounded-full border flex items-center justify-center mb-5 overflow-hidden" style="background:${accent}22;border-color:${accent}66">${avatar}</div>${name ? `<div class="text-white font-bold text-2xl mb-2 inline-flex items-center justify-center gap-1.5">${name}${roleBadge}</div>` : ''}${tag ? `<div class="text-[11px] font-bold uppercase tracking-[0.2em] mb-5" style="color:${accent}">${tag}</div>` : ''}${desc ? `<div class="text-gray-300 text-sm leading-7 mb-7 max-w-md">${desc}</div>` : ''}${links ? `<div class="w-full max-w-md space-y-3">${links}</div>` : ''}</div>`;
             modal.classList.remove('hidden');
             document.body.classList.add('no-scroll');
             setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('.modal-base').classList.remove('scale-95'); }, 10);
@@ -4816,7 +4818,7 @@
             <div class="${isDetailModal ? '' : 'post-card p-6 sm:p-8 relative group post-container'}" data-post-id="${isDetailModal ? '' : post.id}" data-post-updated-at="${isDetailModal ? '' : (post.updated_at || post.created_at || '')}">
                 <div class="flex justify-between items-start mb-6">
                     <div class="flex items-center gap-4">
-                        <button type="button" aria-label="Open ${escapeHTML(post.author_name)} profile card" onclick="openDefaultBioCard(${escapeJSArg({user_id: post.user_id, name: post.author_name, profile_photo_url: post.author_avatar, tag: post.author_role ? post.author_role : ''})})" class="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#1a1d24] cursor-pointer hover:border-myancode-accent transition-colors">${avatar}</button>
+                        <button type="button" aria-label="Open ${escapeHTML(post.author_name)} profile card" onclick="openDefaultBioCard(${escapeJSArg({user_id: post.user_id, name: post.author_name, profile_photo_url: post.author_avatar, tag: post.author_role ? post.author_role : '', role: post.author_role || ''})})" class="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#1a1d24] cursor-pointer hover:border-myancode-accent transition-colors">${avatar}</button>
                         <div>
                             <h4 class="text-[15px] font-bold tracking-wide text-white flex items-center">${escapeHTML(post.author_name)} ${getRoleBadge(post.author_role)} ${editedBadge}</h4>
                             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-1 font-mono">${dateStr}</p>
