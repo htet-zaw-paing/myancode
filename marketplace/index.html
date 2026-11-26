@@ -2400,18 +2400,23 @@
                 return null;
             }
         }
-        function openDefaultBioCard(data) {
+        async function openDefaultBioCard(data) {
+            let savedCard = null;
+            if (supabaseInstance && data?.user_id) {
+                const result = await supabaseInstance.from('bio_share_cards').select('name,tag,description,profile_photo_url,facebook_url,tiktok_url,github_url,website_url,card_color,custom_color,created_at').eq('user_id', data.user_id).order('created_at', { ascending: true }).limit(1).maybeSingle();
+                if (!result.error && result.data) savedCard = result.data;
+            }
             const identity = {
-                name: data?.name || 'Community member',
-                tag: data?.tag ? String(data.tag).replace(/[_-]+/g, ' ') : 'MyanCode Community Member',
-                desc: data?.desc || '',
-                profile_photo_url: data?.profile_photo_url || '',
-                fb: data?.fb || '',
-                tt: data?.tt || '',
-                gh: data?.gh || '',
-                web: data?.web || '',
-                color: data?.color || 'blue',
-                custom_color: data?.custom_color || '#3b82f6'
+                name: savedCard?.name || data?.name || 'Community member',
+                tag: savedCard?.tag || (data?.tag ? String(data.tag).replace(/[_-]+/g, ' ') : 'MyanCode Community Member'),
+                desc: savedCard?.description || data?.desc || '',
+                profile_photo_url: savedCard?.profile_photo_url || data?.profile_photo_url || '',
+                fb: savedCard?.facebook_url || data?.fb || '',
+                tt: savedCard?.tiktok_url || data?.tt || '',
+                gh: savedCard?.github_url || data?.gh || '',
+                web: savedCard?.website_url || data?.web || '',
+                color: savedCard?.card_color || data?.color || 'blue',
+                custom_color: savedCard?.custom_color || data?.custom_color || '#3b82f6'
             };
             openSharedBioCard(identity);
         }
@@ -4811,7 +4816,7 @@
             <div class="${isDetailModal ? '' : 'post-card p-6 sm:p-8 relative group post-container'}" data-post-id="${isDetailModal ? '' : post.id}" data-post-updated-at="${isDetailModal ? '' : (post.updated_at || post.created_at || '')}">
                 <div class="flex justify-between items-start mb-6">
                     <div class="flex items-center gap-4">
-                        <button type="button" aria-label="Open ${escapeHTML(post.author_name)} profile card" onclick="openDefaultBioCard(${escapeJSArg({name: post.author_name, profile_photo_url: post.author_avatar, tag: post.author_role ? post.author_role : ''})})" class="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#1a1d24] cursor-pointer hover:border-myancode-accent transition-colors">${avatar}</button>
+                        <button type="button" aria-label="Open ${escapeHTML(post.author_name)} profile card" onclick="openDefaultBioCard(${escapeJSArg({user_id: post.user_id, name: post.author_name, profile_photo_url: post.author_avatar, tag: post.author_role ? post.author_role : ''})})" class="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#1a1d24] cursor-pointer hover:border-myancode-accent transition-colors">${avatar}</button>
                         <div>
                             <h4 class="text-[15px] font-bold tracking-wide text-white flex items-center">${escapeHTML(post.author_name)} ${getRoleBadge(post.author_role)} ${editedBadge}</h4>
                             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-1 font-mono">${dateStr}</p>
