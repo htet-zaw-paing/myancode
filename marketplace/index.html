@@ -161,7 +161,7 @@
     </script>
     
     <style>
-        html, body { width: 100%; position: relative; scroll-behavior: smooth; background-color: #050505; color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: clip; }
+        html, body { width: 100%; position: relative; scroll-behavior: auto; background-color: #050505; color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: clip; }
         body.no-scroll { overflow: hidden !important; touch-action: none; }
         html[lang="mm"] body { font-family: 'Inter', 'Noto Sans Myanmar', sans-serif; font-size: 14px; line-height: 2.2; }
         html[lang="mm"] h1, html[lang="mm"] h2, html[lang="mm"] h3, html[lang="mm"] h4, html[lang="mm"] h5 { font-family: 'Jost', 'Noto Sans Myanmar', sans-serif; }
@@ -288,14 +288,23 @@
         .post-code-operator { color: #ffab70; }
         .editor-content pre { margin: .75rem 0; padding: .75rem 1rem; border: 1px solid rgba(88,166,255,.28); border-radius: 10px; background: #0d1117; color: #c9d1d9; font: 13px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; tab-size: 4; }
         
-        .post-container { content-visibility: auto; contain-intrinsic-size: 400px; }
+        .post-container { overflow-anchor: auto; }
         
         .img-grid-1 { display: block; border-radius: 16px; overflow: hidden; }
         .img-grid-2, .img-grid-3, .img-grid-4, .img-grid-5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); border-radius: 16px; overflow: hidden; gap: 4px; }
-        .grid-img-cell { display: block; width: 100%; height: auto; object-fit: cover; aspect-ratio: 1 / 1; transition: filter 0.3s; cursor: zoom-in; }
-        .img-grid-1 .grid-img-cell { aspect-ratio: auto; object-fit: contain; }
-        .img-grid-1 .grid-img-cell.extreme { aspect-ratio: 1 / 1; object-fit: cover; }
-        .grid-img-cell:hover { filter: brightness(1.1); }
+        .post-image-frame { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #101216; }
+        .post-image-frame .grid-img-cell { display: block; position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .18s ease; cursor: zoom-in; }
+        .post-image-frame .grid-img-cell.is-loaded { opacity: 1; }
+        .img-grid-1 .post-image-frame { aspect-ratio: 1 / 1; }
+        .img-grid-1 .post-image-frame .grid-img-cell { object-fit: contain; }
+        .img-grid-1 .post-image-frame .grid-img-cell.extreme { object-fit: cover; }
+        .post-image-spinner { position: absolute; z-index: 2; width: 28px; height: 28px; border: 2px solid rgba(255,255,255,.18); border-top-color: #2997ff; border-radius: 50%; animation: spin .8s linear infinite; }
+        .post-image-error { display: none; position: absolute; z-index: 3; padding: .5rem .75rem; color: #9ca3af; font-size: 11px; text-align: center; }
+        .post-image-frame.has-error .post-image-error { display: block; }
+        .post-image-frame.has-error .post-image-spinner { display: none; }
+        .post-image-frame.has-error .grid-img-cell { display: none; }
+        .grid-img-cell:hover { filter: brightness(1.05); }
+        @media (prefers-reduced-motion: reduce) { .skeleton, .post-image-spinner { animation: none !important; } }
         .reaction-button { position: relative; overflow: visible; }
         .reaction-particle { position: absolute; left: var(--reaction-origin-x, 50%); top: var(--reaction-origin-y, 50%); z-index: 5; color: #ff3b5c; font-size: 12px; line-height: 1; pointer-events: none; animation: reaction-float 650ms cubic-bezier(.16,1,.3,1) forwards; }
         @keyframes reaction-float { 0% { opacity: 0; transform: translate(-50%,-30%) scale(.4); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--reaction-x)), calc(-50% + var(--reaction-y))) scale(1.2); } }
@@ -451,7 +460,7 @@
             border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 20px;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
             position: relative;
             overflow: hidden;
         }
@@ -461,7 +470,6 @@
             opacity: 0; transition: opacity 0.4s ease;
         }
         .post-card:hover {
-            transform: translateY(-3px);
             border-color: rgba(41, 151, 255, 0.2);
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(41, 151, 255, 0.05);
         }
@@ -1078,7 +1086,7 @@
                     <button onclick="closeAllBottomDrawers(); openBioCard();" class="tool-card-btn w-full flex items-center gap-4 px-5 py-4 bg-gradient-to-br from-[#1a291e] to-[#0f1a12] border border-emerald-500/20   transition-all group text-left">
                         <div class="p-3 bg-emerald-500/10 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-5 h-5 text-emerald-400"></i></div>
                         <div class="flex-1 min-w-0 flex flex-col justify-center gap-1.5">
-                            <span class="tool-title text-[14px] font-bold text-white leading-tight truncate">Bio Link & Share</span>
+                            <span class="tool-title text-[14px] font-bold text-white leading-tight truncate" data-i18n="profileCardShare">Profile Card &amp; Share</span>
                             <span class="tool-badge text-[9px] font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded uppercase tracking-wider w-max">Social Tool</span>
                         </div>
                     </button>
@@ -1135,7 +1143,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
                 </div>
-                <input type="text" id="mobileSearchInput" onkeyup="handleLocalSearch(event)" placeholder="Search posts, tags..." class="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-[13px] text-white placeholder-gray-500 focus:outline-none focus:border-myancode-accent transition-colors" autocomplete="off">
+                <input type="text" id="mobileSearchInput" onkeyup="handleLocalSearch(event)" data-i18n-placeholder="searchMpPlaceholder" placeholder="Search posts, tags..." class="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-full text-[13px] text-white placeholder-gray-500 focus:outline-none focus:border-myancode-accent transition-colors" autocomplete="off">
                 
                 <div id="mobileSearchSuggestions" class="absolute top-full left-0 right-0 mt-2 bg-[#181a20]/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] hidden max-h-60 overflow-y-auto no-scrollbar z-50"></div>
             </div>
@@ -1191,7 +1199,7 @@
                             <button onclick="openBioCard()" class="tool-card-btn w-full flex items-center gap-3.5 px-4 py-3 bg-gradient-to-br from-[#1a291e] to-[#0f1a12] border border-emerald-500/20 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(16,185,129,0.15)] group text-left">
                                 <div class="p-2.5 bg-emerald-500/10 rounded-lg flex-shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="id-card" class="w-4.5 h-4.5 text-emerald-400"></i></div>
                                 <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                                    <span class="tool-title text-[13px] font-bold text-white leading-tight truncate">Bio Link & Share</span>
+                                    <span class="tool-title text-[13px] font-bold text-white leading-tight truncate" data-i18n="profileCardShare">Profile Card &amp; Share</span>
                                     <span class="tool-badge text-[9px] font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded uppercase tracking-wider w-max">Social Tool</span>
                                 </div>
                             </button>
@@ -1275,7 +1283,9 @@
                 </div>
 
                 <button id="newPostsBanner" type="button" onclick="showLatestPosts()" class="hidden w-full mb-5 px-5 py-3 text-center text-[12px] font-bold text-white bg-myancode-blue hover:bg-myancode-accent border border-myancode-accent/30 transition-colors" aria-live="polite"></button>
-                <div id="feedContainer" class="space-y-6">
+                <div id="feedContainer" class="space-y-6" aria-busy="true" aria-label="Loading community posts">
+                    <div class="post-card p-6 sm:p-8 relative overflow-hidden" aria-hidden="true"><div class="flex gap-4 mb-5"><div class="w-11 h-11 rounded-full skeleton"></div><div class="space-y-2.5 flex-1 pt-1"><div class="h-3 skeleton rounded-full w-1/4"></div><div class="h-2 skeleton rounded-full w-1/5"></div></div></div><div class="space-y-3 mb-5"><div class="h-3 skeleton rounded-full w-full"></div><div class="h-3 skeleton rounded-full w-5/6"></div><div class="h-3 skeleton rounded-full w-4/6"></div></div><div class="h-48 skeleton rounded-xl w-full"></div></div>
+                    <div class="post-card p-6 sm:p-8 relative overflow-hidden" aria-hidden="true"><div class="flex gap-4 mb-5"><div class="w-11 h-11 rounded-full skeleton"></div><div class="space-y-2.5 flex-1 pt-1"><div class="h-3 skeleton rounded-full w-1/4"></div><div class="h-2 skeleton rounded-full w-1/5"></div></div></div><div class="space-y-3 mb-5"><div class="h-3 skeleton rounded-full w-full"></div><div class="h-3 skeleton rounded-full w-5/6"></div><div class="h-3 skeleton rounded-full w-4/6"></div></div><div class="h-48 skeleton rounded-xl w-full"></div></div>
                 </div>
             </div>
 
@@ -1284,7 +1294,7 @@
                     <div class="relative w-full z-30">
                         <div class="sidebar-panel p-2 relative flex items-center focus-within:border-myancode-accent/50 transition-colors">
                             <i data-lucide="search" class="w-4.5 h-4.5 text-gray-400 ml-3"></i>
-                            <input type="text" id="localSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-[13px] text-white px-3 py-2 focus:outline-none placeholder-gray-500/80 font-medium" placeholder="Search discussions...">
+                            <input type="text" id="localSearchInput" onkeyup="handleLocalSearch(event)" class="w-full bg-transparent border-none text-[13px] text-white px-3 py-2 focus:outline-none placeholder-gray-500/80 font-medium" data-i18n-placeholder="searchPostsPlaceholder" placeholder="Search discussions...">
                             <button id="clearLocalSearchBtn" onclick="clearSearch()" class="hidden p-1.5 text-gray-400 hover:text-white transition-colors mr-1 rounded-lg hover:bg-white/10 flex-shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
                         </div>
                         <div id="desktopSearchSuggestions" class="absolute top-full left-0 right-0 mt-3 bg-[#181a20]/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] hidden max-h-72 overflow-y-auto no-scrollbar z-50"></div>
@@ -1826,42 +1836,42 @@
         <div class="modal-base w-full max-w-4xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center p-6 border-b border-white/10">
                 <div>
-                    <h4 class="text-[13px] font-bold uppercase tracking-widest text-white flex items-center gap-3"><div class="p-1.5 bg-emerald-500/20 rounded-md"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div> Bio Link & Share Card</h4>
-                    <p class="text-[10px] text-gray-500 mt-2">Create, save, edit, share, and manage your bio cards.</p>
+                    <h4 class="text-[13px] font-bold uppercase tracking-widest text-white flex items-center gap-3"><div class="p-1.5 bg-emerald-500/20 rounded-md"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div> <span data-i18n="profileCardTitle">Profile Card</span></h4>
+                    <p class="text-[10px] text-gray-500 mt-2" data-i18n="profileCardHelp">Create, save, edit, and share your profile card.</p>
                 </div>
                 <button onclick="closeBioCard()" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="p-6 flex-1 overflow-y-auto no-scrollbar grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.85fr)] gap-6">
                 <div class="flex flex-col gap-5">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <input type="text" id="bioNameInput" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="Your name or brand">
-                        <input type="text" id="bioTagInput" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="Tagline (e.g. Full-Stack Developer)">
-                        <input type="url" id="bioProfilePhotoInput" oninput="buildBioCard()" class="w-full sm:col-span-2 bg-white/5 border border-white/10   p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="Profile photo URL (https://...)">
-                        <textarea id="bioDescInput" oninput="buildBioCard()" class="w-full sm:col-span-2 h-24 bg-white/5 border border-white/10   p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors resize-none shadow-inner" placeholder="Short bio (what you do, your skills, what people should check out)..."></textarea>
+                        <input type="text" id="bioNameInput" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" data-i18n-placeholder="profileNamePlaceholder" placeholder="Your name or brand">
+                        <input type="text" id="bioTagInput" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" data-i18n-placeholder="profileTagPlaceholder" placeholder="Tagline (e.g. Full-Stack Developer)">
+                        <input type="url" id="bioProfilePhotoInput" oninput="buildBioCard()" class="w-full sm:col-span-2 bg-white/5 border border-white/10   p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" data-i18n-placeholder="profilePhotoPlaceholder" placeholder="Profile photo URL (https://...)">
+                        <textarea id="bioDescInput" oninput="buildBioCard()" class="w-full sm:col-span-2 h-24 bg-white/5 border border-white/10   p-4 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors resize-none shadow-inner" data-i18n-placeholder="profileBioPlaceholder" placeholder="Short introduction (what you do, your skills, and what people should check out)..."></textarea>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr] gap-4">
-                        <label class="flex flex-col gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">Card color<select id="bioColorInput" onchange="syncBioColorControls(); buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm normal-case tracking-normal text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner"><option value="emerald">Emerald</option><option value="blue">Blue</option><option value="purple">Purple</option><option value="rose">Rose</option><option value="amber">Amber</option><option value="slate">Slate</option><option value="custom">Custom color</option></select></label>
-                        <label id="bioCustomColorWrap" class="hidden flex-col gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">Custom color<input type="color" id="bioCustomColor" value="#10b981" oninput="buildBioCard()" class="w-full h-[48px] bg-white/5 border border-white/10   p-2 cursor-pointer"></label>
+                        <label class="flex flex-col gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500"><span data-i18n="cardColorLabel">Card color</span><select id="bioColorInput" onchange="syncBioColorControls(); buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm normal-case tracking-normal text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner"><option value="emerald">Emerald</option><option value="blue">Blue</option><option value="purple">Purple</option><option value="rose">Rose</option><option value="amber">Amber</option><option value="slate">Slate</option><option value="custom" data-i18n="customColorLabel">Custom color</option></select></label>
+                        <label id="bioCustomColorWrap" class="hidden flex-col gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500"><span data-i18n="customColorLabel">Custom color</span><input type="color" id="bioCustomColor" value="#10b981" oninput="buildBioCard()" class="w-full h-[48px] bg-white/5 border border-white/10   p-2 cursor-pointer"></label>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <input type="url" id="bioFacebook" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="Facebook URL">
-                        <input type="url" id="bioTiktok" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="TikTok URL">
-                        <input type="url" id="bioGithub" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="GitHub URL">
-                        <input type="url" id="bioOther" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" placeholder="Website / Portfolio">
+                        <input type="url" id="bioFacebook" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" data-i18n-placeholder="facebookUrlPlaceholder" placeholder="Facebook URL">
+                        <input type="url" id="bioTiktok" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" data-i18n-placeholder="tiktokUrlPlaceholder" placeholder="TikTok URL">
+                        <input type="url" id="bioGithub" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" data-i18n-placeholder="githubUrlPlaceholder" placeholder="GitHub URL">
+                        <input type="url" id="bioOther" oninput="buildBioCard()" class="w-full bg-white/5 border border-white/10   p-3 text-sm text-gray-200 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner" data-i18n-placeholder="websitePlaceholder" placeholder="Website / Portfolio">
                     </div>
                     <div class="flex flex-wrap justify-end gap-3">
-                        <button id="bioCancelEditButton" onclick="resetBioEditor(true)" class="hidden modern-btn-secondary px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider">New Card</button>
-                        <button onclick="saveBioCard()" class="modern-btn-primary px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i><span id="bioSaveButtonText">Save Card</span></button>
+                        <button id="bioCancelEditButton" onclick="resetBioEditor(true)" class="hidden modern-btn-secondary px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider" data-i18n="newCard">New Card</button>
+                        <button onclick="saveBioCard()" class="modern-btn-primary px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i><span id="bioSaveButtonText" data-i18n="saveCard">Save Card</span></button>
                     </div>
                     <div id="bioSaveStatus" class="text-[11px] text-gray-500 min-h-4"></div>
                     <div class="min-h-[260px] bg-[#050505] border border-white/10   p-5 overflow-auto shadow-inner flex flex-col relative">
                         <div class="absolute top-4 right-4 z-10"><button onclick="copyBioCard()" class="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/10"><i data-lucide="copy" class="w-4 h-4"></i></button></div>
-                        <div id="bioOutput" class="flex-1 flex flex-col"><span class="text-gray-500 text-[13px] italic font-medium m-auto">Fill in your details to build your share card...</span></div>
+                        <div id="bioOutput" class="flex-1 flex flex-col"><span class="text-gray-500 text-[13px] italic font-medium m-auto" data-i18n="buildProfileCardHint">Add your details to preview your profile card.</span></div>
                     </div>
                 </div>
                 <aside class="bg-white/[0.03] border border-white/10   p-4 min-h-[260px]">
-                    <div class="flex items-center justify-between gap-3 mb-4"><div><h5 class="text-[11px] font-bold uppercase tracking-widest text-white">Your saved cards</h5><p class="text-[10px] text-gray-500 mt-1">Select a card to edit, share, or delete it.</p></div><button onclick="loadBioCards()" class="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg border border-white/10" aria-label="Refresh saved cards"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button></div>
-                    <div id="bioCardsList" class="space-y-3"><div class="text-[12px] text-gray-500">Loading saved cards...</div></div>
+                    <div class="flex items-center justify-between gap-3 mb-4"><div><h5 class="text-[11px] font-bold uppercase tracking-widest text-white" data-i18n="yourSavedCards">Your saved cards</h5><p class="text-[10px] text-gray-500 mt-1" data-i18n="savedCardsHelp">Select a card to edit, share, or delete it.</p></div><button onclick="loadBioCards()" class="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg border border-white/10" aria-label="Refresh saved cards"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button></div>
+                    <div id="bioCardsList" class="space-y-3" aria-live="polite"><div class="space-y-3" aria-label="Loading saved cards"><div class="h-20 rounded-xl skeleton"></div><div class="h-20 rounded-xl skeleton"></div></div></div>
                 </aside>
             </div>
         </div>
@@ -1873,11 +1883,11 @@
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-emerald-500/20 rounded-lg"><i data-lucide="id-card" class="w-4 h-4 text-emerald-400"></i></div>
                     <div>
-                        <h4 class="text-[13px] font-bold uppercase tracking-widest text-white">Bio Share Card</h4>
-                        <p class="text-[10px] text-gray-500 mt-1">Read-only shared profile</p>
+                        <h4 class="text-[13px] font-bold uppercase tracking-widest text-white" data-i18n="profileCardTitle">Profile Card</h4>
+                        <p class="text-[10px] text-gray-500 mt-1" data-i18n="sharedProfileCard">Shared profile card</p>
                     </div>
                 </div>
-                <button onclick="closeSharedBioCard()" aria-label="Close shared bio card" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button onclick="closeSharedBioCard()" aria-label="Close profile card" class="text-gray-400 hover:text-white bg-white/5 border border-white/10 rounded-full p-2 transition-colors hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div id="sharedBioCardOutput" class="p-6 sm:p-8"></div>
         </div>
@@ -1916,6 +1926,7 @@
 
     <script>
         function initIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); }
+        function tr(key) { return dict[currentLang]?.[key] || dict.en[key] || key; }
         initIcons();
 
         const dict = {
@@ -1934,7 +1945,8 @@
                 ftFollow: "Follow Us", ftCopyright: "© 2026 MyanCode Inc. All rights reserved.",
                 hdrLogin: "Login", hdrRegister: "Register", hdrProfile: "My Profile", hdrLogout: "Sign Out",
                 msgLoggedOut: "Signed out securely.", loadingInit: "Loading...", msgSubscribedSuccess: "Thank you! You have been successfully subscribed.", msgSubscribedAlready: "This email is already on our newsletter list.",
-                mpMenu: "Community Hub", mpFeed: "Live Feed", mpSaved: "Saved Posts", mpMyPosts: "My Posts", mpRules: "Community Rules", mpTrending: "Trending Tags", mpLoginToPost: "Join the Community", mpPostBtn: "Post", mpPlaceholder: "Share an update, snippet, or ask a question...", mpTopUsers: "Top Engagement", searchMpPlaceholder: "Search posts, tags...", mpSnippets: "Code Snippets", mpQA: "Q&A / Help", mpHotDiscussions: "Hot Discussions"
+                mpMenu: "Community Hub", mpFeed: "Live Feed", mpSaved: "Saved Posts", mpMyPosts: "My Posts", mpRules: "Community Rules", mpTrending: "Trending Tags", mpLoginToPost: "Join the Community", mpPostBtn: "Post", mpPlaceholder: "Share an update, snippet, or ask a question...", mpTopUsers: "Top Engagement", searchMpPlaceholder: "Search posts, tags...", mpSnippets: "Code Snippets", mpQA: "Q&A / Help", mpHotDiscussions: "Hot Discussions",
+                profileCardShare: "Profile Card & Share", copyText: "Copy Text", edited: "Edited", codePost: "Code post", modify: "Modify", remove: "Remove", reportPost: "Report Post", save: "Save", saved: "Saved", responses: "Responses", expandContent: "Expand Content", share: "Share", loadingProfileCard: "Loading profile card", yourSavedCards: "Your saved cards", savedCardsHelp: "Select a card to edit, share, or delete it.", profileCardTitle: "Profile Card", profileCardHelp: "Create, save, edit, and share your profile card.", sharedProfileCard: "Shared profile card", loadingSavedCards: "Loading your saved cards...", noSavedCards: "No saved cards yet. Create your first card.", imageUnavailable: "Image unavailable", loadingMorePosts: "Loading more posts...", noDiscussions: "No discussions found.", loadOlderPosts: "Load older posts", noTrendingTags: "No trending tags.", searchPostsPlaceholder: "Search discussions...", postLoadingLabel: "Loading community posts", newPost: "new post", newPosts: "new posts", showLatest: "available — show latest", feedLoadError: "Couldn't load community posts. Please try again.", feedRetry: "Try loading more posts again", communityMember: "Community member", authenticationRequired: "Sign in required", signInToViewPosts: "Sign in to view and manage your posts and code snippets.", signInToViewSaved: "Sign in to view your saved discussions.", signIn: "Sign in", savedCardsError: "Couldn't load saved cards.", profileNamePlaceholder: "Your name or brand", profileTagPlaceholder: "Tagline (e.g. Full-Stack Developer)", profilePhotoPlaceholder: "Profile photo URL (https://...)", profileBioPlaceholder: "Short introduction (what you do, your skills, and what people should check out)...", cardColorLabel: "Card color", customColorLabel: "Custom color", facebookUrlPlaceholder: "Facebook URL", tiktokUrlPlaceholder: "TikTok URL", githubUrlPlaceholder: "GitHub URL", websitePlaceholder: "Website / Portfolio", newCard: "New Card", saveCard: "Save Card", saveDefaultCard: "Save Default Card", updateCard: "Update Card", identityLinked: "Your name and photo are linked to your community profile.", buildProfileCardHint: "Add your details to preview your profile card.", edit: "Edit", delete: "Delete", untitledCard: "Untitled card", noTagline: "No tagline", loading: "Loading...", saving: "Saving...", savedJustNow: "Saved just now.", updatedJustNow: "Updated just now.", editingSavedCard: "Editing saved card.", profileCardCopied: "Profile card copied!", profileCardCreated: "Profile card created.", profileCardUpdated: "Profile card updated.", profileCardDeleted: "Profile card deleted.", copyFailed: "Couldn't copy. Select the text and copy it manually.", signInToSaveCards: "Sign in to save profile cards.", signInToManageCards: "Sign in to manage profile cards.", addNameOrBio: "Add at least a name or short introduction first.", invalidPhotoUrl: "Profile photo must use an HTTP or HTTPS URL.", unableToSaveCard: "Couldn't save this profile card.", unableToDeleteCard: "Couldn't delete this profile card.", confirmDeleteCard: "Delete this profile card?", btnSubscribe: 'Subscribe', ftAskQ: 'Ask Questions', ftCommunity: 'Community', ftCustomerSupport: 'Customer Support', ftDevelopers: 'Developers', ftDownloadApp: 'Download', ftGetAndroidApp: 'Get Android App', ftGetIosApp: 'Get iOS App', ftMarketplace: 'Marketplace', ftPackages: 'Packages', ftParnters: 'Partners', ftPricing: 'Pricing', ftReport: 'Report', ftStayUpdated: 'Stay Updated', ftStayUpdatedDesc: 'Get the latest templates, updates and offers straight to your inbox.', ftTrust1: 'Trusted by<br>Enterprises', ftTrust2: 'Verified<br>Developers', ftTrust3: '24/7<br>Support', heroDesc2: 'We design and develop high-performance digital platforms built for scalability, reliability, and the evolving demands of modern businesses.', mpUpdateBtn: 'Update', nlPlaceholder: 'Enter your email address', polPackage: 'Package Policy', wishlistTitle: 'Saved Items', fillCardFirst: "Add your details first."
             },
             mm: {
                 navAbout: "ကျွန်ုပ်တို့အကြောင်း", navStudio: "ပက်ကေ့ချ်", navWebsites: "ဝက်ဘ်ဆိုက်များ", navServices: "ဝန်ဆောင်မှုများ", navSupport: "အကူအညီ", navMaintenance: "ပြုပြင်ထိန်းသိမ်းရေး",
@@ -1951,7 +1963,8 @@
                 ftFollow: "နောက်ဆုံးရသတင်းများ", ftCopyright: "© ၂၀၂၆ MyanCode. မူပိုင်ခွင့်များအားလုံးရယူပြီး။",
                 hdrLogin: "အကောင့်ဝင်ရန်", hdrRegister: "အကောင့်ဖွင့်ရန်", hdrProfile: "ကိုယ်ရေးအချက်အလက်", hdrLogout: "အကောင့်ထွက်ရန်",
                 msgLoggedOut: "လုံခြုံစွာ အကောင့်ထွက်ပြီးပါပြီ။", loadingInit: "ကနဦး လုပ်ဆောင်နေပါသည်...", msgSubscribedSuccess: "ကျေးဇူးတင်ပါသည်! သတင်းလွှာကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။", msgSubscribedAlready: "ဤအီးမေးလ်မှာ စာရင်းသွင်းပြီးသား ဖြစ်ပါသည်။",
-                mpMenu: "အသိုက်အဝန်း", mpFeed: "နောက်ဆုံးရ ပို့စ်များ", mpSaved: "သိမ်းထားသော ပို့စ်များ", mpMyPosts: "ကျွန်ုပ်၏ ပို့စ်များ", mpRules: "စည်းမျဉ်းများ", mpTrending: "ရေပန်းစားသော ခေါင်းစဉ်များ", mpLoginToPost: "ပါဝင်ဆွေးနွေးရန် အကောင့်ဝင်ပါ", mpPostBtn: "တင်မည်", mpPlaceholder: "သင့်အကြံဉာဏ်များ၊ မေးခွန်းများကို မျှဝေပါ...", mpTopUsers: "ထိပ်တန်း ပါဝင်သူများ", searchMpPlaceholder: "ပို့စ်များ၊ အမည်များ ရှာဖွေရန်...", mpSnippets: "ကုတ်ဒ်များ", mpQA: "အမေးအဖြေများ", mpHotDiscussions: "ဆွေးနွေးမှုများ"
+                mpMenu: "အသိုက်အဝန်း", mpFeed: "နောက်ဆုံးရ ပို့စ်များ", mpSaved: "သိမ်းထားသော ပို့စ်များ", mpMyPosts: "ကျွန်ုပ်၏ ပို့စ်များ", mpRules: "စည်းမျဉ်းများ", mpTrending: "ရေပန်းစားသော ခေါင်းစဉ်များ", mpLoginToPost: "ပါဝင်ဆွေးနွေးရန် အကောင့်ဝင်ပါ", mpPostBtn: "တင်မည်", mpPlaceholder: "သင့်အကြံဉာဏ်များ၊ မေးခွန်းများကို မျှဝေပါ...", mpTopUsers: "ထိပ်တန်း ပါဝင်သူများ", searchMpPlaceholder: "ပို့စ်များ၊ အမည်များ ရှာဖွေရန်...", mpSnippets: "ကုတ်ဒ်များ", mpQA: "အမေးအဖြေများ", mpHotDiscussions: "ဆွေးနွေးမှုများ",
+                profileCardShare: "ပရိုဖိုင်ကတ်နှင့် မျှဝေခြင်း", copyText: "စာသားကူးယူရန်", edited: "ပြင်ဆင်ပြီး", codePost: "ကုတ်ဒ်ပို့စ်", modify: "ပြင်ဆင်ရန်", remove: "ဖယ်ရှားရန်", reportPost: "ပို့စ်ကို တိုင်ကြားရန်", save: "သိမ်းရန်", saved: "သိမ်းပြီး", responses: "တုံ့ပြန်မှုများ", expandContent: "အကြောင်းအရာကို ဆက်ဖတ်ရန်", share: "မျှဝေရန်", loadingProfileCard: "ပရိုဖိုင်ကတ်ကို ရယူနေပါသည်", yourSavedCards: "သိမ်းထားသော ပရိုဖိုင်ကတ်များ", savedCardsHelp: "ပြင်ဆင်ရန်၊ မျှဝေရန် သို့မဟုတ် ဖျက်ရန် ကတ်တစ်ခုကို ရွေးပါ။", profileCardTitle: "ပရိုဖိုင်ကတ်", profileCardHelp: "သင့်ပရိုဖိုင်ကတ်ကို ဖန်တီး၊ သိမ်းဆည်း၊ ပြင်ဆင်ပြီး မျှဝေနိုင်ပါသည်။", sharedProfileCard: "မျှဝေထားသော ပရိုဖိုင်ကတ်", loadingSavedCards: "သိမ်းထားသော ကတ်များကို ရယူနေပါသည်...", noSavedCards: "သိမ်းထားသော ကတ်မရှိသေးပါ။ ပထမဆုံးကတ်ကို ဖန်တီးပါ။", imageUnavailable: "ပုံကို ဖွင့်မရပါ။", loadingMorePosts: "ပို့စ်များကို ထပ်မံရယူနေပါသည်...", noDiscussions: "ဆွေးနွေးမှု မတွေ့ပါ။", loadOlderPosts: "ပို့စ်အဟောင်းများ ထပ်မံကြည့်ရန်", noTrendingTags: "ရေပန်းစားသော ခေါင်းစဉ် မရှိသေးပါ။", searchPostsPlaceholder: "ဆွေးနွေးမှုများကို ရှာဖွေရန်...", postLoadingLabel: "အသိုက်အဝန်းပို့စ်များကို ရယူနေပါသည်", newPost: "ပို့စ်အသစ်", newPosts: "ပို့စ်အသစ်များ", showLatest: "ရှိပါသည် — နောက်ဆုံးရများကို ကြည့်ရန်", feedLoadError: "အသိုက်အဝန်းပို့စ်များကို ရယူမရပါ။ ထပ်မံကြိုးစားပါ။", feedRetry: "ပို့စ်များကို ထပ်မံရယူရန်", communityMember: "အသိုက်အဝန်းဝင်", authenticationRequired: "အကောင့်ဝင်ရန် လိုအပ်ပါသည်", signInToViewPosts: "သင့်ပို့စ်များနှင့် ကုတ်ဒ်များကို ကြည့်ရှုစီမံရန် အကောင့်ဝင်ပါ။", signInToViewSaved: "သိမ်းထားသော ဆွေးနွေးမှုများကို ကြည့်ရန် အကောင့်ဝင်ပါ။", signIn: "အကောင့်ဝင်ရန်", savedCardsError: "သိမ်းထားသော ကတ်များကို ရယူမရပါ။", profileNamePlaceholder: "သင့်အမည် သို့မဟုတ် အမှတ်တံဆိပ်", profileTagPlaceholder: "ဆောင်ပုဒ် (ဥပမာ - Full-Stack Developer)", profilePhotoPlaceholder: "ပရိုဖိုင်ဓာတ်ပုံ URL (https://...)", profileBioPlaceholder: "မိတ်ဆက်စာတို (သင့်လုပ်ငန်း၊ ကျွမ်းကျင်မှုနှင့် မျှဝေလိုသည့်အရာများ)...", cardColorLabel: "ကတ်အရောင်", customColorLabel: "စိတ်ကြိုက်အရောင်", facebookUrlPlaceholder: "Facebook URL", tiktokUrlPlaceholder: "TikTok URL", githubUrlPlaceholder: "GitHub URL", websitePlaceholder: "ဝဘ်ဆိုက် / Portfolio", newCard: "ကတ်အသစ်", saveCard: "ကတ်သိမ်းမည်", saveDefaultCard: "မူလကတ်သိမ်းမည်", updateCard: "ကတ်ပြင်ဆင်မည်", identityLinked: "သင့်အမည်နှင့် ဓာတ်ပုံကို အသိုက်အဝန်းပရိုဖိုင်နှင့် ချိတ်ဆက်ထားပါသည်။", buildProfileCardHint: "ပရိုဖိုင်ကတ်ကို အစမ်းကြည့်ရန် အချက်အလက်များ ဖြည့်ပါ။", edit: "ပြင်ဆင်ရန်", delete: "ဖျက်ရန်", untitledCard: "အမည်မပေးရသေးသောကတ်", noTagline: "ဆောင်ပုဒ်မရှိ", loading: "ရယူနေပါသည်...", saving: "သိမ်းဆည်းနေပါသည်...", savedJustNow: "ယခုလေးတင် သိမ်းဆည်းပြီးပါပြီ။", updatedJustNow: "ယခုလေးတင် ပြင်ဆင်ပြီးပါပြီ။", editingSavedCard: "သိမ်းထားသောကတ်ကို ပြင်ဆင်နေပါသည်။", profileCardCopied: "ပရိုဖိုင်ကတ်ကို ကူးယူပြီးပါပြီ။", profileCardCreated: "ပရိုဖိုင်ကတ် ဖန်တီးပြီးပါပြီ။", profileCardUpdated: "ပရိုဖိုင်ကတ် ပြင်ဆင်ပြီးပါပြီ။", profileCardDeleted: "ပရိုဖိုင်ကတ် ဖျက်ပြီးပါပြီ။", copyFailed: "ကူးယူမရပါ။ စာသားကို ရွေးချယ်ပြီး ကိုယ်တိုင်ကူးယူပါ။", signInToSaveCards: "ပရိုဖိုင်ကတ်များ သိမ်းရန် အကောင့်ဝင်ပါ။", signInToManageCards: "ပရိုဖိုင်ကတ်များ စီမံရန် အကောင့်ဝင်ပါ။", addNameOrBio: "အမည် သို့မဟုတ် မိတ်ဆက်စာတို အနည်းဆုံးတစ်ခု ဖြည့်ပါ။", invalidPhotoUrl: "ပရိုဖိုင်ဓာတ်ပုံ URL သည် HTTP သို့မဟုတ် HTTPS ဖြစ်ရပါမည်။", unableToSaveCard: "ဤပရိုဖိုင်ကတ်ကို သိမ်းမရပါ။", unableToDeleteCard: "ဤပရိုဖိုင်ကတ်ကို ဖျက်မရပါ။", confirmDeleteCard: "ဤပရိုဖိုင်ကတ်ကို ဖျက်မှာ သေချာပါသလား။", btnSubscribe: 'စာရင်းသွင်းရန်', ftAskQ: 'မေးခွန်းမေးရန်', ftCommunity: 'အသိုက်အဝန်း', ftCustomerSupport: 'ဖောက်သည်အကူအညီ', ftDevelopers: 'ဆော့ဖ်ဝဲဖန်တီးသူများ', ftDownloadApp: 'ဒေါင်းလုဒ်လုပ်ရန်', ftGetAndroidApp: 'Android အက်ပ်ကို ရယူရန်', ftGetIosApp: 'iOS အက်ပ်ကို ရယူရန်', ftMarketplace: 'ဈေးကွက်', ftPackages: 'ပက်ကေ့ချ်များ', ftParnters: 'မိတ်ဖက်များ', ftPricing: 'ဈေးနှုန်းများ', ftReport: 'တိုင်ကြားရန်', ftStayUpdated: 'နောက်ဆုံးရသတင်းများ ရယူပါ', ftStayUpdatedDesc: 'နောက်ဆုံးရ ဝက်ဘ်ဆိုက်ပုံစံများ၊ သတင်းများနှင့် အထူးအစီအစဉ်များကို သင့်အီးမေးလ်ထဲ တိုက်ရိုက်ရယူပါ။', ftTrust1: 'လုပ်ငန်းကြီးများ၏<br>ယုံကြည်မှုရရှိထားသည်', ftTrust2: 'စိစစ်အတည်ပြုထားသော<br>ဆော့ဖ်ဝဲဖန်တီးသူများ', ftTrust3: 'တစ်ပတ် ၇ ရက်၊ ၂၄ နာရီ<br>အကူအညီ', heroDesc2: 'လုပ်ငန်းများ၏ တိုးချဲ့နိုင်မှု၊ ယုံကြည်စိတ်ချရမှုနှင့် ခေတ်မီစီးပွားရေးလိုအပ်ချက်များကို ဖြည့်ဆည်းပေးနိုင်သော ဒစ်ဂျစ်တယ်ပလက်ဖောင်းများကို ဒီဇိုင်းဆွဲ တည်ဆောက်ပေးပါသည်။', mpUpdateBtn: 'ပြင်ဆင်မည်', nlPlaceholder: 'သင့်အီးမေးလ်လိပ်စာ ထည့်ပါ', polPackage: 'ပက်ကေ့ချ် မူဝါဒ', wishlistTitle: 'သိမ်းထားသော ပစ္စည်းများ', fillCardFirst: "အချက်အလက်များကို အရင်ဖြည့်ပါ။"
             }
         };
 
@@ -1973,7 +1986,8 @@
         
         let selectedImages = []; let existingImagesForEdit = []; let allCommunityPosts = []; let currentFilter = 'all';
         let currentUserPlan = ''; let communityUserPlanBadges = new Map(); const reportedPostIds = new Set(); const reportingPostIds = new Set();
-        let currentFilteredPosts = []; let displayedPostsCount = 5; const POSTS_PER_PAGE = 5; let feedObserver = null;
+        let currentFilteredPosts = []; let displayedPostsCount = 5; const POSTS_PER_PAGE = 5; const POSTS_PAGE_SIZE = 15; let feedObserver = null;
+        let hasMorePosts = true; let postsPageLoading = false; let oldestLoadedPostCursor = null; let currentSearchQuery = ''; let profileCardRequestId = 0;
         let activeBioCardId = null; let bioCardsCache = []; let bioDefaultMode = false;
         let activeReplyAuthor = {}; let activeReplyParentId = {};
         window.currentPostComments = []; window.expandedRepliesCount = {};
@@ -2289,8 +2303,8 @@
             setBioFormData({ name: identity.name, tag: '', desc: '', profile_photo_url: identity.profile_photo_url, fb: '', tt: '', gh: '', web: '', color: 'emerald', custom_color: '#10b981' });
             setBioIdentityLock(!isNewCard);
             document.getElementById('bioCancelEditButton').classList.toggle('hidden', !isNewCard);
-            document.getElementById('bioSaveButtonText').textContent = isNewCard ? 'Save Card' : 'Save Default Card';
-            document.getElementById('bioSaveStatus').textContent = isNewCard ? '' : 'Name and profile photo are linked to your community profile.';
+            document.getElementById('bioSaveButtonText').textContent = isNewCard ? tr('saveCard') : tr('saveDefaultCard');
+            document.getElementById('bioSaveStatus').textContent = isNewCard ? '' : tr('identityLinked');
         }
         function openBioCard() {
             const modal = document.getElementById('bioCardModal');
@@ -2309,7 +2323,7 @@
             const data = getBioFormData();
             const outputEl = document.getElementById('bioOutput');
             const hasContent = [data.name, data.tag, data.desc, data.profile_photo_url, data.fb, data.tt, data.gh, data.web].some(Boolean);
-            if (!hasContent) { outputEl.innerHTML = '<span class="text-gray-500 text-[13px] italic font-medium m-auto">Fill in your details to build your share card...</span>'; return; }
+            if (!hasContent) { outputEl.innerHTML = `<span class="text-gray-500 text-[13px] italic font-medium m-auto">${escapeHTML(tr('buildProfileCardHint'))}</span>`; return; }
             const accent = getBioAccent(data);
             const safePhoto = getBioSafePhoto(data.profile_photo_url);
             const linkBtn = (label, url) => { const safeUrl = getSafeSharedCardUrl(url); return safeUrl ? `<a href="${escapeSharedCardHtml(safeUrl)}" target="_blank" rel="noopener" class="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[12px] font-medium text-gray-200 hover:bg-white/10 transition-colors group"><span class="flex items-center gap-2 truncate"><i data-lucide="link" class="w-3.5 h-3.5" style="color:${accent}"></i> ${escapeSharedCardHtml(label)}</span><i data-lucide="external-link" class="w-3.5 h-3.5 text-gray-500 group-hover:text-white transition-colors"></i></a>` : ''; };
@@ -2317,7 +2331,7 @@
             const initials = data.name ? data.name.split(' ').map(word => word.charAt(0)).slice(0, 2).join('').toUpperCase() : '?';
             const bioPreviewBadges = getUserBadges(currentUser?.role || '', currentUserPlan || communityUserPlanBadges.get(String(currentUser?.id || '')));
             const avatarHtml = safePhoto ? `<img src="${escapeSharedCardHtml(safePhoto)}" alt="${escapeSharedCardHtml(data.name || 'Profile photo')}" class="w-full h-full object-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"> <span class="hidden text-xl font-bold font-mono" style="color:${accent}">${escapeSharedCardHtml(initials)}</span>` : `<span class="text-xl font-bold font-mono" style="color:${accent}">${escapeSharedCardHtml(initials)}</span>`;
-            outputEl.innerHTML = `<div class="flex flex-col items-center text-center w-full" style="--bio-accent:${accent}"><div class="w-16 h-16 rounded-full border flex items-center justify-center mb-3 overflow-hidden" style="background:${accent}22;border-color:${accent}66">${avatarHtml}</div>${data.name ? `<div class="text-white font-bold text-[15px] mb-1 inline-flex items-center justify-center gap-1.5">${escapeSharedCardHtml(data.name)}${bioPreviewBadges}</div>` : ''}${data.tag ? `<div class="text-[12px] font-semibold uppercase tracking-widest mb-3" style="color:${accent}">${escapeSharedCardHtml(data.tag)}</div>` : ''}${data.desc ? `<div class="text-gray-300 text-[13px] leading-relaxed mb-5 max-w-md">${escapeSharedCardHtml(data.desc)}</div>` : ''}${linksHtml ? `<div class="w-full max-w-md space-y-2.5">${linksHtml}</div>` : ''}<div class="mt-5 w-full max-w-md flex gap-3"><button onclick="copyBioText()" class="flex-1 modern-btn-secondary px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Text</button><button onclick="openBioShare()" class="flex-1 px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 text-white" style="background:${accent};border:1px solid ${accent}"><i data-lucide="send" class="w-3.5 h-3.5"></i> Share Card</button></div></div>`;
+            outputEl.innerHTML = `<div class="flex flex-col items-center text-center w-full" style="--bio-accent:${accent}"><div class="w-16 h-16 rounded-full border flex items-center justify-center mb-3 overflow-hidden" style="background:${accent}22;border-color:${accent}66">${avatarHtml}</div>${data.name ? `<div class="text-white font-bold text-[15px] mb-1 inline-flex items-center justify-center gap-1.5">${escapeSharedCardHtml(data.name)}${bioPreviewBadges}</div>` : ''}${data.tag ? `<div class="text-[12px] font-semibold uppercase tracking-widest mb-3" style="color:${accent}">${escapeSharedCardHtml(data.tag)}</div>` : ''}${data.desc ? `<div class="text-gray-300 text-[13px] leading-relaxed mb-5 max-w-md">${escapeSharedCardHtml(data.desc)}</div>` : ''}${linksHtml ? `<div class="w-full max-w-md space-y-2.5">${linksHtml}</div>` : ''}<div class="mt-5 w-full max-w-md flex gap-3"><button onclick="copyBioText()" class="flex-1 modern-btn-secondary px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i> ${escapeHTML(tr('copyText'))}</button><button onclick="openBioShare()" class="flex-1 px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 text-white" style="background:${accent};border:1px solid ${accent}"><i data-lucide="send" class="w-3.5 h-3.5"></i> ${escapeHTML(tr('profileCardShare'))}</button></div></div>`;
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         function copyBioCard() { copyBioText(); }
@@ -2331,46 +2345,46 @@
             if (data.tt) lines.push('TikTok: ' + data.tt);
             if (data.gh) lines.push('GitHub: ' + data.gh);
             if (data.web) lines.push('Website: ' + data.web);
-            if (lines.length === 0) { showToast('Fill in your details first!'); return; }
-            navigator.clipboard.writeText(lines.join('\n')).then(() => showToast('Bio card copied!')).catch(() => showToast('Copy failed, select text manually.'));
+            if (lines.length === 0) { showToast(tr('fillCardFirst')); return; }
+            navigator.clipboard.writeText(lines.join('\n')).then(() => showToast(tr('profileCardCopied'))).catch(() => showToast(tr('copyFailed')));
         }
         async function saveBioCard() {
-            if (!supabaseInstance || !currentUser) { showToast('Please sign in to save bio cards.'); return; }
+            if (!supabaseInstance || !currentUser) { showToast(tr('signInToSaveCards')); return; }
             const data = getBioFormData();
-            if (!data.name && !data.desc) { showToast('Add at least a name or short bio first.'); return; }
-            if (data.profile_photo_url && !getBioSafePhoto(data.profile_photo_url)) { showToast('Profile photo must use an http or https URL.'); return; }
+            if (!data.name && !data.desc) { showToast(tr('addNameOrBio')); return; }
+            if (data.profile_photo_url && !getBioSafePhoto(data.profile_photo_url)) { showToast(tr('invalidPhotoUrl')); return; }
             const saveStatus = document.getElementById('bioSaveStatus');
             const isEditing = Boolean(activeBioCardId);
-            saveStatus.textContent = 'Saving...';
+            saveStatus.textContent = tr('saving');
             const record = { user_id: currentUser.id, name: data.name, tag: data.tag, description: data.desc, profile_photo_url: data.profile_photo_url || null, facebook_url: data.fb || null, tiktok_url: data.tt || null, github_url: data.gh || null, website_url: data.web || null, card_color: data.color || 'emerald', custom_color: data.color === 'custom' ? data.custom_color : null };
             const result = isEditing ? await supabaseInstance.from('bio_share_cards').update(record).eq('id', activeBioCardId).eq('user_id', currentUser.id).select().single() : await supabaseInstance.from('bio_share_cards').insert(record).select().single();
-            if (result.error) { saveStatus.textContent = ''; showToast('Unable to save this bio card.'); return; }
+            if (result.error) { saveStatus.textContent = ''; showToast(tr('unableToSaveCard')); return; }
             activeBioCardId = result.data.id;
             document.getElementById('bioCancelEditButton').classList.remove('hidden');
-            document.getElementById('bioSaveButtonText').textContent = 'Update Card';
-            saveStatus.textContent = isEditing ? 'Updated just now.' : 'Saved just now.';
+            document.getElementById('bioSaveButtonText').textContent = tr('updateCard');
+            saveStatus.textContent = isEditing ? tr('updatedJustNow') : tr('savedJustNow');
             await loadBioCards();
-            showToast(isEditing ? 'Bio card updated.' : 'Bio card created.');
+            showToast(isEditing ? tr('profileCardUpdated') : tr('profileCardCreated'));
         }
         async function loadBioCards() {
             const list = document.getElementById('bioCardsList');
             if (!list) return;
-            if (!supabaseInstance || !currentUser) { list.innerHTML = '<div class="text-[12px] text-gray-500">Sign in to save and manage your cards.</div>'; return; }
-            list.innerHTML = '<div class="text-[12px] text-gray-500">Loading saved cards...</div>';
+            if (!supabaseInstance || !currentUser) { list.innerHTML = `<div class="text-[12px] text-gray-500">${escapeHTML(tr('signInToManageCards'))}</div>`; return; }
+            list.innerHTML = `<div class="space-y-3" aria-label="${escapeHTML(tr('loadingSavedCards'))}" aria-busy="true"><div class="h-20 rounded-xl skeleton"></div><div class="h-20 rounded-xl skeleton"></div></div>`;
             const { data, error } = await supabaseInstance.from('bio_share_cards').select('id,name,tag,description,profile_photo_url,card_color,custom_color,facebook_url,tiktok_url,github_url,website_url,created_at,updated_at').eq('user_id', currentUser.id).order('updated_at', { ascending: false });
-            if (error) { list.innerHTML = '<div class="text-[12px] text-red-400">Unable to load saved cards.</div>'; return; }
+            if (error) { list.innerHTML = `<div class="text-[12px] text-red-400">${escapeHTML(tr('savedCardsError'))}</div>`; return; }
             bioCardsCache = data || [];
             renderBioCards();
         }
         function renderBioCards() {
             const list = document.getElementById('bioCardsList');
             if (!list) return;
-            if (!bioCardsCache.length) { list.innerHTML = '<div class="text-[12px] text-gray-500 border border-dashed border-white/10 rounded-xl p-4">No saved cards yet. Create your first card on the left.</div>'; return; }
+            if (!bioCardsCache.length) { list.innerHTML = `<div class="text-[12px] text-gray-500 border border-dashed border-white/10 rounded-xl p-4">${escapeHTML(tr('noSavedCards'))}</div>`; return; }
             list.innerHTML = bioCardsCache.map(card => {
                 const accent = getBioAccent({ color: card.card_color, custom_color: card.custom_color });
                 const safePhoto = getBioSafePhoto(card.profile_photo_url);
                 const avatar = safePhoto ? `<img src="${escapeSharedCardHtml(safePhoto)}" class="w-10 h-10 rounded-full object-cover border" style="border-color:${accent}66" alt="">` : `<div class="w-10 h-10 rounded-full flex items-center justify-center border text-[11px] font-bold" style="background:${accent}22;border-color:${accent}66;color:${accent}">${escapeSharedCardHtml((card.name || '?').split(' ').map(word => word.charAt(0)).slice(0, 2).join('').toUpperCase())}</div>`;
-                return `<div class="rounded-xl border border-white/10 bg-black/20 p-3"><div class="flex items-center gap-3">${avatar}<div class="min-w-0 flex-1"><div class="text-[12px] font-semibold text-white truncate">${escapeSharedCardHtml(card.name || 'Untitled card')}</div><div class="text-[10px] text-gray-500 truncate">${escapeSharedCardHtml(card.tag || card.description || 'No tagline')}</div></div></div><div class="flex flex-wrap gap-2 mt-3"><button onclick="editBioCard('${escapeSharedCardHtml(card.id)}')" class="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-gray-300 hover:text-white">Edit</button><button onclick="shareSavedBioCard('${escapeSharedCardHtml(card.id)}')" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-white" style="background:${accent}">Share</button><button onclick="deleteBioCard('${escapeSharedCardHtml(card.id)}')" class="px-2.5 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-300 hover:bg-red-500/20">Delete</button></div></div>`;
+                return `<div class="rounded-xl border border-white/10 bg-black/20 p-3"><div class="flex items-center gap-3">${avatar}<div class="min-w-0 flex-1"><div class="text-[12px] font-semibold text-white truncate">${escapeSharedCardHtml(card.name || tr('untitledCard'))}</div><div class="text-[10px] text-gray-500 truncate">${escapeSharedCardHtml(card.tag || card.description || tr('noTagline'))}</div></div></div><div class="flex flex-wrap gap-2 mt-3"><button onclick="editBioCard('${escapeSharedCardHtml(card.id)}')" class="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-gray-300 hover:text-white">${escapeHTML(tr('edit'))}</button><button onclick="shareSavedBioCard('${escapeSharedCardHtml(card.id)}')" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-white" style="background:${accent}">${escapeHTML(tr('share'))}</button><button onclick="deleteBioCard('${escapeSharedCardHtml(card.id)}')" class="px-2.5 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-300 hover:bg-red-500/20">${escapeHTML(tr('delete'))}</button></div></div>`;
             }).join('');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
@@ -2382,31 +2396,31 @@
             setBioIdentityLock(false);
             setBioFormData({ name: card.name, tag: card.tag, desc: card.description, profile_photo_url: card.profile_photo_url, fb: card.facebook_url, tt: card.tiktok_url, gh: card.github_url, web: card.website_url, color: card.card_color, custom_color: card.custom_color });
             document.getElementById('bioCancelEditButton').classList.remove('hidden');
-            document.getElementById('bioSaveButtonText').textContent = 'Update Card';
-            document.getElementById('bioSaveStatus').textContent = 'Editing saved card.';
+            document.getElementById('bioSaveButtonText').textContent = tr('updateCard');
+            document.getElementById('bioSaveStatus').textContent = tr('editingSavedCard');
         }
         async function shareSavedBioCard(id) {
             editBioCard(id);
             await openBioShare();
         }
         async function deleteBioCard(id) {
-            if (!supabaseInstance || !currentUser) { showToast('Please sign in to manage bio cards.'); return; }
+            if (!supabaseInstance || !currentUser) { showToast(tr('signInToManageCards')); return; }
             const card = bioCardsCache.find(item => item.id === id);
-            if (!card || !window.confirm('Delete this bio share card?')) return;
+            if (!card || !window.confirm(tr('confirmDeleteCard'))) return;
             const { error } = await supabaseInstance.from('bio_share_cards').delete().eq('id', id).eq('user_id', currentUser.id);
-            if (error) { showToast('Unable to delete this bio card.'); return; }
+            if (error) { showToast(tr('unableToDeleteCard')); return; }
             if (activeBioCardId === id) resetBioEditor(false);
             await loadBioCards();
-            showToast('Bio card deleted.');
+            showToast(tr('profileCardDeleted'));
         }
         async function openBioShare() {
             const data = getBioFormData();
-            if (!data.name && !data.desc) { showToast('Fill in your details first!'); return; }
-            if (data.profile_photo_url && !getBioSafePhoto(data.profile_photo_url)) { showToast('Profile photo must use an http or https URL.'); return; }
+            if (!data.name && !data.desc) { showToast(tr('fillCardFirst')); return; }
+            if (data.profile_photo_url && !getBioSafePhoto(data.profile_photo_url)) { showToast(tr('invalidPhotoUrl')); return; }
             const lines = [data.name, data.tag, data.desc, data.fb, data.tt, data.gh, data.web].filter(Boolean);
             const caption = lines.join(' | ');
-            const url = await createToolShareUrl('bio', { name: data.name, tag: data.tag, desc: data.desc, profile_photo_url: data.profile_photo_url, fb: data.fb, tt: data.tt, gh: data.gh, web: data.web, color: data.color, custom_color: data.custom_color, role: currentUser?.role || '', plan: currentUserPlan || communityUserPlanBadges.get(String(currentUser?.id || '')) || '' }, 'Bio Link & Share Card', caption);
-            openToolShareModal(url, caption.length > 200 ? caption.substring(0, 200) + '...' : caption, 'Bio Link & Share Card');
+            const url = await createToolShareUrl('bio', { name: data.name, tag: data.tag, desc: data.desc, profile_photo_url: data.profile_photo_url, fb: data.fb, tt: data.tt, gh: data.gh, web: data.web, color: data.color, custom_color: data.custom_color, role: currentUser?.role || '', plan: currentUserPlan || communityUserPlanBadges.get(String(currentUser?.id || '')) || '' }, tr('profileCardShare'), caption);
+            openToolShareModal(url, caption.length > 200 ? caption.substring(0, 200) + '...' : caption, tr('profileCardShare'));
         }
 
         function toggleTheme() {
@@ -2453,30 +2467,49 @@
                 return null;
             }
         }
+        function showProfileCardSkeleton() {
+            const modal = document.getElementById('sharedBioCardModal');
+            const output = document.getElementById('sharedBioCardOutput');
+            if (!modal || !output) return;
+            output.innerHTML = `<div class="flex flex-col items-center text-center" aria-label="${escapeHTML(tr('loadingProfileCard'))}" aria-busy="true"><div class="w-24 h-24 rounded-full skeleton mb-5"></div><div class="h-5 w-40 skeleton rounded-full mb-3"></div><div class="h-3 w-28 skeleton rounded-full mb-6"></div><div class="w-full max-w-md space-y-3"><div class="h-12 skeleton rounded-xl"></div><div class="h-12 skeleton rounded-xl"></div></div><p class="sr-only">${escapeHTML(tr('loadingProfileCard'))}</p></div>`;
+            modal.classList.remove('hidden');
+            document.body.classList.add('no-scroll');
+            setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('.modal-base').classList.remove('scale-95'); }, 10);
+        }
+
         async function openDefaultBioCard(data) {
-            let savedCard = null;
-            if (supabaseInstance && data?.user_id) {
-                await hydrateCommunityUserPlanBadges([data.user_id]);
-                const result = await supabaseInstance.from('bio_share_cards').select('name,tag,description,profile_photo_url,facebook_url,tiktok_url,github_url,website_url,card_color,custom_color,created_at').eq('user_id', data.user_id).order('created_at', { ascending: true }).limit(1).maybeSingle();
-                if (!result.error && result.data) savedCard = result.data;
+            const requestId = ++profileCardRequestId;
+            showProfileCardSkeleton();
+            try {
+                let savedCard = null;
+                if (supabaseInstance && data?.user_id) {
+                    const [, result] = await Promise.all([
+                        hydrateCommunityUserPlanBadges([data.user_id]),
+                        supabaseInstance.from('bio_share_cards').select('name,tag,description,profile_photo_url,facebook_url,tiktok_url,github_url,website_url,card_color,custom_color,created_at').eq('user_id', data.user_id).order('created_at', { ascending: true }).limit(1).maybeSingle()
+                    ]);
+                    if (!result.error && result.data) savedCard = result.data;
+                }
+                if (requestId !== profileCardRequestId) return;
+                const identity = {
+                    name: savedCard?.name || data?.name || tr('communityMember'),
+                    tag: savedCard?.tag || (data?.tag ? String(data.tag).replace(/[_-]+/g, ' ') : tr('communityMember')),
+                    role: data?.role || '',
+                    plan: (data?.user_id ? communityUserPlanBadges.get(String(data.user_id)) : '') || data?.plan || '',
+                    desc: savedCard?.description || data?.desc || '',
+                    profile_photo_url: savedCard?.profile_photo_url || data?.profile_photo_url || '',
+                    fb: savedCard?.facebook_url || data?.fb || '', tt: savedCard?.tiktok_url || data?.tt || '',
+                    gh: savedCard?.github_url || data?.gh || '', web: savedCard?.website_url || data?.web || '',
+                    color: savedCard?.card_color || data?.color || 'blue',
+                    custom_color: savedCard?.custom_color || data?.custom_color || '#3b82f6'
+                };
+                openSharedBioCard(identity);
+            } catch (error) {
+                if (requestId !== profileCardRequestId) return;
+                openSharedBioCard({ name: data?.name || tr('communityMember'), tag: data?.tag || tr('communityMember'), role: data?.role || '', plan: data?.plan || '', profile_photo_url: data?.profile_photo_url || '', color: 'blue', custom_color: '#3b82f6' });
             }
-            const identity = {
-                name: savedCard?.name || data?.name || 'Community member',
-                tag: savedCard?.tag || (data?.tag ? String(data.tag).replace(/[_-]+/g, ' ') : 'MyanCode Community Member'),
-                role: data?.role || '',
-                plan: (data?.user_id ? communityUserPlanBadges.get(String(data.user_id)) : '') || data?.plan || '',
-                desc: savedCard?.description || data?.desc || '',
-                profile_photo_url: savedCard?.profile_photo_url || data?.profile_photo_url || '',
-                fb: savedCard?.facebook_url || data?.fb || '',
-                tt: savedCard?.tiktok_url || data?.tt || '',
-                gh: savedCard?.github_url || data?.gh || '',
-                web: savedCard?.website_url || data?.web || '',
-                color: savedCard?.card_color || data?.color || 'blue',
-                custom_color: savedCard?.custom_color || data?.custom_color || '#3b82f6'
-            };
-            openSharedBioCard(identity);
         }
         function openSharedBioCard(data) {
+            profileCardRequestId++;
             const modal = document.getElementById('sharedBioCardModal');
             const output = document.getElementById('sharedBioCardOutput');
             const name = escapeSharedCardHtml(data.name);
@@ -2498,6 +2531,7 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         function closeSharedBioCard() {
+            profileCardRequestId++;
             const modal = document.getElementById('sharedBioCardModal');
             modal.classList.add('opacity-0');
             modal.querySelector('.modal-base').classList.add('scale-95');
@@ -2823,7 +2857,17 @@
 
         function setLanguage(lang) {
             currentLang = lang; localStorage.setItem('myancode_lang', currentLang);
-            renderLanguage(); document.getElementById('langDropdown').classList.add('dropdown-hidden');
+            renderLanguage();
+            const saveLabel = document.getElementById('bioSaveButtonText');
+            if (saveLabel) saveLabel.textContent = activeBioCardId ? tr('updateCard') : (bioDefaultMode ? tr('saveDefaultCard') : tr('saveCard'));
+            document.querySelectorAll('.post-time-label[data-created-at]').forEach(label => { label.textContent = timeAgo(label.dataset.createdAt); });
+            const savedCards = document.getElementById('bioCardsList');
+            if (savedCards && !document.getElementById('bioCardModal')?.classList.contains('hidden')) renderBioCards();
+            updateNewPostsBanner();
+            const feed = document.getElementById('feedContainer');
+            const hasRenderedPost = !!feed?.querySelector('.post-container[data-post-id]');
+            if (!postsPageLoading && !hasRenderedPost) applyFiltersAndRenderVisible();
+            document.getElementById('langDropdown').classList.add('dropdown-hidden');
         }
 
         function toggleLanguageMobile() { setLanguage(currentLang === 'en' ? 'mm' : 'en'); }
@@ -4021,8 +4065,27 @@
         }
 
         function timeAgo(dateParam) {
-            if (!dateParam) return null; const date = typeof dateParam === 'object' ? dateParam : new Date(dateParam); const today = new Date(); const seconds = Math.round((today - date) / 1000); const minutes = Math.round(seconds / 60); const isItToday = today.toDateString() === date.toDateString();
-            if (seconds < 5) return 'Just now'; else if (seconds < 60) return `${seconds}s ago`; else if (seconds < 90) return '1m ago'; else if (minutes < 60) return `${minutes}m ago`; else if (isItToday) return `${Math.floor(minutes / 60)}h ago`;
+            if (!dateParam) return null;
+            const date = typeof dateParam === 'object' ? dateParam : new Date(dateParam);
+            const today = new Date();
+            const seconds = Math.round((today - date) / 1000);
+            const minutes = Math.round(seconds / 60);
+            const isItToday = today.toDateString() === date.toDateString();
+            if (currentLang === 'mm') {
+                const mmDigits = '၀၁၂၃၄၅၆၇၈၉';
+                const localNumber = value => String(value).replace(/[0-9]/g, digit => mmDigits[Number(digit)]);
+                if (seconds < 5) return 'အခုလေးတင်';
+                if (seconds < 60) return `လွန်ခဲ့သော ${localNumber(seconds)} စက္ကန့်`;
+                if (seconds < 90) return 'လွန်ခဲ့သော ၁ မိနစ်';
+                if (minutes < 60) return `လွန်ခဲ့သော ${localNumber(minutes)} မိနစ်`;
+                if (isItToday) return `လွန်ခဲ့သော ${localNumber(Math.floor(minutes / 60))} နာရီ`;
+            } else {
+                if (seconds < 5) return 'Just now';
+                if (seconds < 60) return `${seconds}s ago`;
+                if (seconds < 90) return '1m ago';
+                if (minutes < 60) return `${minutes}m ago`;
+                if (isItToday) return `${Math.floor(minutes / 60)}h ago`;
+            }
             return date.toLocaleDateString(currentLang === 'en' ? 'en-US' : 'my-MM', { month: 'short', day: 'numeric' });
         }
 
@@ -4051,7 +4114,7 @@
                 banner.textContent = '';
                 return;
             }
-            banner.textContent = `${pendingNewPostCount} new ${pendingNewPostCount === 1 ? 'post' : 'posts'} available — show latest`;
+            banner.textContent = `${pendingNewPostCount} ${pendingNewPostCount === 1 ? tr('newPost') : tr('newPosts')} ${tr('showLatest')}`;
             banner.classList.remove('hidden');
         }
 
@@ -4157,20 +4220,15 @@
                         (commentsSection && !commentsSection.classList.contains('hidden')) ||
                         !!card.querySelector('[id^="opts-"]:not(.hidden)');
 
-                    if (!hasActiveInteraction) {
-                        const oldTop = card.getBoundingClientRect().top;
-                        const oldHeight = card.getBoundingClientRect().height;
-                        const oldBottom = oldTop + oldHeight;
-                        const oldScrollY = window.scrollY;
+                    const cardRect = card.getBoundingClientRect();
+                    // Only refresh a card that is safely below the viewport; replacing visible or
+                    // above-viewport content was causing height jumps and scroll-position glitches.
+                    if (!hasActiveInteraction && cardRect.top > window.innerHeight + 80) {
                         const holder = document.createElement('div');
                         holder.innerHTML = buildPostHTML(post, false);
                         const replacement = holder.firstElementChild;
                         if (replacement) {
                             card.replaceWith(replacement);
-                            if (oldTop < window.innerHeight && oldBottom > 0) {
-                                const topDelta = replacement.getBoundingClientRect().top - oldTop;
-                                if (Math.abs(topDelta) > 0.5) window.scrollTo({ top: oldScrollY + topDelta, behavior: 'auto' });
-                            }
                             if (typeof lucide !== 'undefined') lucide.createIcons({ root: replacement });
                         }
                     }
@@ -4180,44 +4238,40 @@
 
         async function fetchPostsSilently() {
             if (!supabaseInstance) return;
-            if (silentPostsRefreshInFlight) {
-                silentPostsRefreshPending = true;
-                return;
-            }
+            if (silentPostsRefreshInFlight) { silentPostsRefreshPending = true; return; }
             silentPostsRefreshInFlight = true;
             try {
-                let query = supabaseInstance.from('marketplace_posts').select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`);
-                const { data, error } = await query; if (error) return;
+                const { data, error } = await supabaseInstance.from('marketplace_posts')
+                    .select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`)
+                    .order('created_at', { ascending: false }).limit(POSTS_PAGE_SIZE);
+                if (error) return;
                 const fetchedData = data || [];
-                const existingPostIds = new Set(allCommunityPosts.map(post => String(post.id)));
-                const newPosts = fetchedData.filter(post => !existingPostIds.has(String(post.id)));
-                allCommunityPosts = sortPostsNewestFirst(fetchedData);
-                await hydrateCommunityUserPlanBadges(allCommunityPosts.map(post => post.user_id));
-                if (newPosts.length > 0) {
+                const existingById = new Map(allCommunityPosts.map(post => [String(post.id), post]));
+                const newPosts = fetchedData.filter(post => !existingById.has(String(post.id)));
+                fetchedData.forEach(post => existingById.set(String(post.id), post));
+                allCommunityPosts = sortPostsNewestFirst(Array.from(existingById.values()));
+                if (newPosts.length) {
                     pendingNewPostCount += newPosts.length;
                     updateNewPostsBanner();
                 }
-                
+                await hydrateCommunityUserPlanBadges(fetchedData.map(post => post.user_id));
                 requestAnimationFrame(() => {
-                    const sidebarSignature = JSON.stringify(allCommunityPosts.map(post => [
+                    const sidebarSignature = JSON.stringify(allCommunityPosts.slice(0, POSTS_PAGE_SIZE).map(post => [
                         post.id, post.author_name, post.author_avatar, post.content?.slice(0, 100), post.hashtags,
                         post.marketplace_likes?.length || 0, post.marketplace_comments?.[0]?.count || 0
                     ]));
                     if (sidebarSignature !== lastRealtimeSidebarSignature) {
                         lastRealtimeSidebarSignature = sidebarSignature;
-                        extractTrendingTags(allCommunityPosts);
-                        extractTopEngagement(allCommunityPosts);
-                        extractHotDiscussions(allCommunityPosts);
+                        extractTrendingTags(allCommunityPosts.slice(0, POSTS_PAGE_SIZE));
+                        extractTopEngagement(allCommunityPosts.slice(0, POSTS_PAGE_SIZE));
+                        extractHotDiscussions(allCommunityPosts.slice(0, POSTS_PAGE_SIZE));
                     }
                     syncVisibleFeedPosts(allCommunityPosts);
                 });
             } catch (err) { }
             finally {
                 silentPostsRefreshInFlight = false;
-                if (silentPostsRefreshPending) {
-                    silentPostsRefreshPending = false;
-                    scheduleSilentPostsRefresh();
-                }
+                if (silentPostsRefreshPending) { silentPostsRefreshPending = false; scheduleSilentPostsRefresh(); }
             }
         }
 
@@ -4235,7 +4289,7 @@
         
         async function loadCommentsForFeed(postId, silent = false) {
             const treeEl = document.getElementById(`inline-comments-tree-${postId}`);
-            if (!silent) treeEl.innerHTML = `<div class="py-4 text-center"><i data-lucide="loader-2" class="w-4 h-4 animate-spin text-gray-500 mx-auto"></i></div>`;
+            if (!silent) treeEl.innerHTML = `<div class="space-y-3 py-3" aria-label="Loading comments"><div class="h-10 skeleton rounded-lg w-4/5"></div><div class="h-10 skeleton rounded-lg w-3/5"></div></div>`;
             try {
                 const { data, error } = await supabaseInstance.from('marketplace_comments').select('*, marketplace_comment_likes(user_id)').eq('post_id', postId).order('created_at', { ascending: true }); 
                 if (error) throw error;
@@ -4249,7 +4303,9 @@
 
         function renderInitialSkeletons() {
             const container = document.getElementById('feedContainer');
-            container.innerHTML = Array(3).fill(0).map(() => `<div class="post-card p-6 relative overflow-hidden"><div class="animate-pulse flex gap-4 mb-5"><div class="w-11 h-11 rounded-full bg-white/5 border border-white/10"></div><div class="space-y-2.5 flex-1 pt-1"><div class="h-3 bg-white/10 rounded-full w-1/4"></div><div class="h-2 bg-white/5 rounded-full w-1/5"></div></div></div><div class="space-y-3 mb-5"><div class="h-3 bg-white/10 rounded-full w-full"></div><div class="h-3 bg-white/10 rounded-full w-5/6"></div><div class="h-3 bg-white/10 rounded-full w-4/6"></div></div><div class="h-48 bg-white/5 rounded-xl w-full border border-white/5"></div></div>`).join('');
+            if (!container) return;
+            container.setAttribute('aria-busy', 'true');
+            container.innerHTML = Array(3).fill(0).map(() => `<div class="post-card p-6 sm:p-8 relative overflow-hidden" aria-hidden="true"><div class="flex gap-4 mb-5"><div class="w-11 h-11 rounded-full skeleton"></div><div class="space-y-2.5 flex-1 pt-1"><div class="h-3 skeleton rounded-full w-1/4"></div><div class="h-2 skeleton rounded-full w-1/5"></div></div></div><div class="space-y-3 mb-5"><div class="h-3 skeleton rounded-full w-full"></div><div class="h-3 skeleton rounded-full w-5/6"></div><div class="h-3 skeleton rounded-full w-4/6"></div></div><div class="h-48 skeleton rounded-xl w-full"></div></div>`).join('');
         }
 
         function shuffleArray(array) {
@@ -4632,21 +4688,95 @@
 
         async function fetchPosts() {
             if (!supabaseInstance) return;
+            postsPageLoading = true;
+            hasMorePosts = true;
+            oldestLoadedPostCursor = null;
+            allCommunityPosts = [];
+            currentFilteredPosts = [];
+            displayedPostsCount = POSTS_PER_PAGE;
+            renderInitialSkeletons();
             try {
-                let query = supabaseInstance.from('marketplace_posts').select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`);
-                const { data, error } = await query; if (error) throw error;
-                let fetchedData = data || [];
-                allCommunityPosts = sortPostsNewestFirst(fetchedData);
+                const { data, error } = await supabaseInstance.from('marketplace_posts')
+                    .select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`)
+                    .order('created_at', { ascending: false }).limit(POSTS_PAGE_SIZE);
+                if (error) throw error;
+                allCommunityPosts = sortPostsNewestFirst(data || []);
+                hasMorePosts = (data || []).length === POSTS_PAGE_SIZE;
+                oldestLoadedPostCursor = allCommunityPosts.length ? allCommunityPosts[allCommunityPosts.length - 1].created_at : null;
                 await hydrateCommunityUserPlanBadges(allCommunityPosts.map(post => post.user_id));
                 pendingNewPostCount = 0;
                 updateNewPostsBanner();
+                lastRealtimeSidebarSignature = '';
+                extractTrendingTags(allCommunityPosts);
+                extractTopEngagement(allCommunityPosts);
+                extractHotDiscussions(allCommunityPosts);
+                applyFiltersAndRenderVisible();
+            } catch (err) {
+                const container = document.getElementById('feedContainer');
+                if (container) {
+                    container.removeAttribute('aria-busy');
+                    container.innerHTML = `<p class="text-red-400 text-center py-10">${escapeHTML(tr('feedLoadError'))}</p>`;
+                }
+            } finally {
+                postsPageLoading = false;
+            }
+        }
 
-                requestAnimationFrame(() => {
-                    extractTrendingTags(allCommunityPosts); extractTopEngagement(allCommunityPosts); extractHotDiscussions(allCommunityPosts);
-                    const searchVal = document.getElementById('localSearchInput') ? document.getElementById('localSearchInput').value : '';
-                    renderFeed(searchVal);
-                });
-            } catch (err) { document.getElementById('feedContainer').innerHTML = `<p class="text-red-400 text-center py-10">Failed to load marketplace data.</p>`; }
+        async function fetchNextPostsPage() {
+            if (!supabaseInstance || postsPageLoading || !hasMorePosts) return;
+            postsPageLoading = true;
+            const container = document.getElementById('feedContainer');
+            const sentinel = document.getElementById('load-more-sentinel');
+            if (sentinel) sentinel.innerHTML = `<div class="post-card p-5 w-full" aria-label="${escapeHTML(tr('postLoadingLabel'))}"><div class="flex gap-3 items-center mb-4"><div class="w-9 h-9 rounded-full skeleton"></div><div class="h-3 skeleton rounded-full w-1/3"></div></div><div class="space-y-2"><div class="h-3 skeleton rounded-full w-full"></div><div class="h-3 skeleton rounded-full w-4/5"></div></div></div>`;
+            try {
+                let query = supabaseInstance.from('marketplace_posts')
+                    .select(`*, marketplace_comments(count), marketplace_saves(user_id), marketplace_likes(user_id)`)
+                    .order('created_at', { ascending: false }).limit(POSTS_PAGE_SIZE);
+                if (oldestLoadedPostCursor) query = query.lt('created_at', oldestLoadedPostCursor);
+                const { data, error } = await query;
+                if (error) throw error;
+                const nextPage = sortPostsNewestFirst(data || []);
+                hasMorePosts = nextPage.length === POSTS_PAGE_SIZE;
+                if (nextPage.length) oldestLoadedPostCursor = nextPage[nextPage.length - 1].created_at;
+                const known = new Set(allCommunityPosts.map(post => String(post.id)));
+                const uniqueNext = nextPage.filter(post => !known.has(String(post.id)));
+                allCommunityPosts = sortPostsNewestFirst(allCommunityPosts.concat(uniqueNext));
+                await hydrateCommunityUserPlanBadges(uniqueNext.map(post => post.user_id));
+                const sidebarPosts = allCommunityPosts.slice(0, POSTS_PAGE_SIZE);
+                extractTrendingTags(sidebarPosts);
+                extractTopEngagement(sidebarPosts);
+                extractHotDiscussions(sidebarPosts);
+                currentFilteredPosts = getFilteredPosts();
+                if (!currentFilteredPosts.length) {
+                    renderEmptyFeed(container);
+                    return;
+                }
+                const nextVisible = currentFilteredPosts.slice(displayedPostsCount, displayedPostsCount + POSTS_PER_PAGE);
+                if (nextVisible.length) {
+                    displayedPostsCount += nextVisible.length;
+                    const html = nextVisible.map(post => buildPostHTML(post, false)).join('');
+                    const currentSentinel = document.getElementById('load-more-sentinel');
+                    if (currentSentinel) currentSentinel.insertAdjacentHTML('beforebegin', html);
+                    else container.insertAdjacentHTML('beforeend', html);
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    nextVisible.forEach(post => {
+                        const sec = document.getElementById(`comments-inline-${post.id}`);
+                        if (sec && !sec.classList.contains('hidden') && window.inlineCommentsCache[post.id]) {
+                            const tree = document.getElementById(`inline-comments-tree-${post.id}`);
+                            if (tree) tree.innerHTML = renderCommentTree(window.inlineCommentsCache[post.id], post.id, true);
+                        }
+                    });
+                }
+                setupLoadMore(container);
+            } catch (err) {
+                if (container && !container.querySelector('[data-post-id]')) {
+                    container.innerHTML = `<p class="text-red-400 text-center py-10">${escapeHTML(tr('feedLoadError'))}</p>`;
+                } else if (sentinel) {
+                    sentinel.innerHTML = `<button type="button" class="text-xs text-red-300" onclick="loadMorePosts()">${escapeHTML(tr('feedRetry'))}</button>`;
+                }
+            } finally {
+                postsPageLoading = false;
+            }
         }
 
         function extractTrendingTags(posts) {
@@ -4676,10 +4806,10 @@
             }).join('');
             
             if (container) {
-                if (sortedTags.length === 0) container.innerHTML = `<span class="text-xs text-gray-500 italic">No trending tags.</span>`; else container.innerHTML = html;
+                if (sortedTags.length === 0) container.innerHTML = `<span class="text-xs text-gray-500 italic">${escapeHTML(tr('noTrendingTags'))}</span>`; else container.innerHTML = html;
             }
             if (mobContainer) {
-                if (sortedTags.length === 0) mobContainer.innerHTML = `<span class="text-xs text-gray-500 italic">No trending tags.</span>`; else mobContainer.innerHTML = html;
+                if (sortedTags.length === 0) mobContainer.innerHTML = `<span class="text-xs text-gray-500 italic">${escapeHTML(tr('noTrendingTags'))}</span>`; else mobContainer.innerHTML = html;
             }
         }
 
@@ -4764,7 +4894,7 @@
                 mBtn.classList.remove('text-gray-400'); 
             }
             
-            if(type === 'all') fetchPosts(); else { const searchVal = document.getElementById('localSearchInput') ? document.getElementById('localSearchInput').value : ''; renderFeed(searchVal); }
+            if(type === 'all' && allCommunityPosts.length === 0) fetchPosts(); else { const mobileInput = document.getElementById('mobileSearchInput'); const desktopInput = document.getElementById('localSearchInput'); const searchVal = window.innerWidth < 1024 && mobileInput ? mobileInput.value : (desktopInput ? desktopInput.value : ''); renderFeed(searchVal); }
         }
 
         function searchByTag(tag) { document.getElementById('localSearchInput').value = tag; const mobileInput = document.getElementById('mobileSearchInput'); if (mobileInput) mobileInput.value = tag; handleLocalSearch({ target: document.getElementById('localSearchInput') }); if(window.innerWidth < 1024) toggleBottomDrawer(); }
@@ -4776,6 +4906,7 @@
 
         function handleLocalSearch(e) {
             const query = e.target.value.toLowerCase().trim();
+            currentSearchQuery = query;
             const isMobile = e.target.id === 'mobileSearchInput';
             const suggestionsBox = document.getElementById(isMobile ? 'mobileSearchSuggestions' : 'desktopSearchSuggestions');
 
@@ -4839,80 +4970,119 @@
             searchTimeout = setTimeout(() => { renderFeed(query); }, 300);
         }
 
+        function getFilteredPosts() {
+            let filtered = allCommunityPosts;
+            if (currentFilter === 'mine' && currentUser) filtered = filtered.filter(post => post.user_id === currentUser.id);
+            else if (currentFilter === 'saved' && currentUser) filtered = filtered.filter(post => post.marketplace_saves && post.marketplace_saves.some(save => save.user_id === currentUser.id));
+            else if (currentFilter === 'snippets') filtered = filtered.filter(isCodeContainingPost);
+            else if (currentFilter === 'qa') filtered = filtered.filter(post => post.hashtags && post.hashtags.some(tag => ['#help', '#qa', '#question'].includes(tag.toLowerCase())));
+            if (currentSearchQuery) filtered = filtered.filter(post =>
+                (post.content && post.content.toLowerCase().includes(currentSearchQuery)) ||
+                (post.author_name && post.author_name.toLowerCase().includes(currentSearchQuery)) ||
+                (post.hashtags && post.hashtags.some(tag => tag.toLowerCase().includes(currentSearchQuery)))
+            );
+            return filtered;
+        }
+
+        function renderEmptyFeed(container) {
+            if (!container) return;
+            displayedPostsCount = 0;
+            container.removeAttribute('aria-busy');
+            const olderButton = hasMorePosts ? `<button type="button" onclick="loadMorePosts()" class="mt-4 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 hover:text-white">${escapeHTML(tr('loadOlderPosts'))}</button>` : '';
+            container.innerHTML = `<div class="text-center py-20 post-card"><i data-lucide="inbox" class="w-10 h-10 text-gray-600 mx-auto mb-4"></i><p class="text-gray-400 font-bold tracking-wide text-sm">${escapeHTML(tr('noDiscussions'))}</p>${olderButton}</div>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
         function applyFiltersAndRenderVisible() {
             const container = document.getElementById('feedContainer');
-            
-            if (!currentUser && currentFilter === 'mine') {
-                container.innerHTML = `
-                    <div class="text-center py-20 post-card flex flex-col items-center justify-center">
-                        <div class="p-4 bg-white/5 rounded-full border border-white/10 mb-5"><i data-lucide="lock" class="w-8 h-8 text-gray-500"></i></div>
-                        <h4 class="font-bold text-lg mb-2 text-white uppercase tracking-widest">Authentication Required</h4>
-                        <p class="text-gray-400 font-medium text-[13px] mb-8 max-w-sm">Please sign in to view and manage your personal posts and snippets.</p>
-                        <a href="#" onclick="event.preventDefault(); window.location.href='../login/?redirect=' + encodeURIComponent(window.location.pathname + '?filter=mine')" class="modern-btn-primary px-8 py-3 text-[11px]">Authenticate</a>
-                    </div>
-                `;
+            if (!currentUser && ['mine', 'saved'].includes(currentFilter)) {
+                container.removeAttribute('aria-busy');
+                const filter = currentFilter;
+                const text = filter === 'mine' ? tr('signInToViewPosts') : tr('signInToViewSaved');
+                container.innerHTML = `<div class="text-center py-20 post-card flex flex-col items-center justify-center"><div class="p-4 bg-white/5 rounded-full border border-white/10 mb-5"><i data-lucide="lock" class="w-8 h-8 text-gray-500"></i></div><h4 class="font-bold text-lg mb-2 text-white">${escapeHTML(tr('authenticationRequired'))}</h4><p class="text-gray-400 text-[13px] mb-8 max-w-sm">${escapeHTML(text)}</p><a href="#" onclick="event.preventDefault(); window.location.href='../login/?redirect=' + encodeURIComponent(window.location.pathname + '?filter=${filter}')" class="modern-btn-primary px-8 py-3 text-[11px]">${escapeHTML(tr('signIn'))}</a></div>`;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
-            if (!currentUser && currentFilter === 'saved') {
-                container.innerHTML = `
-                    <div class="text-center py-20 post-card flex flex-col items-center justify-center">
-                        <div class="p-4 bg-white/5 rounded-full border border-white/10 mb-5"><i data-lucide="lock" class="w-8 h-8 text-gray-500"></i></div>
-                        <h4 class="font-bold text-lg mb-2 text-white uppercase tracking-widest">Authentication Required</h4>
-                        <p class="text-gray-400 font-medium text-[13px] mb-8 max-w-sm">Please sign in to access your securely saved discussions.</p>
-                        <a href="#" onclick="event.preventDefault(); window.location.href='../login/?redirect=' + encodeURIComponent(window.location.pathname + '?filter=saved')" class="modern-btn-primary px-8 py-3 text-[11px]">Authenticate</a>
-                    </div>
-                `;
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-                return;
-            }
-
-            const searchInput = document.getElementById('localSearchInput') || document.getElementById('mobileSearchInput');
-            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
-            currentFilteredPosts = allCommunityPosts;
-            if (currentFilter === 'mine' && currentUser) currentFilteredPosts = currentFilteredPosts.filter(p => p.user_id === currentUser.id);
-            else if (currentFilter === 'saved' && currentUser) currentFilteredPosts = currentFilteredPosts.filter(p => p.marketplace_saves && p.marketplace_saves.some(s => s.user_id === currentUser.id));
-            else if (currentFilter === 'snippets') currentFilteredPosts = currentFilteredPosts.filter(isCodeContainingPost);
-            else if (currentFilter === 'qa') currentFilteredPosts = currentFilteredPosts.filter(p => p.hashtags && p.hashtags.some(t => t.toLowerCase() === '#help' || t.toLowerCase() === '#qa' || t.toLowerCase() === '#question'));
-            
-            if (searchQuery !== '') currentFilteredPosts = currentFilteredPosts.filter(p => (p.content && p.content.toLowerCase().includes(searchQuery)) || (p.author_name && p.author_name.toLowerCase().includes(searchQuery)) || (p.hashtags && p.hashtags.some(tag => tag.toLowerCase().includes(searchQuery))));
-            
-            if (currentFilteredPosts.length === 0) { container.innerHTML = `<div class="text-center py-20 post-card"><i data-lucide="inbox" class="w-10 h-10 text-gray-600 mx-auto mb-4"></i><p class="text-gray-400 font-bold uppercase tracking-widest text-[11px]">No discussions found.</p></div>`; if (typeof lucide !== 'undefined') lucide.createIcons(); return; }
-            const postsToShow = currentFilteredPosts.slice(0, displayedPostsCount); container.innerHTML = postsToShow.map(post => buildPostHTML(post, false)).join(''); setupLoadMore(container);
+            currentFilteredPosts = getFilteredPosts();
+            if (!currentFilteredPosts.length) { renderEmptyFeed(container); return; }
+            const postsToShow = currentFilteredPosts.slice(0, POSTS_PER_PAGE);
+            displayedPostsCount = postsToShow.length;
+            container.removeAttribute('aria-busy');
+            container.innerHTML = postsToShow.map(post => buildPostHTML(post, false)).join('');
+            setupLoadMore(container);
             if (typeof lucide !== 'undefined') lucide.createIcons();
             postsToShow.forEach(post => {
                 const sec = document.getElementById(`comments-inline-${post.id}`);
                 if (sec && !sec.classList.contains('hidden') && window.inlineCommentsCache[post.id]) {
-                     const treeContainer = document.getElementById(`inline-comments-tree-${post.id}`);
-                     if(treeContainer) treeContainer.innerHTML = renderCommentTree(window.inlineCommentsCache[post.id], post.id, true);
+                    const tree = document.getElementById(`inline-comments-tree-${post.id}`);
+                    if (tree) tree.innerHTML = renderCommentTree(window.inlineCommentsCache[post.id], post.id, true);
                 }
             });
         }
 
-        function renderFeed(searchQuery = '') { displayedPostsCount = POSTS_PER_PAGE; const container = document.getElementById('feedContainer'); if (allCommunityPosts.length > 0) renderInitialSkeletons(); setTimeout(() => { applyFiltersAndRenderVisible(); }, 100); }
+        function renderFeed(searchQuery = '') {
+            currentSearchQuery = String(searchQuery || '').trim().toLowerCase();
+            displayedPostsCount = POSTS_PER_PAGE;
+            requestAnimationFrame(() => applyFiltersAndRenderVisible());
+        }
 
         function setupLoadMore(container) {
-            const existing = document.getElementById('load-more-sentinel'); if (existing) existing.remove();
-            if (feedObserver) feedObserver.disconnect();
-            if (displayedPostsCount < currentFilteredPosts.length) {
-                container.insertAdjacentHTML('beforeend', `<div id="load-more-sentinel" class="h-12 w-full flex justify-center items-center py-4"><div class="flex items-center gap-3"><i data-lucide="loader-2" class="w-5 h-5 animate-spin text-gray-500"></i><span class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Loading more posts...</span></div></div>`);
-                feedObserver = new IntersectionObserver(entries => { if (entries[0].isIntersecting) loadMorePosts(); }, { rootMargin: '200px' }); feedObserver.observe(document.getElementById('load-more-sentinel'));
+            const existing = document.getElementById('load-more-sentinel');
+            if (existing) existing.remove();
+            if (feedObserver) { feedObserver.disconnect(); feedObserver = null; }
+            if (displayedPostsCount < currentFilteredPosts.length || hasMorePosts) {
+                container.insertAdjacentHTML('beforeend', `<div id="load-more-sentinel" class="w-full py-4" aria-hidden="true"><div class="post-card p-5"><div class="flex gap-3 items-center mb-4"><div class="w-9 h-9 rounded-full skeleton"></div><div class="space-y-2 flex-1"><div class="h-2.5 skeleton rounded-full w-1/3"></div><div class="h-2 skeleton rounded-full w-1/5"></div></div></div><div class="space-y-2"><div class="h-3 skeleton rounded-full w-full"></div><div class="h-3 skeleton rounded-full w-4/5"></div></div></div></div>`);
+                const sentinel = document.getElementById('load-more-sentinel');
+                if (currentFilteredPosts.length) {
+                    feedObserver = new IntersectionObserver(entries => {
+                        if (entries.some(entry => entry.isIntersecting)) loadMorePosts();
+                    }, { rootMargin: '400px 0px' });
+                    feedObserver.observe(sentinel);
+                }
             }
-            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function loadMorePosts() {
-            displayedPostsCount += POSTS_PER_PAGE;
-            applyFiltersAndRenderVisible();
+            if (postsPageLoading) return;
+            if (displayedPostsCount < currentFilteredPosts.length) {
+                const nextVisible = currentFilteredPosts.slice(displayedPostsCount, displayedPostsCount + POSTS_PER_PAGE);
+                if (!nextVisible.length) return;
+                displayedPostsCount += nextVisible.length;
+                const sentinel = document.getElementById('load-more-sentinel');
+                const html = nextVisible.map(post => buildPostHTML(post, false)).join('');
+                if (sentinel) sentinel.insertAdjacentHTML('beforebegin', html);
+                else document.getElementById('feedContainer').insertAdjacentHTML('beforeend', html);
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                setupLoadMore(document.getElementById('feedContainer'));
+                return;
+            }
+            if (hasMorePosts) fetchNextPostsPage();
         }
 
         function handlePostImageLoad(image, isSingleImage) {
-            if (!isSingleImage || !image.naturalWidth || !image.naturalHeight) return;
+            const frame = image.closest('.post-image-frame');
+            if (frame) {
+                frame.classList.remove('has-error');
+                image.classList.add('is-loaded');
+                const spinner = frame.querySelector('.post-image-spinner');
+                if (spinner) spinner.remove();
+            }
+            if (!isSingleImage || !image.naturalWidth || !image.naturalHeight || !frame) return;
             const aspectRatio = image.naturalWidth / image.naturalHeight;
             const isExtreme = aspectRatio >= 2.5 || aspectRatio <= 0.4;
             image.classList.toggle('extreme', isExtreme);
-            image.style.aspectRatio = isExtreme ? '1 / 1' : `${image.naturalWidth} / ${image.naturalHeight}`;
+            // Preserve the reserved square frame after load to prevent layout shift while scrolling.
+            frame.style.aspectRatio = '1 / 1';
             image.style.objectFit = isExtreme ? 'cover' : 'contain';
+        }
+
+        function handlePostImageError(image) {
+            const frame = image.closest('.post-image-frame');
+            if (frame) {
+                frame.classList.add('has-error');
+                const errorLabel = frame.querySelector('.post-image-error');
+                if (errorLabel) errorLabel.textContent = tr('imageUnavailable');
+            }
         }
 
         function buildPostHTML(post, isDetailModal = false) {
@@ -4923,7 +5093,7 @@
             const createdAt = Date.parse(post.created_at || '');
             const updatedAt = Date.parse(post.updated_at || '');
             const wasEdited = Number.isFinite(createdAt) && Number.isFinite(updatedAt) && updatedAt > createdAt + 1000;
-            const editedBadge = wasEdited ? `<span class="text-[9px] bg-white/10 text-gray-400 px-1.5 py-0.5 rounded ml-2 font-mono uppercase tracking-tighter">Edited (${timeAgo(post.updated_at)})</span>` : '';
+            const editedBadge = wasEdited ? `<span class="text-[9px] bg-white/10 text-gray-400 px-1.5 py-0.5 rounded ml-2 font-mono uppercase tracking-tighter"><span data-i18n="edited">${escapeHTML(tr('edited'))}</span> (${timeAgo(post.updated_at)})</span>` : '';
             let safeContent = sanitizeCommunityHTML(post.content, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'ul', 'li', 'br', 'p', 'div', 'span', 'pre', 'code'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'data-language'] });
             safeContent = renderPostContentWithCode(safeContent);
             
@@ -4934,7 +5104,7 @@
                     const prioritizeImage = idx === 0 && (isDetailModal || post.id === currentFilteredPosts[0]?.id);
                     const safeURL = safeMediaURL(imgUrl);
                     if (!safeURL) return;
-                    imageGridHTML += `<img src="${escapeHTML(safeURL)}" loading="${prioritizeImage ? 'eager' : 'lazy'}" fetchpriority="${prioritizeImage ? 'high' : 'low'}" decoding="async" referrerpolicy="no-referrer" class="grid-img-cell" style="${count === 1 ? 'aspect-ratio:1 / 1;' : ''}" onload="handlePostImageLoad(this, ${count === 1})" onclick="openImageViewer(${escapeJSArg(safeURL)})">`; 
+                    imageGridHTML += `<div class="post-image-frame"><div class="post-image-spinner" aria-hidden="true"></div><span class="post-image-error">${escapeHTML(tr('imageUnavailable'))}</span><img src="${escapeHTML(safeURL)}" alt="Community post image" loading="${prioritizeImage ? 'eager' : 'lazy'}" fetchpriority="${prioritizeImage ? 'high' : 'low'}" decoding="async" referrerpolicy="no-referrer" class="grid-img-cell" onload="handlePostImageLoad(this, ${count === 1})" onerror="handlePostImageError(this)" onclick="openImageViewer(${escapeJSArg(safeURL)})"></div>`; 
                 }); 
                 imageGridHTML += `</div>`;
             }
@@ -4942,7 +5112,7 @@
             let strippedContent = safeContent.replace(/<[^>]*>?/gm, '');
             const isTooLong = strippedContent.length > 1000;
 
-            const contentHTML = isDetailModal ? `<div class="post-content-render text-[15px] sm:text-[16px] text-gray-200 break-words mb-2 leading-relaxed">${safeContent}</div>` : `<div class="post-content-render text-[15px] sm:text-[16px] text-gray-200 break-words mb-2 leading-relaxed relative"><div id="content-${post.id}" class="transition-all duration-300 ${isTooLong ? 'line-clamp-custom' : ''}">${safeContent}</div>${isTooLong ? `<button onclick="toggleContent(${escapeJSArg(post.id)}, this)" data-expanded="false" class="text-myancode-accent text-[11px] mt-3 hover:text-white font-bold block uppercase tracking-widest transition-colors">Expand Content</button>` : ''}</div>`;
+            const contentHTML = isDetailModal ? `<div class="post-content-render text-[15px] sm:text-[16px] text-gray-200 break-words mb-2 leading-relaxed">${safeContent}</div>` : `<div class="post-content-render text-[15px] sm:text-[16px] text-gray-200 break-words mb-2 leading-relaxed relative"><div id="content-${post.id}" class="transition-all duration-300 ${isTooLong ? 'line-clamp-custom' : ''}">${safeContent}</div>${isTooLong ? `<button onclick="toggleContent(${escapeJSArg(post.id)}, this)" data-expanded="false" class="text-myancode-accent text-[11px] mt-3 hover:text-white font-bold block uppercase tracking-widest transition-colors" data-i18n="expandContent">${escapeHTML(tr('expandContent'))}</button>` : ''}</div>`;
 
             const inlineCommentsHTML = !isDetailModal ? `
                 <div id="comments-inline-${post.id}" class="hidden mt-6 pt-5 border-t border-white/5">
@@ -4963,16 +5133,16 @@
                         <button type="button" aria-label="Open ${escapeHTML(post.author_name)} profile card" onclick="openDefaultBioCard(${escapeJSArg({user_id: post.user_id, name: post.author_name, profile_photo_url: post.author_avatar, tag: post.author_role ? post.author_role : '', role: post.author_role || '', plan: communityUserPlanBadges.get(String(post.user_id)) || ''})})" class="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#1a1d24] cursor-pointer hover:border-myancode-accent transition-colors">${avatar}</button>
                         <div>
                             <h4 class="text-[15px] font-bold tracking-wide text-white flex items-center">${escapeHTML(post.author_name)} ${getUserBadges(post.author_role, communityUserPlanBadges.get(String(post.user_id)))} ${editedBadge}</h4>
-                            <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-1 font-mono">${dateStr}</p>
-                            ${isCodePost ? `<button type="button" class="post-code-filter-badge" onclick="event.stopPropagation(); filterFeed('snippets')" title="Show all posts containing code"><i data-lucide="code-2" class="w-3 h-3"></i><span>Code post</span></button>` : ''}
+                            <p class="post-time-label text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-1 font-mono" data-created-at="${escapeHTML(post.created_at || '')}">${dateStr}</p>
+                            ${isCodePost ? `<button type="button" class="post-code-filter-badge" onclick="event.stopPropagation(); filterFeed('snippets')" title="Show all posts containing code"><i data-lucide="code-2" class="w-3 h-3"></i><span>${escapeHTML(tr('codePost'))}</span></button>` : ''}
                         </div>
                     </div>
                     <div class="relative">
                         <button onclick="togglePostOptions('${isDetailModal ? 'opts-modal-' + post.id : 'opts-' + post.id}', event)" class="p-2 text-gray-500 hover:text-white transition-colors rounded-lg hover:bg-white/10 border border-transparent"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
                         <div id="${isDetailModal ? 'opts-modal-' + post.id : 'opts-' + post.id}" class="hidden absolute right-0 mt-2 w-44 bg-[#181a20]/95 backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-30 py-2 px-1 overflow-hidden origin-top-right">
-                            ${isOwner ? `<button onclick="editPost(${escapeJSArg(post.id)})" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-gray-300 hover:text-white hover:bg-white/5 flex items-center gap-2.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Modify</button>` : ''}
-                            ${isOwner ? `<button onclick="deletePost(${escapeJSArg(post.id)})" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="trash" class="w-3.5 h-3.5"></i> Remove</button>` : ''}
-                            <button onclick="reportPost(${escapeJSArg(post.id)})" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 hover:bg-orange-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Report Post</button>
+                            ${isOwner ? `<button onclick="editPost(${escapeJSArg(post.id)})" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-gray-300 hover:text-white hover:bg-white/5 flex items-center gap-2.5 transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i>${escapeHTML(tr('modify'))}</button>` : ''}
+                            ${isOwner ? `<button onclick="deletePost(${escapeJSArg(post.id)})" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="trash" class="w-3.5 h-3.5"></i>${escapeHTML(tr('remove'))}</button>` : ''}
+                            <button onclick="reportPost(${escapeJSArg(post.id)})" class="w-full rounded-lg text-left px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-orange-400 hover:text-orange-300 hover:bg-orange-500/10 flex items-center gap-2.5 transition-colors"><i data-lucide="flag" class="w-3.5 h-3.5"></i>${escapeHTML(tr('reportPost'))}</button>
                         </div>
                     </div>
                 </div>
@@ -4984,14 +5154,14 @@
                             <i data-lucide="heart" class="w-5 h-5 ${isLiked ? 'fill-current' : ''}"></i> <span class="like-label">${likeCount}</span>
                         </button>
                         <button class="reaction-button flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide text-gray-400 hover:text-gray-200" onclick="${isDetailModal ? `animateReaction(this, 'comment'); document.getElementById('comment-input-modal-${post.id}').focus()` : `animateReaction(this, 'comment'); toggleCommentsInline(${escapeJSArg(post.id)})`}">
-                            <i data-lucide="message-square" class="w-5 h-5"></i> <span><span id="${isDetailModal ? 'modal-' : ''}comment-count-label-${post.id}">${commentCount}</span> <span class="hidden sm:inline">Responses</span></span>
+                            <i data-lucide="message-square" class="w-5 h-5"></i> <span><span id="${isDetailModal ? 'modal-' : ''}comment-count-label-${post.id}">${commentCount}</span> <span class="hidden sm:inline" data-i18n="responses">${escapeHTML(tr('responses'))}</span></span>
                         </button>
                         <button class="flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide text-gray-400 hover:text-gray-200" onclick="openShareModal(${escapeJSArg(post.id)})">
-                            <i data-lucide="share-2" class="w-5 h-5"></i> <span class="hidden sm:inline">Share</span>
+                            <i data-lucide="share-2" class="w-5 h-5"></i> <span class="hidden sm:inline" data-i18n="share">${escapeHTML(tr('share'))}</span>
                         </button>
                     </div>
                     <button class="flex items-center gap-2.5 transition-all hover:-translate-y-0.5 text-[13px] font-semibold tracking-wide ${isSaved ? 'text-white' : 'text-gray-400 hover:text-gray-200'}" onclick="toggleSavePost(${escapeJSArg(post.id)}, this)">
-                        <i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-current' : ''}"></i> <span class="save-label hidden sm:inline">${isSaved ? 'Saved' : 'Save'}</span>
+                        <i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-current' : ''}"></i> <span class="save-label hidden sm:inline">${escapeHTML(tr(isSaved ? 'saved' : 'save'))}</span>
                     </button>
                 </div>
                 ${isDetailModal ? `<div id="modal-comments-tree-${post.id}" class="mt-8 space-y-4 pb-6"></div>` : inlineCommentsHTML}

@@ -438,6 +438,78 @@
             h1 { font-size: 2rem !important; }
             h2 { font-size: 1.75rem !important; }
         }
+
+        /* Portfolio carousel: scoped to the “What We’ve Built” section. */
+        #sect-portfolio .portfolio-track {
+            overflow-x: auto;
+            overflow-y: hidden;
+            overscroll-behavior-x: contain;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x proximity;
+            scrollbar-width: none;
+            touch-action: pan-x pan-y;
+            user-select: none;
+            cursor: grab;
+        }
+        #sect-portfolio .portfolio-track::-webkit-scrollbar { display: none; }
+        #sect-portfolio .portfolio-track.is-autoplaying,
+        #sect-portfolio .portfolio-track.is-dragging { scroll-snap-type: none; }
+        #sect-portfolio .portfolio-track { padding-block: 10px 18px; }
+        #sect-portfolio .portfolio-item { scroll-snap-align: center; }
+        #sect-portfolio .portfolio-card-inner {
+            transform: translateZ(0);
+            transition: transform 650ms cubic-bezier(0.2, 0.75, 0.25, 1), border-color 500ms ease, box-shadow 500ms ease;
+            backface-visibility: hidden;
+        }
+        #sect-portfolio .portfolio-card-inner:hover,
+        #sect-portfolio .portfolio-card-inner:focus-within {
+            transform: translate3d(0, -5px, 0);
+            border-color: rgba(255,255,255,0.22);
+            box-shadow: 0 18px 48px rgba(0,0,0,0.42);
+        }
+        #sect-portfolio .portfolio-image {
+            transform: scale(1.001);
+            filter: saturate(.78) contrast(1.08);
+            transition: transform 1100ms cubic-bezier(0.16, 1, 0.3, 1), filter 800ms ease;
+            backface-visibility: hidden;
+        }
+        #sect-portfolio .portfolio-card-inner:hover .portfolio-image,
+        #sect-portfolio .portfolio-card-inner:focus-within .portfolio-image {
+            transform: scale(1.075);
+            filter: saturate(1) contrast(1.04);
+        }
+        #sect-portfolio .portfolio-overlay {
+            opacity: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.02) 25%, rgba(0,0,0,0.82) 100%);
+            transition: opacity 650ms cubic-bezier(0.2, 0.75, 0.25, 1);
+        }
+        #sect-portfolio .portfolio-card-inner:hover .portfolio-overlay,
+        #sect-portfolio .portfolio-card-inner:focus-within .portfolio-overlay { opacity: 1; }
+        #sect-portfolio .portfolio-title {
+            opacity: 0;
+            transform: translate3d(0, 14px, 0);
+            transition: opacity 500ms ease, transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #sect-portfolio .portfolio-card-inner:hover .portfolio-title,
+        #sect-portfolio .portfolio-card-inner:focus-within .portfolio-title {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+        #sect-portfolio .portfolio-control {
+            transition: transform 250ms ease, background-color 250ms ease, border-color 250ms ease, opacity 250ms ease;
+        }
+        #sect-portfolio .portfolio-control:hover { transform: translateY(-2px); }
+        @media (hover: none) {
+            #sect-portfolio .portfolio-overlay { opacity: 1; background: linear-gradient(180deg, transparent 42%, rgba(0,0,0,0.78) 100%); }
+            #sect-portfolio .portfolio-title { opacity: 1; transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #sect-portfolio .portfolio-card-inner,
+            #sect-portfolio .portfolio-image,
+            #sect-portfolio .portfolio-overlay,
+            #sect-portfolio .portfolio-title,
+            #sect-portfolio .portfolio-control { transition-duration: 0.01ms !important; }
+        }
     </style>
 </head>
 <body class="font-sans selection:bg-white selection:text-black bg-[#050505] flex flex-col min-h-screen relative">
@@ -1222,13 +1294,20 @@
                 </div>
             </div>
 
-            <div class="w-full overflow-hidden pb-32 pt-10 relative reveal-scale" id="portfolioSliderContainer">
-                <div class="absolute left-0 top-0 bottom-0 w-16 md:w-48 bg-gradient-to-r from-[#050505] to-transparent z-20 pointer-events-none"></div>
-                <div class="absolute right-0 top-0 bottom-0 w-16 md:w-48 bg-gradient-to-l from-[#050505] to-transparent z-20 pointer-events-none"></div>
+            <div class="w-full overflow-hidden pb-24 pt-8 relative reveal-scale" id="portfolioSliderContainer">
+                <div class="absolute left-0 top-12 bottom-0 w-10 md:w-24 bg-gradient-to-r from-[#050505] to-transparent z-20 pointer-events-none"></div>
+                <div class="absolute right-0 top-12 bottom-0 w-10 md:w-24 bg-gradient-to-l from-[#050505] to-transparent z-20 pointer-events-none"></div>
 
-                <div id="portfolioTrack" class="flex gap-4 md:gap-8 w-max will-change-transform cursor-grab">
-                    
+                <div class="layout-width flex justify-end gap-2 px-4 mb-4 relative z-30">
+                    <button type="button" class="portfolio-control w-11 h-11 rounded-full border border-white/15 bg-white/5 text-white hover:bg-white/15 hover:border-white/30 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70" onclick="scrollPortfolioBy(-1)" aria-label="Scroll projects left" title="Previous projects">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    </button>
+                    <button type="button" class="portfolio-control w-11 h-11 rounded-full border border-white/15 bg-white/5 text-white hover:bg-white/15 hover:border-white/30 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70" onclick="scrollPortfolioBy(1)" aria-label="Scroll projects right" title="Next projects">
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
                 </div>
+
+                <div id="portfolioTrack" class="portfolio-track flex w-full gap-4 md:gap-8 px-4 md:px-12" tabindex="0" role="region" aria-label="Featured projects" aria-roledescription="carousel"></div>
             </div>
         </section>
 
@@ -3674,11 +3753,11 @@
 
                     html += `
                     <div class="w-[85vw] sm:w-[45vw] md:w-[30vw] lg:w-[28vw] max-w-[420px] shrink-0 portfolio-item">
-                        <div class="portfolio-card-inner aspect-[4/3] bg-[#111] border border-white/5 overflow-hidden group relative will-change-transform">
-                            <a href="${linkUrl}" target="_blank" class="block w-full h-full">
-                                <img loading="lazy" decoding="async" src="${optimizedUrl}" class="w-full h-full object-cover saturate-[0.8] contrast-110 group-hover:saturate-100 group-hover:scale-105 transition-all duration-700" alt="${projectNameSafe}">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                                    <span class="text-white font-mono text-xs tracking-widest uppercase">${projectNameSafe}</span>
+                        <div class="portfolio-card-inner aspect-[4/3] bg-[#111] border border-white/5 overflow-hidden group relative">
+                            <a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="block w-full h-full">
+                                <img loading="lazy" decoding="async" src="${optimizedUrl}" class="portfolio-image w-full h-full object-cover" alt="${projectNameSafe}">
+                                <div class="portfolio-overlay absolute inset-0 flex items-end p-6">
+                                    <span class="portfolio-title text-white font-mono text-xs md:text-sm tracking-[0.16em] uppercase drop-shadow-lg">${projectNameSafe}</span>
                                 </div>
                             </a>
                         </div>
@@ -3693,95 +3772,123 @@
             }
         }
 
+        function scrollPortfolioBy(direction) {
+            const track = document.getElementById('portfolioTrack');
+            if (!track) return;
+            track.dataset.pauseUntil = String(performance.now() + 4500);
+            const loopPoint = Number(track.dataset.loopPoint || 0);
+            if (direction < 0 && track.scrollLeft <= 1 && loopPoint > 0) track.scrollLeft = loopPoint;
+            const firstItem = track.querySelector('.portfolio-item');
+            const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
+            const step = firstItem ? firstItem.getBoundingClientRect().width + gap : track.clientWidth * 0.8;
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            track.scrollBy({ left: direction * step, behavior: reducedMotion ? 'auto' : 'smooth' });
+        }
+
         function initPortfolioSlider() {
             const track = document.getElementById('portfolioTrack');
-            if (!track || track.children.length === 0) return;
+            const container = document.getElementById('portfolioSliderContainer');
+            if (!track || !container || !track.children.length || track.dataset.sliderInitialized === 'true') return;
+            track.dataset.sliderInitialized = 'true';
 
-            const items = Array.from(track.children);
-            items.forEach(item => {
-                const clone = item.cloneNode(true);
+            const originalCount = track.children.length;
+            for (let i = 0; i < originalCount; i++) {
+                const clone = track.children[i].cloneNode(true);
+                clone.setAttribute('aria-hidden', 'true');
+                clone.querySelectorAll('a,button,[tabindex]').forEach(el => el.setAttribute('tabindex', '-1'));
                 track.appendChild(clone);
-            });
-
-            let offset = 0;
-            let speed = 1.2; 
-            let isHovered = false;
-            let isDragging = false;
-            let startX = 0;
-
-            track.addEventListener('mouseenter', () => isHovered = true);
-            track.addEventListener('mouseleave', () => isHovered = false);
-
-            track.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                startX = e.pageX - offset;
-                track.style.cursor = 'grabbing';
-            });
-            window.addEventListener('mouseup', () => {
-                isDragging = false;
-                track.style.cursor = 'grab';
-            });
-            window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                e.preventDefault();
-                offset = e.pageX - startX;
-            });
-
-            track.addEventListener('touchstart', (e) => {
-                isDragging = true;
-                startX = e.touches[0].pageX - offset;
-            });
-            window.addEventListener('touchend', () => {
-                isDragging = false;
-            });
-            window.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                offset = e.touches[0].pageX - startX;
-            });
-
-            function animateSlider() {
-                if (!isDragging && !isHovered) {
-                    offset -= speed;
-                }
-
-                const trackWidth = track.scrollWidth / 2;
-                if (offset <= -trackWidth) {
-                    offset += trackWidth;
-                } else if (offset > 0 && !isDragging) {
-                    offset -= trackWidth;
-                }
-
-                track.style.transform = `translate3d(${offset}px, 0, 0)`;
-
-                const windowCenter = window.innerWidth / 2;
-                const allItems = track.children;
-                const maxDip = window.innerWidth < 768 ? 40 : 80;
-                
-                for (let i = 0; i < allItems.length; i++) {
-                    const item = allItems[i];
-                    const innerCard = item.querySelector('.portfolio-card-inner');
-                    if (!innerCard) continue;
-
-                    const rect = item.getBoundingClientRect();
-                    const cardCenter = rect.left + rect.width / 2;
-                    const diff = Math.abs(windowCenter - cardCenter);
-                    
-                    const effectRadius = window.innerWidth / 1.5;
-                    let yOffset = 0;
-
-                    if (diff < effectRadius) {
-                        const ratio = 1 - (diff / effectRadius);
-                        const ease = Math.sin(ratio * Math.PI / 2);
-                        yOffset = ease * maxDip;
-                    }
-
-                    innerCard.style.transform = `translate3d(0, ${yOffset}px, 0)`;
-                }
-
-                requestAnimationFrame(animateSlider);
             }
 
-            requestAnimationFrame(animateSlider);
+            let loopPoint = 0;
+            let pointerDown = false;
+            let dragged = false;
+            let pointerStartX = 0;
+            let startingScroll = 0;
+            let suppressClick = false;
+            let hovering = false;
+            let visible = true;
+            let previousTime = 0;
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+            const measureLoopPoint = () => {
+                const nextSet = track.children[originalCount];
+                loopPoint = nextSet ? nextSet.offsetLeft - track.children[0].offsetLeft : 0;
+                track.dataset.loopPoint = String(loopPoint);
+            };
+            measureLoopPoint();
+            window.addEventListener('resize', measureLoopPoint, { passive: true });
+
+            container.addEventListener('pointerenter', () => { hovering = true; });
+            container.addEventListener('pointerleave', () => { hovering = false; });
+            container.addEventListener('pointerdown', () => { track.dataset.pauseUntil = String(performance.now() + 5000); }, { passive: true });
+            container.addEventListener('focusin', () => { track.dataset.pauseUntil = String(performance.now() + 5000); });
+            container.addEventListener('wheel', () => { track.dataset.pauseUntil = String(performance.now() + 2200); }, { passive: true });
+
+            track.addEventListener('pointerdown', event => {
+                if (event.pointerType === 'touch' || event.button !== 0) return;
+                pointerDown = true;
+                dragged = false;
+                pointerStartX = event.clientX;
+                startingScroll = track.scrollLeft;
+                track.dataset.pauseUntil = String(performance.now() + 5000);
+                track.classList.add('is-dragging');
+                try { track.setPointerCapture(event.pointerId); } catch (_) {}
+            });
+            track.addEventListener('pointermove', event => {
+                if (!pointerDown) return;
+                const deltaX = event.clientX - pointerStartX;
+                if (!dragged && Math.abs(deltaX) > 5) dragged = true;
+                if (dragged) {
+                    track.scrollLeft = startingScroll - deltaX;
+                    event.preventDefault();
+                }
+            });
+            const finishPointer = () => {
+                if (!pointerDown) return;
+                pointerDown = false;
+                track.classList.remove('is-dragging');
+                if (dragged) {
+                    suppressClick = true;
+                    track.dataset.pauseUntil = String(performance.now() + 3500);
+                    setTimeout(() => { suppressClick = false; }, 0);
+                }
+            };
+            track.addEventListener('pointerup', finishPointer);
+            track.addEventListener('pointercancel', finishPointer);
+            track.addEventListener('lostpointercapture', finishPointer);
+            track.addEventListener('click', event => {
+                if (!suppressClick) return;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                suppressClick = false;
+            }, true);
+            track.addEventListener('keydown', event => {
+                if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    scrollPortfolioBy(event.key === 'ArrowRight' ? 1 : -1);
+                }
+            });
+
+            const visibilityObserver = new IntersectionObserver(entries => {
+                visible = entries[0]?.isIntersecting || false;
+                previousTime = 0;
+            }, { threshold: 0.05 });
+            visibilityObserver.observe(container);
+
+            const animate = now => {
+                if (!previousTime) previousTime = now;
+                const delta = Math.min(now - previousTime, 48);
+                previousTime = now;
+                const pauseUntil = Number(track.dataset.pauseUntil || 0);
+                const shouldAutoplay = visible && !hovering && !pointerDown && !reducedMotion.matches && now >= pauseUntil && loopPoint > 0;
+                track.classList.toggle('is-autoplaying', shouldAutoplay);
+                if (shouldAutoplay) {
+                    track.scrollLeft += delta * 0.014;
+                    if (track.scrollLeft >= loopPoint) track.scrollLeft %= loopPoint;
+                }
+                requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
         }
 
         async function handleSubscribe(e) {
