@@ -454,8 +454,11 @@
         #sect-portfolio .portfolio-track::-webkit-scrollbar { display: none; }
         #sect-portfolio .portfolio-track.is-autoplaying,
         #sect-portfolio .portfolio-track.is-dragging { scroll-snap-type: none; }
-        #sect-portfolio .portfolio-track { padding-block: 10px 18px; }
-        #sect-portfolio .portfolio-item { scroll-snap-align: center; }
+        #sect-portfolio .portfolio-track { padding-block: 10px 98px; }
+        #sect-portfolio .portfolio-item {
+            scroll-snap-align: center;
+            transform: translate3d(0, var(--portfolio-curve-y, 0px), 0);
+        }
         #sect-portfolio .portfolio-card-inner {
             transform: translateZ(0);
             transition: transform 650ms cubic-bezier(0.2, 0.75, 0.25, 1), border-color 500ms ease, box-shadow 500ms ease;
@@ -1294,7 +1297,7 @@
                 </div>
             </div>
 
-            <div class="w-full overflow-hidden pb-24 pt-8 relative reveal-scale" id="portfolioSliderContainer">
+            <div class="w-full overflow-hidden pb-8 pt-8 relative reveal-scale" id="portfolioSliderContainer">
                 <div class="absolute left-0 top-12 bottom-0 w-10 md:w-24 bg-gradient-to-r from-[#050505] to-transparent z-20 pointer-events-none"></div>
                 <div class="absolute right-0 top-12 bottom-0 w-10 md:w-24 bg-gradient-to-l from-[#050505] to-transparent z-20 pointer-events-none"></div>
 
@@ -3810,16 +3813,28 @@
             let previousTime = 0;
             const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+            const updateCardArc = () => {
+                const center = track.scrollLeft + track.clientWidth / 2;
+                const effectRadius = window.innerWidth / 1.5;
+                const maxDip = window.innerWidth < 768 ? 40 : 80;
+                for (const item of track.querySelectorAll(':scope > .portfolio-item')) {
+                    const cardCenter = item.offsetLeft + item.offsetWidth / 2;
+                    const ratio = 1 - Math.abs(center - cardCenter) / effectRadius;
+                    const curve = ratio > 0 ? Math.sin(ratio * Math.PI / 2) * maxDip : 0;
+                    item.style.setProperty('--portfolio-curve-y', `${curve.toFixed(2)}px`);
+                }
+            };
             const measureLoopPoint = () => {
                 const nextSet = track.children[originalCount];
                 loopPoint = nextSet ? nextSet.offsetLeft - track.children[0].offsetLeft : 0;
                 track.dataset.loopPoint = String(loopPoint);
+                updateCardArc();
             };
             measureLoopPoint();
             window.addEventListener('resize', measureLoopPoint, { passive: true });
 
-            container.addEventListener('pointerenter', () => { hovering = true; });
-            container.addEventListener('pointerleave', () => { hovering = false; });
+            container.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') hovering = true; });
+            container.addEventListener('pointerleave', event => { if (event.pointerType !== 'touch') hovering = false; });
             container.addEventListener('pointerdown', () => { track.dataset.pauseUntil = String(performance.now() + 5000); }, { passive: true });
             container.addEventListener('focusin', () => { track.dataset.pauseUntil = String(performance.now() + 5000); });
             container.addEventListener('wheel', () => { track.dataset.pauseUntil = String(performance.now() + 2200); }, { passive: true });
@@ -3883,9 +3898,11 @@
                 const shouldAutoplay = visible && !hovering && !pointerDown && !reducedMotion.matches && now >= pauseUntil && loopPoint > 0;
                 track.classList.toggle('is-autoplaying', shouldAutoplay);
                 if (shouldAutoplay) {
-                    track.scrollLeft += delta * 0.014;
+                    // Match the original steady marquee pace while using elapsed time for frame-rate independence.
+                    track.scrollLeft += delta * 0.072;
                     if (track.scrollLeft >= loopPoint) track.scrollLeft %= loopPoint;
                 }
+                if (visible) updateCardArc();
                 requestAnimationFrame(animate);
             };
             requestAnimationFrame(animate);
